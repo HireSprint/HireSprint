@@ -13,9 +13,12 @@ export const getProductsRF = async () => {
     }).eachPage(
       function page(records, fetchNextPage) {
         records.forEach(function(record) {
+          const attachments = record.get('Product_Image');
+          const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
           allProducts.push({
             id: record.id,
             name: record.get('Product_Name'),
+            image: imageUrl
 
           });
         });
@@ -25,9 +28,9 @@ export const getProductsRF = async () => {
       function done(err) {
         if (err) {
           console.error(err);
-          reject(err); // Rechazar en caso de error
+          reject(err); 
         } else {
-          resolve(allProducts); // Resolver con todos los productos
+          resolve(allProducts); 
         }
       }
     );

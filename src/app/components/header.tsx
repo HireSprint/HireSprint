@@ -3,9 +3,11 @@
 import React from 'react';
 import { useState } from 'react';
 import DesignComponent from './desing';
+import { useRouter } from 'next/navigation';
 
 
 export default function Header() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDesignOpen, setIsDesignOpen] = useState(false);
   const handleMenu = () => {
@@ -26,7 +28,7 @@ export default function Header() {
           <button onClick={toggleDesign} className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño </button>
           <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
           <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
-          <button className="underline cursor-pointer hover:text-green-200">Exportar a Excel</button>
+          <button className="underline cursor-pointer hover:text-green-200" onClick={ () => router.push('/productos')}>Productos</button>
           <input type="text" className="p-2 text-center" placeholder="Nombre de la tabla" />
           <button className="bg-green-200 text-black p-2">Sincronizar con airtable</button>
         </div>
