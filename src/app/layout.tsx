@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import Header from "./components/header";
+import { ProductProvider } from "./context/productContext";
+
 
 export const metadata: Metadata = {
   title: "Retail Fluent",
@@ -16,8 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-      <Header/>
-        {children}
+      <ProductProvider>
+          <Header />
+          {children}
+        </ProductProvider>
       </body>
     </html>
   );

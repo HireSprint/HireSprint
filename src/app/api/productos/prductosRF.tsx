@@ -1,16 +1,20 @@
+
 import Airtable from "airtable";
 
-// Inicializa la base de Airtable
+
+
 const baseRF = new Airtable({ apiKey: 'pat43oy35gnnqisLE.00e929837212ed5b878c453028fd6dbe7275950a15d764ebdc3152174d5c4edc' }).base('app1cSmD9pprWVvGd');
-
-export const getProductsRF = async (searchTerm = '') => {
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+}
+export const getProductsRF = async (searchTerm = ''): Promise<Product[]> => {
   return new Promise((resolve, reject) => {
-    const allProducts = [];
-
-    // Filtros para buscar por nombre
+    const allProducts: Product[] = []; 
     const filterFormula = searchTerm ? 
-      SEARCH('${searchTerm}', {Product_Name}) : 
-      '';
+      `SEARCH('${searchTerm}', {Product_Name})` : 
+      ''; 
 
     baseRF('Products-RF').select({
       view: "Grid view",
@@ -18,15 +22,15 @@ export const getProductsRF = async (searchTerm = '') => {
     }).eachPage(
       function page(records, fetchNextPage) {
         records.forEach(function(record) {
-          const attachments = record.get('Product_Image');
+          const attachments = record.get('Product_Image') as { url: string }[] | undefined;
           const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
+
           allProducts.push({
             id: record.id,
-            name: record.get('Product_Name'),
+            name: record.get('Product_Name') as string,
             image: imageUrl
           });
         });
-
         fetchNextPage();
       },
       function done(err) {
@@ -41,26 +45,33 @@ export const getProductsRF = async (searchTerm = '') => {
   });
 };
 
-export const getProductsByTableName = async (tableName) => {
-  return new Promise((resolve, reject) => {
-    const allProducts = [];
 
-    // Asegúrate de que 'Table_Name' sea el nombre correcto del campo
-    baseRF('Products-RF').select({
-      view: "Grid view",
-      filterByFormula: `{Table_Name} = '${tableName}'`
+export const getTableName = async (tableName = ''): Promise<Product[]> => {
+  return new Promise((resolve, reject) => {
+    const allProducts: Product[] = [];
+
+    if (!tableName) {
+      reject(new Error('El nombre de la tabla no puede estar vacío.'));
+      return;
+    }
+
+    baseRF(tableName).select({
+      view: "Grid view", 
     }).eachPage(
       function page(records, fetchNextPage) {
-        records.forEach(function(record) {
-          const attachments = record.get('Product_Image');
+        records.forEach(function (record) {
+          const attachments = record.get('Product_Image (from Products-RF)') as { url: string }[] | undefined;
           const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
+          
+          const names = record.get('Product_Name (from Products-RF)') as string[] | undefined; 
+          const productName = names && names.length > 0 ? names[0] : 'Sin nombre'; 
+
           allProducts.push({
             id: record.id,
-            name: record.get('Product_Name'),
-            image: imageUrl
+            name: productName, 
+            image: imageUrl,
           });
         });
-
         fetchNextPage();
       },
       function done(err) {

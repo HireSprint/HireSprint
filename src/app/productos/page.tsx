@@ -4,6 +4,7 @@ import { getProductsRF } from '../api/productos/prductosRF';
 import CardProduct from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
+import Sidebar from '../components/sideBar';
 
 interface Product {
   id: string; 
@@ -15,8 +16,11 @@ const ProductosBase = () => {
   const [products, setProducts] = useState<Product[]>([]); 
   const [loading, setLoading] = useState(true); 
   const [searchTerm, setSearchTerm] = useState(""); 
-  const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
-  const productsPerPage = 12; // Número de productos por página
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]); 
+  const [customerName, setCustomerName] = useState<string>(""); 
+  const [showSidebar, setShowSidebar] = useState(false);
+  const productsPerPage = 12;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,35 +41,28 @@ const ProductosBase = () => {
     product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calcular los índices de inicio y fin para la paginación
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct); // Productos a mostrar
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct); 
 
-  // Calcular el número total de páginas
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  // Manejar el cambio de página
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  // Determinar el rango de botones de página
   const getPageNumbers = () => {
     const pageNumbers: number[] = [];
-    const maxVisiblePages = 5; // Máximo de botones visibles
+    const maxVisiblePages = 5; 
 
     if (totalPages <= maxVisiblePages) {
-      // Si hay menos o igual que maxVisiblePages, mostrar todos
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Si hay más páginas, calcular el rango a mostrar
       const startPage = Math.max(1, currentPage - 2);
       const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
       
-      // Ajustar el rango si está cerca del final
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
@@ -73,6 +70,24 @@ const ProductosBase = () => {
 
     return pageNumbers;
   };
+
+  const handleSelectProduct = (id: Product) => {
+    setSelectedProducts(prev => {
+      if (!prev.includes(id)) {
+        console.log("Producto seleccionado:", id); 
+        return [...prev, id]; 
+      }
+      console.log("El producto ya fue seleccionado:", id); 
+      return prev; 
+    })
+    setShowSidebar(true)
+    ;
+  };
+  const handleSidebarClose = () => {
+    setShowSidebar(false);
+  };
+
+  console.log(selectedProducts)
 
   return (
     <div className="flex flex-col justify-center items-center text-black">
@@ -94,14 +109,16 @@ const ProductosBase = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentProducts.map(product => (
-            <CardProduct key={product.id} product={product} />
+            <CardProduct 
+              key={product.id} 
+              product={product} 
+              onProductSelect={handleSelectProduct}
+            />
           ))}
         </div>
       )}
 
-      {/* Controles de paginación */}
       <div className="flex justify-center mt-4">
-        {/* Botón de la primera página */}
         {currentPage > 1 && (
           <button
             onClick={() => handlePageChange(1)}
@@ -111,7 +128,6 @@ const ProductosBase = () => {
           </button>
         )}
 
-        {/* Botones de las páginas visibles */}
         {getPageNumbers().map(number => (
           <button
             key={number}
@@ -122,20 +138,24 @@ const ProductosBase = () => {
           </button>
         ))}
 
-        {/* Botón "Siguiente" */}
         {currentPage < totalPages && (
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             className="mx-1 px-3 py-1 border rounded bg-white text-black"
           >
-            &gt; {/* Esto representa una flecha hacia la derecha */}
+            &gt; 
           </button>
         )}
       </div>
+      {showSidebar && (
+        <Sidebar 
+          selectedProducts={selectedProducts} 
+          customerName={customerName} 
+          onClose={handleSidebarClose} 
+        />
+      )}
     </div>
   );
 }
 
 export default ProductosBase;
-
-

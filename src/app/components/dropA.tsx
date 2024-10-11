@@ -2,11 +2,13 @@ import Image from 'next/image'
 import React, { useCallback, useState, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 
+type FileWithPreview = File & { preview: string };
+
 function MyDropzone({ className }: { className: string }) {
-  const [files, setFiles] = useState<any[]>([]) 
-  const [scale, setScale] = useState(1); // Estado para el zoom
-  const [isDragging, setIsDragging] = useState(false); // Estado para el arrastre
-  const [position, setPosition] = useState({ x: 0, y: 0, offsetX: 0, offsetY: 0 }); // Posición de la imagen
+  const [files, setFiles] = useState<FileWithPreview[]>([]) 
+  const [scale, setScale] = useState(1); 
+  const [isDragging, setIsDragging] = useState(false); 
+  const [position, setPosition] = useState({ x: 0, y: 0, offsetX: 0, offsetY: 0 }); 
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -35,23 +37,24 @@ function MyDropzone({ className }: { className: string }) {
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.1 : -0.1; // Determina la dirección del zoom
-    setScale(prevScale => Math.max(prevScale + delta, 0.1)); // Limitar el zoom mínimo
+    const delta = e.deltaY > 0 ? 0.1 : -0.1; 
+    setScale(prevScale => Math.max(prevScale + delta, 0.1)); 
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    const imgContainer = e.currentTarget; // Captura el contenedor de la imagen
-    const offsetX = e.clientX - imgContainer.offsetLeft; // Distancia desde el borde izquierdo
-    const offsetY = e.clientY - imgContainer.offsetTop; // Distancia desde el borde superior
+    const imgContainer = e.currentTarget as HTMLDivElement;
+    if (imgContainer) {
+      setIsDragging(true);
+      const offsetX = e.clientX - imgContainer.offsetLeft; 
+      const offsetY = e.clientY - imgContainer.offsetTop;
 
-    // Establece la posición inicial de arrastre
-    setPosition({
-      x: imgContainer.offsetLeft,
-      y: imgContainer.offsetTop,
-      offsetX,
-      offsetY,
-    });
+      setPosition({
+        x: imgContainer.offsetLeft,
+        y: imgContainer.offsetTop,
+        offsetX,
+        offsetY,
+      });
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -71,6 +74,10 @@ function MyDropzone({ className }: { className: string }) {
     setIsDragging(false);
   };
 
+  const handleRemoveImage = (fileName: string) => {
+    setFiles(files => files.filter(file => file.name !== fileName));
+  };
+
   return (
     <form>
       <div {...getRootProps({ className })}>
@@ -79,7 +86,7 @@ function MyDropzone({ className }: { className: string }) {
         {files.length === 0 && (isDragActive ? (
           <p className='border-2 border-black w-8 h-8'>Arrastra las Imágenes Aquí...</p>
         ) : (
-          <p className='cursor-pointer'>Añadir Imagen</p>
+          <p>Añadir Imagen</p>
         ))}
       </div>
 
@@ -99,6 +106,13 @@ function MyDropzone({ className }: { className: string }) {
                 cursor: isDragging ? 'grabbing' : 'grab',
               }}
             >
+              <button
+              type="button"
+              onClick={() => handleRemoveImage(file.name)}
+              className='absolute right-8 bg-red-600 text-white rounded-full p-2 cursor-pointer w-10 h-10 z-12'
+            >
+              X
+            </button>
               <Image
                 src={file.preview}
                 alt={file.name}

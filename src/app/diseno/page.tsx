@@ -4,9 +4,8 @@ import MyDropzone from "../components/dropA";
 const Diseno = () => {
 
     return ( 
-        <div className="">
-    <h1 className="title text-3x1 font-bold text-black">Upload Files</h1>
-  <MyDropzone className=" text-black w-full h-[90vh] flex items-center justify-center"/> 
+        <div className="flex items-center justify-center h-[90vh] ">
+  <MyDropzone className=" text-black  p-12 rounded border-2 border-solid border-green-400 cursor-pointer"/> 
     </div>
   );
 }
