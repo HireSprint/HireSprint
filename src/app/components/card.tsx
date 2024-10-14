@@ -10,14 +10,14 @@ interface Product {
 
 interface CardProductProps {
   product: Product;
-  onProductSelect: (product: Product) => void; // New prop
+  onProductSelect: (product: Product) => void; 
 }
 
 const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
     <div 
-      className="border rounded-lg shadow-md p-4 max-w-xs hover:shadow-lg cursor-pointer" 
-      onClick={() => onProductSelect(product)} // Handle click
+      className="border rounded-lg shadow-md p-4 hover:shadow-lg cursor-pointer flex-shrink-0 w-64" 
+      onClick={() => onProductSelect(product)} 
     >
       {product.image ? (
         <Image
@@ -31,8 +31,8 @@ const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) =
           <span className="text-gray-500">No image available</span>
         </div>
       )}
-      <div className="mt-4">
-        <h2 className="text-lg font-semibold text-black">{product.name}</h2>
+      <div className="">
+        <h2 className="font-semibold text-black ">{product.name}</h2>
       </div>
     </div>
   );

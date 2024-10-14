@@ -11,13 +11,13 @@ export default function Home() {
 
   const handleSelectProduct = (id: string) => {
     setSelectedProducts((prev) => {
-      // Solo agregar si no está en la lista
+      
       if (!prev.includes(id)) {
-        console.log("Producto seleccionado:", id); // Log al seleccionar
-        return [...prev, id]; // Agregar el ID al array
+        console.log("Producto seleccionado:", id); 
+        return [...prev, id]; 
       }
-      console.log("El producto ya fue seleccionado:", id); // Log si ya estaba seleccionado
-      return prev; // No hacer nada si ya está en la lista
+      console.log("El producto ya fue seleccionado:", id); 
+      return prev; 
     });
   };
 

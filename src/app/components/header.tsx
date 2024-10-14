@@ -2,26 +2,19 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTableName } from '../api/productos/prductosRF';
-import { useProductContext } from '../context/productContext'; 
+
 
 export default function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [tableName, setTableName] = useState('');
-  const { setProducts, setClient } = useProductContext();
+
+ 
 
   const handleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const fetchedProducts = await getTableName(tableName);
-    setProducts(fetchedProducts);
-    setClient(tableName)
-    
-  };
+
 
   return (
     <div className="flex justify-between items-center p-4 bg-background">
@@ -34,16 +27,7 @@ export default function Header() {
         <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
         <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
         <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/productos')}>Productos</button>
-        <form onSubmit={handleSearch} className="flex space-x-2">
-          <input 
-            type="text" 
-            value={tableName} 
-            onChange={(e) => setTableName(e.target.value)} 
-            className="p-2 text-center text-black" 
-            placeholder="Nombre de la tabla" 
-          />
-          <button type="submit" className="bg-green-200 text-black p-2">Sincronizar Tienda</button>
-        </form>
+
       </div>
 
       {isMenuOpen && (
@@ -52,16 +36,6 @@ export default function Header() {
         <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
         <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
         <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/productos')}>Productos</button>
-        <form onSubmit={handleSearch} className="flex space-x-2">
-          <input 
-            type="text" 
-            value={tableName} 
-            onChange={(e) => setTableName(e.target.value)} 
-            className="p-2 text-center text-black" 
-            placeholder="Nombre de la tabla" 
-          />
-          <button type="submit" className="bg-green-200 text-black p-2">Sincronizar Tienda</button>
-        </form>
         </div>
       )}
     </div>
