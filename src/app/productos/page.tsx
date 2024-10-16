@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { getProductsRF } from '../api/productos/prductosRF'; 
-import CardProduct from '../components/card';
+import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from '../components/sideBar';

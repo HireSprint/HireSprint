@@ -1,267 +1,210 @@
 "use client"
-import CardProduct from "../components/card";
+import  { CardSide, CardProduct} from "../components/card";
 import MyDropzone from "../components/dropA";
-import { getTableName } from "../api/productos/prductosRF";
-import { useState } from "react";
-import { useProductContext } from "../context/productContext";
-import Draggable from "react-draggable";
+import { getProductsRF } from "../api/productos/prductosRF";
+import { useEffect, useState } from "react";
+import Lottie from "lottie-react";
+import LoadingLottie from "../components/lottie/loading-Lottie.json";
+import Sidebar from "../components/sideBar";
+
 
 interface Product
 {
   id: string;
   name: string;
   image: string;
+  gridId?: number;
 }
 interface Grid
 {
   id: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  products: Product[];
+  product: Product | null; 
 }
 
-const Diseno = () =>
-{
-  const [ showProducts, setShowProducts ] = useState( false );
-  const { setProducts, setClient } = useProductContext();
-  const [ tableName, setTableName ] = useState( "" );
-  const [ grids, setGrids ] = useState<Grid[]>( [] );
 
-  const toggleProducts = () => setShowProducts( ( prev ) => !prev );
+const Diseno = () => {
+  const [showProducts, setShowProducts] = useState(false);
+  const [selectedGridId, setSelectedGridId] = useState<number | null>(null); // Estado para el grid seleccionado
+  const [grids, setGrids] = useState<Grid[]>(generateDefaultGrids());
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sideBarVisible, setSideBarVisible] = useState(false);
 
-  const resizeGrid = ( id: number, newWidth?: number, newHeight?: number ) =>
-  {
-    setGrids( ( prevGrids ) =>
-      prevGrids.map( ( grid ) =>
-        grid.id === id
-          ? {
-            ...grid,
-            width: newWidth !== undefined ? newWidth : grid.width,
-            height: newHeight !== undefined ? newHeight : grid.height,
-          }
-          : grid
-      )
-    );
-    console.log( newHeight, newWidth )
-  };
-  const handleSearch = async ( e: React.FormEvent ) =>
-  {
-    e.preventDefault();
-    try
-    {
-      const fetchedProducts = await getTableName( tableName );
-      setProducts( fetchedProducts );
-      setClient( tableName );
-    } catch ( error )
-    {
-      console.error( "Error al obtener los productos:", error );
-    }
-  };
 
-  const addGrid = () =>
-  {
-    const newGrid: Grid = {
-      id: grids.length + 1,
-      x: 0,
-      y: 0,
-      width: 180,
-      height: 150,
-      products: [],
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsData = await getProductsRF();
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    setGrids( [ ...grids, newGrid ] );
-  };
+
+    fetchProducts();
+  }, []);
+
+  // Grids predeterminados
+  function generateDefaultGrids(): Grid[] {
+    return Array.from({ length: 12 }, (_, index) => ({
+      id: index + 1,
+      product: null,
+    }));
+  }
 
 
-  const removeGrid = ( id: number ) =>
-  {
-    setGrids( ( prevGrids ) => prevGrids.filter( ( grid ) => grid.id !== id ) );
-  };
-
-  const handleProductSelect = ( product: Product ) =>
-  {
-    const availableGrid = grids.find( ( grid ) => grid.products.length === 0 );
-
-    if ( !availableGrid )
-    {
-      console.error( "No hay cuadros disponibles para asignar el producto." );
-      return;
-    }
-
-    setGrids( ( prevGrids ) =>
-      prevGrids.map( ( grid ) =>
-        grid.id === availableGrid.id
-          ? { ...grid, products: [ ...grid.products, product ] }
-          : grid
+  const handleProductSelect = (product: Product) => {
+    if (selectedGridId === null) return;
+  
+    const productWithGrid = { ...product, gridId: selectedGridId };
+  
+    // Actualizar el grid seleccionado con el nuevo producto
+    setGrids((prevGrids) =>
+      prevGrids.map((grid) =>
+        grid.id === selectedGridId ? { ...grid, product: productWithGrid } : grid
       )
     );
+  
+    // Verificar si ya existe un producto para el mismo gridId
+    setSelectedProducts((prev) => {
+      const exists = prev.some((p) => p.gridId === selectedGridId);
+      if (exists) {
+        // Reemplazar producto existente
+        return prev.map((p) =>
+          p.gridId === selectedGridId ? productWithGrid : p
+        );
+      } else {
+        // Añadir nuevo producto
+        return [...prev, productWithGrid];
+      }
+    });
   };
-
 
 
   return (
-    <div className="relative flex flex-col h-screen items-center">
-      <div className="m-4 flex">
-        <form onSubmit={ handleSearch } className="flex space-x-2">
-          <input
-            type="text"
-            value={ tableName }
-            onChange={ ( e ) => setTableName( e.target.value ) }
-            className="p-2 text-center text-black"
-            placeholder="Nombre de la tabla"
+    <div className="relative flex h-screen items-center justify-center flex-col">
+      {/* Contenedor de los grids y zona de drop */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-2 p-2 border-2 border-black">
+          {grids.map((grid) => (
+            <div
+              key={grid.id}
+              onClick={() => {
+                setSelectedGridId(grid.id);
+                setShowProducts(true);
+              }}
+              className={`w-36 h-36 border-2 cursor-pointer ${
+                grid.id === selectedGridId
+                  ? 'bg-red-300'
+                  : grid.product
+                  ? 'bg-green-500'
+                  : 'bg-red-500 hover:bg-red-300'
+              }`}
+            >
+              {grid.product ? (
+                <CardSide product={grid.product} />
+              ) : (
+                <p className="text-center">Grid {grid.id}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="border-2 border-black flex justify-center items-center">
+          <MyDropzone className="border-green-400 border-2 text-green-500 p-4 cursor-pointer" />
+        </div>
+      </div>
+
+      {/* Mostrar / Ocultar productos */}
+      <div className="flex mt-4">
+        {showProducts ? (
+          <GridProduct
+            products={products}
+            loading={loading}
+            onProductSelect={handleProductSelect}
+            onHideProducts={() => setShowProducts(false)}
           />
-          <button type="submit" className="bg-green-200 text-black p-2">
-            Sincronizar Tienda
-          </button>
-        </form>
-      </div>
-
-      <div className="grid grid-cols-2 w-11/12 h-[90%] space-x-2">
-        <div className="border-2 border-black flex justify-center items-center">
-          <MyDropzone className="border-green-400 border-2 text-green-500 p-4 cursor-pointer" />
-        </div>
-        <div className="border-2 border-black flex justify-center items-center">
-          <MyDropzone className="border-green-400 border-2 text-green-500 p-4 cursor-pointer" />
-        </div>
-      </div>
-
-
-
-      <div className="absolute cursor-pointer top-2/4 left-2/4">
-        { grids.map( ( grid ) => (
-          <div
-            key={ grid.id }
-            className="absolute"
-            style={ {
-              width: grid.width,
-              height: grid.height,
-              top: `${ grid.y }px`,
-              left: `${ grid.x }px`,
-            } }
-          >
-            <Draggable>
-              <div className="border border-blue-500 bg-white p-2" style={ { height: '100%', width: '100%' } }>
-                <div className="flex space-x-1 relative bottom-12 left-0">
-                  <button
-                    onClick={ () => resizeGrid( grid.id, grid.width + 10, undefined ) }
-                    className="bg-green-500 p-1 rounded"
-                  >
-                    +W
-                  </button>
-                  <button
-                    onClick={ () => resizeGrid( grid.id, grid.width - 10, undefined ) }
-                    className="bg-green-500 p-1 rounded"
-                  >
-                    -W
-                  </button>
-                  <button
-                    onClick={ () => resizeGrid( grid.id, undefined, grid.height + 10 ) }
-                    className="bg-blue-500 p-1 rounded"
-                  >
-                    +H
-                  </button>
-                  <button
-                    onClick={ () => resizeGrid( grid.id, undefined, grid.height - 10 ) }
-                    className="bg-blue-500 p-1 rounded"
-                  >
-                    -H
-                  </button>
-                  <button
-                    onClick={ () => removeGrid( grid.id ) }
-                    className="bg-red-500 text-white p-2 w-fit h-fit rounded"
-                  >
-                    x
-                  </button>
-                </div>
-                <div className="">
-                <p>Cuadro { grid.id }</p>
-                  { grid.products.length > 0 ? (
-                    grid.products.map( ( product ) => (
-                      <div key={ product.id } className="border p-1 w-2/5 h-2/5 ">
-                        { product.name }
-                      </div>
-                    ) )
-                  ) : (
-                    <p>No hay productos en este cuadro.</p>
-                  ) }
-                </div>
-              </div>
-            </Draggable>
-          </div>
-        ) ) }
-      </div>
-      <div className="flex space-x-2 ">
-      <button
-        onClick={ addGrid }
-        className="mt-4 bg-green-500 text-white p-2 rounded"
-        >
-        Añadir Cuadro
-      </button>
-      <div>
-        { showProducts ? (
-          <GridProduct onHideProducts={ toggleProducts } onProductSelect={ handleProductSelect } />
         ) : (
           <button
-          onClick={ toggleProducts }
-          className="mt-4 bg-blue-500 text-white p-2 rounded"
+            onClick={() => setShowProducts(true)}
+            className="bg-blue-500 text-white p-2 rounded"
           >
             Mostrar Productos
           </button>
-        ) }
+        )}
       </div>
-        </div>
+      <button className="absolute right-0 bg-black w-12 h-20 rounded-l-full" onClick={() => setSideBarVisible(true)}>
+      </button>
+      {/* Sidebar de productos seleccionados */}
+      {sideBarVisible && (
+        <Sidebar
+          selectedProducts={selectedProducts}
+          onClose={() => setSideBarVisible(false)}
+        />
+      )}
     </div>
   );
 };
 
-interface GridProductProps
-{
-  onHideProducts: () => void;
-  onProductSelect: ( product: Product ) => void;
+interface GridProductProps {
+  products: Product[];
+  loading: boolean;
+  onProductSelect: (product: Product) => void;
+  onHideProducts?: () => void;
 }
 
-const GridProduct: React.FC<GridProductProps> = ( { onHideProducts, onProductSelect } ) =>
-{
-  const { products } = useProductContext();
-  const [ searchTerm, setSearchTerm ] = useState( "" );
+const GridProduct: React.FC<GridProductProps> = ({
+  products,
+  loading,
+  onProductSelect,
+  onHideProducts,
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredProducts = products.filter(
-    ( product ) =>
-      product.name &&
-      product.name.toLowerCase().includes( searchTerm.toLowerCase() )
+  const filteredProducts = products.filter((product) =>
+    product.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="absolute bottom-0 left-0 w-full bg-gray-200 p-4">
-      <input
-        type="text"
-        placeholder="Buscar productos..."
-        value={ searchTerm }
-        onChange={ ( e ) => setSearchTerm( e.target.value ) }
-        className="mb-4 p-2 border rounded "
-      />
-      <div className="flex overflow-x-auto space-x-4 whitespace-nowrap">
-        { filteredProducts.length > 0 ? (
-          filteredProducts.map( ( product ) => (
-            <CardProduct product={ product } key={ product.id } onProductSelect={ onProductSelect } />
-          ) )
-        ) : (
-          <p>No hay productos disponibles.</p>
-        ) }
-      </div>
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-between">
+        <input
+          type="text"
+          placeholder="Buscar productos..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-4 p-2 border rounded text-black"
+        />
         <button
-          onClick={ onHideProducts }
+          onClick={onHideProducts}
           className="bg-red-500 text-white p-2 rounded"
         >
           Ocultar Productos
         </button>
+      </div>
+
+      <div className="flex overflow-x-auto space-x-4 whitespace-nowrap">
+        {loading ? (
+          <div className="flex justify-center items-center w-64 h-64">
+            <Lottie animationData={LoadingLottie} />
+          </div>
+        ) : filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <CardProduct
+              product={product}
+              key={product.id}
+              onProductSelect={onProductSelect}
+            />
+          ))
+        ) : (
+          <p>No se encontraron productos.</p>
+        )}
       </div>
     </div>
   );
 };
 
 export default Diseno
-
-
