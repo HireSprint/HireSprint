@@ -24,17 +24,12 @@ export default function Header() {
       </div>
       <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex">
         <button onClick={() => router.push('/diseno')} className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño</button>
-        <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
-        <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
         <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/productos')}>Productos</button>
-
+        <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/pdfComp')}>PDF</button>
       </div>
-
       {isMenuOpen && (
         <div className="flex flex-col space-y-4 md:hidden items-start absolute bg-black p-3 top-16 right-0">
         <button onClick={() => router.push('/diseno')} className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño</button>
-        <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
-        <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
         <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/productos')}>Productos</button>
         </div>
       )}

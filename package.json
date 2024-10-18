@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build mybuildscript",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "move-static": "cp -a ./node_modules/@pdftron/webviewer/public/. ./dist/public/webviewer"
   },
   "dependencies": {
+    "@pdftron/webviewer": "^10.12.0",
     "airtable": "^0.12.2",
     "lottie-react": "^2.4.0",
     "next": "14.2.14",
