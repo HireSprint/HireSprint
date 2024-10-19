@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
-
+import { motion } from "framer-motion"; // Para animaciones
+import PdfViewerComponent from "../components/PdfViewerComponent";
 
 interface Product
 {
@@ -85,12 +86,12 @@ const Diseno = () => {
 
 
   return (
-    <div className="relative flex h-screen items-center justify-center flex-col">
+    <div className="relative flex flex-col h-screen items-center justify-center">
       {/* Contenedor de los grids y zona de drop */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 w-full">
         <div className="grid grid-cols-4 gap-2 p-2 border-2 border-black">
           {grids.map((grid) => (
-            <div
+            <motion.div
               key={grid.id}
               onClick={() => {
                 setSelectedGridId(grid.id);
@@ -103,30 +104,42 @@ const Diseno = () => {
                   ? 'bg-green-500'
                   : 'bg-red-500 hover:bg-red-300'
               }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, y: 20 }}
             >
               {grid.product ? (
                 <CardSide product={grid.product} />
               ) : (
                 <p className="text-center">Grid {grid.id}</p>
               )}
-            </div>
+            </motion.div>
           ))}
         </div>
 
         <div className="border-2 border-black flex justify-center items-center">
-          <MyDropzone className="border-green-400 border-2 text-green-500 p-4 cursor-pointer" />
+          <PdfViewerComponent initialCuadros={1}/>
         </div>
       </div>
 
       {/* Mostrar / Ocultar productos */}
       <div className="flex mt-4">
         {showProducts ? (
-          <GridProduct
-            products={products}
-            loading={loading}
-            onProductSelect={handleProductSelect}
-            onHideProducts={() => setShowProducts(false)}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            exit={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute bottom-0 left-0 w-full bg-gray-200 p-4"
+          >
+            <GridProduct
+              products={products}
+              loading={loading}
+              onProductSelect={handleProductSelect}
+              onHideProducts={() => setShowProducts(false)}
+            />
+          </motion.div>
         ) : (
           <button
             onClick={() => setShowProducts(true)}
@@ -136,14 +149,27 @@ const Diseno = () => {
           </button>
         )}
       </div>
-      <button className="absolute right-0 bg-black w-12 h-20 rounded-l-full" onClick={() => setSideBarVisible(true)}>
+
+      <button
+        className="absolute right-0 bg-black w-12 h-20 rounded-l-full"
+        onClick={() => setSideBarVisible(true)}
+      >
       </button>
+
       {/* Sidebar de productos seleccionados */}
       {sideBarVisible && (
-        <Sidebar
-          selectedProducts={selectedProducts}
-          onClose={() => setSideBarVisible(false)}
-        />
+        <motion.div
+          initial={{ x: 300, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 300, opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute right-0 bg-white w-64 h-full shadow-lg"
+        >
+          <Sidebar
+            selectedProducts={selectedProducts}
+            onClose={() => setSideBarVisible(false)}
+          />
+        </motion.div>
       )}
     </div>
   );

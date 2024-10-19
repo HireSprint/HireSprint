@@ -29,8 +29,21 @@ const PdfComponent: React.FC<PDFViewerProps> = ({ initialCuadros }) => {
       WebViewer({
           fullAPI: true,
           path: '/lib',
-          initialDoc: '/file/demoUpdated.pdf',
+          initialDoc: '/file/voceto.pdf',
           licenseKey: 'demo:1729194445261:7e1f3970030000000031fed22190e04bc631e1d19e8c1f27f1765967ee',
+          ui: false,
+          disabledElements: [
+            'toolsHeader',
+            'viewControlsOverlay',
+            'menuOverlay',
+            'contextMenuPopup',
+            'toolbarGroup-Annotate',
+            'toolbarGroup-Edit',
+            'toolbarGroup-Insert',
+            'toolbarGroup-Measure',
+            'toolbarGroup-Forms',
+            'header'
+          ]
         },
         viewer.current
       ).then((instance: WebViewerInstance) => {
