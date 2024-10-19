@@ -1,42 +1,38 @@
-"use client"
+"use client";
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 
 export default function Header() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+ 
+
   const handleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
+
 
 
   return (
     <div className="flex justify-between items-center p-4 bg-background">
-      <h1 className="text-2xl font-bold text-foreground">Retail Fluent</h1>
+      <button className="text-2xl font-bold text-foreground" onClick={() => router.push('/')}>Retail Fluent</button>
       <div className="flex space-x-4 md:hidden">
-          <button onClick={handleMenu} className="bg-green-200 text-black p-2">Menu</button>
+        <button onClick={handleMenu} className="bg-green-200 text-black p-2">Menu</button>
       </div>
-      <div className="flex justify-center items-center space-x-4 hidden lg:block xl:block ">
-          <button className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño</button>
-          <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
-          <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
-          <button className="underline cursor-pointer hover:text-green-200">Exportar a Excel</button>
-          <input type="text" className="p-2 text-center" placeholder="Nombre de la tabla" />
-          <button className="bg-green-200 text-black p-2">Sincronizar con airtable</button>
-        </div>
-        {isMenuOpen && (
+      <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex">
+        <button onClick={() => router.push('/diseno')} className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño</button>
+        <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/productos')}>Productos</button>
+        <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/pdfComp')}>PDF</button>
+      </div>
+      {isMenuOpen && (
         <div className="flex flex-col space-y-4 md:hidden items-start absolute bg-black p-3 top-16 right-0">
-          <button className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño</button>
-          <button className="underline cursor-pointer hover:text-green-200">Guardar Configuracion</button>
-          <button className="underline cursor-pointer hover:text-green-200">Cargar Configuracion</button>
-          <button className="underline cursor-pointer hover:text-green-200">Exportar a Excel</button>
-          <input type="text" className="p-2 text-center w-3/4" placeholder="Nombre de la tabla" />
-          <button className="bg-green-200 text-black p-2">Sincronizar con airtable</button>
+        <button onClick={() => router.push('/diseno')} className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño</button>
+        <button className="underline cursor-pointer hover:text-green-200" onClick={() => router.push('/productos')}>Productos</button>
         </div>
       )}
     </div>
-    
   );
 }
-

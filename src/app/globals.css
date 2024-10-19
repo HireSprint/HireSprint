@@ -25,3 +25,7 @@ body {
     text-wrap: balance;
   }
 }
+
+div{
+  box-sizing: border-box;
+}

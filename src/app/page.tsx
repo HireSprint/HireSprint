@@ -1,9 +1,11 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+
+export default function HomePage() {
+
   return (
     <div>
-     
+
     </div>
   );
 }
