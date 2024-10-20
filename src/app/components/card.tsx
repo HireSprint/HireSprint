@@ -7,11 +7,13 @@ interface Product {
   id: string;
   name: string;
   image: string;
+  price?: number;
 }
 
 interface CardProductProps {
   product: Product;
   onProductSelect?: (product: Product) => void; 
+  onPriceChange?: (id: string, price: number) => void; 
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
@@ -39,9 +41,10 @@ export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSele
   );
 };
 
-export const CardSide: React.FC<CardProductProps> = ({ product }) => {
+export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, onProductSelect }) => {
   const [isLoading, setIsLoading] = useState(true); 
   const [showImage, setShowImage] = useState(false); 
+  const [localPrice, setLocalPrice] = useState(product.price || 0)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -53,23 +56,46 @@ export const CardSide: React.FC<CardProductProps> = ({ product }) => {
 
   const handleImageLoad = () => setIsLoading(false);
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPrice = parseFloat(e.target.value);
+    setLocalPrice(newPrice);
+    if (onPriceChange) {
+      onPriceChange(product.id, newPrice);
+    }
+  };
+
+  const handleUpdate = () => {
+    if (onProductSelect) {
+      const updatedProduct = {...product, price: localPrice};
+      onProductSelect(updatedProduct);
+    }
+    // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
+    if (onPriceChange) {
+      onPriceChange(product.id, localPrice);
+    }
+  };
+
   return (
     <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
-      
+      <p className="font-semibold text-black">{product.name}</p>
+      <input
+        type="number"
+        value={localPrice}
+        onChange={handlePriceChange}
+        className="mt-2 p-1 border rounded"
+        placeholder="Precio"
+      />
       {showImage && product.image ? (
-        <div>
-        <p className="font-semibold text-black">{product.name}</p>
         <Image
-        src={product.image}
-        alt={product.name}
-        width={100}
-        height={100}
-        className="rounded object-cover"
-        onLoadingComplete={handleImageLoad} 
+          src={product.image}
+          alt={product.name}
+          width={100}
+          height={100}
+          className="rounded object-cover mt-2"
+          onLoadingComplete={handleImageLoad} 
         />
-        </div>
       ) : (
-        <div className="w-12 h-12 bg-gray-200 flex items-center justify-center">
+        <div className="w-12 h-12 bg-gray-200 flex items-center justify-center mt-2">
           {isLoading ? (
             <span className="text-gray-500">Cargando...</span> 
           ) : (
@@ -77,6 +103,13 @@ export const CardSide: React.FC<CardProductProps> = ({ product }) => {
           )}
         </div>
       )}
+      <p className="text-gray-600 mt-2">Precio: ${localPrice.toFixed(2)}</p>
+      <button 
+        onClick={handleUpdate}
+        className="mt-2 bg-blue-500 text-white px-2 py-1 rounded"
+      >
+        Actualizar
+      </button>
     </div>
   );
 };

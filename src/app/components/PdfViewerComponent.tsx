@@ -1,98 +1,109 @@
 import React, { useEffect, useRef, useState } from 'react';
-import WebViewer from '@pdftron/webviewer';
-import { CardSide } from './card';
+import WebViewer, { Core, WebViewerInstance } from '@pdftron/webviewer';
 
-interface PDFViewerProps {
-  initialCuadros: any;
+interface CuadroProps {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  imageUrl?: string;
 }
 
-const PdfViewerComponent: React.FC<PDFViewerProps> = ({ initialCuadros }) => {
+interface PdfViewerProps {
+  initialCuadros: CuadroProps[];
+  onUpdateCuadros: (cuadros: CuadroProps[]) => void;
+}
+
+const PdfViewerComponent: React.FC<PdfViewerProps> = ({
+  initialCuadros,
+  onUpdateCuadros,
+}) => {
   const viewer = useRef<HTMLDivElement>(null);
+  const [selectedCuadroId, setSelectedCuadroId] = useState<string | null>(null);
   const instanceRef = useRef<WebViewerInstance | null>(null);
-  const beenInitialised = useRef(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const beenInitialised = useRef<Boolean>(false); 
 
-
-  const handleCuadroClick = (cuadro: any) => {
-    if (!instanceRef.current) return;
-    const { Core } = instanceRef.current;
-    const product = getProductFromCuadro(cuadro);
-    setSelectedProduct(product);
-    console.log("Cuadro seleccionado");
-  };
-
-  const createCuadros = (cuadrosData: any[]) => {
-    if (!instanceRef.current) return;
-    const { Core } = instanceRef.current;
-    const { annotationManager } = Core;
-
-    cuadrosData.forEach((cuadro) => {
-      const rectangleAnnot = new Core.Annotations.RectangleAnnotation();
-      rectangleAnnot.PageNumber = 1; // Asegúrate de establecer el número de página correcto
-      rectangleAnnot.X = cuadro.x;
-      rectangleAnnot.Y = cuadro.y;
-      rectangleAnnot.Width = cuadro.width;
-      rectangleAnnot.Height = cuadro.height;
-      rectangleAnnot.Locked = true; // Deshabilitar edición
-      rectangleAnnot.ReadOnly = true; // Hacerlo solo de lectura
-    rectangleAnnot.
-
-      annotationManager.addAnnotation(rectangleAnnot);
-      annotationManager.redrawAnnotation(rectangleAnnot);
-    
-
-      // Añadir evento de clic
-      rectangleAnnot.addEventListener('click', () => handleCuadroClick(cuadro));
-    });
-  };
-
-  useEffect(() => {
-    if (!beenInitialised.current && viewer.current) {
-      beenInitialised.current = true;
-      WebViewer({
-          fullAPI: true,
+  useEffect(() => { 
+    if (viewer.current && !beenInitialised.current) {
+      beenInitialised.current = true; 
+      WebViewer(
+        {
           path: '/lib',
-          initialDoc: '/file/demoUpdated.pdf',
+          initialDoc: '/file/demo2.pdf', 
           licenseKey: 'demo:1729194445261:7e1f3970030000000031fed22190e04bc631e1d19e8c1f27f1765967ee',
-          ui: false,
           disabledElements: [
-            'toolsHeader',
-            'viewControlsOverlay',
-            'menuOverlay',
-            'contextMenuPopup',
-            'toolbarGroup-Annotate',
-            'toolbarGroup-Edit',
-            'toolbarGroup-Insert',
-            'toolbarGroup-Measure',
-            'toolbarGroup-Forms',
-            'header', 
+            'header'
           ]
         },
         viewer.current
       ).then((instance: WebViewerInstance) => {
         instanceRef.current = instance;
-        const { Core } = instance;
-        const { documentViewer, annotationManager } = Core;
-        documentViewer.addEventListener('documentLoaded', () => {
-          instance.UI.disableTools(['Tools']);
-        });
+        if (!instanceRef.current) return;
+        const { Core } = instanceRef.current; 
+        const docViewer = Core.documentViewer;
+        docViewer.on('documentLoaded', () => {
+          // Crear una anotación personalizada
+          const rectangleAnnot = new Core.Annotations.RectangleAnnotation();
+          rectangleAnnot.PageNumber = 1; // Asumiendo que es la primera página
+          rectangleAnnot.X = 0;
+          rectangleAnnot.Y = 300;
+          rectangleAnnot.Width = 100; // Ajusta según sea necesario
+          rectangleAnnot.Height = 50; // Ajusta según sea necesario
+          
+          // Personalizar la apariencia si es necesario
+          rectangleAnnot.FillColor = new Core.Annotations.Color(255, 255, 0, 0.5);
+          rectangleAnnot.StrokeColor = new Core.Annotations.Color(255, 0, 0);
 
-        annotationManager.addEventListener('annotationChanged', (annotations, action) => {
-          if (action === 'modify') {
-            const updatedCuadros = getUpdatedCuadros();
-            setCuadros(updatedCuadros);
-          }
+          // Añadir la anotación al documento
+          Core.annotationManager.addAnnotation(rectangleAnnot);
+          Core.annotationManager.redrawAnnotation(rectangleAnnot);
         });
       });
     }
-  }, []);
+  }, [initialCuadros]); 
+
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && selectedCuadroId && instanceRef.current) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        const { Core } = instanceRef.current!;
+        const annotation = Core.annotationManager
+          .getAnnotationsList()
+          .find((annot) => annot.Id === selectedCuadroId);
+        
+        if (annotation) {
+          const image = new Image();
+          image.src = imageUrl;
+          image.onload = () => {
+            annotation.setImageData(image);
+            Core.annotationManager.redrawAnnotation(annotation);
+          };
+        }
+
+        const updatedCuadros = initialCuadros.map((cuadro) =>
+          cuadro.id === selectedCuadroId ? { ...cuadro, imageUrl } : cuadro
+        );
+        onUpdateCuadros(updatedCuadros);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  
 
   return (
     <div>
-      <div className="m-8 h-[70vh]" ref={viewer}>
-        {/* Aquí puedes agregar más contenido si es necesario */}
-      </div>
-      {selectedProduct && <CardSide product={selectedProduct} />}
+      <div className="m-8 h-[70vh] w-fit" ref={viewer} />
+      {selectedCuadroId && (
+        <div>
+          <p>Cuadro seleccionado: {selectedCuadroId}</p>
+          <input type="file" accept="image/*" onChange={handleImageUpload} />
+        </div>
+      )}
     </div>
   );
 };
