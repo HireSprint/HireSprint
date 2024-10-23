@@ -1,13 +1,13 @@
 "use client"
-import  { CardSide, CardProduct} from "../components/card";
-import MyDropzone from "../components/dropA";
+import  {  CardProduct} from "../components/card";
 import { getProductsRF } from "../api/productos/prductosRF";
 import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
 import { motion } from "framer-motion"; // Para animaciones
-import PdfViewerComponent from "../components/PdfViewerComponent";
+import { ImageGrid, ImageGrid2 } from "../components/imageGrid";
+
 
 interface Product
 {
@@ -15,6 +15,7 @@ interface Product
   name: string;
   image: string;
   gridId?: number;
+  description?: string;
 }
 interface Grid
 {
@@ -25,36 +26,32 @@ interface Grid
 
 const Diseno = () => {
   const [showProducts, setShowProducts] = useState(false);
-  const [selectedGridId, setSelectedGridId] = useState<number | null>(null); // Estado para el grid seleccionado
-  const [grids, setGrids] = useState<Grid[]>(generateDefaultGrids());
+  const [selectedGridId, setSelectedGridId] = useState<number | null>(null); 
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sideBarVisible, setSideBarVisible] = useState(false);
+  const [grids, setGrids] = useState<Grid[]>([]); 
+
 
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await getProductsRF();
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Error al obtener productos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (products.length === 0) {
+      const fetchProducts = async () => {
+        try {
+          const productsData = await getProductsRF();
+          setProducts(productsData);
+        } catch (error) {
+          console.error("Error al obtener productos:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProducts();
+    }
+  }, [products.length]);
 
-    fetchProducts();
-  }, []);
-
-  // Grids predeterminados
-  function generateDefaultGrids(): Grid[] {
-    return Array.from({ length: 12 }, (_, index) => ({
-      id: index + 1,
-      product: null,
-    }));
-  }
+  
 
 
   const handleProductSelect = (product: Product) => {
@@ -62,76 +59,57 @@ const Diseno = () => {
   
     const productWithGrid = { ...product, gridId: selectedGridId };
   
-    // Actualizar el grid seleccionado con el nuevo producto
     setGrids((prevGrids) =>
       prevGrids.map((grid) =>
         grid.id === selectedGridId ? { ...grid, product: productWithGrid } : grid
       )
     );
   
-    // Verificar si ya existe un producto para el mismo gridId
     setSelectedProducts((prev) => {
-      const exists = prev.some((p) => p.gridId === selectedGridId);
-      if (exists) {
-        // Reemplazar producto existente
-        return prev.map((p) =>
-          p.gridId === selectedGridId ? productWithGrid : p
-        );
-      } else {
-        // Añadir nuevo producto
-        return [...prev, productWithGrid];
-      }
+      const newProducts = prev.filter((p) => p.gridId !== selectedGridId);
+      return [...newProducts, productWithGrid]; // Reemplaza o añade el producto
     });
   };
 
 
-  return (
-    <div className="relative flex flex-col h-screen items-center justify-center">
-      {/* Contenedor de los grids y zona de drop */}
-      <div className="grid grid-cols-2 gap-4 w-full">
-        <div className="grid grid-cols-4 gap-2 p-2 border-2 border-black">
-          {grids.map((grid) => (
-            <motion.div
-              key={grid.id}
-              onClick={() => {
-                setSelectedGridId(grid.id);
-                setShowProducts(true);
-              }}
-              className={`w-36 h-36 border-2 cursor-pointer ${
-                grid.id === selectedGridId
-                  ? 'bg-red-300'
-                  : grid.product
-                  ? 'bg-green-500'
-                  : 'bg-red-500 hover:bg-red-300'
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              exit={{ opacity: 0, y: 20 }}
-            >
-              {grid.product ? (
-                <CardSide product={grid.product} />
-              ) : (
-                <p className="text-center">Grid {grid.id}</p>
-              )}
-            </motion.div>
-          ))}
-        </div>
+  const handleGridSelect = (gridId: number) => {
+    setSelectedGridId(gridId);
+    setShowProducts(true); 
+  };
 
-        <div className="border-2 border-black flex justify-center items-center">
-          <PdfViewerComponent initialCuadros={1}/>
+  const handleRemoveProduct = (productId: string) => {
+    setSelectedProducts((prevProducts) => 
+      prevProducts.filter((product) => product.id !== productId)
+    );
+    setGrids((prevGrids) => 
+      prevGrids.map((grid) => 
+        grid.product && grid.product.id === productId ? { ...grid, product: null } : grid
+      )
+    );
+  };
+
+  return (
+    <div className=" flex flex-col h-fit items-center  ">
+    <div className="grid grid-cols-2 w-full flex items-center justify-center py-8">
+        <div className="flex justify-center items-center w-full border-r-2 border-black">
+          <ImageGrid 
+            onProductSelect={handleGridSelect} 
+            selectedProducts={selectedProducts}/>
+        </div>
+        <div className="flex justify-center items-center w-full border-r-2 border-black">
+
         </div>
       </div>
 
       {/* Mostrar / Ocultar productos */}
-      <div className="flex mt-4">
+      <div className="flex ">
         {showProducts ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             exit={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute bottom-0 left-0 w-full bg-gray-200 p-4"
+            className="absolute bottom-0 left-0 w-full bg-[#393939] h-[25%]"
           >
             <GridProduct
               products={products}
@@ -140,23 +118,15 @@ const Diseno = () => {
               onHideProducts={() => setShowProducts(false)}
             />
           </motion.div>
-        ) : (
-          <button
-            onClick={() => setShowProducts(true)}
-            className="bg-blue-500 text-white p-2 rounded"
-          >
-            Mostrar Productos
-          </button>
-        )}
+        ) : null}
       </div>
 
       <button
-        className="absolute right-0 bg-black w-12 h-20 rounded-l-full"
+        className="absolute right-0 bg-[#393939] w-12 h-20 rounded-l-full p-4 font-bold hover:w-28 transition-all duration-300 hover:bg-[#7cc304]"
         onClick={() => setSideBarVisible(true)}
-      >
+        aria-label="Abrir Panel Productos"
+      > Abrir Panel
       </button>
-
-      {/* Sidebar de productos seleccionados */}
       {sideBarVisible && (
         <motion.div
           initial={{ x: 300, opacity: 0 }}
@@ -168,6 +138,7 @@ const Diseno = () => {
           <Sidebar
             selectedProducts={selectedProducts}
             onClose={() => setSideBarVisible(false)}
+            onRemoveProduct={handleRemoveProduct}
           />
         </motion.div>
       )}
@@ -194,42 +165,46 @@ const GridProduct: React.FC<GridProductProps> = ({
     product.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div className="absolute bottom-0 left-0 w-full bg-gray-200 p-4">
+  return ( 
+    <div className=" bg-[#393939] p-4 h-fit">
       <div className="flex justify-between">
         <input
           type="text"
           placeholder="Buscar productos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-4 p-2 border rounded text-black"
+          className=" p-2 border rounded text-black m-4 "
         />
         <button
           onClick={onHideProducts}
-          className="bg-red-500 text-white p-2 rounded"
+          className="bg-red-500 text-white p-2 rounded m-4"
         >
           Ocultar Productos
         </button>
       </div>
+      <div>
+        
+      </div>
 
-      <div className="flex overflow-x-auto space-x-4 whitespace-nowrap">
+      
         {loading ? (
-          <div className="flex justify-center items-center w-64 h-64">
+          <div className="flex justify-center items-center ">
             <Lottie animationData={LoadingLottie} />
           </div>
         ) : filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <CardProduct
-              product={product}
-              key={product.id}
-              onProductSelect={onProductSelect}
-            />
-          ))
+          <div className="flex overflow-x-auto space-x-4 h-fit">
+            {filteredProducts.map((product) => (
+              <CardProduct
+                product={product}
+                key={product.id}
+                onProductSelect={onProductSelect}
+              />
+            ))}
+          </div>
         ) : (
           <p>No se encontraron productos.</p>
         )}
       </div>
-    </div>
   );
 };
 
