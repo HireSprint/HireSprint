@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+'use client'
+import React, { useState, useEffect, use, useCallback } from 'react';
 import { useProductContext } from '../context/productContext';
 import { CardSide } from './card';
-import { saveAs } from 'file-saver';
+import { addGoogleSheet } from '../api/productos/prductosRF';
 
 interface Product {
   id: string;
@@ -9,44 +10,53 @@ interface Product {
   image: string;
   gridId?: number;
   price?: number; 
+  descriptions?: string[] | undefined;
 }
 interface SidebarProps {
   selectedProducts: Product[];
   onClose: () => void; 
+  onRemoveProduct: (productId: string) => void; // Nueva prop para eliminar productos
 }
 
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedProducts, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ selectedProducts, onClose, onRemoveProduct }) => {
     const [localProducts, setLocalProducts] = useState(selectedProducts);
     const { client } = useProductContext();
+    const [message, setMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     
-    const calculateTotal = () => {
-      return localProducts.reduce((total, product) => total + (product.price || 0), 0);
+    // Efecto para actualizar localProducts cuando selectedProducts cambia
+    useEffect(() => {
+      setLocalProducts(selectedProducts);
+    }, [selectedProducts]);
+
+
+    const handleSendToGoogleSheet = async (products: Product[]): Promise<void> => {
+      setLoading(true);
+      try {
+        const formattedProducts = products.map(product => ({
+          Key: product.gridId,
+          Name: product.name,
+          Description: 'lol',
+          Price: product.price || '',
+          Condition: 'lolol',
+          Image: product.image || ''
+        }));
+        console.log(formattedProducts);
+    
+        const response = await addGoogleSheet(formattedProducts);
+    
+        setMessage('Productos enviados correctamente');
+      } catch (error) {
+        console.error('Error al enviar datos a Google Sheet:', error);
+        setMessage(`Error: ${error.message}`);
+      } finally {
+        setLoading(false); 
+        setTimeout(() => setMessage(null), 5000); // Ocultar mensaje tras 5s
+      }
     };
 
-    const generateXML = () => {
-      let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n';
-      xmlContent += '<productos>\n';
-      
-      localProducts.forEach((product) => {
-        xmlContent += '  <producto>\n';
-        xmlContent += `    <id>${product.id}</id>\n`;
-        xmlContent += `    <nombre>${product.name}</nombre>\n`;
-        xmlContent += `    <imagen>${product.image}</imagen>\n`;
-        xmlContent += `    <precio>${product.price?.toFixed(2) || 'N/A'}</precio>\n`;
-        xmlContent += '  </producto>\n';
-      });
-      
-      xmlContent += '</productos>';
-      
-      return xmlContent;
-    };
 
-    const downloadXML = () => {
-      const xmlContent = generateXML();
-      const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
-      saveAs(blob, 'productos_seleccionados.xml');
-    };
 
     const handlePriceChange = (id: string, newPrice: number) => {
       setLocalProducts(prevProducts => 
@@ -64,6 +74,10 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedProducts, onClose }) => {
       );
     };
 
+    const handleRemoveProduct = useCallback((productId: string) => {
+      onRemoveProduct(productId);
+    }, [onRemoveProduct]);
+
     return (
       <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-lg p-4 z-50 overflow-y-auto">
         <button onClick={onClose} className="mb-4 text-red-500">Cerrar</button>
@@ -75,23 +89,41 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedProducts, onClose }) => {
               <li key={product.id} className="text-sm text-black">
                 <span className="font-bold">{index + 1}.</span> {product.name} - 
                 <span className="text-gray-500"> G.{product.gridId}</span>
-                {product.price !== undefined && (
-                  <span className="text-green-600"> ${product.price.toFixed(2)}</span>
-                )}
+                <input 
+                  type="number"
+                  value={product.price || ''}
+                  onChange={(e) => handlePriceChange(product.id, parseFloat(e.target.value) || 0)}
+                  className="ml-2 w-16 text-black border rounded"
+                  step="0.01"
+                />
                 <CardSide 
-                  product={product}
+                  product={product as Product & { descriptions: string[] }}
                   onPriceChange={handlePriceChange}
                   onProductSelect={handleProductSelect}
                 />
+                <button 
+                  onClick={() => handleRemoveProduct(product.id)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  Eliminar
+                </button>
               </li>
             ))
           ) : (
             <li>No hay productos seleccionados.</li>
           )}
         </ul>
-        <button onClick={downloadXML} className="mt-4 bg-green-500 text-white p-2 rounded">
-          Descargar XML
+        <button onClick={() => handleSendToGoogleSheet(localProducts)} 
+        className="mt-4 bg-green-500 text-white p-2 rounded"
+        disabled={loading}
+        >
+          {loading ? 'Enviando...' : 'Enviar'}
         </button>
+        {message && (
+  <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded">
+    {message}
+          </div>
+        )}
       </div>
     );
 };

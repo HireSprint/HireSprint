@@ -18,7 +18,6 @@ const ProductosBase = () => {
   const [searchTerm, setSearchTerm] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1); 
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]); 
-  const [customerName, setCustomerName] = useState<string>(""); 
   const [showSidebar, setShowSidebar] = useState(false);
 
   const productsPerPage = 12;
@@ -153,6 +152,7 @@ const ProductosBase = () => {
           selectedProducts={selectedProducts} 
           customerName={customerName} 
           onClose={handleSidebarClose} 
+          onRemoveProduct={handleRemoveProduct}
         />
       )}
     </div>

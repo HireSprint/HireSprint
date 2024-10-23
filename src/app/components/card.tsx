@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 interface Product {
   id: string;
   name: string;
+  descriptions: string[] | undefined;
   image: string;
   price?: number;
+  description: string;
 }
 
 interface CardProductProps {
@@ -19,23 +21,27 @@ interface CardProductProps {
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
     <div 
-      className="border rounded-lg shadow-md p-4 hover:shadow-lg cursor-pointer flex-shrink-0 " 
+      className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
       onClick={() => onProductSelect && onProductSelect(product)}
     >
-      {product.image ? (
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={200}
-          height={200}
-        />
-      ) : (
-        <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-          <span className="text-gray-500">No image available</span>
-        </div>
-      )}
-      <div className="">
-        <h2 className="font-semibold text-black ">{product.name}</h2>
+      <div className="text-center w-full">
+        <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+      </div>
+      <div className="w-full h-40 relative">
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+            <span className="text-gray-500">No hay imagen disponible</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -78,6 +84,7 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
   return (
     <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
       <p className="font-semibold text-black">{product.name}</p>
+      <p className="text-gray-600">{product.descriptions}</p>
       <input
         type="number"
         value={localPrice}

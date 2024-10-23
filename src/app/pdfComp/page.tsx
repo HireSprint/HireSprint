@@ -9,6 +9,7 @@ interface CuadroProps {
   width: number;
   height: number;
   imageUrl?: string;
+
 }
 
 export type { CuadroProps };
@@ -59,12 +60,13 @@ const PdfComponent: React.FC = () => {
           const image = new Image();
           image.src = imageUrl;
           image.onload = () => {
-            annotation.setImageData(image);
+            const tool = new Core.Tools.AddImageContentTool(Core.documentViewer);
+            tool.addEventListener(annotation);
             Core.annotationManager.redrawAnnotation(annotation);
           };
         }
 
-        // Update cuadros state
+        // Actualizar el estado de cuadros
         setCuadros(cuadros.map(cuadro => 
           cuadro.id.toString() === selectedCuadroId ? { ...cuadro, imageUrl } : cuadro
         ));
@@ -81,6 +83,7 @@ const PdfComponent: React.FC = () => {
           path: '/lib',
           initialDoc: '/file/demo.pdf',
           licenseKey: 'demo:1729194445261:7e1f3970030000000031fed22190e04bc631e1d19e8c1f27f1765967ee',
+          ui: 'beta'
         },
         viewer.current
       ).then((instance: WebViewerInstance) => {
