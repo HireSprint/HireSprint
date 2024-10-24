@@ -3,7 +3,7 @@ import React, {useState, useEffect, use, useCallback} from 'react';
 import {useProductContext} from '../context/productContext';
 import {CardSide} from './card';
 import {addGoogleSheet} from '../api/productos/prductosRF';
-import {testGoogleSheetApi} from "../api/productos/prductosRF";
+
 
 interface Product {
     id: string;
@@ -33,29 +33,13 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
     }, [selectedProducts]);
 
 
-    const handleSendToGoogleSheet = async (products: Product[]): Promise<void> => {
+    const handleSendToGoogleSheet = async (data: Product[]): Promise<void> => {
         setLoading(true);
-        try {
-            const formattedProducts = products.map(product => ({
-                Key: product.gridId,
-                Name: product.name,
-                Description: 'lol',
-                Price: product.price || '',
-                Condition: 'lolol',
-                Image: product.image || ''
-            }));
-            console.log(formattedProducts);
+        addGoogleSheet(data);
+        console.log(data);    
+        console.log(loading);
+            
 
-            const response = await addGoogleSheet(formattedProducts);
-
-            setMessage('Productos enviados correctamente');
-        } catch (error) {
-            console.error('Error al enviar datos a Google Sheet:', error);
-            setMessage(`Error: ${error.message}`);
-        } finally {
-            setLoading(false);
-            setTimeout(() => setMessage(null), 5000); // Ocultar mensaje tras 5s
-        }
     };
 
 
@@ -115,16 +99,10 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
                 )}
             </ul>
             <button onClick={() => handleSendToGoogleSheet(localProducts)}
-                    className="mt-4 bg-green-500 text-white p-2 rounded"
-                    disabled={loading}
-            >
-                {loading ? 'Enviando...' : 'Enviar'}
-            </button>
-            <button onClick={() => testGoogleSheetApi()}
                     className="mt-4 bg-amber-700 text-white p-2 rounded"
-                    disabled={loading}
+                    
             >
-                {loading ? 'Enviando...' : 'Enviar'}
+                Enviar
             </button>
 
             {message && (

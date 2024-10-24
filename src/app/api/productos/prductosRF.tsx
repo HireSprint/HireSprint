@@ -1,7 +1,7 @@
 import Airtable from "airtable";
 
 
-const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.00e929837212ed5b878c453028fd6dbe7275950a15d764ebdc3152174d5c4edc'}).base('app1cSmD9pprWVvGd');
+const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');
 
 interface Product {
     id: string;
@@ -142,36 +142,7 @@ export const addGoogleSheet2 = async (dataArray: any) => {
     }
 };
 
-export const testGoogleSheetApi = async () => {
-    // Datos  para probar
-    addGoogleSheet2(dataArray);
-};
 
-//Prueba 
-const dataArray = [
-    {
-        Nombre: 'Producto 1',
-        Descripcion: 'Descripción del producto 1',
-        Imagen: 'URL_de_la_imagen_1',
-        Condicion: 'Nuevo'
-    },
-    {
-        Nombre: 'Producto 2',
-        Descripcion: 'Descripción del producto 2',
-        Imagen: 'URL_de_la_imagen_2',
-        Condicion: 'Usado'
-    },
-
-];
-
-// Enviar los datos al Google Sheet
-addGoogleSheet2(dataArray)
-    .then(response => {
-        console.log('Datos enviados:', response);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
 
 {/*  AIzaSyDRdER7z-xWfILxTUO-nhuo96uULVp02Rw*/
 }
