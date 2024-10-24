@@ -3,7 +3,7 @@ import React, {useState, useEffect, use, useCallback} from 'react';
 import {useProductContext} from '../context/productContext';
 import {CardSide} from './card';
 import {addGoogleSheet} from '../api/productos/prductosRF';
-
+import {addGoogleSheet2} from "../api/productos/prductosRF";
 
 interface Product {
     id: string;
@@ -34,14 +34,16 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
 
 
     const handleSendToGoogleSheet = async (data: Product[]): Promise<void> => {
-        setLoading(true);
-        addGoogleSheet(data);
+        setLoading(true);      
+        
+        addGoogleSheet2(data);
         console.log(data);    
         console.log(loading);
             
 
     };
 
+    
 
     const handlePriceChange = (id: string, newPrice: number) => {
         setLocalProducts(prevProducts =>

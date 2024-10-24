@@ -7,9 +7,10 @@ interface Product {
     id: string;
     name: string;
     image: string;
-    descriptions: string[] | undefined;
+    gridId?: number;
+    price?: number;
+    descriptions?: string[] | undefined;
 }
-
 export const getProductsRF = async (searchTerm = ''): Promise<Product[]> => {
     return new Promise((resolve, reject) => {
         const allProducts: Product[] = [];
@@ -89,6 +90,7 @@ export const getTableName = async (tableName = 'RF0002G'): Promise<Product[]> =>
     });
 };
 
+
 export const addGoogleSheet = async (data: any) => {
     const url = "https://script.google.com/macros/s/AKfycbzJAeQpfaBhzTdRv46eW2F9mADydMk7hg9UsglE9DQ2n54tNsOH7TFT157SiICSQMTJiw/exec";  // url vieja "https://script.google.com/macros/s/AKfycbx5uzWgfSHSu2MXMbakyBOGDKtWCBZFoZqNdL73wbu9VokxYWzF50OleQF044ChGfhx/exec";
 
@@ -113,17 +115,28 @@ export const addGoogleSheet = async (data: any) => {
     }
 };
 
-export const addGoogleSheet2 = async (dataArray: any) => {
-    const url = "https://script.google.com/macros/s/AKfycbxp_oXF0RR-bb-ZJmcIP0cwes2caxcNx-aJlHjRMeWDY95R5pVpz51tH7drTfbTGa9zNQ/exec";
+export const addGoogleSheet2 = async (dataArray: Product[]): Promise<any> => {
+    const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
 
     try {
+        // Convertir los productos al formato adecuado para la API de Google Sheets
+        const formattedData = dataArray.map(product => ({
+            id: product.id,
+            name: product.name,
+            image: product.image,
+            gridId: product.gridId || null,
+            price: product.price || null,
+            descriptions: Array.isArray(product.descriptions) ? product.descriptions.join(", ") : ""
+        }));
+
+        // Hacer la solicitud HTTP POST al script de Google Apps
         const response = await fetch(url, {
             method: 'POST',
-            mode: "no-cors",
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({data: dataArray}),
+            body: JSON.stringify({productos: formattedData}),
         });
 
         // Verificar si la respuesta HTTP fue exitosa
@@ -133,7 +146,7 @@ export const addGoogleSheet2 = async (dataArray: any) => {
 
         // Obtener el resultado en formato JSON
         const result = await response.json();
-        console.log('Respuesta de Google Sheet:', result);
+        console.log("Respuesta de Google Sheet:", result);
         return result;
 
     } catch (error) {
@@ -141,6 +154,35 @@ export const addGoogleSheet2 = async (dataArray: any) => {
         throw error;
     }
 };
+
+// export const addGoogleSheet2 = async (dataArray: any) => {
+//     const url = "https://script.google.com/macros/s/AKfycbyrtdLbUcOcx4JLzHKiT_RVVoppbg3KO1bXpnYxD3oz2zi__fWYA_OX8FJ0qAZMoyLBzw/exec";
+//
+//     try {
+//         const response = await fetch(url, {
+//             method: 'POST',
+//             mode: "no-cors",
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({data: dataArray}),
+//         });
+//
+//         // Verificar si la respuesta HTTP fue exitosa
+//         if (!response.ok) {
+//             throw new Error(`Error en la solicitud HTTP! status: ${response.status}`);
+//         }
+//
+//         // Obtener el resultado en formato JSON
+//         const result = await response.json();
+//         console.log('Respuesta de Google Sheet:', result);
+//         return result;
+//
+//     } catch (error) {
+//         console.error('Error al interactuar con Google Sheet:', error);
+//         throw error;
+//     }
+// };
 
 
 
