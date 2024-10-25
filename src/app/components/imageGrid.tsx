@@ -19,6 +19,7 @@ interface ImageGridProps {
   onRemoveProduct: (productId: string) => void;
   onEditProduct: (productId: string) => void;
   onChangeProduct: (productId: string) => void;
+  isMoveModeActive: boolean;
 }
 
 export const ImageGrid = ({ 
@@ -26,7 +27,8 @@ export const ImageGrid = ({
   selectedProducts, 
   onRemoveProduct,
   onEditProduct,
-  onChangeProduct 
+  onChangeProduct,
+  isMoveModeActive
 }: ImageGridProps) => {
   const gridCells = [
     { id: 101, top: "top-44", left: "left-0", width: "80px", height: "56px" },
@@ -108,14 +110,17 @@ export const ImageGrid = ({
 
   const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
     e.preventDefault();
-    setContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      productId: cellId.toString()
-    });
-  };
-
+    if (isMoveModeActive) return;
+    const selectedProduct = selectedProducts.find(p => p.gridId === cellId);
+    if (selectedProduct) {
+        setContextMenu({
+            visible: true,
+            x: e.clientX,
+            y: e.clientY,
+            productId: selectedProduct.id
+        });
+    }
+};
 
   useEffect(() => {
     const handleClickOutside = () => setContextMenu(null);
@@ -157,25 +162,25 @@ export const ImageGrid = ({
     );
   })}
 
-  {contextMenu?.visible && (
-    <div
-      style={{
-        position: 'fixed',
-        top: contextMenu.y,
-        left: contextMenu.x,
-        zIndex: 1000
-      }}
-    >
-      <RightClick
-        productId={contextMenu.productId}
-        handleRemoveProduct={onRemoveProduct}
-        handleEditProduct={onEditProduct}
-        handleChangeProduct={onChangeProduct}
-      />
-    </div>
-  )}
-</div>
-);
+{contextMenu?.visible && !isMoveModeActive && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: contextMenu.y,
+                        left: contextMenu.x,
+                        zIndex: 1000
+                    }}
+                >
+                    <RightClick
+                        productId={contextMenu.productId}
+                        handleRemoveProduct={onRemoveProduct}
+                        handleEditProduct={onEditProduct}
+                        handleChangeProduct={onChangeProduct}
+                    />
+                </div>
+            )}
+        </div>
+    );
 };
 
 

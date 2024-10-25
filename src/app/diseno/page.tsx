@@ -10,6 +10,7 @@ import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/image
 
 
 
+
 interface Product {
     id: string;
     name: string;
@@ -25,6 +26,8 @@ interface Grid {
 
 
 const Diseno = () => {
+
+
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
@@ -34,6 +37,11 @@ const Diseno = () => {
     const [grids, setGrids] = useState<Grid[]>([]);
     const [currentPage, setCurrentPage] = useState(2); 
     const [direction, setDirection] = useState(0); 
+    const [moveMode, setMoveMode] = useState<{
+      active: boolean;
+      productId: string;
+      sourceGridId: number;
+  } | null>(null);
 
 
     useEffect(() => {
@@ -72,9 +80,14 @@ const Diseno = () => {
 
 
     const handleGridSelect = (gridId: number) => {
-        setSelectedGridId(gridId);
-        setShowProducts(true);
-    };
+      if (moveMode?.active) {
+          // Si estamos en modo de movimiento, mover el producto al nuevo grid
+          handleProductMove(gridId);
+      } else {
+          setSelectedGridId(gridId);
+          setShowProducts(true);
+      }
+  };
 
     const handleRemoveProduct = (productId: string) => {
         setSelectedProducts((prevProducts) =>
@@ -100,9 +113,62 @@ const Diseno = () => {
     };
   
     const handleChangeProduct = (productId: string) => {
-      // Implementa la lógica para cambiar el producto
-      console.log('Cambiar producto:', productId);
-    };
+      // Encontrar el producto y su grid actual
+      const productToMove = selectedProducts.find(p => p.id === productId);
+      if (productToMove && productToMove.gridId) {
+          setMoveMode({
+              active: true,
+              productId: productId,
+              sourceGridId: productToMove.gridId
+          });
+          // Mostrar mensaje al usuario
+          toast({
+              title: "Modo de movimiento activado",
+              description: "Selecciona el grid destino para mover el producto",
+              status: "info",
+              duration: 3000,
+          });
+          setShowProducts(false); // Ocultar el panel de productos si está visible
+      }
+  };
+
+  const handleProductMove = (targetGridId: number) => {
+    if (!moveMode) return;
+
+    setSelectedProducts(prevProducts => {
+        return prevProducts.map(product => {
+            if (product.id === moveMode.productId) {
+                // Actualizar el gridId del producto que se está moviendo
+                return { ...product, gridId: targetGridId };
+            }
+            if (product.gridId === targetGridId) {
+                // Si hay un producto en el grid destino, moverlo al grid origen
+                return { ...product, gridId: moveMode.sourceGridId };
+            }
+            return product;
+        });
+    });
+
+    // Resetear el modo de movimiento
+    setMoveMode(null);
+    
+    toast({
+        title: "Producto movido",
+        description: "El producto ha sido movido exitosamente",
+        status: "success",
+        duration: 2000,
+    });
+};
+
+const commonGridProps = {
+  onProductSelect: handleGridSelect,
+  selectedProducts: selectedProducts,
+  onRemoveProduct: handleRemoveProduct,
+  onEditProduct: handleEditProduct,
+  onChangeProduct: handleChangeProduct,
+  isMoveModeActive: moveMode?.active || false,
+};
+
 
 
 
@@ -112,7 +178,7 @@ const Diseno = () => {
             <div className="grid grid-cols-2 w-full items-center justify-center py-8">
                 {/* Primera columna con ImageGrid */}
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
-                    <ImageGrid onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
+                    <ImageGrid {...commonGridProps}/>
                 </div>
                 <div className="flex flex-col h-fit items-center w-full">
                         {/* Contenedor de la cuadrícula centrado */}
@@ -150,17 +216,17 @@ const Diseno = () => {
                                 >
                                     {currentPage === 2 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid2 onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
+                                            <ImageGrid2 {...commonGridProps}/>
                                         </div>
                                     )}
                                     {currentPage === 3 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid3 onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
+                                            <ImageGrid3 {...commonGridProps}/>
                                         </div>
                                     )}
                                     {currentPage === 4 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid4 onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
+                                            <ImageGrid4 {...commonGridProps}/>
                                         </div>
                                     )}
                                 </motion.div>
