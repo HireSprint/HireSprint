@@ -50,30 +50,29 @@ export const getProductsRF = async (searchTerm = ''): Promise<Product[]> => {
 };
 
 
-export const getTableName = async (tableName = 'RF0002G'): Promise<Product[]> => {
+export const getTableName = async (): Promise<Product[]> => {
     return new Promise((resolve, reject) => {
         const allProducts: Product[] = [];
-
-        if (!tableName) {
-            reject(new Error('El nombre de la tabla no puede estar vacío.'));
-            return;
-        }
-
-        baseRF('RF0002G').select({
+        baseRF('J004S').select({
             view: "Grid view",
         }).eachPage(
             function page(records, fetchNextPage) {
                 records.forEach(function (record) {
+                    console.log('record:', record.fields);
                     const attachments = record.get('Product_Image (from Products-RF)') as { url: string }[] | undefined;
                     const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
                     const descriptions = record.get('Product_Subline (from Products-RF)') as string[] | undefined;
                     const names = record.get('Product_Name (from Products-RF)') as string[] | undefined;
                     const productName = names && names.length > 0 ? names[0] : 'Sin nombre';
+                    const price = record.get('Price') as string;
+                    const gridId = record.get('gridID') as string;
                     allProducts.push({
                         id: record.id,
                         name: productName,
                         image: imageUrl,
-                        descriptions: descriptions
+                        descriptions: descriptions,
+                        price: parseFloat(price),
+                        gridId: parseInt(gridId)
                     });
                 });
                 fetchNextPage();

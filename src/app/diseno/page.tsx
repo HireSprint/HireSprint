@@ -97,7 +97,7 @@ const Diseno = () => {
             selectedProducts={selectedProducts}/>
         </div>
         <div className="flex justify-center items-center w-full border-r-2 border-black">
-
+         
         </div>
       </div>
 
