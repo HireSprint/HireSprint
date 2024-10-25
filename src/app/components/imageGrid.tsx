@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { getTableName } from "../api/productos/prductosRF";
 import Draggable from "react-draggable";
+import RightClick from "./rightClick";
 
 interface Product {
   id: string;
@@ -15,9 +16,18 @@ interface Product {
 interface ImageGridProps {
   onProductSelect: (gridId: number) => void;
   selectedProducts: Product[];
+  onRemoveProduct: (productId: string) => void;
+  onEditProduct: (productId: string) => void;
+  onChangeProduct: (productId: string) => void;
 }
 
-export const ImageGrid = ({ onProductSelect, selectedProducts = [] }: ImageGridProps) => {
+export const ImageGrid = ({ 
+  onProductSelect, 
+  selectedProducts, 
+  onRemoveProduct,
+  onEditProduct,
+  onChangeProduct 
+}: ImageGridProps) => {
   const gridCells = [
     { id: 101, top: "top-44", left: "left-0", width: "80px", height: "56px" },
     { id: 102, top: "top-44", left: "left-20", width: "80px", height: "56px" },
@@ -73,6 +83,12 @@ export const ImageGrid = ({ onProductSelect, selectedProducts = [] }: ImageGridP
   ];
   const [products, setProducts] = useState<Product[]>([]); 
   const [loading, setLoading] = useState(true); 
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    productId: string;
+  } | null>(null);
 
 { /* useEffect(() => {
     const fetchProducts = async () => {
@@ -90,6 +106,23 @@ export const ImageGrid = ({ onProductSelect, selectedProducts = [] }: ImageGridP
     fetchProducts(); 
   }, []); */}
 
+  const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      productId: cellId.toString()
+    });
+  };
+
+
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <div className="relative inline-block">
   
@@ -98,33 +131,52 @@ export const ImageGrid = ({ onProductSelect, selectedProducts = [] }: ImageGridP
   const selectedProduct = products?.find((p) => p.gridId === cell.id) || 
     selectedProducts?.find((p) => p.gridId === cell.id);
     console.log(`Cell ID: ${cell.id}`, selectedProduct);
-  return (
-    <Draggable key={cell.id}>
-      <div
-        key={cell.id}
-        className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-        style={{ width: cell.width, height: cell.height }}
-        onClick={() => onProductSelect(cell.id)}
-      >
-        <div className="absolute text-black font-bold">
-          {selectedProduct?.name || cell.id.toString()}
+    return (
+      <Draggable key={cell.id}>
+        <div
+          key={cell.id}
+          className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
+          style={{ width: cell.width, height: cell.height }}
+          onClick={() => onProductSelect(cell.id)}
+          onContextMenu={(e) => handleContextMenu(e, cell.id)}
+        >
+          <div className="absolute text-black font-bold">
+            {selectedProduct?.name || cell.id.toString()}
+          </div>
+          {selectedProduct?.image && (
+            <Image 
+              src={selectedProduct.image} 
+              alt={selectedProduct.name || ''}
+              width={70} 
+              height={70} 
+              objectFit="cover"
+            />
+          )}
         </div>
-        {selectedProduct?.image && (
-          <Image 
-            src={selectedProduct.image} 
-            alt={selectedProduct.name || ''}
-            width={70} 
-            height={70} 
-            objectFit="cover"
-          />
-        )}
-      </div>
-    </Draggable>
-        );
-      })}
+      </Draggable>
+    );
+  })}
+
+  {contextMenu?.visible && (
+    <div
+      style={{
+        position: 'fixed',
+        top: contextMenu.y,
+        left: contextMenu.x,
+        zIndex: 1000
+      }}
+    >
+      <RightClick
+        productId={contextMenu.productId}
+        handleRemoveProduct={onRemoveProduct}
+        handleEditProduct={onEditProduct}
+        handleChangeProduct={onChangeProduct}
+      />
     </div>
-  );
-}
+  )}
+</div>
+);
+};
 
 
 export const ImageGrid2 = ({ onProductSelect, selectedProducts}: ImageGridProps) => {
@@ -153,6 +205,12 @@ export const ImageGrid2 = ({ onProductSelect, selectedProducts}: ImageGridProps)
   ];
 
   const [products, setProducts] = useState<Product[]>([]); 
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    productId: string;
+  } | null>(null);
 
 
   useEffect(() => {
@@ -168,6 +226,40 @@ export const ImageGrid2 = ({ onProductSelect, selectedProducts}: ImageGridProps)
     fetchProducts(); 
   }, []); 
 
+  const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      productId: cellId.toString()
+    });
+  };
+
+  const handleRemoveProduct = (productId: string) => {
+    // Implementa la lógica para eliminar el producto
+    console.log('Eliminar producto:', productId);
+    setContextMenu(null);
+  };
+
+  const handleEditProduct = (productId: string) => {
+    // Implementa la lógica para editar el producto
+    console.log('Editar producto:', productId);
+    setContextMenu(null);
+  };
+
+  const handleChangeProduct = (productId: string) => {
+    // Implementa la lógica para cambiar el producto
+    console.log('Cambiar producto:', productId);
+    setContextMenu(null);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <div className="relative inline-block">
 
@@ -176,33 +268,52 @@ export const ImageGrid2 = ({ onProductSelect, selectedProducts}: ImageGridProps)
   const selectedProduct = products?.find((p) => p.gridId === cell.id) || 
     selectedProducts?.find((p) => p.gridId === cell.id);
 
-  return (
-    <Draggable key={cell.id}>
-      <div
-        key={cell.id}
-        className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-        style={{ width: cell.width, height: cell.height }}
-        onClick={() => onProductSelect(cell.id)}
-      >
-        <div className="absolute text-black font-bold">
-          {selectedProduct?.name || cell.id.toString()}
+    return (
+      <Draggable key={cell.id}>
+        <div
+          key={cell.id}
+          className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
+          style={{ width: cell.width, height: cell.height }}
+          onClick={() => onProductSelect(cell.id)}
+          onContextMenu={(e) => handleContextMenu(e, cell.id)}
+        >
+          <div className="absolute text-black font-bold">
+            {selectedProduct?.name || cell.id.toString()}
+          </div>
+          {selectedProduct?.image && (
+            <Image 
+              src={selectedProduct.image} 
+              alt={selectedProduct.name || ''}
+              width={70} 
+              height={70} 
+              objectFit="cover"
+            />
+          )}
         </div>
-        {selectedProduct?.image && (
-          <Image 
-            src={selectedProduct.image} 
-            alt={selectedProduct.name || ''}
-            width={70} 
-            height={70} 
-            objectFit="cover"
-          />
-        )}
-      </div>
-    </Draggable>
-        );
-      })}
+      </Draggable>
+    );
+  })}
+
+  {contextMenu?.visible && (
+    <div
+      style={{
+        position: 'fixed',
+        top: contextMenu.y,
+        left: contextMenu.x,
+        zIndex: 1000
+      }}
+    >
+      <RightClick
+        productId={contextMenu.productId}
+        handleRemoveProduct={handleRemoveProduct}
+        handleEditProduct={handleEditProduct}
+        handleChangeProduct={handleChangeProduct}
+      />
     </div>
-  );
-}
+  )}
+</div>
+);
+};
 
 export const ImageGrid3 = ({onProductSelect, selectedProducts}: ImageGridProps) => {
   const gridCells = [

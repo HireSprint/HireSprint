@@ -7,7 +7,7 @@ import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
 import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
-import RightClick from "../components/rightClick";
+
 
 
 interface Product {
@@ -34,17 +34,7 @@ const Diseno = () => {
     const [grids, setGrids] = useState<Grid[]>([]);
     const [currentPage, setCurrentPage] = useState(2); 
     const [direction, setDirection] = useState(0); 
-    const [contextMenu, setContextMenu] = useState<{
-        visible: boolean;
-        x: number;
-        y: number;
-        productId: string | undefined;
-    }>({
-        visible: false,
-        x: 0,
-        y: 0,
-        productId: undefined
-    });
+
 
     useEffect(() => {
         if (products.length === 0) {
@@ -104,58 +94,25 @@ const Diseno = () => {
         setCurrentPage(newPage);
     };
 
-    // Manejador para el click derecho
-    const handleContextMenu = (e: React.MouseEvent, productId: string | undefined) => {
-        e.preventDefault();
-        setContextMenu({
-            visible: true,
-            x: e.pageX,
-            y: e.pageY,
-            productId
-        });
-    };
-
-    // Manejador para cerrar el menú contextual
-    const handleCloseContextMenu = () => {
-        setContextMenu(prev => ({...prev, visible: false}));
-    };
-
-    // Manejadores para las acciones del menú contextual
     const handleEditProduct = (productId: string) => {
-        // Implementa la lógica de edición aquí
-        console.log('Editando producto:', productId);
-        handleCloseContextMenu();
+      // Implementa la lógica para editar el producto
+      console.log('Editar producto:', productId);
     };
-
+  
     const handleChangeProduct = (productId: string) => {
-        // Implementa la lógica de cambio aquí
-        console.log('Cambiando producto:', productId);
-        handleCloseContextMenu();
+      // Implementa la lógica para cambiar el producto
+      console.log('Cambiar producto:', productId);
     };
 
-    // Añadir useEffect para manejar el cierre del menú
-    useEffect(() => {
-        const handleClick = () => {
-            if (contextMenu.visible) {
-                setContextMenu(prev => ({...prev, visible: false}));
-            }
-        };
 
-        document.addEventListener('click', handleClick);
-        return () => {
-            document.removeEventListener('click', handleClick);
-        };
-    }, [contextMenu.visible]);
 
     return (
         <div 
-            className="flex flex-col h-fit items-center"
-            onClick={handleCloseContextMenu} // Cerrar menú al hacer click fuera
-        >
+            className="flex flex-col h-fit items-center" >
             <div className="grid grid-cols-2 w-full items-center justify-center py-8">
                 {/* Primera columna con ImageGrid */}
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
-                    <ImageGrid onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                    <ImageGrid onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
                 </div>
                 <div className="flex flex-col h-fit items-center w-full">
                         {/* Contenedor de la cuadrícula centrado */}
@@ -193,17 +150,17 @@ const Diseno = () => {
                                 >
                                     {currentPage === 2 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid2 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                                            <ImageGrid2 onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
                                         </div>
                                     )}
                                     {currentPage === 3 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid3 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                                            <ImageGrid3 onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
                                         </div>
                                     )}
                                     {currentPage === 4 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid4 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                                            <ImageGrid4 onProductSelect={handleGridSelect} selectedProducts={selectedProducts} onRemoveProduct={handleRemoveProduct} onEditProduct={handleEditProduct} onChangeProduct={handleChangeProduct}/>
                                         </div>
                                     )}
                                 </motion.div>
