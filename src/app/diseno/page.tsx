@@ -109,7 +109,7 @@ const Diseno = () => {
             </button>
         );
     };
-
+   
 
     return (
         <div className="flex flex-col h-fit items-center">
