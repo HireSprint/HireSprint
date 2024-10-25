@@ -87,7 +87,7 @@ const ProductosBase = () => {
     setShowSidebar(false);
   };
 
-  console.log(selectedProducts)
+
 
   return (
     <div className="flex flex-col justify-center items-center text-black">

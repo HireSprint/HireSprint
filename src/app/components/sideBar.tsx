@@ -60,8 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
     const handleSendToGoogleSheet = async (data: Product[]): Promise<void> => {
         setLoading(true);      
         addGoogleSheet2(data);
-        console.log(data);    
-        console.log(loading);     
+ 
     };
 
     const handlePriceChange = (id: string, newPrice: number) => {

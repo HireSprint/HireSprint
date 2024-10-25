@@ -7,6 +7,7 @@ import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
 import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
+import RightClick from "../components/rightClick";
 
 
 interface Product {
@@ -31,9 +32,19 @@ const Diseno = () => {
     const [loading, setLoading] = useState(true);
     const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
-    const [currentPage, setCurrentPage] = useState(1); // estado de pagina
-    const [direction, setDirection] = useState(0); // 1 para adelante, -1 para atrás
-
+    const [currentPage, setCurrentPage] = useState(2); 
+    const [direction, setDirection] = useState(0); 
+    const [contextMenu, setContextMenu] = useState<{
+        visible: boolean;
+        x: number;
+        y: number;
+        productId: string | undefined;
+    }>({
+        visible: false,
+        x: 0,
+        y: 0,
+        productId: undefined
+    });
 
     useEffect(() => {
         if (products.length === 0) {
@@ -92,8 +103,55 @@ const Diseno = () => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
     };
+
+    // Manejador para el click derecho
+    const handleContextMenu = (e: React.MouseEvent, productId: string | undefined) => {
+        e.preventDefault();
+        setContextMenu({
+            visible: true,
+            x: e.pageX,
+            y: e.pageY,
+            productId
+        });
+    };
+
+    // Manejador para cerrar el menú contextual
+    const handleCloseContextMenu = () => {
+        setContextMenu(prev => ({...prev, visible: false}));
+    };
+
+    // Manejadores para las acciones del menú contextual
+    const handleEditProduct = (productId: string) => {
+        // Implementa la lógica de edición aquí
+        console.log('Editando producto:', productId);
+        handleCloseContextMenu();
+    };
+
+    const handleChangeProduct = (productId: string) => {
+        // Implementa la lógica de cambio aquí
+        console.log('Cambiando producto:', productId);
+        handleCloseContextMenu();
+    };
+
+    // Añadir useEffect para manejar el cierre del menú
+    useEffect(() => {
+        const handleClick = () => {
+            if (contextMenu.visible) {
+                setContextMenu(prev => ({...prev, visible: false}));
+            }
+        };
+
+        document.addEventListener('click', handleClick);
+        return () => {
+            document.removeEventListener('click', handleClick);
+        };
+    }, [contextMenu.visible]);
+
     return (
-        <div className="flex flex-col h-fit items-center">
+        <div 
+            className="flex flex-col h-fit items-center"
+            onClick={handleCloseContextMenu} // Cerrar menú al hacer click fuera
+        >
             <div className="grid grid-cols-2 w-full items-center justify-center py-8">
                 {/* Primera columna con ImageGrid */}
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
@@ -107,12 +165,6 @@ const Diseno = () => {
                                 {/* Botones de paginación */}
                                 <div className="flex space-x-2 mb-4">
                                     <button 
-                                        className={`px-4 py-2 ${currentPage === 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
-                                        onClick={() => changePage(1)}
-                                    >
-                                        1
-                                    </button>
-                                    <button 
                                         className={`px-4 py-2 ${currentPage === 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
                                         onClick={() => changePage(2)}
                                     >
@@ -124,6 +176,12 @@ const Diseno = () => {
                                     >
                                         3
                                     </button>
+                                    <button 
+                                        className={`px-4 py-2 ${currentPage === 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
+                                        onClick={() => changePage(4)}
+                                    >
+                                        4
+                                    </button>
                                 </div>
                                 <motion.div
                                     key={currentPage}
@@ -133,17 +191,17 @@ const Diseno = () => {
                                     transition={{ duration: 0.5 }}
                                     className="w-full"
                                 >
-                                    {currentPage === 1 && (
+                                    {currentPage === 2 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
                                             <ImageGrid2 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
                                         </div>
                                     )}
-                                    {currentPage === 2 && (
+                                    {currentPage === 3 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
                                             <ImageGrid3 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
                                         </div>
                                     )}
-                                    {currentPage === 3 && (
+                                    {currentPage === 4 && (
                                         <div className="flex justify-center items-center w-full border-r-2">
                                             <ImageGrid4 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
                                         </div>

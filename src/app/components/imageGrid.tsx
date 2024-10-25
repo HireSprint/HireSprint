@@ -175,7 +175,7 @@ export const ImageGrid2 = ({ onProductSelect, selectedProducts}: ImageGridProps)
       {gridCells.map((cell, index) => {
   const selectedProduct = products?.find((p) => p.gridId === cell.id) || 
     selectedProducts?.find((p) => p.gridId === cell.id);
-    console.log(`Cell ID: ${cell.id}`, selectedProduct);
+
   return (
     <Draggable key={cell.id}>
       <div
