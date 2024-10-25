@@ -88,6 +88,13 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
             <button onClick={onClose} className="mb-4 text-red-500">Cerrar</button>
             <h2 className="text-xl font-bold text-black">Productos Seleccionados</h2>
             <p className="text-gray-700">Cliente: {client}</p>
+            <button
+                onClick={() => handleSendToGoogleSheet([...localProducts, ...products])}
+                className="mt-4 bg-amber-700 text-white p-2 rounded"
+            >
+                Enviar
+            </button>
+
             <ul className="mt-4 space-y-2">
                 {(localProducts.length > 0 || products.length > 0) ? (
                     <>
@@ -130,13 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
                     <li>No hay productos seleccionados.</li>
                 )}
             </ul>
-            <button onClick={() => handleSendToGoogleSheet(localProducts)}
-                    className="mt-4 bg-amber-700 text-white p-2 rounded"
-                    
-            >
-                Enviar
-            </button>
-
+           
             {message && (
                 <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded">
                     {message}
