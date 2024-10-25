@@ -185,26 +185,20 @@ const commonGridProps = {
                         <div className="flex justify-center items-center w-full">
                             {/* Contenedor para botones y cuadrícula */}
                             <div className="flex flex-col items-center w-full relative">
-                                {/* Botones de paginación */}
                                 <div className="flex space-x-2 mb-4">
-                                    <button 
-                                        className={`px-4 py-2 ${currentPage === 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
-                                        onClick={() => changePage(2)}
-                                    >
-                                        2
-                                    </button>
-                                    <button 
-                                        className={`px-4 py-2 ${currentPage === 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
-                                        onClick={() => changePage(3)}
-                                    >
-                                        3
-                                    </button>
-                                    <button 
-                                        className={`px-4 py-2 ${currentPage === 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
-                                        onClick={() => changePage(4)}
-                                    >
-                                        4
-                                    </button>
+                                    {[2, 3, 4].map((page) => (
+                                        <button
+                                            key={page}
+                                            className={`px-4 py-2  border-2 transition duration-300 ease-in-out ${
+                                                currentPage === page
+                                                    ? 'bg-blue-500 text-white'
+                                                    : 'bg-white text-blue-500 border-blue-500'
+                                            } hover:bg-blue-500 hover:text-white`}
+                                            onClick={() => changePage(page)}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
                                 </div>
                                 <motion.div
                                     key={currentPage}
