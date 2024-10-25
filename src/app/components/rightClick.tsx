@@ -12,7 +12,7 @@ const RightClick: React.FC<RightClickProps> = ({
     handleChangeProduct
 }) => {
     return (
-        <div className=" absolute flex flex-col items-center justify-center w-36 bg-[#393939] rounded">
+        <div className="  flex flex-col items-center justify-center w-36 bg-[#393939] rounded">
             <button className=" text-white w-full h-full hover:scale-105 transition-all duration-300 hover:bg-[#7cc304]" onClick={() => handleRemoveProduct(productId)}>
                 Eliminar
             </button>

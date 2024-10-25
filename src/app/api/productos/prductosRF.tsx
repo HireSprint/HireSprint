@@ -58,7 +58,6 @@ export const getTableName = async (): Promise<Product[]> => {
         }).eachPage(
             function page(records, fetchNextPage) {
                 records.forEach(function (record) {
-                    console.log('record:', record.fields);
                     const attachments = record.get('Product_Image (from Products-RF)') as { url: string }[] | undefined;
                     const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
                     const descriptions = record.get('Product_Subline (from Products-RF)') as string[] | undefined;

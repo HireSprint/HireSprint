@@ -26,8 +26,6 @@ interface Grid {
 
 
 const Diseno = () => {
-
-
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
@@ -79,15 +77,6 @@ const Diseno = () => {
     };
 
 
-    const handleGridSelect = (gridId: number) => {
-      if (moveMode?.active) {
-          // Si estamos en modo de movimiento, mover el producto al nuevo grid
-          handleProductMove(gridId);
-      } else {
-          setSelectedGridId(gridId);
-          setShowProducts(true);
-      }
-  };
 
     const handleRemoveProduct = (productId: string) => {
         setSelectedProducts((prevProducts) =>
@@ -122,7 +111,7 @@ const Diseno = () => {
               sourceGridId: productToMove.gridId
           });
           // Mostrar mensaje al usuario
-          toast({
+          console.log({
               title: "Modo de movimiento activado",
               description: "Selecciona el grid destino para mover el producto",
               status: "info",
@@ -152,13 +141,24 @@ const Diseno = () => {
     // Resetear el modo de movimiento
     setMoveMode(null);
     
-    toast({
+    console.log({
         title: "Producto movido",
         description: "El producto ha sido movido exitosamente",
         status: "success",
         duration: 2000,
     });
 };
+
+const handleGridSelect = (gridId: number) => {
+  if (moveMode?.active) {
+      // Si estamos en modo de movimiento, mover el producto al nuevo grid
+      handleProductMove(gridId);
+  } else {
+      setSelectedGridId(gridId);
+      setShowProducts(true);
+  }
+};
+
 
 const commonGridProps = {
   onProductSelect: handleGridSelect,
@@ -180,9 +180,9 @@ const commonGridProps = {
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
                     <ImageGrid {...commonGridProps}/>
                 </div>
-                <div className="flex flex-col h-fit items-center w-full">
+                <div className="scroll-container flex flex-col h-fit items-center w-full">
                         {/* Contenedor de la cuadrícula centrado */}
-                        <div className="flex justify-center items-center w-full">
+                        <div className=" flex justify-center items-center w-full">
                             {/* Contenedor para botones y cuadrícula */}
                             <div className="flex flex-col items-center w-full relative">
                                 {/* Botones de paginación */}
@@ -212,10 +212,10 @@ const commonGridProps = {
                                     animate={{ x: 0, opacity: 1 }}
                                     exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
                                     transition={{ duration: 0.5 }}
-                                    className="w-full"
+                                    className="w-full relative"
                                 >
                                     {currentPage === 2 && (
-                                        <div className="flex justify-center items-center w-full border-r-2">
+                                        <div className=" flex justify-center items-center w-full border-r-2">
                                             <ImageGrid2 {...commonGridProps}/>
                                         </div>
                                     )}
