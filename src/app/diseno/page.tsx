@@ -6,7 +6,7 @@ import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
-import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4, ImageGrid5} from "../components/imageGrid";
+import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
 
 
 interface Product {
@@ -32,6 +32,7 @@ const Diseno = () => {
     const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
     const [currentPage, setCurrentPage] = useState(1); // estado de pagina
+    const [direction, setDirection] = useState(0); // 1 para adelante, -1 para atrás
 
 
     useEffect(() => {
@@ -87,30 +88,10 @@ const Diseno = () => {
 
    
 
-    const changePage = (direction) => {
-        if (direction === 'prev') {
-            setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : 4));
-        } else {
-            setCurrentPage((prevPage) => (prevPage < 4 ? prevPage + 1 : 1));
-        }
+    const changePage = (newPage: number) => {
+        setDirection(newPage > currentPage ? 1 : -1);
+        setCurrentPage(newPage);
     };
-    // Función auxiliar para  el botón
-    // Función auxiliar para renderizar el botón
-    const renderNavigationButton = (direction) => {
-        return (
-            <button
-                onClick={() => changePage(direction)}
-                className={`p-2 w-10 h-10 bg-white border border-gray-300 rounded shadow-md text-black flex items-center justify-center transition-transform transform active:scale-90 hover:bg-gray-200 ${
-                    direction === 'prev' ? 'mr-4' : 'ml-4'
-                }`}
-                aria-label={direction === 'prev' ? 'Página Anterior' : 'Página Siguiente'}
-            >
-                {direction === 'prev' ? '<' : '>'}
-            </button>
-        );
-    };
-   
-
     return (
         <div className="flex flex-col h-fit items-center">
             <div className="grid grid-cols-2 w-full items-center justify-center py-8">
@@ -118,49 +99,58 @@ const Diseno = () => {
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
                     <ImageGrid onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
                 </div>
-
-                {/* Segunda columna con ImageGrid y botones Prev/Next */}
                 <div className="flex flex-col h-fit items-center w-full">
-                
-
                         {/* Contenedor de la cuadrícula centrado */}
                         <div className="flex justify-center items-center w-full">
                             {/* Contenedor para botones y cuadrícula */}
-                            <div className="flex items-center justify-between w-full relative">
-                                {/* Botón para cambiar a la página anterior */}
-                             
-                            {currentPage === 1 && (
-                                <div className="flex justify-center items-center w-full border-r-2">
-                                    {renderNavigationButton('prev')}
-                                    <ImageGrid2 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
-                                    {renderNavigationButton('>')}
+                            <div className="flex flex-col items-center w-full relative">
+                                {/* Botones de paginación */}
+                                <div className="flex space-x-2 mb-4">
+                                    <button 
+                                        className={`px-4 py-2 ${currentPage === 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
+                                        onClick={() => changePage(1)}
+                                    >
+                                        1
+                                    </button>
+                                    <button 
+                                        className={`px-4 py-2 ${currentPage === 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
+                                        onClick={() => changePage(2)}
+                                    >
+                                        2
+                                    </button>
+                                    <button 
+                                        className={`px-4 py-2 ${currentPage === 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'} hover:bg-blue-500 hover:text-white`} 
+                                        onClick={() => changePage(3)}
+                                    >
+                                        3
+                                    </button>
                                 </div>
-                            )}
-                            {currentPage === 2 && (
-                                <div className="flex justify-center items-center w-full border-r-2">
-                                    {renderNavigationButton('prev')}
-                                    <ImageGrid3 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
-                                    {renderNavigationButton('>')}
-                                </div>
-                            )}
-                            {currentPage === 3 && (
-                                <div className="flex justify-center items-center w-full border-r-2">
-                                    {renderNavigationButton('prev')}
-                                    <ImageGrid4 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
-                                    {renderNavigationButton('>')}
-                                </div>
-                            )}
-                            {currentPage === 4 && (
-                                <div className="flex justify-center items-center w-full border-r-2">
-                                    {renderNavigationButton('prev')}
-                                    <ImageGrid5 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
-                                    {renderNavigationButton('>')}
-                                </div>
-                            )}                               
+                                <motion.div
+                                    key={currentPage}
+                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="w-full"
+                                >
+                                    {currentPage === 1 && (
+                                        <div className="flex justify-center items-center w-full border-r-2">
+                                            <ImageGrid2 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                                        </div>
+                                    )}
+                                    {currentPage === 2 && (
+                                        <div className="flex justify-center items-center w-full border-r-2">
+                                            <ImageGrid3 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                                        </div>
+                                    )}
+                                    {currentPage === 3 && (
+                                        <div className="flex justify-center items-center w-full border-r-2">
+                                            <ImageGrid4 onProductSelect={handleGridSelect} selectedProducts={selectedProducts}/>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </div>
                         </div>
-
-                        
-                    </div>
                 </div>
             </div>
 
@@ -217,11 +207,11 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
-                                                     products,
-                                                     loading,
-                                                     onProductSelect,
-                                                     onHideProducts,
-                                                 }) => {
+ products,
+ loading,
+ onProductSelect,
+ onHideProducts,
+}) => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = products.filter((product) =>
