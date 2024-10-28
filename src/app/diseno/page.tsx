@@ -8,9 +8,6 @@ import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
 import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
 
-
-
-
 interface Product {
     id: string;
     name: string;
@@ -24,7 +21,6 @@ interface Grid {
     product: Product | null;
 }
 
-
 const Diseno = () => {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -36,11 +32,10 @@ const Diseno = () => {
     const [currentPage, setCurrentPage] = useState(2); 
     const [direction, setDirection] = useState(0); 
     const [moveMode, setMoveMode] = useState<{
-      active: boolean;
-      productId: string;
-      sourceGridId: number;
-  } | null>(null);
-
+        active: boolean;
+        productId: string;
+        sourceGridId: number;
+    } | null>(null);
 
     useEffect(() => {
         if (products.length === 0) {
@@ -57,7 +52,6 @@ const Diseno = () => {
             fetchProducts();
         }
     }, [products.length]);
-
 
     const handleProductSelect = (product: Product) => {
         if (selectedGridId === null) return;
@@ -76,8 +70,6 @@ const Diseno = () => {
         });
     };
 
-
-
     const handleRemoveProduct = (productId: string) => {
         setSelectedProducts((prevProducts) =>
             prevProducts.filter((product) => product.id !== productId)
@@ -89,88 +81,82 @@ const Diseno = () => {
         );
     };
 
-   
-
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
     };
 
     const handleEditProduct = (productId: string) => {
-      // Implementa la lógica para editar el producto
-      console.log('Editar producto:', productId);
+        // Implementa la lógica para editar el producto
+        
     };
-  
+
     const handleChangeProduct = (productId: string) => {
-      // Encontrar el producto y su grid actual
-      const productToMove = selectedProducts.find(p => p.id === productId);
-      if (productToMove && productToMove.gridId) {
-          setMoveMode({
-              active: true,
-              productId: productId,
-              sourceGridId: productToMove.gridId
-          });
-          // Mostrar mensaje al usuario
-          console.log({
-              title: "Modo de movimiento activado",
-              description: "Selecciona el grid destino para mover el producto",
-              status: "info",
-              duration: 3000,
-          });
-          setShowProducts(false); // Ocultar el panel de productos si está visible
-      }
-  };
+        // Encontrar el producto y su grid actual
+        const productToMove = selectedProducts.find(p => p.id === productId);
+        if (productToMove && productToMove.gridId) {
+            setMoveMode({
+                active: true,
+                productId: productId,
+                sourceGridId: productToMove.gridId
+            });
+            // Mostrar mensaje al usuario
+            console.log({
+                title: "Modo de movimiento activado",
+                description: "Selecciona el grid destino para mover el producto",
+                status: "info",
+                duration: 3000,
+            });
+            setShowProducts(false); // Ocultar el panel de productos si está visible
+        }
+    };
 
-  const handleProductMove = (targetGridId: number) => {
-    if (!moveMode) return;
+    const handleProductMove = (targetGridId: number) => {
+        if (!moveMode) return;
 
-    setSelectedProducts(prevProducts => {
-        return prevProducts.map(product => {
-            if (product.id === moveMode.productId) {
-                // Actualizar el gridId del producto que se está moviendo
-                return { ...product, gridId: targetGridId };
-            }
-            if (product.gridId === targetGridId) {
-                // Si hay un producto en el grid destino, moverlo al grid origen
-                return { ...product, gridId: moveMode.sourceGridId };
-            }
-            return product;
+        setSelectedProducts(prevProducts => {
+            return prevProducts.map(product => {
+                if (product.id === moveMode.productId) {
+                    // Actualizar el gridId del producto que se está moviendo
+                    return { ...product, gridId: targetGridId };
+                }
+                if (product.gridId === targetGridId) {
+                    // Si hay un producto en el grid destino, moverlo al grid origen
+                    return { ...product, gridId: moveMode.sourceGridId };
+                }
+                return product;
+            });
         });
-    });
 
-    // Resetear el modo de movimiento
-    setMoveMode(null);
-    
-    console.log({
-        title: "Producto movido",
-        description: "El producto ha sido movido exitosamente",
-        status: "success",
-        duration: 2000,
-    });
-};
+        // Resetear el modo de movimiento
+        setMoveMode(null);
+        
+        console.log({
+            title: "Producto movido",
+            description: "El producto ha sido movido exitosamente",
+            status: "success",
+            duration: 2000,
+        });
+    };
 
-const handleGridSelect = (gridId: number) => {
-  if (moveMode?.active) {
-      // Si estamos en modo de movimiento, mover el producto al nuevo grid
-      handleProductMove(gridId);
-  } else {
-      setSelectedGridId(gridId);
-      setShowProducts(true);
-  }
-};
+    const handleGridSelect = (gridId: number) => {
+        if (moveMode?.active) {
+            // Si estamos en modo de movimiento, mover el producto al nuevo grid
+            handleProductMove(gridId);
+        } else {
+            setSelectedGridId(gridId);
+            setShowProducts(true);
+        }
+    };
 
-
-const commonGridProps = {
-  onProductSelect: handleGridSelect,
-  selectedProducts: selectedProducts,
-  onRemoveProduct: handleRemoveProduct,
-  onEditProduct: handleEditProduct,
-  onChangeProduct: handleChangeProduct,
-  isMoveModeActive: moveMode?.active || false,
-};
-
-
-
+    const commonGridProps = {
+        onProductSelect: handleGridSelect,
+        selectedProducts: selectedProducts,
+        onRemoveProduct: handleRemoveProduct,
+        onEditProduct: handleEditProduct,
+        onChangeProduct: handleChangeProduct,
+        isMoveModeActive: moveMode?.active || false,
+    };
 
     return (
         <div 
@@ -181,51 +167,51 @@ const commonGridProps = {
                     <ImageGrid {...commonGridProps}/>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
-                        {/* Contenedor de la cuadrícula centrado */}
-                        <div className=" flex justify-center items-center w-full">
-                            {/* Contenedor para botones y cuadrícula */}
-                            <div className="flex flex-col items-center w-full relative">
-                                <div className="flex space-x-2 mb-4">
-                                    {[2, 3, 4].map((page) => (
-                                        <button
-                                            key={page}
-                                            className={`px-4 py-2  border-2 transition duration-300 ease-in-out ${
-                                                currentPage === page
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-white text-blue-500 border-blue-500'
-                                            } hover:bg-blue-500 hover:text-white`}
-                                            onClick={() => changePage(page)}
-                                        >
-                                            {page}
-                                        </button>
-                                    ))}
-                                </div>
-                                <motion.div
-                                    key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="w-full relative"
-                                >
-                                    {currentPage === 2 && (
-                                        <div className=" flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid2 {...commonGridProps}/>
-                                        </div>
-                                    )}
-                                    {currentPage === 3 && (
-                                        <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid3 {...commonGridProps}/>
-                                        </div>
-                                    )}
-                                    {currentPage === 4 && (
-                                        <div className="flex justify-center items-center w-full border-r-2">
-                                            <ImageGrid4 {...commonGridProps}/>
-                                        </div>
-                                    )}
-                                </motion.div>
+                    {/* Contenedor de la cuadrícula centrado */}
+                    <div className=" flex justify-center items-center w-full">
+                        {/* Contenedor para botones y cuadrícula */}
+                        <div className="flex flex-col items-center w-full relative">
+                            <div className="flex space-x-2 mb-4">
+                                {[2, 3, 4].map((page) => (
+                                    <button
+                                        key={page}
+                                        className={`px-4 py-2  border-2 transition duration-300 ease-in-out ${
+                                            currentPage === page
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-white text-blue-500 border-blue-500'
+                                        } hover:bg-blue-500 hover:text-white`}
+                                        onClick={() => changePage(page)}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
                             </div>
+                            <motion.div
+                                key={currentPage}
+                                initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
+                                transition={{ duration: 0.5 }}
+                                className="w-full relative"
+                            >
+                                {currentPage === 2 && (
+                                    <div className=" flex justify-center items-center w-full border-r-2">
+                                        <ImageGrid2 {...commonGridProps}/>
+                                    </div>
+                                )}
+                                {currentPage === 3 && (
+                                    <div className="flex justify-center items-center w-full border-r-2">
+                                        <ImageGrid3 {...commonGridProps}/>
+                                    </div>
+                                )}
+                                {currentPage === 4 && (
+                                    <div className="flex justify-center items-center w-full border-r-2">
+                                        <ImageGrid4 {...commonGridProps}/>
+                                    </div>
+                                )}
+                            </motion.div>
                         </div>
+                    </div>
                 </div>
             </div>
 
@@ -282,11 +268,11 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
- products,
- loading,
- onProductSelect,
- onHideProducts,
-}) => {
+    products,
+    loading,
+    onProductSelect,
+    onHideProducts,
+}) => { 
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = products.filter((product) =>
@@ -310,11 +296,6 @@ const GridProduct: React.FC<GridProductProps> = ({
                     Ocultar Productos
                 </button>
             </div>
-            <div>
-
-            </div>
-
-
             {loading ? (
                 <div className="flex justify-center items-center ">
                     <Lottie animationData={LoadingLottie}/>

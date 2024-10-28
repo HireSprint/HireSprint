@@ -40,7 +40,6 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
           const productsData = await getTableName();
           const filteredProducts = productsData.filter(product => {
             if (!product.gridId) return false;
-            
             return (
               (product.gridId >= 201 && product.gridId <= 320) ||
               (product.gridId >= 301 && product.gridId <= 320) ||

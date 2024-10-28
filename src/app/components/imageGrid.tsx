@@ -258,8 +258,6 @@ export const ImageGrid2 = ({ onProductSelect, selectedProducts, isMoveModeActive
       {gridCells.map((cell, index) => {
   const selectedProduct = products?.find((p) => p.gridId === cell.id) || 
     selectedProducts?.find((p) => p.gridId === cell.id);
-    console.log("Context Menu Product ID:", contextMenu?.productId);
-    console.log("Selected Products IDs:", selectedProducts.map(p => p.id));
 
     return (
       <Draggable key={cell.id}>
