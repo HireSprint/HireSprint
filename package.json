@@ -10,6 +10,7 @@
     "move-static": "cp -a ./node_modules/@pdftron/webviewer/public/. ./dist/public/webviewer"
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.0.1",
     "@pdftron/webviewer": "^10.12.0",
     "airtable": "^0.12.2",
     "file-saver": "^2.0.5",
@@ -22,7 +23,8 @@
     "react-dom": "^18",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.2.9",
-    "react-pdf": "^9.1.1"
+    "react-pdf": "^9.1.1",
+    "react-toastify": "^10.0.6"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.7",

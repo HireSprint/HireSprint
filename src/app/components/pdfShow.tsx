@@ -101,7 +101,7 @@ const PdfComponent: React.FC<PDFViewerProps> = ({ initialCuadros }) => {
   };
 
   const handleCreateCuadro = () => {
-    console.log("Current cuadros:", cuadros); 
+
     if (!instanceRef.current) return;
     const { Core } = instanceRef.current;
     const { annotationManager } = Core;
@@ -127,7 +127,7 @@ const PdfComponent: React.FC<PDFViewerProps> = ({ initialCuadros }) => {
     annotationManager.redrawAnnotation(rectangleAnnot);
 
     setCuadros((prevCuadros) => [...prevCuadros, newCuadro]);
-    console.log(cuadros, newCuadro)
+
   };
 
   const handleSave = () => {

@@ -6,19 +6,18 @@ import { useEffect, useState } from "react";
 interface Product {
   id: string;
   name: string;
-  descriptions: string[] | undefined;
+  descriptions: string;
   image: string;
   price?: number;
-  description: string;
 }
 
 interface CardProductProps {
   product: Product;
+  descriptions: string;
   onProductSelect?: (product: Product) => void; 
   onPriceChange?: (id: string, price: number) => void; 
 }
-
-export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
+export const CardProduct: React.FC<CardProductProps> = ({ product, descriptions, onProductSelect }) => {
   return (
     <div 
       className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
@@ -26,7 +25,7 @@ export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSele
     >
       <div className="text-center w-full">
         <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{descriptions}</p>
       </div>
       <div className="w-full h-40 relative">
         {product.image ? (

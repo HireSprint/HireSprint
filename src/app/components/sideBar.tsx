@@ -2,7 +2,7 @@
 import React, {useState, useEffect, use, useCallback} from 'react';
 import {useProductContext} from '../context/productContext';
 import {CardSide} from './card';
-import {addGoogleSheet} from '../api/productos/prductosRF';
+import {addGoogleSheet, getTableName} from '../api/productos/prductosRF';
 import {addGoogleSheet2} from "../api/productos/prductosRF";
 
 interface Product {
@@ -11,7 +11,7 @@ interface Product {
     image: string;
     gridId?: number;
     price?: number;
-    descriptions?: string[] | undefined;
+    descriptions?: string[]; // Cambiar de string[] | undefined a string[]
 }
 
 interface SidebarProps {
@@ -26,24 +26,41 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
     const {client} = useProductContext();
     const [message, setMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [products, setProducts] = useState<Product[]>([]); 
 
     // Efecto para actualizar localProducts cuando selectedProducts cambia
     useEffect(() => {
         setLocalProducts(selectedProducts);
     }, [selectedProducts]);
 
+    
+    useEffect(() => {
+      const fetchProducts = async () => {
+        try {
+          const productsData = await getTableName();
+          const filteredProducts = productsData.filter(product => {
+            if (!product.gridId) return false;
+            return (
+              (product.gridId >= 201 && product.gridId <= 320) ||
+              (product.gridId >= 301 && product.gridId <= 320) ||
+              (product.gridId >= 401 && product.gridId <= 420)
+            );
+          });
+          setProducts(filteredProducts);
+        } catch (error) {
+          console.error('Error al obtener productos:', error);
+        }
+      };
+  
+      fetchProducts(); 
+    }, []); 
+
 
     const handleSendToGoogleSheet = async (data: Product[]): Promise<void> => {
         setLoading(true);      
-        
         addGoogleSheet2(data);
-        console.log(data);    
-        console.log(loading);
-            
-
+ 
     };
-
-    
 
     const handlePriceChange = (id: string, newPrice: number) => {
         setLocalProducts(prevProducts =>
@@ -70,43 +87,56 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
             <button onClick={onClose} className="mb-4 text-red-500">Cerrar</button>
             <h2 className="text-xl font-bold text-black">Productos Seleccionados</h2>
             <p className="text-gray-700">Cliente: {client}</p>
-            <ul className="mt-4 space-y-2">
-                {localProducts.length > 0 ? (
-                    localProducts.map((product, index) => (
-                        <li key={product.id} className="text-sm text-black">
-                            <span className="font-bold">{index + 1}.</span> {product.name} -
-                            <span className="text-gray-500"> G.{product.gridId}</span>
-                            <input
-                                type="number"
-                                value={product.price || ''}
-                                onChange={(e) => handlePriceChange(product.id, parseFloat(e.target.value) || 0)}
-                                className="ml-2 w-16 text-black border rounded"
-                                step="0.01"
-                            />
-                            <CardSide
-                                product={product as Product & { descriptions: string[] }}
-                                onPriceChange={handlePriceChange}
-                                onProductSelect={handleProductSelect}
-                            />
-                            <button
-                                onClick={() => handleRemoveProduct(product.id)}
-                                className="ml-2 text-red-500 hover:text-red-700"
-                            >
-                                Eliminar
-                            </button>
-                        </li>
-                    ))
-                ) : (
-                    <li>No hay productos seleccionados.</li>
-                )}
-            </ul>
-            <button onClick={() => handleSendToGoogleSheet(localProducts)}
-                    className="mt-4 bg-amber-700 text-white p-2 rounded"
-                    
+            <button
+                onClick={() => handleSendToGoogleSheet([...localProducts, ...products])}
+                className="mt-4 bg-amber-700 text-white p-2 rounded"
             >
                 Enviar
             </button>
 
+            <ul className="mt-4 space-y-2">
+                {(localProducts.length > 0 || products.length > 0) ? (
+                    <>
+                        {localProducts.map((product, index) => (
+                            <li key={product.id} className="text-sm text-black">
+                                <span className="font-bold">{index + 1}.</span> {product.name} -
+                                <span className="text-gray-500"> G.{product.gridId}</span>
+                                <CardSide
+                                    product={product}
+                                    onPriceChange={handlePriceChange}
+                                    onProductSelect={handleProductSelect}
+                                />
+                                <button
+                                    onClick={() => handleRemoveProduct(product.id)}
+                                    className="ml-2 text-red-500 hover:text-red-700"
+                                >
+                                    Eliminar
+                                </button>
+                            </li>
+                        ))}
+                        {products.map((product, index) => (
+                            <li key={product.id} className="text-sm text-black">
+                                <span className="font-bold">{index + 1 + localProducts.length}.</span> {product.name} -
+                                <span className="text-gray-500"> G.{product.gridId}</span>
+                                <CardSide
+                                    product={product}
+                                    onPriceChange={handlePriceChange}
+                                    onProductSelect={handleProductSelect}
+                                />
+                                <button
+                                    onClick={() => handleRemoveProduct(product.id)}
+                                    className="ml-2 text-red-500 hover:text-red-700"
+                                >
+                                    Eliminar
+                                </button>
+                            </li>
+                        ))}
+                    </>
+                ) : (
+                    <li>No hay productos seleccionados.</li>
+                )}
+            </ul>
+           
             {message && (
                 <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded">
                     {message}
