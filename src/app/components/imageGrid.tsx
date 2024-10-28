@@ -182,130 +182,153 @@ export const ImageGrid = ({
 };
 
 
-export const ImageGrid2 = ({ onProductSelect, selectedProducts, isMoveModeActive, onEditProduct, onRemoveProduct, onChangeProduct}: ImageGridProps) => {
-  const gridCells = [
-    { id: 201, top: "top-44", left: "left-0", width: "80px", height: "56px" },
-    { id: 202, top: "top-44", left: "left-20", width: "80px", height: "56px" },
-    { id: 203, top: "top-44", left: "left-40", width: "80px", height: "56px" },
-    { id: 204, top: "top-[230px]", left: "left-0", width: "80px", height: "56px" },
-    { id: 205, top: "top-[230px]", left: "left-20", width: "80px", height: "56px" },
-    { id: 206, top: "top-[230px]", left: "left-40", width: "80px", height: "56px" },
-    { id: 207, top: "top-72", left: "left-0", width: "80px", height: "56px" },
-    { id: 208, top: "top-72", left: "left-20", width: "80px", height: "56px" },
-    { id: 209, top: "top-72", left: "left-40", width: "80px", height: "56px" },
-    { id: 210, top: "top-[350px]", left: "left-0", width: "50px", height: "56px" },
-    { id: 211, top: "top-[350px]", left: "left-12", width: "50px", height: "56px" },
-    { id: 212, top: "top-[350px]", left: "left-24", width: "50px", height: "56px" },
-    { id: 213, top: "top-[350px]", left: "left-36", width: "50px", height: "56px" },
-    { id: 214, top: "top-[350px]", left: "left-48", width: "50px", height: "56px" },
-    { id: 215, top: "top-[410px]", left: "left-0", width: "80px", height: "56px" },
-    { id: 216, top: "top-[410px]", left: "left-20", width: "85px", height: "56px" },
-    { id: 217, top: "top-[410px]", left: "left-[165px]", width: "80px", height: "56px" },
-    { id: 218, top: "top-44", left: "left-60", width: "100px", height: "56px" },
-    { id: 219, top: "top-[240px]", left: "left-60", width: "100px", height: "56px" },
-    { id: 220, top: "top-[310px]", left: "left-60", width: "100px", height: "56px" },
-   
-  ];
+export const ImageGrid2 = ({
+                               onProductSelect,
+                               selectedProducts,
+                               isMoveModeActive,
+                               onEditProduct,
+                               onRemoveProduct,
+                               onChangeProduct
+                           }: ImageGridProps) => {
+    const gridCells = [
+        {id: 201, top: "top-44", left: "left-0", width: "80px", height: "56px"},
+        {id: 202, top: "top-44", left: "left-20", width: "80px", height: "56px"},
+        {id: 203, top: "top-44", left: "left-40", width: "80px", height: "56px"},
+        {id: 204, top: "top-[230px]", left: "left-0", width: "80px", height: "56px"},
+        {id: 205, top: "top-[230px]", left: "left-20", width: "80px", height: "56px"},
+        {id: 206, top: "top-[230px]", left: "left-40", width: "80px", height: "56px"},
+        {id: 207, top: "top-72", left: "left-0", width: "80px", height: "56px"},
+        {id: 208, top: "top-72", left: "left-20", width: "80px", height: "56px"},
+        {id: 209, top: "top-72", left: "left-40", width: "80px", height: "56px"},
+        {id: 210, top: "top-[350px]", left: "left-0", width: "50px", height: "56px"},
+        {id: 211, top: "top-[350px]", left: "left-12", width: "50px", height: "56px"},
+        {id: 212, top: "top-[350px]", left: "left-24", width: "50px", height: "56px"},
+        {id: 213, top: "top-[350px]", left: "left-36", width: "50px", height: "56px"},
+        {id: 214, top: "top-[350px]", left: "left-48", width: "50px", height: "56px"},
+        {id: 215, top: "top-[410px]", left: "left-0", width: "80px", height: "56px"},
+        {id: 216, top: "top-[410px]", left: "left-20", width: "85px", height: "56px"},
+        {id: 217, top: "top-[410px]", left: "left-[165px]", width: "80px", height: "56px"},
+        {id: 218, top: "top-44", left: "left-60", width: "100px", height: "56px"},
+        {id: 219, top: "top-[240px]", left: "left-60", width: "100px", height: "56px"},
+        {id: 220, top: "top-[310px]", left: "left-60", width: "100px", height: "56px"},
+    ];
 
-  const [products, setProducts] = useState<Product[]>([]); 
-  const [contextMenu, setContextMenu] = useState<{
-    visible: boolean;
-    x: number;
-    y: number;
-    productId: string;
-  } | null>(null);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [contextMenu, setContextMenu] = useState<{
+        visible: boolean;
+        x: number;
+        y: number;
+        productId: string;
+    } | null>(null);
 
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const productsData = await getTableName();
+                setProducts(productsData);
+            } catch (error) {
+                console.error('Error al obtener productos:', error)
+            }
+        };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await getTableName();
-        setProducts(productsData);
-      } catch (error) {
-        console.error('Error al obtener productos:', error)
-      }
+        fetchProducts();
+    }, []);
+
+    const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+        e.preventDefault();
+        if (isMoveModeActive) return;
+
+        // Obtener las coordenadas del clic derecho
+        const container = e.currentTarget.closest('.scroll-container');
+        const containerRect = container?.getBoundingClientRect();
+
+        let posX = e.clientX;
+        let posY = e.clientY;
+
+        if (containerRect) {
+            posX = e.clientX - containerRect.left + container.scrollLeft;
+            posY = e.clientY - containerRect.top + container.scrollTop;
+        }
+
+        // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
+        const menuWidth = 150; // Ancho estimado del menú contextual
+        const menuHeight = 200; // Alto estimado del menú contextual
+
+        if (posX + menuWidth > window.innerWidth) {
+            posX -= menuWidth;
+        }
+        if (posY + menuHeight > window.innerHeight) {
+            posY -= menuHeight;
+        }
+
+        // Establecer el estado del menú contextual con las coordenadas ajustadas
+        setContextMenu({
+            visible: true,
+            x: posX,
+            y: posY-50,
+            productId: cellId.toString(),
+        });
     };
 
-    fetchProducts(); 
-  }, []); 
-
-  const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
-    e.preventDefault();
-    if (isMoveModeActive) return;
-    const boundingRect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - boundingRect.left;
-    const y = e.clientY - boundingRect.top;
-  
-    setContextMenu({
-      visible: true,
-      x,
-      y,
-      productId: cellId.toString()
-    });
-  };
-
-
-
-  useEffect(() => {
-    const handleClickOutside = () => setContextMenu(null);
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  return (
-    <div className="relative inline-block">
-      <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority />
-      {gridCells.map((cell, index) => {
-  const selectedProduct = products?.find((p) => p.gridId === cell.id) || 
-    selectedProducts?.find((p) => p.gridId === cell.id);
+    useEffect(() => {
+        const handleClickOutside = () => setContextMenu(null);
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
 
     return (
-      <Draggable key={cell.id}>
-        <div
-          key={cell.id}
-          className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-          style={{ width: cell.width, height: cell.height }}
-          onClick={() => onProductSelect(cell.id)}
-          onContextMenu={(e) => handleContextMenu(e, cell.id)}
-        >
-          <div className="absolute text-black font-bold">
-            {selectedProduct?.name || cell.id.toString()}
-          </div>
-          {selectedProduct?.image && (
-            <Image 
-              src={selectedProduct.image} 
-              alt={selectedProduct.name || ''}
-              width={70} 
-              height={70} 
-              objectFit="cover"
-            />
-          )}
+        <div className="relative inline-block">
+            <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority/>
+            {gridCells.map((cell, index) => {
+                const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
+                    selectedProducts?.find((p) => p.gridId === cell.id);
 
-          
+                return (
+                    <Draggable key={cell.id}>
+                        <div
+                            key={cell.id}
+                            className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
+                            style={{width: cell.width, height: cell.height}}
+                            onClick={() => onProductSelect(cell.id)}
+                            onContextMenu={(e) => handleContextMenu(e, cell.id)}
+                        >
+                            <div className="absolute text-black font-bold">
+                                {selectedProduct?.name || cell.id.toString()}
+                            </div>
+                            {selectedProduct?.image && (
+                                <Image
+                                    src={selectedProduct.image}
+                                    alt={selectedProduct.name || ''}
+                                    width={70}
+                                    height={70}
+                                    objectFit="cover"
+                                />
+                            )}
+                        </div>
+                    </Draggable>
+                );
+            })}
+
+
+            {contextMenu?.visible && (
+                <div
+                    style={{
+                        position: 'fixed', // Se asegura de usar fixed para alinear con el viewport
+                        top: `${contextMenu.y}px`, // Posicionamiento vertical basado en las coordenadas ajustadas del clic
+                        left: `${contextMenu.x}px`, // Posicionamiento horizontal basado en las coordenadas ajustadas del clic
+                        zIndex: 1000,
+                    }}
+                >
+                    <RightClick
+                        productId={contextMenu.productId}
+                        handleRemoveProduct={onRemoveProduct}
+                        handleEditProduct={onEditProduct}
+                        handleChangeProduct={onChangeProduct}
+                    />
+                </div>
+            )}
         </div>
-      </Draggable>
     );
-  })}
-
-{contextMenu?.visible && selectedProducts.some(p => p.id === contextMenu.productId) && (
-  <div
-    style={{
-      position: 'fixed',
-      top: `${contextMenu.y}px`,
-      left: `${contextMenu.x}px`,
-      zIndex: 1000,
-    }}
-  >
-    <RightClick
-      productId={contextMenu.productId}
-      handleRemoveProduct={onRemoveProduct}
-      handleEditProduct={onEditProduct}
-      handleChangeProduct={onChangeProduct}
-    />
-  </div>
-)}
-</div>
-);
 };            
 
 export const ImageGrid3 = ({onProductSelect, selectedProducts, isMoveModeActive, onEditProduct, onRemoveProduct, onChangeProduct}: ImageGridProps) => {
