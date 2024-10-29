@@ -23,7 +23,22 @@ interface ImageGridProps {
 }
 
 export const deletedProducts: Product[] = [];
-
+export let productoA: Product = {
+    id: "",
+    name: "",
+    image: "",
+    gridId: undefined,
+    descriptions: undefined,
+    key: undefined
+};
+export let productoB: Product = {
+    id: "",
+    name: "",
+    image: "",
+    gridId: undefined,
+    descriptions: undefined,
+    key: undefined
+};
 export const ImageGrid = ({
                               onProductSelect,
                               selectedProducts,
@@ -216,21 +231,21 @@ export const ImageGrid2 = ({
         {id: 219, top: "top-[240px]", left: "left-60", width: "100px", height: "56px"},
         {id: 220, top: "top-[310px]", left: "left-60", width: "100px", height: "56px"},
     ];
- 
-    const [products, setProducts] = useState<Product[]>([]);  
+
+    const [products, setProducts] = useState<Product[]>([]);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
         y: number;
         productId: string;
     } | null>(null);
-    
+
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const productsData = await getTableName();
-                setProducts(productsData);                       
+                setProducts(productsData);
             } catch (error) {
                 console.error('Error al obtener productos:', error)
             }
@@ -251,8 +266,8 @@ export const ImageGrid2 = ({
     };
 
     removeDeletedProducts(products, deletedProducts);
-   
-    
+
+
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
@@ -289,7 +304,7 @@ export const ImageGrid2 = ({
             productId: cellId.toString(),
         });
     };
-   
+
     const handleClearCell = (cellId: string): void => {
         console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
@@ -309,14 +324,14 @@ export const ImageGrid2 = ({
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
-    }, []);    
+    }, []);
     return (
         <div className="relative inline-block">
             <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
-                    selectedProducts?.find((p) => p.gridId === cell.id);              
+                    selectedProducts?.find((p) => p.gridId === cell.id);
                 console.log("Entro a modificar lo grafico de la info");
                 return (
                     <Draggable key={cell.id}>
@@ -433,8 +448,8 @@ export const ImageGrid3 = ({
     };
 
     removeDeletedProducts(products, deletedProducts);
-  
-    
+
+
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
@@ -486,7 +501,7 @@ export const ImageGrid3 = ({
             console.log("Elemento no encontrado.");
         }
     };
-    
+
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener('click', handleClickOutside);
