@@ -237,26 +237,27 @@ export const ImageGrid2 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 201, top: "top-44", left: "left-0", width: "80px", height: "56px"},
-        {id: 202, top: "top-44", left: "left-20", width: "80px", height: "56px"},
-        {id: 203, top: "top-44", left: "left-40", width: "80px", height: "56px"},
-        {id: 204, top: "top-[230px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 205, top: "top-[230px]", left: "left-20", width: "80px", height: "56px"},
-        {id: 206, top: "top-[230px]", left: "left-40", width: "80px", height: "56px"},
-        {id: 207, top: "top-72", left: "left-0", width: "80px", height: "56px"},
-        {id: 208, top: "top-72", left: "left-20", width: "80px", height: "56px"},
-        {id: 209, top: "top-72", left: "left-40", width: "80px", height: "56px"},
-        {id: 210, top: "top-[350px]", left: "left-0", width: "50px", height: "56px"},
-        {id: 211, top: "top-[350px]", left: "left-12", width: "50px", height: "56px"},
-        {id: 212, top: "top-[350px]", left: "left-24", width: "50px", height: "56px"},
-        {id: 213, top: "top-[350px]", left: "left-36", width: "50px", height: "56px"},
-        {id: 214, top: "top-[350px]", left: "left-48", width: "50px", height: "56px"},
-        {id: 215, top: "top-[410px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 216, top: "top-[410px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 217, top: "top-[410px]", left: "left-[165px]", width: "80px", height: "56px"},
-        {id: 218, top: "top-44", left: "left-60", width: "100px", height: "56px"},
-        {id: 219, top: "top-[240px]", left: "left-60", width: "100px", height: "56px"},
-        {id: 220, top: "top-[310px]", left: "left-60", width: "100px", height: "56px"},
+        {id: 201, top: "top-0", left: "left-0", width: "80px", height: "56px"},
+        {id: 202, top: "top-0", left: "left-20", width: "80px", height: "56px"},
+        {id: 203, top: "top-0", left: "left-40", width: "80px", height: "56px"},
+        {id: 204, top: "top-14", left: "left-0", width: "80px", height: "56px"},
+        {id: 205, top: "top-14", left: "left-20", width: "80px", height: "56px"},
+        {id: 206, top: "top-14", left: "left-40", width: "80px", height: "56px"},
+        {id: 207, top: "top-28", left: "left-0", width: "80px", height: "56px"},
+        {id: 208, top: "top-28", left: "left-20", width: "80px", height: "56px"},
+        {id: 209, top: "top-28", left: "left-40", width: "80px", height: "56px"},
+        {id: 210, top: "top-48", left: "left-0", width: "50px", height: "56px"},
+        {id: 211, top: "top-48", left: "left-12", width: "50px", height: "56px"},
+        {id: 212, top: "top-48", left: "left-24", width: "50px", height: "56px"},
+        {id: 213, top: "top-48", left: "left-36", width: "50px", height: "56px"},
+        {id: 214, top: "top-48", left: "left-48", width: "50px", height: "56px"},
+        {id: 215, top: "top-[250px]", left: "left-0", width: "80px", height: "56px"},
+        {id: 216, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
+        {id: 216, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
+        {id: 217, top: "top-[250px] ", left: "left-[165px]", width: "80px", height: "56px"},
+        {id: 218, top: "top-0", left: "left-60", width: "100px", height: "56px"},
+        {id: 219, top: "top-14", left: "left-60", width: "100px", height: "56px"},
+        {id: 220, top: "top-28", left: "left-60", width: "100px", height: "56px"},
     ];
     const [products, setProducts] = useState<Product[]>([]);
     const [contextMenu, setContextMenu] = useState<{
@@ -449,7 +450,7 @@ export const ImageGrid2 = ({
     }, []);
     return (
         <div className="relative inline-block">
-            <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority/>
+            <Image src="/file/demo-2.png" alt="PDF" width={340} height={340} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -523,26 +524,26 @@ export const ImageGrid3 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 301, top: "top-44", left: "left-0", width: "80px", height: "56px"},
-        {id: 302, top: "top-44", left: "left-20", width: "80px", height: "56px"},
-        {id: 303, top: "top-44", left: "left-40", width: "80px", height: "56px"},
-        {id: 304, top: "top-[230px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 305, top: "top-[230px]", left: "left-20", width: "80px", height: "56px"},
-        {id: 306, top: "top-[230px]", left: "left-40", width: "80px", height: "56px"},
-        {id: 307, top: "top-72", left: "left-0", width: "80px", height: "56px"},
-        {id: 308, top: "top-72", left: "left-20", width: "80px", height: "56px"},
-        {id: 309, top: "top-72", left: "left-40", width: "80px", height: "56px"},
-        {id: 310, top: "top-[350px]", left: "left-0", width: "50px", height: "56px"},
-        {id: 311, top: "top-[350px]", left: "left-12", width: "50px", height: "56px"},
-        {id: 312, top: "top-[350px]", left: "left-24", width: "50px", height: "56px"},
-        {id: 313, top: "top-[350px]", left: "left-36", width: "50px", height: "56px"},
-        {id: 314, top: "top-[350px]", left: "left-48", width: "50px", height: "56px"},
-        {id: 315, top: "top-[410px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 316, top: "top-[410px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 317, top: "top-[410px]", left: "left-[165px]", width: "80px", height: "56px"},
-        {id: 318, top: "top-44", left: "left-60", width: "100px", height: "56px"},
-        {id: 319, top: "top-[240px]", left: "left-60", width: "100px", height: "56px"},
-        {id: 320, top: "top-[310px]", left: "left-60", width: "100px", height: "56px"},
+        {id: 301, top: "top-0", left: "left-0", width: "80px", height: "56px"},
+        {id: 302, top: "top-0", left: "left-20", width: "80px", height: "56px"},
+        {id: 303, top: "top-0", left: "left-40", width: "80px", height: "56px"},
+        {id: 304, top: "top-14", left: "left-0", width: "80px", height: "56px"},
+        {id: 305, top: "top-14", left: "left-20", width: "80px", height: "56px"},
+        {id: 306, top: "top-14", left: "left-40", width: "80px", height: "56px"},
+        {id: 307, top: "top-28", left: "left-0", width: "80px", height: "56px"},
+        {id: 308, top: "top-28", left: "left-20", width: "80px", height: "56px"},
+        {id: 309, top: "top-28", left: "left-40", width: "80px", height: "56px"},
+        {id: 310, top: "top-48", left: "left-0", width: "50px", height: "56px"},
+        {id: 311, top: "top-48", left: "left-12", width: "50px", height: "56px"},
+        {id: 312, top: "top-48", left: "left-24", width: "50px", height: "56px"},
+        {id: 313, top: "top-48", left: "left-36", width: "50px", height: "56px"},
+        {id: 314, top: "top-48", left: "left-48", width: "50px", height: "56px"},
+        {id: 315, top: "top-[250px] ", left: "left-0", width: "80px", height: "56px"},
+        {id: 316, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
+        {id: 317, top: "top-[250px]", left: "left-[165px]", width: "80px", height: "56px"},
+        {id: 318, top: "top-0", left: "left-60", width: "100px", height: "56px"},
+        {id: 319, top: "top-14", left: "left-60", width: "100px", height: "56px"},
+        {id: 320, top: "top-28", left: "left-60", width: "100px", height: "56px"},
 
     ];
 
@@ -642,7 +643,7 @@ export const ImageGrid3 = ({
     return (
         <div className="relative inline-block">
 
-            <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority/>
+            <Image src="/file/demo-2.png" alt="PDF" width={340} height={340} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
                     selectedProducts?.find((p) => p.gridId === cell.id);
@@ -706,26 +707,26 @@ export const ImageGrid4 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 401, top: "top-44", left: "left-0", width: "80px", height: "56px"},
-        {id: 402, top: "top-44", left: "left-20", width: "80px", height: "56px"},
-        {id: 403, top: "top-44", left: "left-40", width: "80px", height: "56px"},
-        {id: 404, top: "top-[230px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 405, top: "top-[230px]", left: "left-20", width: "80px", height: "56px"},
-        {id: 406, top: "top-[230px]", left: "left-40", width: "80px", height: "56px"},
-        {id: 407, top: "top-72", left: "left-0", width: "80px", height: "56px"},
-        {id: 408, top: "top-72", left: "left-20", width: "80px", height: "56px"},
-        {id: 409, top: "top-72", left: "left-40", width: "80px", height: "56px"},
-        {id: 410, top: "top-[350px]", left: "left-0", width: "50px", height: "56px"},
-        {id: 411, top: "top-[350px]", left: "left-12", width: "50px", height: "56px"},
-        {id: 412, top: "top-[350px]", left: "left-24", width: "50px", height: "56px"},
-        {id: 413, top: "top-[350px]", left: "left-36", width: "50px", height: "56px"},
-        {id: 414, top: "top-[350px]", left: "left-48", width: "50px", height: "56px"},
-        {id: 415, top: "top-[410px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 416, top: "top-[410px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 417, top: "top-[410px]", left: "left-[165px]", width: "80px", height: "56px"},
-        {id: 418, top: "top-44", left: "left-60", width: "100px", height: "56px"},
-        {id: 419, top: "top-[240px]", left: "left-60", width: "100px", height: "56px"},
-        {id: 420, top: "top-[310px]", left: "left-60", width: "100px", height: "56px"},
+        {id: 401, top: "top-0", left: "left-0", width: "80px", height: "56px"},
+        {id: 402, top: "top-0", left: "left-20", width: "80px", height: "56px"},
+        {id: 403, top: "top-0", left: "left-40", width: "80px", height: "56px"},
+        {id: 404, top: "top-14", left: "left-0", width: "80px", height: "56px"},
+        {id: 405, top: "top-14", left: "left-20", width: "80px", height: "56px"},
+        {id: 406, top: "top-14", left: "left-40", width: "80px", height: "56px"},
+        {id: 407, top: "top-28", left: "left-0", width: "80px", height: "56px"},
+        {id: 408, top: "top-28", left: "left-20", width: "80px", height: "56px"},
+        {id: 409, top: "top-28", left: "left-40", width: "80px", height: "56px"},
+        {id: 410, top: "top-48", left: "left-0", width: "50px", height: "56px"},
+        {id: 411, top: "top-48", left: "left-12", width: "50px", height: "56px"},
+        {id: 412, top: "top-48", left: "left-24", width: "50px", height: "56px"},
+        {id: 413, top: "top-48", left: "left-36", width: "50px", height: "56px"},
+        {id: 414, top: "top-48", left: "left-48", width: "50px", height: "56px"},
+        {id: 415, top: "top-[250px]", left: "left-0", width: "80px", height: "56px"},
+        {id: 416, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
+        {id: 417, top: "top-[250px]", left: "left-[165px]", width: "80px", height: "56px"},
+        {id: 418, top: "top-0", left: "left-60", width: "100px", height: "56px"},
+        {id: 419, top: "top-14", left: "left-60", width: "100px", height: "56px"},
+        {id: 420, top: "top-28", left: "left-60", width: "100px", height: "56px"},
 
     ];
 
@@ -823,7 +824,7 @@ export const ImageGrid4 = ({
     return (
         <div className="relative inline-block">
 
-            <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority/>
+            <Image src="/file/demo-2.png" alt="PDF" width={340} height={340} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
                     selectedProducts?.find((p) => p.gridId === cell.id);
