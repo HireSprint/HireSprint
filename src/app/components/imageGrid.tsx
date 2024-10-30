@@ -21,9 +21,8 @@ interface ImageGridProps {
     onChangeProduct: (productId: string) => void;
     isMoveModeActive: boolean;
 }
-
+export let productTempDeleted: string;
 export const deletedProducts: Product[] = [];
-
 export const changeProducts: Product[] = [];
 export let productsgrid2: Product[] = [];
 export let productoA: Product = {
@@ -313,7 +312,6 @@ export const ImageGrid2 = ({
         e.preventDefault();
         if (isMoveModeActive) return;
 
-
         // Obtener las coordenadas del clic derecho
         const container = e.currentTarget.closest('.scroll-container');
         const containerRect = container?.getBoundingClientRect();
@@ -346,23 +344,38 @@ export const ImageGrid2 = ({
         });
     };
 
+  
     //Eliminar Producto
     const handleClearCell = (cellId: string): void => {
         console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
-
+        productTempDeleted = '';
         if (elementIndex !== -1) {
             // Guardar el elemento en el array de productos eliminados
             deletedProducts.push(productsgrid2[elementIndex]);
-
+            selectedProducts.length = 0;   
+           
             // Eliminar el elemento del array
-            productsgrid2.splice(elementIndex, 1);
+          
         } else {
             console.log("Elemento no encontrado.");
         }
+
     };
 
+    const updateProductsGrid = (): void => {
+        // Obtener todos los productos dentro de las celdas de la cuadrícula
+        const allGridProducts = gridCells
+            .map((cell) => {
+                // Encontrar el producto en productsgrid2 asignado a cada celda
+                return productsgrid2.find((product) => product.gridId === cell.id) || null;
+            })
+            .filter((product): product is Product => product !== null); // Filtrar aquellos que no sean null
+
+        // Mostrar en consola los productos encontrados en la cuadrícula
+        console.log("Productos dentro de la cuadrícula:", allGridProducts);
+    };
     const handleInitChangeProduct = (Cellid: string): void => {
         console.log(Cellid)
         const cellIdNumber: number = parseInt(Cellid, 10);
@@ -376,33 +389,57 @@ export const ImageGrid2 = ({
     const handleChangeProducts = (cellId: string): void => {
         const cellIdNumber = parseInt(cellId, 10);
         if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
-            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
 
-            // Si se encuentra el elemento con `gridId` igual a `cellIdNumber`
+            // Si se encuentra la celda (puede ser vacía)
             if (elementIndex !== -1) {
-                productoB = productsgrid2[elementIndex];
+                let productoB = productsgrid2[elementIndex];
+
+                // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
+                if (!productoB) {
+                    productoB = {gridId: cellIdNumber};
+                }
 
                 // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
                 const tempGridId = productoA.gridId;
                 productoA.gridId = productoB.gridId;
                 productoB.gridId = tempGridId;
 
-                // Actualizar el array `products` con los cambios
+                // Actualizar el array `productsgrid2` con los cambios
                 productsgrid2[elementIndex] = productoB;
 
-                // Si `productoA` también pertenece a `products`, actualizarlo también
-                const indexA = productsgrid2.findIndex((p: Product): boolean => p.id === productoA.id);
+                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                const indexA = productsgrid2.findIndex((p: Product): boolean => p?.id === productoA.id);
                 if (indexA !== -1) {
                     productsgrid2[indexA] = productoA;
                 }
-            }
 
+                setProducts(productoB);
+            }
             console.log('Producto A:', productoA);
             console.log('Producto B:', productoB);
             resetProductoA();
             resetProductoB();
         }
-    }
+    };
+  
+    const addProductIfAbsent = (product: Product): void => {
+        
+        if(product.id !== productTempDeleted){       
+            
+            
+        const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
+
+        if (!existsInProductinArray) {
+            productsgrid2.push(product);
+            console.log("Producto añadido:", product);
+            productTempDeleted = product.id;
+            selectedProducts.length =0;
+        }
+     
+        }
+
+    };
 
     useEffect(() => {
 
@@ -415,9 +452,12 @@ export const ImageGrid2 = ({
             <Image src="/file/demo-1.png" alt="PDF" width={340} height={340} priority/>
             {gridCells.map((cell, index) => {
 
-                const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) ||
-                    selectedProducts?.find((p) => p.gridId === cell.id);
-                console.log("Entro a modificar lo grafico de la info");
+                const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+
+                if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
+                    addProductIfAbsent(selectedProduct);
+                }
+                console.log(selectedProducts)
                 return (
                     <Draggable key={cell.id}>
                         <div
@@ -425,8 +465,11 @@ export const ImageGrid2 = ({
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
                             onClick={() => {
+
                                 onProductSelect(cell.id);
+                                updateProductsGrid();
                                 handleChangeProducts(cell.id);
+
                             }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
                         >
