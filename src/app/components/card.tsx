@@ -13,31 +13,31 @@ interface Product {
 
 interface CardProductProps {
   product: Product;
-  descriptions: string;
   onProductSelect?: (product: Product) => void; 
   onPriceChange?: (id: string, price: number) => void; 
 }
-export const CardProduct: React.FC<CardProductProps> = ({ product, descriptions, onProductSelect }) => {
+
+export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
     <div 
-      className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
+      className=" shrink-0 flex bg-white p-2 grid grid-cols-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-48 " 
       onClick={() => onProductSelect && onProductSelect(product)}
     >
-      <div className="text-center w-full">
-        <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{descriptions}</p>
+      <div className="z-10 w-36">
+        <p className="font-semibold text-black text-lg mb-2 ">{product.name}</p>
+          <p className="text-gray-600 text-sm mb-4">{product.descriptions || "No description"}</p>
       </div>
-      <div className="w-full h-40 relative">
+      <div className=" flex items-center ">
         {product.image ? (
           <Image
-            src={product.image}
-            alt={product.name}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
+          src={product.image}
+          alt={product.name}
+          width={100}
+          height={100}
+          
           />
         ) : (
-          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+          <div className=" bg-gray-200 rounded-lg flex items-center justify-center">
             <span className="text-gray-500">No hay imagen disponible</span>
           </div>
         )}
@@ -81,7 +81,7 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
   };
 
   return (
-    <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
+    <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty ">
       <p className="font-semibold text-black">{product.name}</p>
       <p className="text-gray-600">{product.descriptions}</p>
       <input

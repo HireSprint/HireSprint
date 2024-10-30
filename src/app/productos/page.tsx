@@ -90,7 +90,7 @@ const ProductosBase = () => {
 
 
   return (
-    <div className="flex flex-col justify-center items-center text-black">
+    <div className="flex flex-col justify-center items-center text-black px-8 mb-4">
       <h1 className="text-2xl font-bold mb-4">Productos</h1>
       <div className='relative left-96'>
         <input

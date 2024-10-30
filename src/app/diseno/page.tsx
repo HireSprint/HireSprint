@@ -13,7 +13,7 @@ interface Product {
     name: string;
     image: string;
     gridId?: number;
-    description?: string;
+    descriptions: string;
 }
 
 interface Grid {
