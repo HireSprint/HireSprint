@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build mybuildscript",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "move-static": "cp -a ./node_modules/@pdftron/webviewer/public/. ./dist/public/webviewer"

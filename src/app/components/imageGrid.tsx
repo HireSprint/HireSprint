@@ -14,7 +14,7 @@ interface Product {
 }
 
 interface ImageGridProps {
-    onProductSelect: (gridId: number) => void;
+    onProductSelect: (event: React.MouseEvent, gridId: number) => void;
     selectedProducts: Product[];
     onRemoveProduct: (productId: string) => void;
     onEditProduct: (productId: string) => void;
@@ -163,10 +163,7 @@ export const ImageGrid = ({
                             key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                            onClick={() => {
-                                onProductSelect(cell.id);
-                                console.log(cell.id)
-                            }}
+                            onClick={(event) => { onProductSelect(cell.id, event);}}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
                         >
                       {selectedProduct ? (
