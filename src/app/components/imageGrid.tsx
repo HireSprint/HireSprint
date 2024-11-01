@@ -23,7 +23,6 @@ interface ImageGridProps {
 }
 export let productTempDeleted: string;
 export const deletedProducts: Product[] = [];
-export const changeProducts: Product[] = [];
 export let productsgrid2: Product[] = [];
 export let productoA: Product = {
     id: "",
@@ -72,8 +71,8 @@ export const ImageGrid = ({
                               isMoveModeActive
                           }: ImageGridProps) => {
     const gridCells = [
-        {id: 101, top: "top-[280px] ", left: "left-0", width: "125px", height: "85px"},
-      {id: 102, top: "top-[280px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+       {id: 102, top: "top-[280px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+       {id: 101, top: "top-[280px] ", left: "left-0", width: "125px", height: "85px"},
        {id: 103, top: "top-[280px] ", left: "left-[250px] ", width: "125px", height: "85px"},
        {id: 104, top: "top-[370px]", left: "left-0", width: "125px", height: "85px"},
        {id: 105, top: "top-[370px]", left: "left-[125px] ", width: "125px", height: "85px"},
@@ -215,27 +214,56 @@ export const ImageGrid2 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 201, top: "top-0", left: "left-0", width: "80px", height: "56px"},
-        {id: 202, top: "top-0", left: "left-20", width: "80px", height: "56px"},
-        {id: 203, top: "top-0", left: "left-40", width: "80px", height: "56px"},
-        {id: 204, top: "top-14", left: "left-0", width: "80px", height: "56px"},
-        {id: 205, top: "top-14", left: "left-20", width: "80px", height: "56px"},
-        {id: 206, top: "top-14", left: "left-40", width: "80px", height: "56px"},
-        {id: 207, top: "top-28", left: "left-0", width: "80px", height: "56px"},
-        {id: 208, top: "top-28", left: "left-20", width: "80px", height: "56px"},
-        {id: 209, top: "top-28", left: "left-40", width: "80px", height: "56px"},
-        {id: 210, top: "top-48", left: "left-0", width: "50px", height: "56px"},
-        {id: 211, top: "top-48", left: "left-12", width: "50px", height: "56px"},
-        {id: 212, top: "top-48", left: "left-24", width: "50px", height: "56px"},
-        {id: 213, top: "top-48", left: "left-36", width: "50px", height: "56px"},
-        {id: 214, top: "top-48", left: "left-48", width: "50px", height: "56px"},
-        {id: 215, top: "top-[250px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 216, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 216, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 217, top: "top-[250px] ", left: "left-[165px]", width: "80px", height: "56px"},
-        {id: 218, top: "top-0", left: "left-60", width: "100px", height: "56px"},
-        {id: 219, top: "top-14", left: "left-60", width: "100px", height: "56px"},
-        {id: 220, top: "top-28", left: "left-60", width: "100px", height: "56px"},
+        {id: 202, top: "top-[20px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 201, top: "top-[20px] ", left: "left-0", width: "125px", height: "85px"},
+        {id: 203, top: "top-[20px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 204, top: "top-[110px]", left: "left-0", width: "125px", height: "85px"},
+        {id: 205, top: "top-[110px]", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 206, top: "top-[110px]", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 207, top: "top-[195px] ", left: "left-0", width: "125px", height: "85px"},
+        {id: 208, top: "top-[195px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 209, top: "top-[195px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 210, top: "top-[294px]", left: "left-0", width: "80px", height: "86px"},
+        {id: 211, top: "top-[294px]", left: "left-[80px] ", width: "75px", height: "86px"},
+        {id: 212, top: "top-[294px]", left: "left-[155px] ", width: "75px", height: "86px"},
+        {id: 213, top: "top-[294px]", left: "left-[230px] ", width: "75px", height: "86px"},
+        {id: 214, top: "top-[294px]", left: "left-[305px] ", width: "75px", height: "86px"},
+        {id: 215, top: "top-[388px]", left: "left-0", width: "125px", height: "85px"},
+        {id: 216, top: "top-[388px]", left: "left-[128px] ", width: "125px", height: "85px"},
+        {id: 217, top: "top-[388px]", left: "left-[255px] ", width: "125px", height: "85px"},
+        {id: 218, top: "top-[482px]", left: "left-0 ", width: "130px", height: "105px"},
+        {id: 219, top: "top-[482px]", left: "left-[127px]", width: "130px", height: "105px"},
+        {id: 220, top: "top-[482px]", left: "left-[255px]", width: "128px", height: "105px"},
+        {id: 221, top: "top-[589px]", left: "left-0 ", width: "95px", height: "90px"},
+        {id: 222, top: "top-[589px]", left: "left-[95px]", width: "95px", height: "90px"},
+        {id: 223, top: "top-[589px]", left: "left-[190px]", width: "95px", height: "90px"},
+        {id: 224, top: "top-[589px]", left: "left-[285px]", width: "95px", height: "90px"},
+        {id: 225, top: "top-[679px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 226, top: "top-[679px]", left: "left-[95px]", width: "95px", height: "86px"},
+        {id: 227, top: "top-[679px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 228, top: "top-[679px]", left: "left-[285px]", width: "95px", height: "86px"},
+        {id: 229, top: "top-[765px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 230, top: "top-[765px]", left: "left-[95px] ", width: "95px", height: "86px"},
+        {id: 231, top: "top-[765px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 232, top: "top-[765px]", left: "left-[285px] ", width: "95px", height: "86px"},
+        {id: 233, top: "top-[860px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 234, top: "top-[860px]", left: "left-[95px]", width: "95px", height: "86px"},
+        {id: 235, top: "top-[860px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 236, top: "top-[860px]", left: "left-[285px] ", width: "95px", height: "86px"},
+        {id: 237, top: "top-[955px]", left: "left-0", width: "95px", height: "100px"},
+        {id: 238, top: "top-[955px]", left: "left-[95px]", width: "95px", height: "100px"},
+        {id: 239, top: "top-[955px]", left: "left-[190px]", width: "95px", height: "100px"},
+        {id: 240, top: "top-[955px]", left: "left-[285px]", width: "95px", height: "100px"},
+        {id: 241, top: "top-[10px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 242, top: "top-[110px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 243, top: "top-[210px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 244, top: "top-[310px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 245, top: "top-[410px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 246, top: "top-[510px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 247, top: "top-[610px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 248, top: "top-[710px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 249, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
+        {id: 250, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
     ];
     const [products, setProducts] = useState<Product[]>([]);
     const [contextMenu, setContextMenu] = useState<{
@@ -343,26 +371,13 @@ export const ImageGrid2 = ({
 
     };
 
-    const updateProductsGrid = (): void => {
-        // Obtener todos los productos dentro de las celdas de la cuadrícula
-        const allGridProducts = gridCells
-            .map((cell) => {
-                // Encontrar el producto en productsgrid2 asignado a cada celda
-                return productsgrid2.find((product) => product.gridId === cell.id) || null;
-            })
-            .filter((product): product is Product => product !== null); // Filtrar aquellos que no sean null
-
-        // Mostrar en consola los productos encontrados en la cuadrícula
-        console.log("Productos dentro de la cuadrícula:", allGridProducts);
-    };
     const handleInitChangeProduct = (Cellid: string): void => {
         console.log(Cellid)
         const cellIdNumber: number = parseInt(Cellid, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         if (elementIndex !== -1) {
-            productoA = productsgrid2[elementIndex];
-        }
-        console.log(productoA);
+            productoA = productsgrid2[elementIndex];           
+        }     
 
     }
     const handleChangeProducts = (cellId: string): void => {
@@ -376,7 +391,7 @@ export const ImageGrid2 = ({
 
                 // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                 if (!productoB) {
-                    productoB = {gridId: cellIdNumber};
+                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
                 }
 
                 // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
@@ -400,22 +415,25 @@ export const ImageGrid2 = ({
             resetProductoA();
             resetProductoB();
         }
+        products.length = 0;
     };
-  
-    const addProductIfAbsent = (product: Product): void => {
-        
-        if(product.id !== productTempDeleted){       
-            
-            
-        const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
 
-        if (!existsInProductinArray) {
-            productsgrid2.push(product);
-            console.log("Producto añadido:", product);
-            productTempDeleted = product.id;
-            selectedProducts.length =0;
-        } 
-    }
+
+    const addProductIfAbsent = (product: Product): void => {
+
+        if (product.id !== productTempDeleted) {
+
+            const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
+
+            if (!existsInProductinArray) {
+                productsgrid2.push(product);
+                console.log("Producto añadido:", product);
+                productTempDeleted = product.id;
+                selectedProducts.length = 0;
+            }
+
+        }
+
     };
     useEffect(() => {
 
@@ -424,8 +442,8 @@ export const ImageGrid2 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
     return (
-        <div className="relative inline-block">
-            <Image src="/file/demo-2.png" alt="PDF" width={340} height={340} priority/>
+        <div className="relative  w-[550px] h-[550px] overflow-auto">
+            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -441,8 +459,7 @@ export const ImageGrid2 = ({
                         style={{width: cell.width, height: cell.height}}
                         onClick={() => {
 
-                                onProductSelect(cell.id);
-                                updateProductsGrid();
+                                onProductSelect(cell.id);                               
                                 handleChangeProducts(cell.id);
 
                             }}
@@ -497,26 +514,56 @@ export const ImageGrid3 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 301, top: "top-0", left: "left-0", width: "80px", height: "56px"},
-        {id: 302, top: "top-0", left: "left-20", width: "80px", height: "56px"},
-        {id: 303, top: "top-0", left: "left-40", width: "80px", height: "56px"},
-        {id: 304, top: "top-14", left: "left-0", width: "80px", height: "56px"},
-        {id: 305, top: "top-14", left: "left-20", width: "80px", height: "56px"},
-        {id: 306, top: "top-14", left: "left-40", width: "80px", height: "56px"},
-        {id: 307, top: "top-28", left: "left-0", width: "80px", height: "56px"},
-        {id: 308, top: "top-28", left: "left-20", width: "80px", height: "56px"},
-        {id: 309, top: "top-28", left: "left-40", width: "80px", height: "56px"},
-        {id: 310, top: "top-48", left: "left-0", width: "50px", height: "56px"},
-        {id: 311, top: "top-48", left: "left-12", width: "50px", height: "56px"},
-        {id: 312, top: "top-48", left: "left-24", width: "50px", height: "56px"},
-        {id: 313, top: "top-48", left: "left-36", width: "50px", height: "56px"},
-        {id: 314, top: "top-48", left: "left-48", width: "50px", height: "56px"},
-        {id: 315, top: "top-[250px] ", left: "left-0", width: "80px", height: "56px"},
-        {id: 316, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 317, top: "top-[250px]", left: "left-[165px]", width: "80px", height: "56px"},
-        {id: 318, top: "top-0", left: "left-60", width: "100px", height: "56px"},
-        {id: 319, top: "top-14", left: "left-60", width: "100px", height: "56px"},
-        {id: 320, top: "top-28", left: "left-60", width: "100px", height: "56px"},
+        {id: 302, top: "top-[20px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 301, top: "top-[20px] ", left: "left-0", width: "125px", height: "85px"},
+        {id: 303, top: "top-[20px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 304, top: "top-[110px]", left: "left-0", width: "125px", height: "85px"},
+        {id: 305, top: "top-[110px]", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 306, top: "top-[110px]", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 307, top: "top-[195px] ", left: "left-0", width: "125px", height: "85px"},
+        {id: 308, top: "top-[195px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 309, top: "top-[195px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 310, top: "top-[294px]", left: "left-0", width: "80px", height: "86px"},
+        {id: 311, top: "top-[294px]", left: "left-[80px] ", width: "75px", height: "86px"},
+        {id: 312, top: "top-[294px]", left: "left-[155px] ", width: "75px", height: "86px"},
+        {id: 313, top: "top-[294px]", left: "left-[230px] ", width: "75px", height: "86px"},
+        {id: 314, top: "top-[294px]", left: "left-[305px] ", width: "75px", height: "86px"},
+        {id: 315, top: "top-[388px]", left: "left-0", width: "125px", height: "85px"},
+        {id: 316, top: "top-[388px]", left: "left-[128px] ", width: "125px", height: "85px"},
+        {id: 317, top: "top-[388px]", left: "left-[255px] ", width: "125px", height: "85px"},
+        {id: 318, top: "top-[482px]", left: "left-0 ", width: "130px", height: "105px"},
+        {id: 319, top: "top-[482px]", left: "left-[127px]", width: "130px", height: "105px"},
+        {id: 320, top: "top-[482px]", left: "left-[255px]", width: "128px", height: "105px"},
+        {id: 321, top: "top-[589px]", left: "left-0 ", width: "95px", height: "90px"},
+        {id: 322, top: "top-[589px]", left: "left-[95px]", width: "95px", height: "90px"},
+        {id: 323, top: "top-[589px]", left: "left-[190px]", width: "95px", height: "90px"},
+        {id: 324, top: "top-[589px]", left: "left-[285px]", width: "95px", height: "90px"},
+        {id: 325, top: "top-[679px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 326, top: "top-[679px]", left: "left-[95px]", width: "95px", height: "86px"},
+        {id: 327, top: "top-[679px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 328, top: "top-[679px]", left: "left-[285px]", width: "95px", height: "86px"},
+        {id: 329, top: "top-[765px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 330, top: "top-[765px]", left: "left-[95px] ", width: "95px", height: "86px"},
+        {id: 331, top: "top-[765px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 332, top: "top-[765px]", left: "left-[285px] ", width: "95px", height: "86px"},
+        {id: 333, top: "top-[860px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 334, top: "top-[860px]", left: "left-[95px]", width: "95px", height: "86px"},
+        {id: 335, top: "top-[860px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 336, top: "top-[860px]", left: "left-[285px] ", width: "95px", height: "86px"},
+        {id: 337, top: "top-[955px]", left: "left-0", width: "95px", height: "100px"},
+        {id: 338, top: "top-[955px]", left: "left-[95px]", width: "95px", height: "100px"},
+        {id: 339, top: "top-[955px]", left: "left-[190px]", width: "95px", height: "100px"},
+        {id: 340, top: "top-[955px]", left: "left-[285px]", width: "95px", height: "100px"},
+        {id: 341, top: "top-[10px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 342, top: "top-[110px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 343, top: "top-[210px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 344, top: "top-[310px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 345, top: "top-[410px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 346, top: "top-[510px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 347, top: "top-[610px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 348, top: "top-[710px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 349, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
+        {id: 350, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
 
     ];
 
@@ -530,12 +577,26 @@ export const ImageGrid3 = ({
 
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchProducts = async (): Promise<void> => {
             try {
-                const productsData = await getTableName();
-                setProducts(productsData);
+                const productsData: Product[] = await getTableName();
+
+                // Verificar si el array está vacío para llenarlo
+                if (productsgrid2.length === 0) {
+                    productsData.forEach((product: Product) => {
+                        // Verificar si el producto ya está en `productsgrid2`
+                        const exists = productsgrid2.some((p) => p.id === product.id);
+                        if (!exists) {
+                            productsgrid2.push(product);
+                        } else {
+                            console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
+                        }
+                    });
+                    setProducts(productsgrid2[0]);
+                }
+
             } catch (error) {
-                console.error('Error al obtener productos:', error)
+                console.error('Error al obtener productos:', error);
             }
         };
 
@@ -552,7 +613,7 @@ export const ImageGrid3 = ({
         }
     };
 
-    removeDeletedProducts(products, deletedProducts);
+    removeDeletedProducts(productsgrid2, deletedProducts);
 
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
@@ -594,19 +655,86 @@ export const ImageGrid3 = ({
     const handleClearCell = (cellId: string): void => {
         console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
-        const elementIndex: number = products.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
-
+        const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+        productTempDeleted = '';
         if (elementIndex !== -1) {
             // Guardar el elemento en el array de productos eliminados
-            deletedProducts.push(products[elementIndex]);
+            deletedProducts.push(productsgrid2[elementIndex]);
+            selectedProducts.length = 0;
 
             // Eliminar el elemento del array
-            products.splice(elementIndex, 1);
+
         } else {
             console.log("Elemento no encontrado.");
         }
+
     };
 
+    const handleInitChangeProduct = (Cellid: string): void => {
+        console.log(Cellid)
+        const cellIdNumber: number = parseInt(Cellid, 10);
+        const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+        if (elementIndex !== -1) {
+            productoA = productsgrid2[elementIndex];
+        }
+
+    }
+
+    const handleChangeProducts = (cellId: string): void => {
+        const cellIdNumber = parseInt(cellId, 10);
+        if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
+            const elementIndex: number = productsgrid2.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
+
+            // Si se encuentra la celda (puede ser vacía)
+            if (elementIndex !== -1) {
+                let productoB = productsgrid2[elementIndex];
+
+                // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
+                if (!productoB) {
+                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
+                }
+
+                // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
+                const tempGridId = productoA.gridId;
+                productoA.gridId = productoB.gridId;
+                productoB.gridId = tempGridId;
+
+                // Actualizar el array `productsgrid2` con los cambios
+                productsgrid2[elementIndex] = productoB;
+
+                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                const indexA = productsgrid2.findIndex((p: Product): boolean => p?.id === productoA.id);
+                if (indexA !== -1) {
+                    productsgrid2[indexA] = productoA;
+                }
+
+                setProducts(productoB);
+            }
+            console.log('Producto A:', productoA);
+            console.log('Producto B:', productoB);
+            resetProductoA();
+            resetProductoB();
+        }
+        products.length = 0;
+    };
+
+    const addProductIfAbsent = (product: Product): void => {
+
+        if (product.id !== productTempDeleted) {
+
+            const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
+
+            if (!existsInProductinArray) {
+                productsgrid2.push(product);
+                console.log("Producto añadido:", product);
+                productTempDeleted = product.id;
+                selectedProducts.length = 0;
+            }
+
+        }
+
+    };
+    
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener('click', handleClickOutside);
@@ -614,19 +742,26 @@ export const ImageGrid3 = ({
     }, []);
 
     return (
-        <div className="relative inline-block">
-
-            <Image src="/file/demo-2.png" alt="PDF" width={340} height={340} priority/>
+        <div className="relative  w-[550px] h-[550px] overflow-auto">
+            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
             {gridCells.map((cell, index) => {
-                const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
-                    selectedProducts?.find((p) => p.gridId === cell.id);
 
+                const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+
+                if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
+                    addProductIfAbsent(selectedProduct);
+                }
                 return (
                     <div
                         key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                            onClick={() => onProductSelect(cell.id)}
+                            onClick={() => {
+
+                                onProductSelect(cell.id);
+                                handleChangeProducts(cell.id);
+
+                            }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
                         >
                             <div className="absolute text-black font-bold">
@@ -660,7 +795,7 @@ export const ImageGrid3 = ({
                         productId={contextMenu.productId}
                         handleRemoveProduct={handleClearCell}
                         handleEditProduct={onEditProduct}
-                        handleChangeProduct={onChangeProduct}
+                        handleChangeProduct={handleInitChangeProduct}
                     />
                 </div>
             )}
@@ -678,26 +813,56 @@ export const ImageGrid4 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 401, top: "top-0", left: "left-0", width: "80px", height: "56px"},
-        {id: 402, top: "top-0", left: "left-20", width: "80px", height: "56px"},
-        {id: 403, top: "top-0", left: "left-40", width: "80px", height: "56px"},
-        {id: 404, top: "top-14", left: "left-0", width: "80px", height: "56px"},
-        {id: 405, top: "top-14", left: "left-20", width: "80px", height: "56px"},
-        {id: 406, top: "top-14", left: "left-40", width: "80px", height: "56px"},
-        {id: 407, top: "top-28", left: "left-0", width: "80px", height: "56px"},
-        {id: 408, top: "top-28", left: "left-20", width: "80px", height: "56px"},
-        {id: 409, top: "top-28", left: "left-40", width: "80px", height: "56px"},
-        {id: 410, top: "top-48", left: "left-0", width: "50px", height: "56px"},
-        {id: 411, top: "top-48", left: "left-12", width: "50px", height: "56px"},
-        {id: 412, top: "top-48", left: "left-24", width: "50px", height: "56px"},
-        {id: 413, top: "top-48", left: "left-36", width: "50px", height: "56px"},
-        {id: 414, top: "top-48", left: "left-48", width: "50px", height: "56px"},
-        {id: 415, top: "top-[250px]", left: "left-0", width: "80px", height: "56px"},
-        {id: 416, top: "top-[250px]", left: "left-20", width: "85px", height: "56px"},
-        {id: 417, top: "top-[250px]", left: "left-[165px]", width: "80px", height: "56px"},
-        {id: 418, top: "top-0", left: "left-60", width: "100px", height: "56px"},
-        {id: 419, top: "top-14", left: "left-60", width: "100px", height: "56px"},
-        {id: 420, top: "top-28", left: "left-60", width: "100px", height: "56px"},
+        {id: 402, top: "top-[20px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 401, top: "top-[20px] ", left: "left-0", width: "125px", height: "85px"},
+        {id: 403, top: "top-[20px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 404, top: "top-[110px]", left: "left-0", width: "125px", height: "85px"},
+        {id: 405, top: "top-[110px]", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 406, top: "top-[110px]", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 407, top: "top-[195px] ", left: "left-0", width: "125px", height: "85px"},
+        {id: 408, top: "top-[195px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+        {id: 409, top: "top-[195px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+        {id: 410, top: "top-[294px]", left: "left-0", width: "80px", height: "86px"},
+        {id: 411, top: "top-[294px]", left: "left-[80px] ", width: "75px", height: "86px"},
+        {id: 412, top: "top-[294px]", left: "left-[155px] ", width: "75px", height: "86px"},
+        {id: 413, top: "top-[294px]", left: "left-[230px] ", width: "75px", height: "86px"},
+        {id: 414, top: "top-[294px]", left: "left-[305px] ", width: "75px", height: "86px"},
+        {id: 415, top: "top-[388px]", left: "left-0", width: "125px", height: "85px"},
+        {id: 416, top: "top-[388px]", left: "left-[128px] ", width: "125px", height: "85px"},
+        {id: 417, top: "top-[388px]", left: "left-[255px] ", width: "125px", height: "85px"},
+        {id: 418, top: "top-[482px]", left: "left-0 ", width: "130px", height: "105px"},
+        {id: 419, top: "top-[482px]", left: "left-[127px]", width: "130px", height: "105px"},
+        {id: 420, top: "top-[482px]", left: "left-[255px]", width: "128px", height: "105px"},
+        {id: 421, top: "top-[589px]", left: "left-0 ", width: "95px", height: "90px"},
+        {id: 422, top: "top-[589px]", left: "left-[95px]", width: "95px", height: "90px"},
+        {id: 423, top: "top-[589px]", left: "left-[190px]", width: "95px", height: "90px"},
+        {id: 424, top: "top-[589px]", left: "left-[285px]", width: "95px", height: "90px"},
+        {id: 425, top: "top-[679px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 426, top: "top-[679px]", left: "left-[95px]", width: "95px", height: "86px"},
+        {id: 427, top: "top-[679px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 428, top: "top-[679px]", left: "left-[285px]", width: "95px", height: "86px"},
+        {id: 429, top: "top-[765px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 430, top: "top-[765px]", left: "left-[95px] ", width: "95px", height: "86px"},
+        {id: 431, top: "top-[765px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 432, top: "top-[765px]", left: "left-[285px] ", width: "95px", height: "86px"},
+        {id: 433, top: "top-[860px]", left: "left-0", width: "95px", height: "86px"},
+        {id: 434, top: "top-[860px]", left: "left-[95px]", width: "95px", height: "86px"},
+        {id: 435, top: "top-[860px]", left: "left-[190px]", width: "95px", height: "86px"},
+        {id: 436, top: "top-[860px]", left: "left-[285px] ", width: "95px", height: "86px"},
+        {id: 437, top: "top-[955px]", left: "left-0", width: "95px", height: "100px"},
+        {id: 438, top: "top-[955px]", left: "left-[95px]", width: "95px", height: "100px"},
+        {id: 439, top: "top-[955px]", left: "left-[190px]", width: "95px", height: "100px"},
+        {id: 440, top: "top-[955px]", left: "left-[285px]", width: "95px", height: "100px"},
+        {id: 441, top: "top-[10px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 442, top: "top-[110px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 443, top: "top-[210px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 444, top: "top-[310px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 445, top: "top-[410px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 446, top: "top-[510px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 447, top: "top-[610px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 448, top: "top-[710px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 449, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
+        {id: 450, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
 
     ];
 
@@ -711,18 +876,31 @@ export const ImageGrid4 = ({
 
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchProducts = async (): Promise<void> => {
             try {
-                const productsData = await getTableName();
-                setProducts(productsData);
+                const productsData: Product[] = await getTableName();
+
+                // Verificar si el array está vacío para llenarlo
+                if (productsgrid2.length === 0) {
+                    productsData.forEach((product: Product) => {
+                        // Verificar si el producto ya está en `productsgrid2`
+                        const exists = productsgrid2.some((p) => p.id === product.id);
+                        if (!exists) {
+                            productsgrid2.push(product);
+                        } else {
+                            console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
+                        }
+                    });
+                    setProducts(productsgrid2[0]);
+                }
+
             } catch (error) {
-                console.error('Error al obtener productos:', error)
+                console.error('Error al obtener productos:', error);
             }
         };
 
         fetchProducts();
     }, []);
-
     const removeDeletedProducts = (products: Product[], deletedProducts: Product[]): void => {
         // Filtrar los productos que no están en deletedProducts
         for (const deletedProduct of deletedProducts) {
@@ -733,8 +911,7 @@ export const ImageGrid4 = ({
         }
     };
 
-    removeDeletedProducts(products, deletedProducts);
-
+    removeDeletedProducts(productsgrid2, deletedProducts);
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
@@ -774,17 +951,84 @@ export const ImageGrid4 = ({
     const handleClearCell = (cellId: string): void => {
         console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
-        const elementIndex: number = products.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
-
+        const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+        productTempDeleted = '';
         if (elementIndex !== -1) {
             // Guardar el elemento en el array de productos eliminados
-            deletedProducts.push(products[elementIndex]);
+            deletedProducts.push(productsgrid2[elementIndex]);
+            selectedProducts.length = 0;
 
             // Eliminar el elemento del array
-            products.splice(elementIndex, 1);
+
         } else {
             console.log("Elemento no encontrado.");
         }
+
+    };
+
+    const handleInitChangeProduct = (Cellid: string): void => {
+        console.log(Cellid)
+        const cellIdNumber: number = parseInt(Cellid, 10);
+        const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+        if (elementIndex !== -1) {
+            productoA = productsgrid2[elementIndex];
+        }
+
+    }
+
+    const handleChangeProducts = (cellId: string): void => {
+        const cellIdNumber = parseInt(cellId, 10);
+        if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
+            const elementIndex: number = productsgrid2.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
+
+            // Si se encuentra la celda (puede ser vacía)
+            if (elementIndex !== -1) {
+                let productoB = productsgrid2[elementIndex];
+
+                // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
+                if (!productoB) {
+                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
+                }
+
+                // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
+                const tempGridId = productoA.gridId;
+                productoA.gridId = productoB.gridId;
+                productoB.gridId = tempGridId;
+
+                // Actualizar el array `productsgrid2` con los cambios
+                productsgrid2[elementIndex] = productoB;
+
+                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                const indexA = productsgrid2.findIndex((p: Product): boolean => p?.id === productoA.id);
+                if (indexA !== -1) {
+                    productsgrid2[indexA] = productoA;
+                }
+
+                setProducts(productoB);
+            }
+            console.log('Producto A:', productoA);
+            console.log('Producto B:', productoB);
+            resetProductoA();
+            resetProductoB();
+        }
+        products.length = 0;
+    };
+
+    const addProductIfAbsent = (product: Product): void => {
+
+        if (product.id !== productTempDeleted) {
+
+            const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
+
+            if (!existsInProductinArray) {
+                productsgrid2.push(product);
+                console.log("Producto añadido:", product);
+                productTempDeleted = product.id;
+                selectedProducts.length = 0;
+            }
+
+        }
+
     };
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
@@ -793,19 +1037,25 @@ export const ImageGrid4 = ({
     }, []);
 
     return (
-        <div className="relative inline-block">
-
-            <Image src="/file/demo-2.png" alt="PDF" width={340} height={340} priority/>
+        <div className="relative  w-[550px] h-[550px] overflow-auto">
+            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
             {gridCells.map((cell, index) => {
-                const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
-                    selectedProducts?.find((p) => p.gridId === cell.id);
+                const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
+                if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
+                    addProductIfAbsent(selectedProduct);
+                }
                 return (
                     <div
                         key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                            onClick={() => onProductSelect(cell.id)}
+                        onClick={() => {
+
+                            onProductSelect(cell.id);
+                            handleChangeProducts(cell.id);
+
+                        }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
                         >
                             <div className="absolute text-black font-bold">
@@ -839,7 +1089,7 @@ export const ImageGrid4 = ({
                         productId={contextMenu.productId}
                         handleRemoveProduct={handleClearCell}
                         handleEditProduct={onEditProduct}
-                        handleChangeProduct={onChangeProduct}
+                        handleChangeProduct={handleInitChangeProduct}
                     />
                 </div>
             )}
