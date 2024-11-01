@@ -1,8 +1,8 @@
 import Image from "next/image";
 import {useState, useEffect} from "react";
 import {getTableName} from "../api/productos/prductosRF";
-import Draggable from "react-draggable";
 import RightClick from "./rightClick";
+import { CardProduct, FitCard, ProductCard2, ProductCard3 } from "./card";
 
 interface Product {
     id: string;
@@ -160,7 +160,6 @@ export const ImageGrid = ({
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
                     selectedProducts?.find((p) => p.gridId === cell.id);
                 return (
-                    <Draggable key={cell.id}>
                         <div
                             key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
@@ -171,22 +170,19 @@ export const ImageGrid = ({
                             }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
                         >
-                            <div className="absolute text-black font-bold">
-                                {selectedProduct?.name || cell.id}
-                            </div>
-                            {selectedProduct?.image && (
-                                <Image
-                                    src={selectedProduct.image}
-                                    alt={selectedProduct.name || ''}
-                                    width={70}
-                                    height={70}
-                                    objectFit="cover"
-                                />
-                            )}
-                        </div>
-                    </Draggable>
-                );
-            })}
+                      {selectedProduct ? (
+              <ProductCard3
+                product={selectedProduct}
+                onProductSelect={() => onProductSelect(cell.id)}
+              />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full">
+                <span className="text-xs font-bold">{cell.id}</span>
+              </div>
+            )}
+          </div>
+        );
+      })}
 
             {contextMenu?.visible && !isMoveModeActive && (
                 <div
@@ -418,12 +414,9 @@ export const ImageGrid2 = ({
             console.log("Producto añadido:", product);
             productTempDeleted = product.id;
             selectedProducts.length =0;
-        }
-     
-        }
-
+        } 
+    }
     };
-
     useEffect(() => {
 
         const handleClickOutside = () => setContextMenu(null);
@@ -442,12 +435,11 @@ export const ImageGrid2 = ({
                 }
                 console.log(selectedProducts)
                 return (
-                    <Draggable key={cell.id}>
-                        <div
-                            key={cell.id}
-                            className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-                            style={{width: cell.width, height: cell.height}}
-                            onClick={() => {
+                    <div
+                        key={cell.id}
+                        className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
+                        style={{width: cell.width, height: cell.height}}
+                        onClick={() => {
 
                                 onProductSelect(cell.id);
                                 updateProductsGrid();
@@ -469,7 +461,6 @@ export const ImageGrid2 = ({
                                 />
                             )}
                         </div>
-                    </Draggable>
                 );
             })}
 
@@ -631,9 +622,8 @@ export const ImageGrid3 = ({
                     selectedProducts?.find((p) => p.gridId === cell.id);
 
                 return (
-                    <Draggable key={cell.id}>
-                        <div
-                            key={cell.id}
+                    <div
+                        key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
                             onClick={() => onProductSelect(cell.id)}
@@ -653,8 +643,7 @@ export const ImageGrid3 = ({
                             )}
 
 
-                        </div>
-                    </Draggable>
+                    </div>
                 );
             })}
 
@@ -812,9 +801,8 @@ export const ImageGrid4 = ({
                     selectedProducts?.find((p) => p.gridId === cell.id);
 
                 return (
-                    <Draggable key={cell.id}>
-                        <div
-                            key={cell.id}
+                    <div
+                        key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
                             onClick={() => onProductSelect(cell.id)}
@@ -835,7 +823,6 @@ export const ImageGrid4 = ({
 
 
                         </div>
-                    </Draggable>
                 );
             })}
 
