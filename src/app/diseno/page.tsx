@@ -1,5 +1,5 @@
 "use client"
-import {CardProduct} from "../components/card";
+import {CardProduct, ProductCard, ProductCard2, ProductCard3, FitCard} from "../components/card";
 import {getProductsRF} from "../api/productos/prductosRF";
 import {useEffect, useState} from "react";
 import Lottie from "lottie-react";
@@ -13,7 +13,7 @@ interface Product {
     name: string;
     image: string;
     gridId?: number;
-    description?: string;
+    descriptions: string;
 }
 
 interface Grid {

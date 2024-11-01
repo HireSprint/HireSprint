@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { getProductsRF } from '../api/productos/prductosRF'; 
-import {CardProduct} from '../components/card';
+import {CardProduct, ProductCard, ProductCard2, ProductCard3, FitCard} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from '../components/sideBar';
@@ -90,7 +90,7 @@ const ProductosBase = () => {
 
 
   return (
-    <div className="flex flex-col justify-center items-center text-black">
+    <div className="flex flex-col justify-center items-center text-black px-8 mb-4">
       <h1 className="text-2xl font-bold mb-4">Productos</h1>
       <div className='relative left-96'>
         <input
@@ -109,7 +109,7 @@ const ProductosBase = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentProducts.map(product => (
-            <CardProduct 
+            <FitCard
               key={product.id} 
               product={product} 
               onProductSelect={handleSelectProduct}
