@@ -1,8 +1,6 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Star } from "lucide-react";
-import { Tag } from "lucide-react";
 
 
 interface Product {
@@ -11,36 +9,35 @@ interface Product {
   descriptions: string;
   image: string;
   price?: number;
-  condition?: string;
 }
 
 interface CardProductProps {
   product: Product;
+  descriptions: string;
   onProductSelect?: (product: Product) => void; 
   onPriceChange?: (id: string, price: number) => void; 
 }
-
-export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
+export const CardProduct: React.FC<CardProductProps> = ({ product, descriptions, onProductSelect }) => {
   return (
     <div 
-      className=" shrink-0 flex bg-white p-2 grid grid-cols-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-48 h-36" 
+      className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
       onClick={() => onProductSelect && onProductSelect(product)}
     >
-      <div className="z-10 w-36">
-        <p className="font-semibold text-black text-lg mb-2 ">{product.name}</p>
-          <p className="text-gray-600 text-sm mb-4">{product.descriptions || "No description"}</p>
+      <div className="text-center w-full">
+        <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{descriptions}</p>
       </div>
-      <div className=" flex items-center ">
+      <div className="w-full h-40 relative">
         {product.image ? (
           <Image
-          src={product.image}
-          alt={product.name}
-          width={100}
-          height={100}
-          
+            src={product.image}
+            alt={product.name}
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg"
           />
         ) : (
-          <div className=" bg-gray-200 rounded-lg flex items-center justify-center">
+          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
             <span className="text-gray-500">No hay imagen disponible</span>
           </div>
         )}
@@ -84,7 +81,7 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
   };
 
   return (
-    <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty ">
+    <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
       <p className="font-semibold text-black">{product.name}</p>
       <p className="text-gray-600">{product.descriptions}</p>
       <input
@@ -122,48 +119,3 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
     </div>
   );
 };
-
-export function ProductCard({ product, onProductSelect }: CardProductProps) {
-  return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="flex flex-col md:flex-row">
-        {/* Image container with responsive behavior */}
-        <div className="md:w-1/2 min-h-[200px] md:min-h-[300px] relative">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        {/* Content container */}
-        <div className="flex-1 p-6 flex flex-col justify-between">
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 line-clamp-2">{product.name}</h2>
-              <div className="flex items-center space-x-1 text-yellow-500">
-                <Star className="w-5 h-5 fill-current" />
-              </div>
-            </div>
-
-            <p className="text-gray-600 line-clamp-3 md:line-clamp-4">{product.descriptions}</p>
-
-            <div className="flex items-center justify-between pt-4">
-              <div className="flex items-center space-x-2">
-                <Tag className="w-5 h-5 text-emerald-600" />
-                <span className="text-2xl font-bold text-emerald-600">
-                  ${product.price?.toFixed(2)}
-                </span>
-              </div>
-              <button className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                Add to Cart
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
