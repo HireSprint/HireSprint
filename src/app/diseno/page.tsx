@@ -288,7 +288,7 @@ const GridProduct: React.FC<GridProductProps> = ({
     );
 
     return (
-        <div className=" bg-white p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto">
+        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
             <div className="flex justify-between bg-white sticky top-0 z-10 ">
                 <input
                     type="text"
@@ -309,7 +309,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                     <Lottie animationData={LoadingLottie}/>
                 </div>
             ) : filteredProducts.length > 0 ? (
-                <div className="flex flex-col h-fit overflow-y-auto">
+                <div className="flex flex-col h-fit overflow-y-auto space-y-4">
                     {filteredProducts.map((product) => (
                         <CardShow
                             product={product}

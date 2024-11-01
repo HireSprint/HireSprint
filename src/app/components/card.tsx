@@ -122,7 +122,7 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
 export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
 return (
   <div 
-  className="flex bg-white  justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer h-48 border border-gray-200 " 
+  className="flex bg-white  justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer h-48 border border-gray-200  " 
   onClick={() => onProductSelect && onProductSelect(product)}
 >
   <div className="flex flex-col w-full">

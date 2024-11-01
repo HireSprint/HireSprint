@@ -153,7 +153,7 @@ export const ImageGrid = ({
 
 
     return (
-        <div className="relative  w-[550px] h-[550px] overflow-auto" >
+        <div className="relative  w-[550px] h-[550px] overflow-auto " >
             <Image src="/file/demo-1.png" alt="PDF" width={550} height={550} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
