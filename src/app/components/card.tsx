@@ -119,3 +119,4 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
     </div>
   );
 };
+
