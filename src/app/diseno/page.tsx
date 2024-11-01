@@ -1,5 +1,5 @@
 "use client"
-import {CardProduct} from "../components/card";
+import {CardProduct, CardShow} from "../components/card";
 import {getProductsRF} from "../api/productos/prductosRF";
 import {useEffect, useState} from "react";
 import Lottie from "lottie-react";
@@ -36,6 +36,7 @@ const Diseno = () => {
         productId: string;
         sourceGridId: number;
     } | null>(null);
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number } | null>(null);
 
     useEffect(() => {
         if (products.length === 0) {
@@ -139,7 +140,12 @@ const Diseno = () => {
         });
     };
 
-    const handleGridSelect = (gridId: number) => {
+    const handleGridSelect = (gridId: number, event: React.MouseEvent) => {
+        if (!event) {
+            console.error("El evento de ratón no se pasó correctamente.");
+            return;
+        }
+        setMousePosition({ x: event.clientX, y: event.clientY });
         if (moveMode?.active) {
             // Si estamos en modo de movimiento, mover el producto al nuevo grid
             handleProductMove(gridId);
@@ -157,6 +163,7 @@ const Diseno = () => {
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
     };
+    console.log(mousePosition, showProducts)
 
     return (
         <div 
@@ -217,13 +224,14 @@ const Diseno = () => {
 
             {/* Mostrar / Ocultar productos */}
             <div className="flex ">
-                {showProducts ? (
+                {showProducts && mousePosition ? (
                     <motion.div
                         initial={{opacity: 0, y: 20}}
                         exit={{opacity: 0, y: 20}}
                         animate={{opacity: 1, y: 0}}
                         transition={{duration: 0.5}}
-                        className="absolute bottom-0 left-0 w-full bg-[#393939] h-[25%]"
+                        className="absolute"
+                        style={{ top: mousePosition.y, left: mousePosition.x + 20 }}
                     >
                         <GridProduct
                             products={products}
@@ -280,8 +288,8 @@ const GridProduct: React.FC<GridProductProps> = ({
     );
 
     return (
-        <div className=" bg-[#393939] p-4 h-fit">
-            <div className="flex justify-between">
+        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+            <div className="flex justify-between bg-white sticky top-0 z-10 ">
                 <input
                     type="text"
                     placeholder="Buscar productos..."
@@ -301,9 +309,9 @@ const GridProduct: React.FC<GridProductProps> = ({
                     <Lottie animationData={LoadingLottie}/>
                 </div>
             ) : filteredProducts.length > 0 ? (
-                <div className="flex overflow-x-auto space-x-4 h-fit">
+                <div className="flex flex-col h-fit overflow-y-auto space-y-4">
                     {filteredProducts.map((product) => (
-                        <CardProduct
+                        <CardShow
                             product={product}
                             key={product.id}
                             onProductSelect={onProductSelect}
@@ -313,6 +321,7 @@ const GridProduct: React.FC<GridProductProps> = ({
             ) : (
                 <p>No se encontraron productos.</p>
             )}
+
         </div>
     );
 };

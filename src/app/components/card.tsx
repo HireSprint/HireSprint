@@ -13,11 +13,10 @@ interface Product {
 
 interface CardProductProps {
   product: Product;
-  descriptions: string;
   onProductSelect?: (product: Product) => void; 
   onPriceChange?: (id: string, price: number) => void; 
 }
-export const CardProduct: React.FC<CardProductProps> = ({ product, descriptions, onProductSelect }) => {
+export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
     <div 
       className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
@@ -25,7 +24,7 @@ export const CardProduct: React.FC<CardProductProps> = ({ product, descriptions,
     >
       <div className="text-center w-full">
         <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{descriptions}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
       </div>
       <div className="w-full h-40 relative">
         {product.image ? (
@@ -120,3 +119,32 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
   );
 };
 
+export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
+return (
+  <div 
+  className="flex bg-white  justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer h-48 border border-gray-200  " 
+  onClick={() => onProductSelect && onProductSelect(product)}
+>
+  <div className="flex flex-col w-full">
+    <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
+    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+    <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+  </div>
+  <div className="h-40 relative flex items-center justify-end">
+    {product.image ? (
+      <Image
+        src={product.image}
+        alt={product.name}
+        width={200}
+        height={200}
+        className="rounded object-cover"
+      />
+    ) : (
+      <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+        <span className="text-gray-500">No hay imagen disponible</span>
+      </div>
+    )}
+  </div>
+</div>
+)
+}
