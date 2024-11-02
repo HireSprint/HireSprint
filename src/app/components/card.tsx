@@ -3,6 +3,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 
+import React from 'react';
+
 interface Product {
   id: string;
   name: string;
@@ -19,31 +21,31 @@ interface CardProductProps {
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
     <div 
-      className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
+      className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-full h-full" 
       onClick={() => onProductSelect && onProductSelect(product)}
+      style={{ 
+        backgroundImage: `url(${product.image})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center', 
+        backgroundRepeat: 'no-repeat', 
+      }}
     >
       <div className="text-center w-full">
         <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
       </div>
-      <div className="w-full h-40 relative">
-        {product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-            <span className="text-gray-500">No hay imagen disponible</span>
-          </div>
-        )}
-      </div>
+      {product.price && (
+        <div className="text-center w-full">
+          <span className="font-bold text-black text-lg">${product.price.toFixed(2)}</span>
+        </div>
+      )}
     </div>
   );
 };
+
+
+
+
 
 export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, onProductSelect }) => {
   const [isLoading, setIsLoading] = useState(true); 
