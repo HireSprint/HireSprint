@@ -1,15 +1,26 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import {getProduct} from "@/app/api/mongo/getProduct";
 
 
 export default function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
- 
+
+    useEffect(() => {
+        const getProductoFetch = async () => {
+            await getProduct();
+        }
+        getProductoFetch();
+
+    }, []);
+
+
+
 
   const handleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
