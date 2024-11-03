@@ -1,0 +1,21 @@
+name: Code checks
+
+on: pull_request
+
+jobs:
+  jest:
+    name: Code checks
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.10.0"
+      - name: Install packages
+        run: yarn
+      - name: ESLint Report
+        run: yarn lint
+      - name: Type check
+        run: yarn type
+      - name: Application build
+        run: yarn build

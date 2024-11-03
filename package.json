@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "npx eslint .",
+    "type": "npx tsc --noEmit",
     "move-static": "cp -a ./node_modules/@pdftron/webviewer/public/. ./dist/public/webviewer"
   },
   "dependencies": {
@@ -27,14 +28,18 @@
     "react-toastify": "^10.0.6"
   },
   "devDependencies": {
+    "@eslint/js": "^9.14.0",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.14",
+    "eslint": "^9.14.0",
+    "eslint-config-next": "^15.0.2",
+    "eslint-plugin-react": "^7.37.2",
+    "globals": "^15.11.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.12.2"
   }
 }
