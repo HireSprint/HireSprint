@@ -13,16 +13,19 @@ interface ProductContextType {
   setProducts: (products: Product[]) => void;
   client: string; 
   setClient: (client: string) => void;
+  selectedProduct: Product | null;
+  setSelectedProduct: (product: Product | null) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [client, setClient] = useState<string>(''); // Iniciar como string vacío
+  const [client, setClient] = useState<string>('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   return (
-    <ProductContext.Provider value={{ products, setProducts, client, setClient }}>
+    <ProductContext.Provider value={{ products, setProducts, client, setClient, selectedProduct, setSelectedProduct }}>
       {children}
     </ProductContext.Provider>
   );
