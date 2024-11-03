@@ -298,306 +298,306 @@ export const ImageGrid = ({
     };
 
 
-export const ImageGrid2 = ({
-                               onProductSelect,
-                               selectedProducts,
-                               isMoveModeActive,
-                               onEditProduct,
-                               onRemoveProduct,
-                               onChangeProduct
-                           }: ImageGridProps) => {
-    const gridCells = [
-        {id: 202, top: "top-[20px] ", left: "left-[125px] ", width: "125px", height: "85px"},
-        {id: 201, top: "top-[20px] ", left: "left-0", width: "125px", height: "85px"},
-        {id: 203, top: "top-[20px] ", left: "left-[250px] ", width: "125px", height: "85px"},
-        {id: 204, top: "top-[110px]", left: "left-0", width: "125px", height: "85px"},
-        {id: 205, top: "top-[110px]", left: "left-[125px] ", width: "125px", height: "85px"},
-        {id: 206, top: "top-[110px]", left: "left-[250px] ", width: "125px", height: "85px"},
-        {id: 207, top: "top-[195px] ", left: "left-0", width: "125px", height: "85px"},
-        {id: 208, top: "top-[195px] ", left: "left-[125px] ", width: "125px", height: "85px"},
-        {id: 209, top: "top-[195px] ", left: "left-[250px] ", width: "125px", height: "85px"},
-        {id: 210, top: "top-[294px]", left: "left-0", width: "80px", height: "86px"},
-        {id: 211, top: "top-[294px]", left: "left-[80px] ", width: "75px", height: "86px"},
-        {id: 212, top: "top-[294px]", left: "left-[155px] ", width: "75px", height: "86px"},
-        {id: 213, top: "top-[294px]", left: "left-[230px] ", width: "75px", height: "86px"},
-        {id: 214, top: "top-[294px]", left: "left-[305px] ", width: "75px", height: "86px"},
-        {id: 215, top: "top-[388px]", left: "left-0", width: "125px", height: "85px"},
-        {id: 216, top: "top-[388px]", left: "left-[128px] ", width: "125px", height: "85px"},
-        {id: 217, top: "top-[388px]", left: "left-[255px] ", width: "125px", height: "85px"},
-        {id: 218, top: "top-[482px]", left: "left-0 ", width: "130px", height: "105px"},
-        {id: 219, top: "top-[482px]", left: "left-[127px]", width: "130px", height: "105px"},
-        {id: 220, top: "top-[482px]", left: "left-[255px]", width: "128px", height: "105px"},
-        {id: 221, top: "top-[589px]", left: "left-0 ", width: "95px", height: "90px"},
-        {id: 222, top: "top-[589px]", left: "left-[95px]", width: "95px", height: "90px"},
-        {id: 223, top: "top-[589px]", left: "left-[190px]", width: "95px", height: "90px"},
-        {id: 224, top: "top-[589px]", left: "left-[285px]", width: "95px", height: "90px"},
-        {id: 225, top: "top-[679px]", left: "left-0", width: "95px", height: "86px"},
-        {id: 226, top: "top-[679px]", left: "left-[95px]", width: "95px", height: "86px"},
-        {id: 227, top: "top-[679px]", left: "left-[190px]", width: "95px", height: "86px"},
-        {id: 228, top: "top-[679px]", left: "left-[285px]", width: "95px", height: "86px"},
-        {id: 229, top: "top-[765px]", left: "left-0", width: "95px", height: "86px"},
-        {id: 230, top: "top-[765px]", left: "left-[95px] ", width: "95px", height: "86px"},
-        {id: 231, top: "top-[765px]", left: "left-[190px]", width: "95px", height: "86px"},
-        {id: 232, top: "top-[765px]", left: "left-[285px] ", width: "95px", height: "86px"},
-        {id: 233, top: "top-[860px]", left: "left-0", width: "95px", height: "86px"},
-        {id: 234, top: "top-[860px]", left: "left-[95px]", width: "95px", height: "86px"},
-        {id: 235, top: "top-[860px]", left: "left-[190px]", width: "95px", height: "86px"},
-        {id: 236, top: "top-[860px]", left: "left-[285px] ", width: "95px", height: "86px"},
-        {id: 237, top: "top-[955px]", left: "left-0", width: "95px", height: "100px"},
-        {id: 238, top: "top-[955px]", left: "left-[95px]", width: "95px", height: "100px"},
-        {id: 239, top: "top-[955px]", left: "left-[190px]", width: "95px", height: "100px"},
-        {id: 240, top: "top-[955px]", left: "left-[285px]", width: "95px", height: "100px"},
-        {id: 241, top: "top-[10px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 242, top: "top-[110px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 243, top: "top-[210px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 244, top: "top-[310px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 245, top: "top-[410px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 246, top: "top-[510px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 247, top: "top-[610px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 248, top: "top-[710px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 249, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
-        {id: 250, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
-    ];
-    const [products, setProducts] = useState<Product[]>([]);
-    const [contextMenu, setContextMenu] = useState<{
-        visible: boolean;
-        x: number;
-        y: number;
-        productId: string;
-    } | null>(null);
+    export const ImageGrid2 = ({
+                                   onProductSelect,
+                                   selectedProducts,
+                                   isMoveModeActive,
+                                   onEditProduct,
+                                   onRemoveProduct,
+                                   onChangeProduct
+                               }: ImageGridProps) => {
+        const gridCells = [
+            {id: 202, top: "top-[20px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+            {id: 201, top: "top-[20px] ", left: "left-0", width: "125px", height: "85px"},
+            {id: 203, top: "top-[20px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+            {id: 204, top: "top-[110px]", left: "left-0", width: "125px", height: "85px"},
+            {id: 205, top: "top-[110px]", left: "left-[125px] ", width: "125px", height: "85px"},
+            {id: 206, top: "top-[110px]", left: "left-[250px] ", width: "125px", height: "85px"},
+            {id: 207, top: "top-[195px] ", left: "left-0", width: "125px", height: "85px"},
+            {id: 208, top: "top-[195px] ", left: "left-[125px] ", width: "125px", height: "85px"},
+            {id: 209, top: "top-[195px] ", left: "left-[250px] ", width: "125px", height: "85px"},
+            {id: 210, top: "top-[294px]", left: "left-0", width: "80px", height: "86px"},
+            {id: 211, top: "top-[294px]", left: "left-[80px] ", width: "75px", height: "86px"},
+            {id: 212, top: "top-[294px]", left: "left-[155px] ", width: "75px", height: "86px"},
+            {id: 213, top: "top-[294px]", left: "left-[230px] ", width: "75px", height: "86px"},
+            {id: 214, top: "top-[294px]", left: "left-[305px] ", width: "75px", height: "86px"},
+            {id: 215, top: "top-[388px]", left: "left-0", width: "125px", height: "85px"},
+            {id: 216, top: "top-[388px]", left: "left-[128px] ", width: "125px", height: "85px"},
+            {id: 217, top: "top-[388px]", left: "left-[255px] ", width: "125px", height: "85px"},
+            {id: 218, top: "top-[482px]", left: "left-0 ", width: "130px", height: "105px"},
+            {id: 219, top: "top-[482px]", left: "left-[127px]", width: "130px", height: "105px"},
+            {id: 220, top: "top-[482px]", left: "left-[255px]", width: "128px", height: "105px"},
+            {id: 221, top: "top-[589px]", left: "left-0 ", width: "95px", height: "90px"},
+            {id: 222, top: "top-[589px]", left: "left-[95px]", width: "95px", height: "90px"},
+            {id: 223, top: "top-[589px]", left: "left-[190px]", width: "95px", height: "90px"},
+            {id: 224, top: "top-[589px]", left: "left-[285px]", width: "95px", height: "90px"},
+            {id: 225, top: "top-[679px]", left: "left-0", width: "95px", height: "86px"},
+            {id: 226, top: "top-[679px]", left: "left-[95px]", width: "95px", height: "86px"},
+            {id: 227, top: "top-[679px]", left: "left-[190px]", width: "95px", height: "86px"},
+            {id: 228, top: "top-[679px]", left: "left-[285px]", width: "95px", height: "86px"},
+            {id: 229, top: "top-[765px]", left: "left-0", width: "95px", height: "86px"},
+            {id: 230, top: "top-[765px]", left: "left-[95px] ", width: "95px", height: "86px"},
+            {id: 231, top: "top-[765px]", left: "left-[190px]", width: "95px", height: "86px"},
+            {id: 232, top: "top-[765px]", left: "left-[285px] ", width: "95px", height: "86px"},
+            {id: 233, top: "top-[860px]", left: "left-0", width: "95px", height: "86px"},
+            {id: 234, top: "top-[860px]", left: "left-[95px]", width: "95px", height: "86px"},
+            {id: 235, top: "top-[860px]", left: "left-[190px]", width: "95px", height: "86px"},
+            {id: 236, top: "top-[860px]", left: "left-[285px] ", width: "95px", height: "86px"},
+            {id: 237, top: "top-[955px]", left: "left-0", width: "95px", height: "100px"},
+            {id: 238, top: "top-[955px]", left: "left-[95px]", width: "95px", height: "100px"},
+            {id: 239, top: "top-[955px]", left: "left-[190px]", width: "95px", height: "100px"},
+            {id: 240, top: "top-[955px]", left: "left-[285px]", width: "95px", height: "100px"},
+            {id: 241, top: "top-[10px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 242, top: "top-[110px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 243, top: "top-[210px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 244, top: "top-[310px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 245, top: "top-[410px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 246, top: "top-[510px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 247, top: "top-[610px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 248, top: "top-[710px]", left: "left-[385px]", width: "150px", height: "100px"},
+            {id: 249, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
+            {id: 250, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
+        ];
+        const [products, setProducts] = useState<Product[]>([]);
+        const [contextMenu, setContextMenu] = useState<{
+            visible: boolean;
+            x: number;
+            y: number;
+            productId: string;
+        } | null>(null);
 
 
-    useEffect(() => {
-        const fetchProducts = async (): Promise<void> => {
-            try {
-                const productsData: Product[] = await getTableName();
+        useEffect(() => {
+            const fetchProducts = async (): Promise<void> => {
+                try {
+                    const productsData: Product[] = await getTableName();
 
-                // Verificar si el array está vacío para llenarlo
-                if (productsgrid123.length === 0) {
-                    productsData.forEach((product: Product) => {
-                        // Verificar si el producto ya está en `productsgrid2`
-                        const exists = productsgrid123.some((p) => p.id === product.id);
-                        if (!exists) {
-                            productsgrid123.push(product);
-                        } else {
-                            console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
-                        }
-                    });
-                    setProducts(productsgrid123[0]);
+                    // Verificar si el array está vacío para llenarlo
+                    if (productsgrid123.length === 0) {
+                        productsData.forEach((product: Product) => {
+                            // Verificar si el producto ya está en `productsgrid2`
+                            const exists = productsgrid123.some((p) => p.id === product.id);
+                            if (!exists) {
+                                productsgrid123.push(product);
+                            } else {
+                                console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
+                            }
+                        });
+                        setProducts(productsgrid123[0]);
+                    }
+
+                } catch (error) {
+                    console.error('Error al obtener productos:', error);
                 }
+            };
 
-            } catch (error) {
-                console.error('Error al obtener productos:', error);
+            fetchProducts();
+        }, []);
+
+
+        const removeDeletedProducts = (products: Product[], deletedProducts: Product[]): void => {
+            // Filtrar los productos que no están en deletedProducts
+            for (const deletedProduct of deletedProducts) {
+                const index = products.findIndex((product) => product.id === deletedProduct.id);
+                if (index !== -1) {
+                    products.splice(index, 1);
+                }
             }
         };
 
-        fetchProducts();
-    }, []);
+        removeDeletedProducts(productsgrid123, deletedProducts);
 
 
-    const removeDeletedProducts = (products: Product[], deletedProducts: Product[]): void => {
-        // Filtrar los productos que no están en deletedProducts
-        for (const deletedProduct of deletedProducts) {
-            const index = products.findIndex((product) => product.id === deletedProduct.id);
-            if (index !== -1) {
-                products.splice(index, 1);
+        const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+            e.preventDefault();
+            if (isMoveModeActive) return;
+
+            // Obtener las coordenadas del clic derecho
+            const container = e.currentTarget.closest('.scroll-container');
+            const containerRect = container?.getBoundingClientRect();
+
+            let posX = e.clientX;
+            let posY = e.clientY;
+
+            if (containerRect) {
+                posX = e.clientX - containerRect.left + container.scrollLeft;
+                posY = e.clientY - containerRect.top + container.scrollTop;
             }
-        }
-    };
 
-    removeDeletedProducts(productsgrid123, deletedProducts);
+            // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
+            const menuWidth = 150; // Ancho estimado del menú contextual
+            const menuHeight = 200; // Alto estimado del menú contextual
 
+            if (posX + menuWidth > window.innerWidth) {
+                posX -= menuWidth;
+            }
+            if (posY + menuHeight > window.innerHeight) {
+                posY -= menuHeight;
+            }
 
-    const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
-        e.preventDefault();
-        if (isMoveModeActive) return;
-
-        // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container');
-        const containerRect = container?.getBoundingClientRect();
-
-        let posX = e.clientX;
-        let posY = e.clientY;
-
-        if (containerRect) {
-            posX = e.clientX - containerRect.left + container.scrollLeft;
-            posY = e.clientY - containerRect.top + container.scrollTop;
-        }
-
-        // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
-        const menuWidth = 150; // Ancho estimado del menú contextual
-        const menuHeight = 200; // Alto estimado del menú contextual
-
-        if (posX + menuWidth > window.innerWidth) {
-            posX -= menuWidth;
-        }
-        if (posY + menuHeight > window.innerHeight) {
-            posY -= menuHeight;
-        }
-
-        // Establecer el estado del menú contextual con las coordenadas ajustadas
-        setContextMenu({
-            visible: true,
-            x: posX,
-            y: posY - 50,
-            productId: cellId.toString(),
-        });
-    };
+            // Establecer el estado del menú contextual con las coordenadas ajustadas
+            setContextMenu({
+                visible: true,
+                x: posX,
+                y: posY - 50,
+                productId: cellId.toString(),
+            });
+        };
 
 
-    //Eliminar Producto
-    const handleClearCell = (cellId: string): void => {
-        console.log(cellId);
-        const cellIdNumber: number = parseInt(cellId, 10);
-        const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
-        productTempDeleted = '';
-        if (elementIndex !== -1) {
-            // Guardar el elemento en el array de productos eliminados
-            deletedProducts.push(productsgrid123[elementIndex]);
-            selectedProducts.length = 0;
-
-            // Eliminar el elemento del array
-
-        } else {
-            console.log("Elemento no encontrado.");
-        }
-
-    };
-
-    const handleInitChangeProduct = (Cellid: string): void => {
-        console.log(Cellid)
-        const cellIdNumber: number = parseInt(Cellid, 10);
-        const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
-        if (elementIndex !== -1) {
-            productoA = productsgrid123[elementIndex];
-        }
-
-    }
-    const handleChangeProducts = (cellId: string): void => {
-        const cellIdNumber = parseInt(cellId, 10);
-        if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
-            const elementIndex: number = productsgrid123.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
-
-            // Si se encuentra la celda (puede ser vacía)
+        //Eliminar Producto
+        const handleClearCell = (cellId: string): void => {
+            console.log(cellId);
+            const cellIdNumber: number = parseInt(cellId, 10);
+            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            productTempDeleted = '';
             if (elementIndex !== -1) {
-                let productoB = productsgrid123[elementIndex];
-
-                // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
-                if (!productoB) {
-                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
-                }
-
-                // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
-                const tempGridId = productoA.gridId;
-                productoA.gridId = productoB.gridId;
-                productoB.gridId = tempGridId;
-
-                // Actualizar el array `productsgrid2` con los cambios
-                productsgrid123[elementIndex] = productoB;
-
-                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
-                const indexA = productsgrid123.findIndex((p: Product): boolean => p?.id === productoA.id);
-                if (indexA !== -1) {
-                    productsgrid123[indexA] = productoA;
-                }
-
-                setProducts(productoB);
-            }
-            console.log('Producto A:', productoA);
-            console.log('Producto B:', productoB);
-            resetProductoA();
-            resetProductoB();
-        }
-        products.length = 0;
-        console.log(selectedProducts + " elemento añadidos");
-    };
-
-
-    const addProductIfAbsent = (product: Product): void => {
-
-        if (product.id !== productTempDeleted) {
-
-            const existsInProductinArray = productsgrid123.some((p) => p.id === product.id);
-
-            if (!existsInProductinArray) {
-                productsgrid123.push(product);
-                console.log("Producto añadido:", product);
-                productTempDeleted = product.gridId;
+                // Guardar el elemento en el array de productos eliminados
+                deletedProducts.push(productsgrid123[elementIndex]);
                 selectedProducts.length = 0;
+
+                // Eliminar el elemento del array
+
+            } else {
+                console.log("Elemento no encontrado.");
+            }
+
+        };
+
+        const handleInitChangeProduct = (Cellid: string): void => {
+            console.log(Cellid)
+            const cellIdNumber: number = parseInt(Cellid, 10);
+            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            if (elementIndex !== -1) {
+                productoA = productsgrid123[elementIndex];
             }
 
         }
+        const handleChangeProducts = (cellId: string): void => {
+            const cellIdNumber = parseInt(cellId, 10);
+            if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
+                const elementIndex: number = productsgrid123.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
 
-    };
-    useEffect(() => {
+                // Si se encuentra la celda (puede ser vacía)
+                if (elementIndex !== -1) {
+                    let productoB = productsgrid123[elementIndex];
 
-        const handleClickOutside = () => setContextMenu(null);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
-    return (
-        <div className="relative  w-[550px] h-[550px] overflow-auto">
-            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
-            {gridCells.map((cell, index) => {
+                    // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
+                    if (!productoB) {
+                        productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
+                    }
 
-                const selectedProduct = productsgrid123?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                    // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
+                    const tempGridId = productoA.gridId;
+                    productoA.gridId = productoB.gridId;
+                    productoB.gridId = tempGridId;
 
-                if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.gridId) {
-                    addProductIfAbsent(selectedProduct);
+                    // Actualizar el array `productsgrid2` con los cambios
+                    productsgrid123[elementIndex] = productoB;
+
+                    // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                    const indexA = productsgrid123.findIndex((p: Product): boolean => p?.id === productoA.id);
+                    if (indexA !== -1) {
+                        productsgrid123[indexA] = productoA;
+                    }
+
+                    setProducts(productoB);
+                }
+                console.log('Producto A:', productoA);
+                console.log('Producto B:', productoB);
+                resetProductoA();
+                resetProductoB();
+            }
+            products.length = 0;
+            console.log(selectedProducts + " elemento añadidos");
+        };
+
+
+        const addProductIfAbsent = (product: Product): void => {
+
+            if (product.id !== productTempDeleted) {
+
+                const existsInProductinArray = productsgrid123.some((p) => p.id === product.id);
+
+                if (!existsInProductinArray) {
+                    productsgrid123.push(product);
+                    console.log("Producto añadido:", product);
+                    productTempDeleted = product.gridId;
+                    selectedProducts.length = 0;
                 }
 
-                return (
-                    <div
-                        key={cell.id}
-                        className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-                        style={{width: cell.width, height: cell.height}}
-                        onClick={() => {
+            }
 
-                            onProductSelect(cell.id);
-                            handleChangeProducts(cell.id);
+        };
+        useEffect(() => {
 
-                        }}
-                        onContextMenu={(e) => handleContextMenu(e, cell.id)}
-                    >
-                        <div className="absolute text-black font-bold">
-                            {selectedProduct?.name || cell.id.toString()}
+            const handleClickOutside = () => setContextMenu(null);
+            document.addEventListener('click', handleClickOutside);
+            return () => document.removeEventListener('click', handleClickOutside);
+        }, []);
+        return (
+            <div className="relative  w-[550px] h-[550px] overflow-auto">
+                <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
+                {gridCells.map((cell, index) => {
+
+                    const selectedProduct = productsgrid123?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+
+                    if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.gridId) {
+                        addProductIfAbsent(selectedProduct);
+                    }
+
+                    return (
+                        <div
+                            key={cell.id}
+                            className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
+                            style={{width: cell.width, height: cell.height}}
+                            onClick={() => {
+
+                                onProductSelect(cell.id);
+                                handleChangeProducts(cell.id);
+
+                            }}
+                            onContextMenu={(e) => handleContextMenu(e, cell.id)}
+                        >
+                            <div className="absolute text-black font-bold">
+                                {selectedProduct?.name || cell.id.toString()}
+                            </div>
+                            {selectedProduct?.image && (
+                                <Image
+                                    src={selectedProduct.image}
+                                    alt={selectedProduct.name || ''}
+                                    width={70}
+                                    height={70}
+                                    objectFit="cover"
+                                />
+                            )}
                         </div>
-                        {selectedProduct?.image && (
-                            <Image
-                                src={selectedProduct.image}
-                                alt={selectedProduct.name || ''}
-                                width={70}
-                                height={70}
-                                objectFit="cover"
-                            />
-                        )}
+                    );
+                })}
+
+
+                {contextMenu?.visible && (
+                    <div
+                        style={{
+                            position: 'fixed', // Se asegura de usar fixed para alinear con el viewport
+                            top: `${contextMenu.y}px`, // Posicionamiento vertical basado en las coordenadas ajustadas del clic
+                            left: `${contextMenu.x}px`, // Posicionamiento horizontal basado en las coordenadas ajustadas del clic
+                            zIndex: 1000,
+                        }}
+                    >
+                        <RightClick
+                            productId={contextMenu.productId}
+                            handleRemoveProduct={handleClearCell}
+                            handleEditProduct={onEditProduct}
+                            handleChangeProduct={handleInitChangeProduct}
+                        />
                     </div>
-                );
-            })}
+                )}
 
+            </div>
+        );
 
-            {contextMenu?.visible && (
-                <div
-                    style={{
-                        position: 'fixed', // Se asegura de usar fixed para alinear con el viewport
-                        top: `${contextMenu.y}px`, // Posicionamiento vertical basado en las coordenadas ajustadas del clic
-                        left: `${contextMenu.x}px`, // Posicionamiento horizontal basado en las coordenadas ajustadas del clic
-                        zIndex: 1000,
-                    }}
-                >
-                    <RightClick
-                        productId={contextMenu.productId}
-                        handleRemoveProduct={handleClearCell}
-                        handleEditProduct={onEditProduct}
-                        handleChangeProduct={handleInitChangeProduct}
-                    />
-                </div>
-            )}
-
-        </div>
-    );
-
-};
+    };
 
     export const ImageGrid3 = ({
                                    onProductSelect,
