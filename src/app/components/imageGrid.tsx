@@ -24,8 +24,7 @@ interface ImageGridProps {
 
 export let productTempDeleted: number | undefined;
 export const deletedProducts: Product[] = [];
-export let productsgrid123: Product[] = [];
-export let productsgrid1: Product[] = [];
+export let productsgrid2: Product[] = [];
 export let productoA: Product = {
     id: "",
     name: "",
@@ -198,37 +197,17 @@ export const ImageGrid = ({
         }
     };
 
-    const handleClearCell = (cellId: string): void => {
-        console.log(cellId);
-
-        // Buscar el índice del producto en `productsGrid1` que tiene el id igual a `cellId`
-        const elementIndex: number = productsgrid1.findIndex((p: Product): boolean => p.id === cellId);
-
-        productTempDeleted = 0;
-
-        if (elementIndex !== -1) {
-            // Usar `splice()` para eliminar el elemento del array `selectedProducts`
-            selectedProducts.splice(elementIndex, 1); // Eliminar el elemento en el índice encontrado
-            productsgrid1.splice(elementIndex, 1)          
-        } else {
-         
-        }
-    };
-
-
-    const addProductIfAbsent = (product: Product): void => {
+        const addProductIfAbsent = (product: Product): void => {
 
             if (product.gridId !== productTempDeleted) {
 
-                const existsInProductinArray = productsgrid1.some((p) => p.id === product.id);
+                const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
 
                 if (!existsInProductinArray) {
-                    productsgrid1.push(product);
+                    productsgrid2.push(product);
                     console.log("Producto añadido:", product);
-                    productTempDeleted = product.gridId;                 
-                    selectedProducts = productsgrid1;
-                    console.log(productsgrid1+'productos en la array global')
-                    
+                    productTempDeleted = product.gridId;
+                    selectedProducts.length = 0;
                 }
 
             }
@@ -373,17 +352,17 @@ export const ImageGrid = ({
                     const productsData: Product[] = await getTableName();
 
                     // Verificar si el array está vacío para llenarlo
-                    if (productsgrid123.length === 0) {
+                    if (productsgrid2.length === 0) {
                         productsData.forEach((product: Product) => {
                             // Verificar si el producto ya está en `productsgrid2`
-                            const exists = productsgrid123.some((p) => p.id === product.id);
+                            const exists = productsgrid2.some((p) => p.id === product.id);
                             if (!exists) {
-                                productsgrid123.push(product);
+                                productsgrid2.push(product);
                             } else {
                                 console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
                             }
                         });
-                        setProducts(productsgrid123[0]);
+                        setProducts(productsgrid2[0]);
                     }
 
                 } catch (error) {
@@ -405,7 +384,7 @@ export const ImageGrid = ({
             }
         };
 
-        removeDeletedProducts(productsgrid123, deletedProducts);
+        removeDeletedProducts(productsgrid2, deletedProducts);
 
 
         const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
@@ -449,11 +428,11 @@ export const ImageGrid = ({
         const handleClearCell = (cellId: string): void => {
             console.log(cellId);
             const cellIdNumber: number = parseInt(cellId, 10);
-            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
             productTempDeleted = '';
             if (elementIndex !== -1) {
                 // Guardar el elemento en el array de productos eliminados
-                deletedProducts.push(productsgrid123[elementIndex]);
+                deletedProducts.push(productsgrid2[elementIndex]);
                 selectedProducts.length = 0;
 
                 // Eliminar el elemento del array
@@ -467,20 +446,20 @@ export const ImageGrid = ({
         const handleInitChangeProduct = (Cellid: string): void => {
             console.log(Cellid)
             const cellIdNumber: number = parseInt(Cellid, 10);
-            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
             if (elementIndex !== -1) {
-                productoA = productsgrid123[elementIndex];
+                productoA = productsgrid2[elementIndex];
             }
 
         }
         const handleChangeProducts = (cellId: string): void => {
             const cellIdNumber = parseInt(cellId, 10);
             if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
-                const elementIndex: number = productsgrid123.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
+                const elementIndex: number = productsgrid2.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
 
                 // Si se encuentra la celda (puede ser vacía)
                 if (elementIndex !== -1) {
-                    let productoB = productsgrid123[elementIndex];
+                    let productoB = productsgrid2[elementIndex];
 
                     // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                     if (!productoB) {
@@ -493,12 +472,12 @@ export const ImageGrid = ({
                     productoB.gridId = tempGridId;
 
                     // Actualizar el array `productsgrid2` con los cambios
-                    productsgrid123[elementIndex] = productoB;
+                    productsgrid2[elementIndex] = productoB;
 
                     // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
-                    const indexA = productsgrid123.findIndex((p: Product): boolean => p?.id === productoA.id);
+                    const indexA = productsgrid2.findIndex((p: Product): boolean => p?.id === productoA.id);
                     if (indexA !== -1) {
-                        productsgrid123[indexA] = productoA;
+                        productsgrid2[indexA] = productoA;
                     }
 
                     setProducts(productoB);
@@ -517,10 +496,10 @@ export const ImageGrid = ({
 
             if (product.id !== productTempDeleted) {
 
-                const existsInProductinArray = productsgrid123.some((p) => p.id === product.id);
+                const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
 
                 if (!existsInProductinArray) {
-                    productsgrid123.push(product);
+                    productsgrid2.push(product);
                     console.log("Producto añadido:", product);
                     productTempDeleted = product.gridId;
                     selectedProducts.length = 0;
@@ -540,7 +519,7 @@ export const ImageGrid = ({
                 <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
                 {gridCells.map((cell, index) => {
 
-                    const selectedProduct = productsgrid123?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                    const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
                     if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.gridId) {
                         addProductIfAbsent(selectedProduct);
@@ -676,17 +655,17 @@ export const ImageGrid = ({
                     const productsData: Product[] = await getTableName();
 
                     // Verificar si el array está vacío para llenarlo
-                    if (productsgrid123.length === 0) {
+                    if (productsgrid2.length === 0) {
                         productsData.forEach((product: Product) => {
                             // Verificar si el producto ya está en `productsgrid2`
-                            const exists = productsgrid123.some((p) => p.id === product.id);
+                            const exists = productsgrid2.some((p) => p.id === product.id);
                             if (!exists) {
-                                productsgrid123.push(product);
+                                productsgrid2.push(product);
                             } else {
                                 console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
                             }
                         });
-                        setProducts(productsgrid123[0]);
+                        setProducts(productsgrid2[0]);
                     }
 
                 } catch (error) {
@@ -707,7 +686,7 @@ export const ImageGrid = ({
             }
         };
 
-        removeDeletedProducts(productsgrid123, deletedProducts);
+        removeDeletedProducts(productsgrid2, deletedProducts);
 
 
         const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
@@ -749,11 +728,11 @@ export const ImageGrid = ({
         const handleClearCell = (cellId: string): void => {
             console.log(cellId);
             const cellIdNumber: number = parseInt(cellId, 10);
-            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
             productTempDeleted = '';
             if (elementIndex !== -1) {
                 // Guardar el elemento en el array de productos eliminados
-                deletedProducts.push(productsgrid123[elementIndex]);
+                deletedProducts.push(productsgrid2[elementIndex]);
                 selectedProducts.length = 0;
 
                 // Eliminar el elemento del array
@@ -767,9 +746,9 @@ export const ImageGrid = ({
         const handleInitChangeProduct = (Cellid: string): void => {
             console.log(Cellid)
             const cellIdNumber: number = parseInt(Cellid, 10);
-            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
             if (elementIndex !== -1) {
-                productoA = productsgrid123[elementIndex];
+                productoA = productsgrid2[elementIndex];
             }
 
         }
@@ -777,11 +756,11 @@ export const ImageGrid = ({
         const handleChangeProducts = (cellId: string): void => {
             const cellIdNumber = parseInt(cellId, 10);
             if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
-                const elementIndex: number = productsgrid123.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
+                const elementIndex: number = productsgrid2.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
 
                 // Si se encuentra la celda (puede ser vacía)
                 if (elementIndex !== -1) {
-                    let productoB = productsgrid123[elementIndex];
+                    let productoB = productsgrid2[elementIndex];
 
                     // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                     if (!productoB) {
@@ -794,12 +773,12 @@ export const ImageGrid = ({
                     productoB.gridId = tempGridId;
 
                     // Actualizar el array `productsgrid2` con los cambios
-                    productsgrid123[elementIndex] = productoB;
+                    productsgrid2[elementIndex] = productoB;
 
                     // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
-                    const indexA = productsgrid123.findIndex((p: Product): boolean => p?.id === productoA.id);
+                    const indexA = productsgrid2.findIndex((p: Product): boolean => p?.id === productoA.id);
                     if (indexA !== -1) {
-                        productsgrid123[indexA] = productoA;
+                        productsgrid2[indexA] = productoA;
                     }
 
                     setProducts(productoB);
@@ -816,10 +795,10 @@ export const ImageGrid = ({
 
             if (product.id !== productTempDeleted) {
 
-                const existsInProductinArray = productsgrid123.some((p) => p.id === product.id);
+                const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
 
                 if (!existsInProductinArray) {
-                    productsgrid123.push(product);
+                    productsgrid2.push(product);
                     console.log("Producto añadido:", product);
                     productTempDeleted = product.gridId;
                     selectedProducts.length = 0;
@@ -840,7 +819,7 @@ export const ImageGrid = ({
                 <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
                 {gridCells.map((cell, index) => {
 
-                    const selectedProduct = productsgrid123?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                    const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
                     if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.gridId) {
                         addProductIfAbsent(selectedProduct);
@@ -975,17 +954,17 @@ export const ImageGrid = ({
                     const productsData: Product[] = await getTableName();
 
                     // Verificar si el array está vacío para llenarlo
-                    if (productsgrid123.length === 0) {
+                    if (productsgrid2.length === 0) {
                         productsData.forEach((product: Product) => {
                             // Verificar si el producto ya está en `productsgrid2`
-                            const exists = productsgrid123.some((p) => p.id === product.id);
+                            const exists = productsgrid2.some((p) => p.id === product.id);
                             if (!exists) {
-                                productsgrid123.push(product);
+                                productsgrid2.push(product);
                             } else {
                                 console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
                             }
                         });
-                        setProducts(productsgrid123[0]);
+                        setProducts(productsgrid2[0]);
                     }
 
                 } catch (error) {
@@ -1005,7 +984,7 @@ export const ImageGrid = ({
             }
         };
 
-        removeDeletedProducts(productsgrid123, deletedProducts);
+        removeDeletedProducts(productsgrid2, deletedProducts);
         const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
             e.preventDefault();
             if (isMoveModeActive) return;
@@ -1045,11 +1024,11 @@ export const ImageGrid = ({
         const handleClearCell = (cellId: string): void => {
             console.log(cellId);
             const cellIdNumber: number = parseInt(cellId, 10);
-            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
             productTempDeleted = '';
             if (elementIndex !== -1) {
                 // Guardar el elemento en el array de productos eliminados
-                deletedProducts.push(productsgrid123[elementIndex]);
+                deletedProducts.push(productsgrid2[elementIndex]);
                 selectedProducts.length = 0;
 
                 // Eliminar el elemento del array
@@ -1063,9 +1042,9 @@ export const ImageGrid = ({
         const handleInitChangeProduct = (Cellid: string): void => {
             console.log(Cellid)
             const cellIdNumber: number = parseInt(Cellid, 10);
-            const elementIndex: number = productsgrid123.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
+            const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
             if (elementIndex !== -1) {
-                productoA = productsgrid123[elementIndex];
+                productoA = productsgrid2[elementIndex];
             }
 
         }
@@ -1073,11 +1052,11 @@ export const ImageGrid = ({
         const handleChangeProducts = (cellId: string): void => {
             const cellIdNumber = parseInt(cellId, 10);
             if (productoA.gridId != undefined && productoA.gridId != cellIdNumber) {
-                const elementIndex: number = productsgrid123.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
+                const elementIndex: number = productsgrid2.findIndex((p: Product | null): boolean => p?.gridId === cellIdNumber);
 
                 // Si se encuentra la celda (puede ser vacía)
                 if (elementIndex !== -1) {
-                    let productoB = productsgrid123[elementIndex];
+                    let productoB = productsgrid2[elementIndex];
 
                     // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                     if (!productoB) {
@@ -1090,12 +1069,12 @@ export const ImageGrid = ({
                     productoB.gridId = tempGridId;
 
                     // Actualizar el array `productsgrid2` con los cambios
-                    productsgrid123[elementIndex] = productoB;
+                    productsgrid2[elementIndex] = productoB;
 
                     // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
-                    const indexA = productsgrid123.findIndex((p: Product): boolean => p?.id === productoA.id);
+                    const indexA = productsgrid2.findIndex((p: Product): boolean => p?.id === productoA.id);
                     if (indexA !== -1) {
-                        productsgrid123[indexA] = productoA;
+                        productsgrid2[indexA] = productoA;
                     }
 
                     setProducts(productoB);
@@ -1112,10 +1091,10 @@ export const ImageGrid = ({
 
             if (product.id !== productTempDeleted) {
 
-                const existsInProductinArray = productsgrid123.some((p) => p.id === product.id);
+                const existsInProductinArray = productsgrid2.some((p) => p.id === product.id);
 
                 if (!existsInProductinArray) {
-                    productsgrid123.push(product);
+                    productsgrid2.push(product);
                     console.log("Producto añadido:", product);
                     productTempDeleted = product.gridId;
                     selectedProducts.length = 0;
@@ -1134,7 +1113,7 @@ export const ImageGrid = ({
             <div className="relative  w-[550px] h-[550px] overflow-auto">
                 <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
                 {gridCells.map((cell, index) => {
-                    const selectedProduct = productsgrid123?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                    const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
                     if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.gridId) {
                         addProductIfAbsent(selectedProduct);
