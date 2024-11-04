@@ -11,7 +11,7 @@ const nextConfig = {
       ],
     },
     env:{
-        API_URL: 'http://localhost:3003',
+        API_URL: 'http://173.236.219.227:3003',
     }
   };
 
