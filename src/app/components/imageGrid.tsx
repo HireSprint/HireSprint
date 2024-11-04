@@ -3,6 +3,7 @@ import {useState, useEffect} from "react";
 import {getTableName} from "../api/productos/prductosRF";
 import RightClick from "./rightClick";
 import { CardProduct} from "./card";
+import { ProductTypes } from "@/types/product";
 
 interface Product {
     id: string;
@@ -14,22 +15,22 @@ interface Product {
 }
 
 interface ImageGridProps {
-    onProductSelect: (event: React.MouseEvent, gridId: number) => void;
-    selectedProducts: Product[];
+    onProductSelect: (gridId: number, event: React.MouseEvent) => void;
+    selectedProducts: ProductTypes[];
     onRemoveProduct: (productId: string) => void;
     onEditProduct: (productId: string) => void;
     onChangeProduct: (productId: string) => void;
     isMoveModeActive: boolean;
 }
 export let productTempDeleted: string;
-export const deletedProducts: Product[] = [];
-export let productsgrid2: Product[] = [];
-export let productoA: Product = {
+export const deletedProducts: ProductTypes[] = [];
+export let productsgrid2: ProductTypes[] = [];
+export let productoA: ProductTypes = {
     id: "",
     name: "",
     image: "",
     gridId: undefined,
-    descriptions: undefined,
+    descriptions: [],
     key: undefined
 };
 
@@ -39,16 +40,16 @@ export const resetProductoA = (): void => {
         name: "",
         image: "",
         gridId: undefined,
-        descriptions: undefined,
+        descriptions: [],
         key: undefined
     };
 };
-export let productoB: Product = {
+export let productoB: ProductTypes = {
     id: "",
     name: "",
     image: "",
     gridId: undefined,
-    descriptions: undefined,
+    descriptions: [],
     key: undefined
 };
 
@@ -58,7 +59,7 @@ export const resetProductoB = (): void => {
         name: "",
         image: "",
         gridId: undefined,
-        descriptions: undefined,
+        descriptions: [],
         key: undefined
     };
 };
@@ -122,7 +123,7 @@ export const ImageGrid = ({
        {id: 149, top: "top-[1070px]", left: "left-[380px]", width: "150px", height: "120px"},
        {id: 150, top: "top-[1200px]", left: "left-[380px]", width: "150px", height: "100px"},
     ];
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductTypes[]>([]);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
@@ -163,19 +164,21 @@ export const ImageGrid = ({
                             key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                            onClick={(event) => { onProductSelect(cell.id, event);}}
+                            onClick={(e) => onProductSelect(cell.id, e)}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
                         >
-                      {selectedProduct ? (
-              <CardProduct
-                product={selectedProduct}
-                onProductSelect={() => onProductSelect(cell.id)}
-              />
-            ) : (
-              <div className="flex items-center justify-center w-full h-full">
-                <span className="text-xs font-bold">{cell.id}</span>
-              </div>
-            )}
+                                                 <div className="absolute text-black font-bold">
+                                {selectedProduct?.name || cell.id.toString()}
+                            </div>
+                            {selectedProduct?.image && (
+                                <Image
+                                    src={selectedProduct.image}
+                                    alt={selectedProduct.name || ''}
+                                    width={70}
+                                    height={70}
+                                    objectFit="cover"
+                                />
+                            )}
           </div>
         );
       })}
@@ -262,7 +265,7 @@ export const ImageGrid2 = ({
         {id: 249, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
         {id: 250, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
     ];
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductTypes[]>([]);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
@@ -274,11 +277,11 @@ export const ImageGrid2 = ({
     useEffect(() => {
         const fetchProducts = async (): Promise<void> => {
             try {
-                const productsData: Product[] = await getTableName();
+                const productsData: ProductTypes[] = await getTableName();
 
                 // Verificar si el array está vacío para llenarlo
                 if (productsgrid2.length === 0) {
-                    productsData.forEach((product: Product) => {
+                    productsData.forEach((product) => {
                         // Verificar si el producto ya está en `productsgrid2`
                         const exists = productsgrid2.some((p) => p.id === product.id);
                         if (!exists) {
@@ -287,7 +290,7 @@ export const ImageGrid2 = ({
                             console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
                         }
                     });
-                    setProducts(productsgrid2[0]);
+                    setProducts([productsgrid2[0]]);
                 }
 
             } catch (error) {
@@ -299,7 +302,7 @@ export const ImageGrid2 = ({
     }, []);
 
 
-    const removeDeletedProducts = (products: Product[], deletedProducts: Product[]): void => {
+    const removeDeletedProducts = (products: ProductTypes[], deletedProducts: ProductTypes[]): void => {
         // Filtrar los productos que no están en deletedProducts
         for (const deletedProduct of deletedProducts) {
             const index = products.findIndex((product) => product.id === deletedProduct.id);
@@ -317,7 +320,7 @@ export const ImageGrid2 = ({
         if (isMoveModeActive) return;
 
         // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container');
+        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
         const containerRect = container?.getBoundingClientRect();
 
         let posX = e.clientX;
@@ -351,7 +354,6 @@ export const ImageGrid2 = ({
   
     //Eliminar Producto
     const handleClearCell = (cellId: string): void => {
-        console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         productTempDeleted = '';
@@ -369,7 +371,6 @@ export const ImageGrid2 = ({
     };
 
     const handleInitChangeProduct = (Cellid: string): void => {
-        console.log(Cellid)
         const cellIdNumber: number = parseInt(Cellid, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         if (elementIndex !== -1) {
@@ -388,7 +389,7 @@ export const ImageGrid2 = ({
 
                 // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                 if (!productoB) {
-                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
+                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber, descriptions: []};
                 }
 
                 // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
@@ -405,10 +406,8 @@ export const ImageGrid2 = ({
                     productsgrid2[indexA] = productoA;
                 }
 
-                setProducts(productoB);
+                setProducts([productoB]);
             }
-            console.log('Producto A:', productoA);
-            console.log('Producto B:', productoB);
             resetProductoA();
             resetProductoB();
         }
@@ -416,7 +415,7 @@ export const ImageGrid2 = ({
     };
 
 
-    const addProductIfAbsent = (product: Product): void => {
+    const addProductIfAbsent = (product: ProductTypes): void => {
 
         if (product.id !== productTempDeleted) {
 
@@ -424,7 +423,6 @@ export const ImageGrid2 = ({
 
             if (!existsInProductinArray) {
                 productsgrid2.push(product);
-                console.log("Producto añadido:", product);
                 productTempDeleted = product.id;
                 selectedProducts.length = 0;
             }
@@ -448,16 +446,15 @@ export const ImageGrid2 = ({
                 if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
                     addProductIfAbsent(selectedProduct);
                 }
-                console.log(selectedProducts)
                 return (
                     <div
                         key={cell.id}
                         className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                         style={{width: cell.width, height: cell.height}}
-                        onClick={() => {
+                        onClick={(e) => {
 
-                                onProductSelect(cell.id);                               
-                                handleChangeProducts(cell.id);
+                                onProductSelect(cell.id, e);                               
+                                handleChangeProducts(cell.id.toString());
 
                             }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
@@ -564,7 +561,7 @@ export const ImageGrid3 = ({
 
     ];
 
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductTypes[]>([]);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
@@ -576,11 +573,11 @@ export const ImageGrid3 = ({
     useEffect(() => {
         const fetchProducts = async (): Promise<void> => {
             try {
-                const productsData: Product[] = await getTableName();
+                const productsData: ProductTypes[] = await getTableName();
 
                 // Verificar si el array está vacío para llenarlo
                 if (productsgrid2.length === 0) {
-                    productsData.forEach((product: Product) => {
+                    productsData.forEach((product) => {
                         // Verificar si el producto ya está en `productsgrid2`
                         const exists = productsgrid2.some((p) => p.id === product.id);
                         if (!exists) {
@@ -589,7 +586,7 @@ export const ImageGrid3 = ({
                             console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
                         }
                     });
-                    setProducts(productsgrid2[0]);
+                    setProducts([productsgrid2[0]]);
                 }
 
             } catch (error) {
@@ -600,7 +597,7 @@ export const ImageGrid3 = ({
         fetchProducts();
     }, []);
 
-    const removeDeletedProducts = (products: Product[], deletedProducts: Product[]): void => {
+    const removeDeletedProducts = (products: ProductTypes[], deletedProducts: ProductTypes[]): void => {
         // Filtrar los productos que no están en deletedProducts
         for (const deletedProduct of deletedProducts) {
             const index = products.findIndex((product) => product.id === deletedProduct.id);
@@ -619,7 +616,7 @@ export const ImageGrid3 = ({
 
 
         // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container');
+        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
         const containerRect = container?.getBoundingClientRect();
 
         let posX = e.clientX;
@@ -650,7 +647,6 @@ export const ImageGrid3 = ({
         });
     };
     const handleClearCell = (cellId: string): void => {
-        console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         productTempDeleted = '';
@@ -668,7 +664,6 @@ export const ImageGrid3 = ({
     };
 
     const handleInitChangeProduct = (Cellid: string): void => {
-        console.log(Cellid)
         const cellIdNumber: number = parseInt(Cellid, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         if (elementIndex !== -1) {
@@ -688,7 +683,7 @@ export const ImageGrid3 = ({
 
                 // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                 if (!productoB) {
-                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
+                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber, descriptions: []};
                 }
 
                 // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
@@ -705,17 +700,15 @@ export const ImageGrid3 = ({
                     productsgrid2[indexA] = productoA;
                 }
 
-                setProducts(productoB);
+                setProducts([productoB]);
             }
-            console.log('Producto A:', productoA);
-            console.log('Producto B:', productoB);
             resetProductoA();
             resetProductoB();
         }
         products.length = 0;
     };
 
-    const addProductIfAbsent = (product: Product): void => {
+    const addProductIfAbsent = (product: ProductTypes): void => {
 
         if (product.id !== productTempDeleted) {
 
@@ -723,7 +716,6 @@ export const ImageGrid3 = ({
 
             if (!existsInProductinArray) {
                 productsgrid2.push(product);
-                console.log("Producto añadido:", product);
                 productTempDeleted = product.id;
                 selectedProducts.length = 0;
             }
@@ -753,10 +745,10 @@ export const ImageGrid3 = ({
                         key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                            onClick={() => {
+                            onClick={(e) => {
 
-                                onProductSelect(cell.id);
-                                handleChangeProducts(cell.id);
+                                onProductSelect(cell.id, e);
+                                handleChangeProducts(cell.id.toString());
 
                             }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}
@@ -863,7 +855,7 @@ export const ImageGrid4 = ({
 
     ];
 
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductTypes[]>([]);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
@@ -875,11 +867,11 @@ export const ImageGrid4 = ({
     useEffect(() => {
         const fetchProducts = async (): Promise<void> => {
             try {
-                const productsData: Product[] = await getTableName();
+                const productsData: ProductTypes[] = await getTableName();
 
                 // Verificar si el array está vacío para llenarlo
                 if (productsgrid2.length === 0) {
-                    productsData.forEach((product: Product) => {
+                    productsData.forEach((product) => {
                         // Verificar si el producto ya está en `productsgrid2`
                         const exists = productsgrid2.some((p) => p.id === product.id);
                         if (!exists) {
@@ -888,7 +880,7 @@ export const ImageGrid4 = ({
                             console.warn(`El producto con id ${product.id} ya existe en productsgrid2.`);
                         }
                     });
-                    setProducts(productsgrid2[0]);
+                    setProducts([productsgrid2[0]]);
                 }
 
             } catch (error) {
@@ -898,7 +890,7 @@ export const ImageGrid4 = ({
 
         fetchProducts();
     }, []);
-    const removeDeletedProducts = (products: Product[], deletedProducts: Product[]): void => {
+    const removeDeletedProducts = (products: ProductTypes[], deletedProducts: ProductTypes[]): void => {
         // Filtrar los productos que no están en deletedProducts
         for (const deletedProduct of deletedProducts) {
             const index = products.findIndex((product) => product.id === deletedProduct.id);
@@ -915,7 +907,7 @@ export const ImageGrid4 = ({
 
 
         // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container');
+        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
         const containerRect = container?.getBoundingClientRect();
 
         let posX = e.clientX;
@@ -946,7 +938,6 @@ export const ImageGrid4 = ({
         });
     };
     const handleClearCell = (cellId: string): void => {
-        console.log(cellId);
         const cellIdNumber: number = parseInt(cellId, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         productTempDeleted = '';
@@ -964,7 +955,6 @@ export const ImageGrid4 = ({
     };
 
     const handleInitChangeProduct = (Cellid: string): void => {
-        console.log(Cellid)
         const cellIdNumber: number = parseInt(Cellid, 10);
         const elementIndex: number = productsgrid2.findIndex((p: Product): boolean => p.gridId === cellIdNumber);
         if (elementIndex !== -1) {
@@ -984,7 +974,7 @@ export const ImageGrid4 = ({
 
                 // Si la celda está vacía (es null o undefined), crear un objeto vacío para `productoB`
                 if (!productoB) {
-                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber};
+                    productoB = {id: "", image: "", name: "", gridId: cellIdNumber, descriptions: []};
                 }
 
                 // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
@@ -1001,17 +991,15 @@ export const ImageGrid4 = ({
                     productsgrid2[indexA] = productoA;
                 }
 
-                setProducts(productoB);
+                setProducts([productoB]);
             }
-            console.log('Producto A:', productoA);
-            console.log('Producto B:', productoB);
             resetProductoA();
             resetProductoB();
         }
         products.length = 0;
     };
 
-    const addProductIfAbsent = (product: Product): void => {
+    const addProductIfAbsent = (product: ProductTypes): void => {
 
         if (product.id !== productTempDeleted) {
 
@@ -1019,7 +1007,6 @@ export const ImageGrid4 = ({
 
             if (!existsInProductinArray) {
                 productsgrid2.push(product);
-                console.log("Producto añadido:", product);
                 productTempDeleted = product.id;
                 selectedProducts.length = 0;
             }
@@ -1047,10 +1034,10 @@ export const ImageGrid4 = ({
                         key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                        onClick={() => {
+                        onClick={(e) => {
 
-                            onProductSelect(cell.id);
-                            handleChangeProducts(cell.id);
+                            onProductSelect(cell.id, e);
+                            handleChangeProducts(cell.id.toString());
 
                         }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}

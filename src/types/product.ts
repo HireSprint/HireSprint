@@ -5,4 +5,5 @@ export interface ProductTypes {
     gridId?: number;
     price?: number;
     descriptions: string[];
+    key?: string;
 }

@@ -1,19 +1,12 @@
 import Airtable from "airtable";
-
+import { ProductTypes } from "@/types/product";
 
 const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');
 
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    gridId?: number;
-    price?: number;
-    descriptions?: string[] | undefined;
-}
-export const getProductsRF = async (searchTerm = ''): Promise<Product[]> => {
+
+export const getProductsRF = async (searchTerm = ''): Promise<ProductTypes[]> => {
     return new Promise((resolve, reject) => {
-        const allProducts: Product[] = [];
+        const allProducts: ProductTypes[] = [];
         const filterFormula = searchTerm ?
             `SEARCH('${searchTerm}', {Product_Name})` :
             '';
@@ -32,7 +25,7 @@ export const getProductsRF = async (searchTerm = ''): Promise<Product[]> => {
                         id: record.id,
                         name: record.get('Product_Name') as string,
                         image: imageUrl,
-                        descriptions: descriptions
+                        descriptions: descriptions || []
                     });
                 });
                 fetchNextPage();
@@ -50,9 +43,9 @@ export const getProductsRF = async (searchTerm = ''): Promise<Product[]> => {
 };
 
 
-export const getTableName = async (): Promise<Product[]> => {
+export const getTableName = async (): Promise<ProductTypes[]> => {
     return new Promise((resolve, reject) => {
-        const allProducts: Product[] = [];
+        const allProducts: ProductTypes[] = [];
         baseRF('J004S').select({
             view: "Grid view",
         }).eachPage(
@@ -69,7 +62,7 @@ export const getTableName = async (): Promise<Product[]> => {
                         id: record.id,
                         name: productName,
                         image: imageUrl,
-                        descriptions: descriptions,
+                        descriptions: descriptions || [],
                         price: parseFloat(price),
                         gridId: parseInt(gridId)
                     });
@@ -113,7 +106,7 @@ export const addGoogleSheet = async (data: any) => {
     }
 };
 
-export const addGoogleSheet2 = async (dataArray: Product[]): Promise<any> => {
+export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
     const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
 
     try {

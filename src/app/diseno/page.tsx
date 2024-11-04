@@ -30,7 +30,7 @@ const Diseno = () => {
         productId: string;
         sourceGridId: number;
     } | null>(null);
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number } | null>(null);
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
     useEffect(() => {
         if (products.length === 0) {
@@ -160,7 +160,6 @@ const Diseno = () => {
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
     };
-    console.log(mousePosition, showProducts)
 
     return (
         <div 
@@ -168,6 +167,7 @@ const Diseno = () => {
             <div className="grid grid-cols-2 w-full items-center justify-center py-8">
                 {/* Primera columna con ImageGrid */}
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
+                    {/* @ts-ignore */}
                     <ImageGrid {...commonGridProps}/>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
@@ -200,16 +200,19 @@ const Diseno = () => {
                             >
                                 {currentPage === 2 && (
                                     <div className=" flex justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
                                         <ImageGrid2 {...commonGridProps}/>
                                     </div>
                                 )}
                                 {currentPage === 3 && (
                                     <div className="flex justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
                                         <ImageGrid3 {...commonGridProps}/>
                                     </div>
                                 )}
                                 {currentPage === 4 && (
                                     <div className="flex justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
                                         <ImageGrid4 {...commonGridProps}/>
                                     </div>
                                 )}
