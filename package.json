@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "npx eslint .",
-    "type": "npx tsc --noEmit",
-    "move-static": "cp -a ./node_modules/@pdftron/webviewer/public/. ./dist/public/webviewer"
+    "type": "npx tsc --noEmit"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.0.1",

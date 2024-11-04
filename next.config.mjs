@@ -16,3 +16,5 @@ const nextConfig = {
   };
 
   export default nextConfig;
+
+  // http://173.236.219.227:3003/getProduct
