@@ -1,13 +1,15 @@
 "use client";
 
-import React, { createContext, useContext, useState } from 'react';
-import { ProductTypes } from '@/types/product';
+import React, {createContext, useContext, useState} from 'react';
+import {ProductTypes} from '@/types/product';
 
 
 interface ProductContextType {
     products: ProductTypes[];
     setProducts: (products: ProductTypes[]) => void;
-    client: string; 
+    arrayProducts: ProductTypes[];
+    setArrayProducts: (arrayProducts: ProductTypes[]) => void;
+    client: string;
     setClient: (client: string) => void;
     selectedProduct: ProductTypes | null;
     setSelectedProduct: (product: ProductTypes | null) => void;
@@ -15,22 +17,23 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<ProductTypes[]>([]);
-  const [client, setClient] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<ProductTypes | null>(null);
-
-  return (
-    <ProductContext.Provider value={{ products, setProducts, client, setClient, selectedProduct, setSelectedProduct }}>
-      {children}
-    </ProductContext.Provider>
-  );
+export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+    const [products, setProducts] = useState<ProductTypes[]>([]);
+    const [client, setClient] = useState<string>('');
+    const [selectedProduct, setSelectedProduct] = useState<ProductTypes | null>(null);
+    const [arrayProducts, setArrayProducts] = useState<ProductTypes[]>([]);
+    return (
+        <ProductContext.Provider
+            value={{products, setProducts, client, setClient, selectedProduct, setSelectedProduct, arrayProducts, setArrayProducts}}>
+            {children}
+        </ProductContext.Provider>
+    );
 };
 
 export const useProductContext = () => {
-  const context = useContext(ProductContext);
-  if (!context) {
-    throw new Error("useProductContext debe ser usado dentro de un ProductProvider");
-  }
-  return context;
+    const context = useContext(ProductContext);
+    if (!context) {
+        throw new Error("useProductContext debe ser usado dentro de un ProductProvider");
+    }
+    return context;
 };
