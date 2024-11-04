@@ -7,25 +7,19 @@ import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
 import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
+import { ProductTypes } from "@/types/product";
 
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    gridId?: number;
-    description?: string;
-}
 
 interface Grid {
     id: number;
-    product: Product | null;
+    product: ProductTypes | null;
 }
 
 const Diseno = () => {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
+    const [products, setProducts] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
     const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
@@ -43,7 +37,10 @@ const Diseno = () => {
             const fetchProducts = async () => {
                 try {
                     const productsData = await getProductsRF();
-                    setProducts(productsData);
+                    setProducts(productsData.map(product => ({
+                        ...product,
+                        descriptions: product.descriptions || []
+                    })));
                 } catch (error) {
                     console.error("Error al obtener productos:", error);
                 } finally {
@@ -54,7 +51,7 @@ const Diseno = () => {
         }
     }, [products.length]);
 
-    const handleProductSelect = (product: Product) => {
+    const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
 
         const productWithGrid = {...product, gridId: selectedGridId};
@@ -269,9 +266,9 @@ const Diseno = () => {
 };
 
 interface GridProductProps {
-    products: Product[];
+    products: ProductTypes[];
     loading: boolean;
-    onProductSelect: (product: Product) => void;
+    onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
 }
 

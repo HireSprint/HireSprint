@@ -1,19 +1,14 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { ProductTypes } from "@/types/product";
 
 
-interface Product {
-  id: string;
-  name: string;
-  descriptions: string;
-  image: string;
-  price?: number;
-}
+
 
 interface CardProductProps {
-  product: Product;
-  onProductSelect?: (product: Product) => void; 
+  product: ProductTypes;
+  onProductSelect?: (product: ProductTypes) => void; 
   onPriceChange?: (id: string, price: number) => void; 
 }
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
@@ -24,7 +19,7 @@ export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSele
     >
       <div className="text-center w-full">
         <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions }</p>
       </div>
       <div className="w-full h-40 relative">
         {product.image ? (

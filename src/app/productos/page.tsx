@@ -5,20 +5,17 @@ import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from '../components/sideBar';
+import { ProductTypes } from '@/types/product'; 
 
-interface Product {
-  id: string; 
-  name: string;
-  image: string; 
-}
 
 const ProductosBase = () => {
-  const [products, setProducts] = useState<Product[]>([]); 
+  const [products, setProducts] = useState<ProductTypes[]>([]); 
   const [loading, setLoading] = useState(true); 
   const [searchTerm, setSearchTerm] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1); 
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]); 
+  const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]); 
   const [showSidebar, setShowSidebar] = useState(false);
+  const [customerName, setCustomerName] = useState("");
 
   const productsPerPage = 12;
 
@@ -26,11 +23,19 @@ const ProductosBase = () => {
     const fetchProducts = async () => {
       try {
         const productsData = await getProductsRF();
-        setProducts(productsData);
-        setLoading(false); 
+        const formattedProducts: ProductTypes[] = productsData.map(product => ({
+          ...product,
+          descriptions: Array.isArray(product.descriptions) 
+            ? product.descriptions.filter((desc): desc is string => typeof desc === 'string')
+            : typeof product.descriptions === 'string' 
+              ? [product.descriptions]
+              : []
+        }));
+        setProducts(formattedProducts);
+        setLoading(false);
       } catch (error) {
         console.error('Error al obtener productos:', error);
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -71,7 +76,7 @@ const ProductosBase = () => {
     return pageNumbers;
   };
 
-  const handleSelectProduct = (id: Product) => {
+  const handleSelectProduct = (id: ProductTypes) => {
     setSelectedProducts(prev => {
       if (!prev.includes(id)) {
         console.log("Producto seleccionado:", id); 
@@ -87,7 +92,9 @@ const ProductosBase = () => {
     setShowSidebar(false);
   };
 
-
+  const handleRemoveProduct = (productId: string) => {
+    // Implementar lógica para remover producto
+  };
 
   return (
     <div className="flex flex-col justify-center items-center text-black">
@@ -111,11 +118,14 @@ const ProductosBase = () => {
           {currentProducts.map(product => (
             <CardProduct 
               key={product.id} 
-              product={product} 
+              product={{
+                ...product,
+                descriptions: Array.isArray(product.descriptions) ? [product.descriptions[0] || ''] : ['']
+              }}
               onProductSelect={handleSelectProduct}
             />
           ))}
-        </div>
+        </div>  
       )}
 
       <div className="flex justify-center mt-4">
@@ -150,7 +160,6 @@ const ProductosBase = () => {
       {showSidebar && (
         <Sidebar 
           selectedProducts={selectedProducts} 
-          customerName={customerName} 
           onClose={handleSidebarClose} 
           onRemoveProduct={handleRemoveProduct}
         />
