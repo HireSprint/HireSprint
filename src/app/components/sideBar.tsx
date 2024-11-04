@@ -4,20 +4,15 @@ import {useProductContext} from '../context/productContext';
 import {CardSide} from './card';
 import {addGoogleSheet, getTableName} from '../api/productos/prductosRF';
 import {addGoogleSheet2} from "../api/productos/prductosRF";
+import { ProductTypes } from '@/types/product';
 
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    gridId?: number;
-    price?: number;
-    descriptions?: string[]; // Cambiar de string[] | undefined a string[]
-}
+
 
 interface SidebarProps {
-    selectedProducts: Product[];
+    selectedProducts: ProductTypes[];
     onClose: () => void;
     onRemoveProduct: (productId: string) => void; // Nueva prop para eliminar productos
+    customerName?: string; // Añadir si es necesario
 }
 
 
@@ -26,7 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
     const {client} = useProductContext();
     const [message, setMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [products, setProducts] = useState<Product[]>([]); 
+    const [products, setProducts] = useState<ProductTypes[]>([]); 
 
     // Efecto para actualizar localProducts cuando selectedProducts cambia
     useEffect(() => {
@@ -37,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
     useEffect(() => {
       const fetchProducts = async () => {
         try {
-          const productsData = await getTableName();
+            const productsData = await getTableName();
           const filteredProducts = productsData.filter(product => {
             if (!product.gridId) return false;
             return (
@@ -45,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
               (product.gridId >= 301 && product.gridId <= 320) ||
               (product.gridId >= 401 && product.gridId <= 420)
             );
-          });
+          }) as ProductTypes[];
           setProducts(filteredProducts);
         } catch (error) {
           console.error('Error al obtener productos:', error);
@@ -56,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
     }, []); 
 
 
-    const handleSendToGoogleSheet = async (data: Product[]): Promise<void> => {
+    const handleSendToGoogleSheet = async (data: ProductTypes[]): Promise<void> => {
         setLoading(true);      
         addGoogleSheet2(data);
  
@@ -70,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({selectedProducts, onClose, onRemovePro
         );
     };
 
-    const handleProductSelect = (updatedProduct: Product) => {
+    const handleProductSelect = (updatedProduct: ProductTypes) => {
         setLocalProducts(prevProducts =>
             prevProducts.map(product =>
                 product.id === updatedProduct.id ? updatedProduct : product

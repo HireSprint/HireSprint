@@ -1,30 +1,23 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { ProductTypes } from "@/types/product";
 
-
-interface Product {
-  id: string;
-  name: string;
-  descriptions: string;
-  image: string;
-  price?: number;
-}
 
 interface CardProductProps {
-  product: Product;
-  onProductSelect?: (product: Product) => void; 
+  product: ProductTypes;
+  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void; 
   onPriceChange?: (id: string, price: number) => void; 
 }
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
     <div 
       className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80" 
-      onClick={() => onProductSelect && onProductSelect(product)}
+      onClick={(e) => onProductSelect && onProductSelect(product, e)}
     >
       <div className="text-center w-full">
         <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions || "No hay descripción"}</p>
       </div>
       <div className="w-full h-40 relative">
         {product.image ? (
@@ -68,10 +61,10 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
     }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = (e: React.MouseEvent ) => {
     if (onProductSelect) {
       const updatedProduct = {...product, price: localPrice};
-      onProductSelect(updatedProduct);
+      onProductSelect(updatedProduct, e);
     }
     // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
     if (onPriceChange) {
@@ -123,7 +116,7 @@ export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
 return (
   <div 
   className="flex bg-white  justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer h-48 border border-gray-200  " 
-  onClick={() => onProductSelect && onProductSelect(product)}
+  onClick={(e) => onProductSelect && onProductSelect(product, e)}
 >
   <div className="flex flex-col w-full">
     <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>

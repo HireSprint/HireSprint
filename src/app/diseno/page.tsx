@@ -7,25 +7,19 @@ import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
 import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
+import { ProductTypes } from "@/types/product";
 
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    gridId?: number;
-    description?: string;
-}
 
 interface Grid {
     id: number;
-    product: Product | null;
+    product: ProductTypes | null;
 }
 
 const Diseno = () => {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
+    const [products, setProducts] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
     const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
@@ -36,14 +30,17 @@ const Diseno = () => {
         productId: string;
         sourceGridId: number;
     } | null>(null);
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number } | null>(null);
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
     useEffect(() => {
         if (products.length === 0) {
             const fetchProducts = async () => {
                 try {
                     const productsData = await getProductsRF();
-                    setProducts(productsData);
+                    setProducts(productsData.map(product => ({
+                        ...product,
+                        descriptions: product.descriptions || []
+                    })));
                 } catch (error) {
                     console.error("Error al obtener productos:", error);
                 } finally {
@@ -54,7 +51,7 @@ const Diseno = () => {
         }
     }, [products.length]);
 
-    const handleProductSelect = (product: Product) => {
+    const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
 
         const productWithGrid = {...product, gridId: selectedGridId};
@@ -163,7 +160,6 @@ const Diseno = () => {
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
     };
-    console.log(mousePosition, showProducts)
 
     return (
         <div 
@@ -171,6 +167,7 @@ const Diseno = () => {
             <div className="grid grid-cols-2 w-full items-center justify-center py-8">
                 {/* Primera columna con ImageGrid */}
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
+                    {/* @ts-ignore */}
                     <ImageGrid {...commonGridProps}/>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
@@ -203,16 +200,19 @@ const Diseno = () => {
                             >
                                 {currentPage === 2 && (
                                     <div className=" flex justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
                                         <ImageGrid2 {...commonGridProps}/>
                                     </div>
                                 )}
                                 {currentPage === 3 && (
                                     <div className="flex justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
                                         <ImageGrid3 {...commonGridProps}/>
                                     </div>
                                 )}
                                 {currentPage === 4 && (
                                     <div className="flex justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
                                         <ImageGrid4 {...commonGridProps}/>
                                     </div>
                                 )}
@@ -269,9 +269,9 @@ const Diseno = () => {
 };
 
 interface GridProductProps {
-    products: Product[];
+    products: ProductTypes[];
     loading: boolean;
-    onProductSelect: (product: Product) => void;
+    onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
 }
 
