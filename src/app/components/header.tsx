@@ -1,15 +1,22 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import {getProduct} from "@/app/api/apiMongo/getProduct";
 
 
 export default function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
- 
+    useEffect(() => {
+        const getProductView = async () => {
+            const resp = await getProduct();
+            console.log("respuesta del api vps Exitosa",resp);
+        }
+        getProductView();
+    }, []);
 
   const handleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

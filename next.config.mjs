@@ -10,7 +10,9 @@ const nextConfig = {
         },
       ],
     },
+    env:{
+        API_URL: 'http://173.236.219.227:3003',
+    }
   };
-  
+
   export default nextConfig;
-  
