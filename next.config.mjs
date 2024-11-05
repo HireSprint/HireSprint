@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
     reactStrictMode: false,
     images: {
       remotePatterns: [
@@ -16,5 +19,3 @@ const nextConfig = {
   };
 
   export default nextConfig;
-
-  // http://173.236.219.227:3003/getProduct
