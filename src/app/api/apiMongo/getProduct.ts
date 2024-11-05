@@ -20,8 +20,6 @@ export const getProduct = async () => {
 
         const respProductos = await resp.json();
 
-        console.log("productos Mongo", respProductos);
-
         if (respProductos.status === 200) {
             return respProductos;
         } else {
