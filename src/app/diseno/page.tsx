@@ -164,7 +164,7 @@ const Diseno = () => {
     return (
         <div 
             className="flex flex-col h-fit items-center" >
-            <div className="grid grid-cols-2 w-full items-center justify-center py-8">
+            <div className="grid grid-cols-2 w-full items-center justify-center scale-90 ">
                 {/* Primera columna con ImageGrid */}
                 <div className="flex justify-center items-center w-full border-r-2 border-black">
                     {/* @ts-ignore */}
