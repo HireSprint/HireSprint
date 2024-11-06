@@ -72,8 +72,8 @@ export const ImageGrid = ({
                               isMoveModeActive
                           }: ImageGridProps) => {
     const gridCells = [
-       {id: 102, top: "top-[280px] ", left: "left-[125px] ", width: "125px", height: "85px"},
-       {id: 101, top: "top-[280px] ", left: "left-0", width: "125px", height: "85px"},
+       {id: 102, top: "top-48 ", left: "left-24 ", width: "90px", height: "80px"},
+       {id: 101, top: "top-48 ", left: "left-0", width: "90px", height: "80px"},
        {id: 103, top: "top-[280px] ", left: "left-[250px] ", width: "125px", height: "85px"},
        {id: 104, top: "top-[370px]", left: "left-0", width: "125px", height: "85px"},
        {id: 105, top: "top-[370px]", left: "left-[125px] ", width: "125px", height: "85px"},
@@ -154,8 +154,8 @@ export const ImageGrid = ({
 
 
     return (
-        <div className="relative  w-[550px] h-[550px] overflow-auto " >
-            <Image src="/file/demo-1.png" alt="PDF" width={550} height={550} priority/>
+        <div className="relative overflow-auto no-scrollbar" >
+            <Image src="/file/demo-1.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
                     selectedProducts?.find((p) => p.gridId === cell.id);
@@ -165,9 +165,8 @@ export const ImageGrid = ({
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
                             onClick={(e) => onProductSelect(cell.id, e)}
-                            onContextMenu={(e) => handleContextMenu(e, cell.id)}
-                        >
-                                                 <div className="absolute text-black font-bold">
+                            onContextMenu={(e) => handleContextMenu(e, cell.id)}>
+                            <div className="absolute text-black font-bold">
                                 {selectedProduct?.name || cell.id.toString()}
                             </div>
                             {selectedProduct?.image && (
@@ -179,9 +178,9 @@ export const ImageGrid = ({
                                     objectFit="cover"
                                 />
                             )}
-          </div>
-        );
-      })}
+                        </div>
+                    );
+                })}
 
             {contextMenu?.visible && !isMoveModeActive && (
                 <div
@@ -437,8 +436,8 @@ export const ImageGrid2 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
     return (
-        <div className="relative  w-[550px] h-[550px] overflow-auto">
-            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
+        <div className="relative overflow-auto no-scrollbar" >
+            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -731,8 +730,8 @@ export const ImageGrid3 = ({
     }, []);
 
     return (
-        <div className="relative  w-[550px] h-[550px] overflow-auto">
-            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
+        <div className="relative overflow-auto no-scrollbar" >
+            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -1021,8 +1020,8 @@ export const ImageGrid4 = ({
     }, []);
 
     return (
-        <div className="relative  w-[550px] h-[550px] overflow-auto">
-            <Image src="/file/demo-2.png" alt="PDF" width={550} height={550} priority/>
+        <div className="relative overflow-auto no-scrollbar" >
+            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
