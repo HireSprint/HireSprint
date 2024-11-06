@@ -169,7 +169,7 @@ export default function HomePage() {
                 <div className="flex flex-col justify-center w-full border-r-2 border-black items-center">
                     {/* @ts-ignore */}
                     {/* <ImageGrid {...commonGridProps}/> */}
-                    <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                    <Image src="/demo-1.png" alt="grid1" width={300} height={300} />
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
@@ -188,21 +188,21 @@ export default function HomePage() {
                                 {currentPage === 2 && (
                                     <div className=" flex flex-col justify-center items-center w-full border-r-2">
                                         {/* @ts-ignore */}
-                                        <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                                        <Image src="/demo-1.png" alt="grid1" width={300} height={300} />
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                                 {currentPage === 3 && (
                                     <div className="flex flex-col justify-center items-center w-full border-r-2">
                                         {/* @ts-ignore */}
-                                        <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                                        <Image src="/demo-1.png" alt="grid1" width={300} height={300} />
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                                 {currentPage === 4 && (
                                     <div className="flex flex-col justify-center items-center w-full border-r-2">
                                         {/* @ts-ignore */}
-                                        <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                                        <Image src="/demo-1.png" alt="grid1" width={300} height={300} />
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
