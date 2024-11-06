@@ -9,6 +9,7 @@ import {motion} from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { ProductTypes } from "@/types/product";
 import { useProductContext } from "./context/productContext";
+import ProductContainer from "@/app/components/ProductsCardsBard";
 import Image from "next/image";
 
 
@@ -163,7 +164,10 @@ export default function HomePage() {
     return (
         <div className="flex flex-col" >
             <div>
-            <Sidebar />
+                {  <Sidebar />}
+            </div>
+            <div>
+                { <ProductContainer />}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] transform scale-90">
                 <div className="flex flex-col justify-center w-full border-r-2 border-black items-center">
