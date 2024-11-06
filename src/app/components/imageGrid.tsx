@@ -2,7 +2,7 @@ import Image from "next/image";
 import {useState, useEffect} from "react";
 import {getTableName} from "../api/productos/prductosRF";
 import RightClick from "./rightClick";
-import { CardProduct} from "./card";
+import { CardProduct, GridCardProduct} from "./card";
 import { ProductTypes } from "@/types/product";
 
 interface Product {
@@ -157,30 +157,16 @@ export const ImageGrid = ({
         <div className="relative overflow-auto no-scrollbar" >
             <Image src="/file/demo-1.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
-                const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
-                    selectedProducts?.find((p) => p.gridId === cell.id);
-                return (
-                        <div
-                            key={cell.id}
-                            className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-                            style={{width: cell.width, height: cell.height}}
-                            onClick={(e) => onProductSelect(cell.id, e)}
-                            onContextMenu={(e) => handleContextMenu(e, cell.id)}>
-                            <div className="absolute text-black font-bold">
-                                {selectedProduct?.name || cell.id.toString()}
-                            </div>
-                            {selectedProduct?.image && (
-                                <Image
-                                    src={selectedProduct.image}
-                                    alt={selectedProduct.name || ''}
-                                    width={70}
-                                    height={70}
-                                    objectFit="cover"
-                                />
-                            )}
-                        </div>
-                    );
-                })}
+                const selectedProduct = products?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                return ( 
+                <GridCardProduct 
+                    product={selectedProduct!}  
+                    cell={cell}
+                    onProductGridSelect={onProductSelect}
+                    onContextMenu={handleContextMenu}
+                /> 
+                );
+            })}
 
             {contextMenu?.visible && !isMoveModeActive && (
                 <div
@@ -446,31 +432,13 @@ export const ImageGrid2 = ({
                     addProductIfAbsent(selectedProduct);
                 }
                 return (
-                    <div
-                        key={cell.id}
-                        className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-                        style={{width: cell.width, height: cell.height}}
-                        onClick={(e) => {
-
-                                onProductSelect(cell.id, e);                               
-                                handleChangeProducts(cell.id.toString());
-
-                            }}
-                            onContextMenu={(e) => handleContextMenu(e, cell.id)}
-                        >
-                            <div className="absolute text-black font-bold">
-                                {selectedProduct?.name || cell.id.toString()}
-                            </div>
-                            {selectedProduct?.image && (
-                                <Image
-                                    src={selectedProduct.image}
-                                    alt={selectedProduct.name || ''}
-                                    width={70}
-                                    height={70}
-                                    objectFit="cover"
-                                />
-                            )}
-                        </div>
+                    <GridCardProduct 
+                        product={selectedProduct!}  
+                        cell={cell}
+                        onProductGridSelect={onProductSelect}
+                        handleChangeProducts={handleChangeProducts}
+                        onContextMenu={handleContextMenu}
+                    /> 
                 );
             })}
 
@@ -740,33 +708,13 @@ export const ImageGrid3 = ({
                     addProductIfAbsent(selectedProduct);
                 }
                 return (
-                    <div
-                        key={cell.id}
-                            className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-                            style={{width: cell.width, height: cell.height}}
-                            onClick={(e) => {
-
-                                onProductSelect(cell.id, e);
-                                handleChangeProducts(cell.id.toString());
-
-                            }}
-                            onContextMenu={(e) => handleContextMenu(e, cell.id)}
-                        >
-                            <div className="absolute text-black font-bold">
-                                {selectedProduct?.name || cell.id.toString()}
-                            </div>
-                            {selectedProduct?.image && (
-                                <Image
-                                    src={selectedProduct.image}
-                                    alt={selectedProduct.name || ''}
-                                    width={70}
-                                    height={70}
-                                    objectFit="cover"
-                                />
-                            )}
-
-
-                    </div>
+                    <GridCardProduct 
+                        product={selectedProduct!}  
+                        cell={cell}
+                        onProductGridSelect={onProductSelect}
+                        handleChangeProducts={handleChangeProducts}
+                        onContextMenu={handleContextMenu}
+                    /> 
                 );
             })}
 
@@ -1029,33 +977,13 @@ export const ImageGrid4 = ({
                     addProductIfAbsent(selectedProduct);
                 }
                 return (
-                    <div
-                        key={cell.id}
-                            className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
-                            style={{width: cell.width, height: cell.height}}
-                        onClick={(e) => {
-
-                            onProductSelect(cell.id, e);
-                            handleChangeProducts(cell.id.toString());
-
-                        }}
-                            onContextMenu={(e) => handleContextMenu(e, cell.id)}
-                        >
-                            <div className="absolute text-black font-bold">
-                                {selectedProduct?.name || cell.id.toString()}
-                            </div>
-                            {selectedProduct?.image && (
-                                <Image
-                                    src={selectedProduct.image}
-                                    alt={selectedProduct.name || ''}
-                                    width={70}
-                                    height={70}
-                                    objectFit="cover"
-                                />
-                            )}
-
-
-                        </div>
+                    <GridCardProduct 
+                        product={selectedProduct!}  
+                        cell={cell}
+                        onProductGridSelect={onProductSelect}
+                        handleChangeProducts={handleChangeProducts}
+                        onContextMenu={handleContextMenu}
+                    /> 
                 );
             })}
 

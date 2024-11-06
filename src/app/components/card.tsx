@@ -2,12 +2,17 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
+import { cellTypes } from "@/types/cell";
 
 
 interface CardProductProps {
   product: ProductTypes;
+  cell?: cellTypes; 
+  onContextMenu?: (e: React.MouseEvent, cellId: number) => void; 
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void; 
+  onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void; 
+  handleChangeProducts?: (cellId: string) => void; 
 }
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
@@ -141,3 +146,86 @@ return (
 </div>
 )
 }
+
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts }: CardProductProps) => {
+  const textShadow = {
+    'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
+  }
+  return (
+    <div
+      key={cell?.id}
+      className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
+      style={{width: cell?.width, height: cell?.height}}
+      onClick={(e) => {
+        cell && onProductGridSelect && onProductGridSelect(cell.id, e);
+        cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
+      }
+      }
+      onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+      >
+      <div className="@container h-full w-full relative grid overflow-hidden">
+        {
+          product?.image && ( 
+            <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
+              <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
+                <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
+              </div>
+            </div>
+          )
+        }
+        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadow}>
+            { product?.name || cell?.id.toString() }
+        </div>
+      </div>
+    </div>
+  )}
+  
+
+
+// export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
+
+//   const propertyPerSize: any = { 
+//     '77px': {
+//       image: {
+//         'justify-self' : 'justify-self-end',
+//         'aling-self' : 'self-center'
+//       },
+//       name: {
+//         'text-size' : 'text-[9px]'
+//       }
+//     }
+//   }
+
+//   function getItemStyle(width: string, property: string, style: string) {
+//     return propertyPerSize[width][property][style]
+//   }
+
+//   function getItemStyleProps(width: string, property: string) {
+//     return Object.keys(propertyPerSize[width][property])
+//   }
+  
+//   const cardSizes =  Object.keys(propertyPerSize)
+
+//   return (
+//     <div
+//       key={cell?.id}
+//       className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-red-300`}
+//       style={{width: cell?.width, height: cell?.height}}
+//       onClick={(e) => cell && onProductGridSelect && onProductGridSelect(cell.id, e)}
+//       onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+//       >
+//       <div className="@container h-full w-full relative grid">
+//         {
+//           product?.image && ( 
+//             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyleProps(size, 'image').map((prop: string) => `@[${size}]:${getItemStyle(size, 'image', prop)}`).join(' '), '') } `}>
+//               <Image src={product.image} alt={product.name || ''} width={70} height={70} objectFit="cover" /> 
+//             </div>
+//           )
+//         }
+//         <div className={`absolute text-black font-bold inset-[2px] leading-[14px] ${ cardSizes.reduce((accu, size) => accu += getItemStyleProps(size, 'name').map((prop: string) => `@[${size}]:${getItemStyle(size, 'name', prop)}`).join(' '), '') }`}>
+//             { product?.name || cell?.id.toString() }
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }
