@@ -169,8 +169,8 @@ export default function HomePage() {
             <div>
                 { <ProductContainer />}
             </div>
-            <div className="grid grid-cols-2 items-center justify-center h-[80vh] transform scale-90">
-                <div className="flex flex-col justify-center w-full border-r-2 border-black items-center">
+            <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
+                <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
                     {/* @ts-ignore */}
 
                      <ImageGrid {...commonGridProps}/>

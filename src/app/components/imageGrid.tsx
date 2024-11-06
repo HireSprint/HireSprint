@@ -437,7 +437,7 @@ export const ImageGrid2 = ({
     }, []);
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={300} height={300} priority/>
+            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -507,56 +507,56 @@ export const ImageGrid3 = ({
                                onChangeProduct
                            }: ImageGridProps) => {
     const gridCells = [
-        {id: 302, top: "top-[20px] ", left: "left-[125px] ", width: "125px", height: "85px"},
-        {id: 301, top: "top-[20px] ", left: "left-0", width: "125px", height: "85px"},
-        {id: 303, top: "top-[20px] ", left: "left-[250px] ", width: "125px", height: "85px"},
-        {id: 304, top: "top-[110px]", left: "left-0", width: "125px", height: "85px"},
-        {id: 305, top: "top-[110px]", left: "left-[125px] ", width: "125px", height: "85px"},
-        {id: 306, top: "top-[110px]", left: "left-[250px] ", width: "125px", height: "85px"},
-        {id: 307, top: "top-[195px] ", left: "left-0", width: "125px", height: "85px"},
-        {id: 308, top: "top-[195px] ", left: "left-[125px] ", width: "125px", height: "85px"},
-        {id: 309, top: "top-[195px] ", left: "left-[250px] ", width: "125px", height: "85px"},
-        {id: 310, top: "top-[294px]", left: "left-0", width: "80px", height: "86px"},
-        {id: 311, top: "top-[294px]", left: "left-[80px] ", width: "75px", height: "86px"},
-        {id: 312, top: "top-[294px]", left: "left-[155px] ", width: "75px", height: "86px"},
-        {id: 313, top: "top-[294px]", left: "left-[230px] ", width: "75px", height: "86px"},
-        {id: 314, top: "top-[294px]", left: "left-[305px] ", width: "75px", height: "86px"},
-        {id: 315, top: "top-[388px]", left: "left-0", width: "125px", height: "85px"},
-        {id: 316, top: "top-[388px]", left: "left-[128px] ", width: "125px", height: "85px"},
-        {id: 317, top: "top-[388px]", left: "left-[255px] ", width: "125px", height: "85px"},
-        {id: 318, top: "top-[482px]", left: "left-0 ", width: "130px", height: "105px"},
-        {id: 319, top: "top-[482px]", left: "left-[127px]", width: "130px", height: "105px"},
-        {id: 320, top: "top-[482px]", left: "left-[255px]", width: "128px", height: "105px"},
-        {id: 321, top: "top-[589px]", left: "left-0 ", width: "95px", height: "90px"},
-        {id: 322, top: "top-[589px]", left: "left-[95px]", width: "95px", height: "90px"},
-        {id: 323, top: "top-[589px]", left: "left-[190px]", width: "95px", height: "90px"},
-        {id: 324, top: "top-[589px]", left: "left-[285px]", width: "95px", height: "90px"},
-        {id: 325, top: "top-[679px]", left: "left-0", width: "95px", height: "86px"},
-        {id: 326, top: "top-[679px]", left: "left-[95px]", width: "95px", height: "86px"},
-        {id: 327, top: "top-[679px]", left: "left-[190px]", width: "95px", height: "86px"},
-        {id: 328, top: "top-[679px]", left: "left-[285px]", width: "95px", height: "86px"},
-        {id: 329, top: "top-[765px]", left: "left-0", width: "95px", height: "86px"},
-        {id: 330, top: "top-[765px]", left: "left-[95px] ", width: "95px", height: "86px"},
-        {id: 331, top: "top-[765px]", left: "left-[190px]", width: "95px", height: "86px"},
-        {id: 332, top: "top-[765px]", left: "left-[285px] ", width: "95px", height: "86px"},
-        {id: 333, top: "top-[860px]", left: "left-0", width: "95px", height: "86px"},
-        {id: 334, top: "top-[860px]", left: "left-[95px]", width: "95px", height: "86px"},
-        {id: 335, top: "top-[860px]", left: "left-[190px]", width: "95px", height: "86px"},
-        {id: 336, top: "top-[860px]", left: "left-[285px] ", width: "95px", height: "86px"},
-        {id: 337, top: "top-[955px]", left: "left-0", width: "95px", height: "100px"},
-        {id: 338, top: "top-[955px]", left: "left-[95px]", width: "95px", height: "100px"},
-        {id: 339, top: "top-[955px]", left: "left-[190px]", width: "95px", height: "100px"},
-        {id: 340, top: "top-[955px]", left: "left-[285px]", width: "95px", height: "100px"},
-        {id: 341, top: "top-[10px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 342, top: "top-[110px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 343, top: "top-[210px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 344, top: "top-[310px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 345, top: "top-[410px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 346, top: "top-[510px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 347, top: "top-[610px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 348, top: "top-[710px]", left: "left-[385px]", width: "150px", height: "100px"},
-        {id: 349, top: "top-[810px]", left: "left-[385px]", width: "150px", height: "120px"},
-        {id: 350, top: "top-[930px]", left: "left-[385px]", width: "150px", height: "100px"},
+        {id: 301, top: "top-[1.8%] ", left: "left-[0%]", width: "23.2%", height: "7.8%"},
+        {id: 302, top: "top-[1.8%] ", left: "left-[23.2%]", width: "23.2%", height: "7.8%"},
+        {id: 303, top: "top-[1.8%] ", left: "left-[45.5%]", width: "23.2%", height: "7.8%"},
+        {id: 304, top: "top-[9.8%]", left: "left-[0%]", width: "23.2%", height: "7.8%"},
+        {id: 305, top: "top-[9.8%]", left: "left-[23.2%]", width: "23.2%", height: "7.8%"},
+        {id: 306, top: "top-[9.8%]", left: "left-[45.5%] ", width: "23.2%", height: "7.8%"},
+        {id: 307, top: "top-[18%] ", left: "left-[0%]", width: "23.2%", height: "7.8%"},
+        {id: 308, top: "top-[18%] ", left: "left-[23.2%]", width: "23.2%", height: "7.8%"},
+        {id: 309, top: "top-[18%] ", left: "left-[45.5%]", width: "23.2%", height: "7.8%"},
+        {id: 310, top: "top-[27.9%]", left: "left-[0%]", width: "14.5%", height: "8%"},
+        {id: 311, top: "top-[27.9%]", left: "left-[14.4%] ", width: "14%", height: "8%"},
+        {id: 312, top: "top-[27.9%]", left: "left-[28.6%] ", width: "14%", height: "8%"},
+        {id: 313, top: "top-[27.9%]", left: "left-[42.8%] ", width: "14%", height: "8%"},
+        {id: 314, top: "top-[27.9%]", left: "left-[57%] ", width: "14%", height: "8%"},
+        {id: 315, top: "top-[36.8%]", left: "left-[0%]", width: "23.5%", height: "8%"},
+        {id: 316, top: "top-[36.8%]", left: "left-[24.2%] ", width: "23%", height: "8%"},
+        {id: 317, top: "top-[36.8%]", left: "left-[47.5%] ", width: "23%", height: "8%"},
+        {id: 318, top: "top-[45.8%]", left: "left-[0%]", width: "23%", height: "9.8%"},
+        {id: 319, top: "top-[45.8%]", left: "left-[23.2%]", width: "23%", height: "9.8%"},
+        {id: 320, top: "top-[45.8%]", left: "left-[46.5%]", width: "23%", height: "9.8%"},
+        {id: 321, top: "top-[55.8%]", left: "left-[0%]", width: "18%", height: "8.2%"},
+        {id: 322, top: "top-[55.8%]", left: "left-[17.4%]", width: "18%", height: "8.2%"},
+        {id: 323, top: "top-[55.8%]", left: "left-[35%]", width: "18%", height: "8.2%"},
+        {id: 324, top: "top-[55.8%]", left: "left-[53.2%]", width: "18%", height: "8.2%"},
+        {id: 325, top: "top-[64.5%]", left: "left-[0%]", width: "18%", height: "8.2%"},
+        {id: 326, top: "top-[64.5%]", left: "left-[17.4%]", width: "18%", height: "8.2%"},
+        {id: 327, top: "top-[64.5%]", left: "left-[35%]", width: "18%", height: "8.2%"},
+        {id: 328, top: "top-[64.5%]", left: "left-[53.2%]", width: "18%", height: "8.2%"},
+        {id: 329, top: "top-[72.6%]", left: "left-[0%]", width: "18%", height: "8.2%"},
+        {id: 330, top: "top-[72.6%]", left: "left-[17.4%] ", width: "18%", height: "8.2%"},
+        {id: 331, top: "top-[72.6%]", left: "left-[35%]", width: "18%", height: "8.2%"},
+        {id: 332, top: "top-[72.6%]", left: "left-[53%] ", width: "18%", height: "8.2%"},
+        {id: 333, top: "top-[81.5%]", left: "left-[0%]", width: "18%", height: "8.2%"},
+        {id: 334, top: "top-[81.5%]", left: "left-[17.4%]", width: "18%", height: "8.2%"},
+        {id: 335, top: "top-[81.5%]", left: "left-[35%]", width: "18%", height: "8.2%"},
+        {id: 336, top: "top-[81.5%]", left: "left-[53%] ", width: "18%", height: "8.2%"},
+        {id: 337, top: "top-[90.5%]", left: "left-[0%]", width: "18%", height: "8.2%"},
+        {id: 338, top: "top-[90.5%]", left: "left-[17.4%]", width: "18%", height: "8.2%"},
+        {id: 339, top: "top-[90.5%]", left: "left-[35%]", width: "18%", height: "8.2%"},
+        {id: 340, top: "top-[90.5%]", left: "left-[53%]", width: "18%", height: "8.2%"},
+        {id: 341, top: "top-[1.1%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 342, top: "top-[10.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 343, top: "top-[19.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 344, top: "top-[28.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 345, top: "top-[37.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 346, top: "top-[46.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 347, top: "top-[55.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 348, top: "top-[64.2%]", left: "left-[72%]", width: "27.2%", height: "9.2%"},
+        {id: 349, top: "top-[73.2%]", left: "left-[72%]", width: "27.2%", height: "11.2%"},
+        {id: 350, top: "top-[84.2%]", left: "left-[72%]", width: "27.2%", height: "11.2%"},
 
     ];
 
@@ -1021,7 +1021,7 @@ export const ImageGrid4 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={300} height={300} priority/>
+            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
