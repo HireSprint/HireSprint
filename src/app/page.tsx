@@ -92,7 +92,7 @@ export default function HomePage() {
         // Encontrar el producto y su grid actual
         const productToMove = selectedProducts.find(p => p.id === productId);
         if (productToMove && productToMove.gridId) {
-            setProductArray(...productArray,productToMove);
+            setProductArray(productToMove);
             console.log(productArray, "productArray");
             setMoveMode({
                 active: true,
