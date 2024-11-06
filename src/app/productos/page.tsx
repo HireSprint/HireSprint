@@ -157,13 +157,6 @@ const ProductosBase = () => {
           </button>
         )}
       </div>
-      {showSidebar && (
-        <Sidebar 
-          selectedProducts={selectedProducts} 
-          onClose={handleSidebarClose} 
-          onRemoveProduct={handleRemoveProduct}
-        />
-      )}
     </div>
   );
 }

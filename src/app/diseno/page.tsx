@@ -1,4 +1,11 @@
-"use client"
+
+const Diseno = () => {
+
+}
+
+export default Diseno;
+
+{/*"use client"
 import {CardProduct, CardShow} from "../components/card";
 import {getProductsRF} from "../api/productos/prductosRF";
 import {useEffect, useState} from "react";
@@ -8,6 +15,8 @@ import Sidebar from "../components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
 import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "../components/imageGrid";
 import { ProductTypes } from "@/types/product";
+import { useProductContext } from "../context/productContext";
+import Image from "next/image";
 
 
 interface Grid {
@@ -15,7 +24,7 @@ interface Grid {
     product: ProductTypes | null;
 }
 
-const Diseno = () => {
+
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
@@ -23,7 +32,7 @@ const Diseno = () => {
     const [loading, setLoading] = useState(true);
     const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
-    const [currentPage, setCurrentPage] = useState(2); 
+    const { currentPage } = useProductContext();
     const [direction, setDirection] = useState(0); 
     const [moveMode, setMoveMode] = useState<{
         active: boolean;
@@ -79,10 +88,7 @@ const Diseno = () => {
         );
     };
 
-    const changePage = (newPage: number) => {
-        setDirection(newPage > currentPage ? 1 : -1);
-        setCurrentPage(newPage);
-    };
+
 
     const handleEditProduct = (productId: string) => {
         // Implementa la lógica para editar el producto
@@ -162,34 +168,22 @@ const Diseno = () => {
     };
 
     return (
-        <div 
-            className="flex flex-col h-fit items-center" >
-            <div className="grid grid-cols-2 w-full items-center justify-center py-8">
-                {/* Primera columna con ImageGrid */}
-                <div className="flex justify-center items-center w-full border-r-2 border-black">
+        <div className="flex flex-col" >
+            <div>
+            <Sidebar />
+            </div>
+            <div className="grid grid-cols-2 items-center justify-center h-[80vh] transform scale-90">
+                <div className="flex flex-col justify-center w-full border-r-2 border-black items-center">
                     {/* @ts-ignore */}
-                    <ImageGrid {...commonGridProps}/>
+                    {/* <ImageGrid {...commonGridProps}/> 
+                    <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                    <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
-                    {/* Contenedor de la cuadrícula centrado */}
+                    {/* Contenedor de la cuadrícula centrado 
                     <div className=" flex justify-center items-center w-full">
-                        {/* Contenedor para botones y cuadrícula */}
+                        {/* Contenedor para botones y cuadrícula 
                         <div className="flex flex-col items-center w-full relative">
-                            <div className="flex space-x-2 mb-4">
-                                {[2, 3, 4].map((page) => (
-                                    <button
-                                        key={page}
-                                        className={`px-4 py-2  border-2 transition duration-300 ease-in-out ${
-                                            currentPage === page
-                                                ? 'bg-blue-500 text-white'
-                                                : 'bg-white text-blue-500 border-blue-500'
-                                        } hover:bg-blue-500 hover:text-white`}
-                                        onClick={() => changePage(page)}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                            </div>
                             <motion.div
                                 key={currentPage}
                                 initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
@@ -199,21 +193,24 @@ const Diseno = () => {
                                 className="w-full relative"
                             >
                                 {currentPage === 2 && (
-                                    <div className=" flex justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore */}
-                                        <ImageGrid2 {...commonGridProps}/>
+                                    <div className=" flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore 
+                                        <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                                 {currentPage === 3 && (
-                                    <div className="flex justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore */}
-                                        <ImageGrid3 {...commonGridProps}/>
+                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore 
+                                        <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                                 {currentPage === 4 && (
-                                    <div className="flex justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore */}
-                                        <ImageGrid4 {...commonGridProps}/>
+                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore 
+                                        <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                             </motion.div>
@@ -222,7 +219,7 @@ const Diseno = () => {
                 </div>
             </div>
 
-            {/* Mostrar / Ocultar productos */}
+            {/* Mostrar / Ocultar productos 
             <div className="flex ">
                 {showProducts && mousePosition ? (
                     <motion.div
@@ -242,28 +239,6 @@ const Diseno = () => {
                     </motion.div>
                 ) : null}
             </div>
-
-            <button
-                className="absolute right-0 bg-[#393939] w-12 h-20 rounded-l-full p-4 font-bold hover:w-28 transition-all duration-300 hover:bg-[#7cc304]"
-                onClick={() => setSideBarVisible(true)}
-                aria-label="Abrir Panel Productos"
-            > Abrir Panel
-            </button>
-            {sideBarVisible && (
-                <motion.div
-                    initial={{x: 300, opacity: 0}}
-                    animate={{x: 0, opacity: 1}}
-                    exit={{x: 300, opacity: 0}}
-                    transition={{duration: 0.5}}
-                    className="absolute right-0 bg-white w-64 h-full shadow-lg"
-                >
-                    <Sidebar
-                        selectedProducts={selectedProducts}
-                        onClose={() => setSideBarVisible(false)}
-                        onRemoveProduct={handleRemoveProduct}
-                    />
-                </motion.div>
-            )}
         </div>
     );
 };
@@ -327,3 +302,5 @@ const GridProduct: React.FC<GridProductProps> = ({
 };
 
 export default Diseno
+
+*/}
