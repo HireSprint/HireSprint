@@ -1,3 +1,10 @@
+
+const Diseno = () => {
+
+}
+
+export default Diseno;
+
 {/*"use client"
 import {CardProduct, CardShow} from "../components/card";
 import {getProductsRF} from "../api/productos/prductosRF";
@@ -17,7 +24,7 @@ interface Grid {
     product: ProductTypes | null;
 }
 
-const Diseno = () => {
+
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
