@@ -7,9 +7,6 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
     const [products, setProducts] = useState<ProductTypes[]>([]); 
     const [loading, setLoading] = useState(true); 
 
-
-
-
     useEffect(() => {
         const fetchProducts = async () => {
           try {
@@ -99,17 +96,23 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                                 Categoría 4
                             </button>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            {/* Aquí se agregarán los productos */}
-                          {
-                              filteredProducts.map((product) => (
-                                <CardShowSide key={product.id} product={product}/>
-                            ))
-                          }
+                        <div className="grid grid-cols-2 gap-3 mb-48">
+                            {loading ? (
+                                Array.from({length: 8}).map((_, index) => (
+                                    <div key={index} className=" bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
+                                        <div className="w-28 h-28 border-2 border-black rounded-full flex items-center justify-center "></div>
+                                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                                    </div>
+                                ))
+                            ) : (
+                                products.map((product) => (
+                                    <CardShowSide key={product.id} product={product} />
+                                ))
+                            )}
                         </div>
                     </div>
-                )};
+                )}
 
                 {/* Subcategorías */}
                 {activeTab === 'circular' && (
@@ -178,7 +181,7 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                             </button>
                         </div>
                     </div>
-                )};
+                )}
             </div>
         </div>
     );

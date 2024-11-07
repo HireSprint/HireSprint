@@ -179,7 +179,6 @@ export default function HomePage() {
 
                      <ImageGrid {...commonGridProps}/>
 
-
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
