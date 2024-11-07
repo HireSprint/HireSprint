@@ -141,3 +141,30 @@ return (
 </div>
 )
 }
+
+
+export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
+  return (
+    <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
+    onClick={(e) => onProductSelect && onProductSelect(product, e)}
+    >
+      <div className="w-28 h-28 border-2 border-black rounded-full flex items-center justify-center">
+      {product.image ? (
+      <Image
+        src={product.image}
+        alt={product.name}
+        width={200}
+        height={200}
+        className="rounded object-cover"
+      />
+    ) : (
+      <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+        <span className="text-gray-500">No hay imagen disponible</span>
+        </div>
+      )}
+      </div>
+      <p className="mt-2 text-center text-gray-950 font-medium">{product.name}</p>
+      <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+    </div>
+  )
+}

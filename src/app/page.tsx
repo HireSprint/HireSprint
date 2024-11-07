@@ -9,8 +9,8 @@ import {motion} from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { ProductTypes } from "@/types/product";
 import { useProductContext } from "./context/productContext";
-import ProductContainer from "@/app/components/ProductsCardsBard";
 import Image from "next/image";
+import ProductContainer from "./components/ProductsCardsBard";
 
 
 interface Grid {
@@ -24,10 +24,10 @@ export default function HomePage() {
     const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
     const [products, setProducts] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
-    const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
     const { currentPage } = useProductContext();
     const [direction, setDirection] = useState(0); 
+    const [category, setCategory] = useState<string | null>(null);
     const [moveMode, setMoveMode] = useState<{
         active: boolean;
         productId: string;
@@ -161,13 +161,15 @@ export default function HomePage() {
         isMoveModeActive: moveMode?.active || false,
     };
 
+    const handleCategorySelect = (category: string) => {
+        setCategory(category);
+    };
+
     return (
         <div className="flex flex-col" >
             <div>
-                {  <Sidebar />}
-            </div>
-            <div>
-                { <ProductContainer />}
+                 <Sidebar onCategorySelect={handleCategorySelect} />
+                 {category && <ProductContainer category={category} setCategory={setCategory} />}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
                 <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
