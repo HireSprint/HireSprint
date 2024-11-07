@@ -3,6 +3,7 @@ import {useState, useEffect} from "react";
 import {getTableName} from "../api/productos/prductosRF";
 import RightClick from "./rightClick";
 import { CardProduct, GridCardProduct} from "./card";
+import { useProductContext } from "../context/productContext";
 import { ProductTypes } from "@/types/product";
 
 interface Product {
@@ -124,6 +125,7 @@ export const ImageGrid = ({
         {id: 150, top: "top-[88.5%]", left: "left-[72%]", width: "27%", height: "9%"},
     ];
     const [products, setProducts] = useState<ProductTypes[]>([]);
+    const {productArray, setProductArray} = useProductContext();
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
@@ -151,11 +153,12 @@ export const ImageGrid = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+ 
 
-
+    
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-1.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-1.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
                 return ( 
@@ -164,6 +167,7 @@ export const ImageGrid = ({
                     cell={cell}
                     onProductGridSelect={onProductSelect}
                     onContextMenu={handleContextMenu}
+                    setProductArray={setProductArray}
                 /> 
                 );
             })}
@@ -423,7 +427,7 @@ export const ImageGrid2 = ({
     }, []);
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -699,7 +703,7 @@ export const ImageGrid3 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -738,7 +742,6 @@ export const ImageGrid3 = ({
         </div>
     );
 };
-
 
 export const ImageGrid4 = ({
                                onProductSelect,
@@ -969,7 +972,7 @@ export const ImageGrid4 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 

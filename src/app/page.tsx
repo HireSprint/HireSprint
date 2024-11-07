@@ -10,6 +10,7 @@ import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imag
 import { ProductTypes } from "@/types/product";
 import { useProductContext } from "./context/productContext";
 import Image from "next/image";
+import ProductContainer from "./components/ProductsCardsBard";
 
 
 interface Grid {
@@ -23,10 +24,10 @@ export default function HomePage() {
     const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
     const [products, setProducts] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
-    const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
-    const { currentPage } = useProductContext();
+    const { currentPage, setProductArray, productArray } = useProductContext();
     const [direction, setDirection] = useState(0); 
+    const [category, setCategory] = useState<string | null>(null);
     const [moveMode, setMoveMode] = useState<{
         active: boolean;
         productId: string;
@@ -92,6 +93,8 @@ export default function HomePage() {
         // Encontrar el producto y su grid actual
         const productToMove = selectedProducts.find(p => p.id === productId);
         if (productToMove && productToMove.gridId) {
+            setProductArray(productToMove);
+            console.log(productArray, "productArray");
             setMoveMode({
                 active: true,
                 productId: productId,
@@ -160,18 +163,21 @@ export default function HomePage() {
         isMoveModeActive: moveMode?.active || false,
     };
 
+    const handleCategorySelect = (category: string) => {
+        setCategory(category);
+    };
+
     return (
         <div className="flex flex-col" >
             <div>
-            <Sidebar />
+                 <Sidebar onCategorySelect={handleCategorySelect} />
+                 {category && <ProductContainer category={category} setCategory={setCategory} />}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
                 <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
                     {/* @ts-ignore */}
 
                      <ImageGrid {...commonGridProps}/>
-                    {/*<Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />*/}
-
 
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
