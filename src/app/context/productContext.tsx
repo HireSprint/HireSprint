@@ -9,8 +9,8 @@ interface ProductContextType {
     setProducts: (products: ProductTypes[]) => void;
     client: string; 
     setClient: (client: string) => void;
-    selectedProduct: ProductTypes | null;
-    setSelectedProduct: (product: ProductTypes | null) => void;
+    productArray: ProductTypes | undefined;
+    setProductArray: (product: ProductTypes | undefined) => void;
     currentPage: number;
     setCurrentPage: (page: number) => void;
 }
@@ -20,11 +20,11 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<ProductTypes[]>([]);
   const [client, setClient] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<ProductTypes | null>(null);
+  const [productArray, setProductArray] = useState<ProductTypes>();
   const [currentPage, setCurrentPage] = useState(2); 
 
   return (
-    <ProductContext.Provider value={{ products, setProducts, client, setClient, selectedProduct, setSelectedProduct, currentPage, setCurrentPage }}>
+      <ProductContext.Provider value={{ products, setProducts, client, setClient, productArray, setProductArray, currentPage, setCurrentPage }}>
       {children}
     </ProductContext.Provider>
   );

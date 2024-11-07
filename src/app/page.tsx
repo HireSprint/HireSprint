@@ -25,7 +25,7 @@ export default function HomePage() {
     const [products, setProducts] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
     const [grids, setGrids] = useState<Grid[]>([]);
-    const { currentPage } = useProductContext();
+    const { currentPage, setProductArray, productArray } = useProductContext();
     const [direction, setDirection] = useState(0); 
     const [category, setCategory] = useState<string | null>(null);
     const [moveMode, setMoveMode] = useState<{
@@ -93,6 +93,8 @@ export default function HomePage() {
         // Encontrar el producto y su grid actual
         const productToMove = selectedProducts.find(p => p.id === productId);
         if (productToMove && productToMove.gridId) {
+            setProductArray(productToMove);
+            console.log(productArray, "productArray");
             setMoveMode({
                 active: true,
                 productId: productId,

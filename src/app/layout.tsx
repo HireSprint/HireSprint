@@ -5,7 +5,7 @@ import { ProductProvider } from "./context/productContext";
 
 
 export const metadata: Metadata = {
-  title: "Retail Fluent",
+  title: "Hire Sprint",
   description: "",
 };
 
