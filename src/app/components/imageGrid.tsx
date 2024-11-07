@@ -3,6 +3,7 @@ import {useState, useEffect} from "react";
 import {getTableName} from "../api/productos/prductosRF";
 import RightClick from "./rightClick";
 import { CardProduct} from "./card";
+import { useProductContext } from "../context/productContext";
 import { ProductTypes } from "@/types/product";
 
 interface Product {
@@ -124,6 +125,7 @@ export const ImageGrid = ({
         {id: 150, top: "top-[88.5%]", left: "left-[72%]", width: "27%", height: "9%"},
     ];
     const [products, setProducts] = useState<ProductTypes[]>([]);
+    const {productArray, setProductArray} = useProductContext();
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
@@ -151,8 +153,9 @@ export const ImageGrid = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+ 
 
-
+    
     return (
         <div className="relative overflow-auto no-scrollbar" >
             <Image src="/demo-1.png" alt="PDF" width={400} height={400} priority/>
@@ -164,7 +167,14 @@ export const ImageGrid = ({
                             key={cell.id}
                             className={`absolute flex border-2 border-black ${cell.top} ${cell.left} rounded cursor-pointer hover:bg-red-300 text-center text-xs items-center justify-end`}
                             style={{width: cell.width, height: cell.height}}
-                            onClick={(e) => onProductSelect(cell.id, e)}
+                            onClick={(e) => {
+                                onProductSelect(cell.id, e);
+                                if (selectedProduct) {
+                                    setProductArray(selectedProduct);
+                                } else {
+                                    console.warn("No se encontró un producto seleccionado para esta celda.");
+                                }
+                            }}
                             onContextMenu={(e) => handleContextMenu(e, cell.id)}>
                             <div className="absolute text-black font-bold">
                                 {selectedProduct?.name || cell.id.toString()}
@@ -791,7 +801,6 @@ export const ImageGrid3 = ({
     );
 };
 
-
 export const ImageGrid4 = ({
                                onProductSelect,
                                selectedProducts,
@@ -1055,7 +1064,7 @@ export const ImageGrid4 = ({
                             )}
 
 
-                        </div>
+                    </div>
                 );
             })}
 
