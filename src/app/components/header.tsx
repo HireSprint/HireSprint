@@ -40,6 +40,7 @@ export default function Header() {
         <button className="flex items-center justify-center" onClick={() => router.push('/')}>
           <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} />
           <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' />
+
         </button>
       </div>
       <div className="flex space-x-4 md:hidden">
