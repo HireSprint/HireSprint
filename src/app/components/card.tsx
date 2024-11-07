@@ -2,12 +2,18 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
+import { cellTypes } from "@/types/cell";
 
 
 interface CardProductProps {
   product: ProductTypes;
+  cell?: cellTypes; 
+  onContextMenu?: (e: React.MouseEvent, cellId: number) => void; 
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void; 
+  onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void; 
+  handleChangeProducts?: (cellId: string) => void; 
+  setProductArray?: (product: ProductTypes) => void; 
 }
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
@@ -142,6 +148,124 @@ return (
 )
 }
 
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray }: CardProductProps) => {
+  const textShadowWhite = {
+    'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
+  }
+
+  return (
+    <div
+      key={cell?.id}
+      className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
+      style={{width: cell?.width, height: cell?.height}}
+      onClick={(e) => {
+        cell && onProductGridSelect && onProductGridSelect(cell.id, e);
+
+        if (product) {
+          setProductArray && setProductArray(product);
+        } else {
+          console.warn("No se encontró un producto seleccionado para esta celda.");
+        }
+
+        cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
+      }
+      }
+      onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+      >
+      <div className="@container h-full w-full relative grid overflow-hidden">
+        {
+          product?.image && ( 
+            <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
+              <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
+                <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
+              </div>
+            </div>
+          )
+        }
+
+        {
+          product ? 
+          <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
+            { product?.price || '15.68' }
+          </div>
+          : ''
+        }
+
+        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+          { product?.name || cell?.id.toString() }
+        </div>
+      </div>
+    </div>
+  )}
+  
+
+
+// export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
+//   const textShadowWhite = {
+//     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
+//   }
+
+//   const propertyPerSize: any = { 
+//     '77px': {
+//       imageContainer: ['justify-self-end', 'self-end'],
+//       image: ['w-14', 'h-14'],
+//       name: ['leading-[10px]', 'text-[11px]', 'inset-[2px]'],
+//       price: ['text-[13px]']
+//     },
+//     '47px': {
+//       imageContainer: [],
+//       image: ['w-10', 'h-10'],
+//       name: ['text-[9px]','inset-[1px]', 'leading-[8px]'],
+//       price: ['text-[11px]']
+//     },
+//     '27px': {
+//       imageContainer: ['justify-self-center', 'self-end'],
+//       image: ['w8', 'h-8'],
+//       name: ['text-[7px]', 'inset-[1px]', 'leading-[6px]'],
+//       price: ['text-[10px]']
+//     }
+//   }
+
+//   function getItemStyle(width: string, property: string) {
+//     return propertyPerSize[width][property]
+//   }
+  
+//   const cardSizes =  Object.keys(propertyPerSize)
+
+//   return (
+//     <div
+//       key={cell?.id}
+//       className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-red-300`}
+//       style={{width: cell?.width, height: cell?.height}}
+//       onClick={(e) => cell && onProductGridSelect && onProductGridSelect(cell.id, e)}
+//       onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+//       >
+//       <div className="@container h-full w-full relative grid">
+//         {
+//           product?.image && ( 
+//             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'imageContainer').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
+//               <div className={`${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'image').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
+//                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
+//               </div>
+//             </div>
+//           )
+//         }
+
+//         {
+//           product ? 
+//           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
+//             { product?.price || '15.68' }
+//           </div>
+//           : ''
+//         }
+
+//         <div className={`absolute text-blue-950 font-bold ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'name').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`} style={textShadowWhite}>
+//           { product?.name || cell?.id.toString() }
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }
 
 export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
   return (
