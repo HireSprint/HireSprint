@@ -178,7 +178,6 @@ export default function HomePage() {
                     {/* @ts-ignore */}
 
                      <ImageGrid {...commonGridProps}/>
-                    {/*<Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />*/}
 
 
                     <p className="text-black text-md">Pagina 1</p>
