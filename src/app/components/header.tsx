@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getProduct } from "@/app/api/apiMongo/getProduct";
-import Calendar from 'react-calendar';
+import { Calendar } from 'primereact/calendar';
+import { Nullable } from "primereact/ts-helpers";
 import { useProductContext } from '../context/productContext';
 import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 
@@ -12,8 +13,7 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 export default function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
   const { currentPage, setCurrentPage } = useProductContext();
   const [direction, setDirection] = useState(0);
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Header() {
 
 
   return (
-    <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between">
+    <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between ">
       <div className='flex items-center justify-center '>
         <button className="flex items-center justify-center" onClick={() => router.push('/')}>
           <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} />
@@ -46,29 +46,8 @@ export default function Header() {
       <div className="flex space-x-4 md:hidden">
         <button onClick={handleMenu} className="bg-green-200 text-black p-2">Menu</button>
       </div>
-      <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex">
-        <div className="relative">
-          <button className=" cursor-pointer p-2 bg-[#585858] rounded-lg" onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
-            {selectedDate ? selectedDate.toLocaleDateString() : "Selecciona una fecha" + " " + "🗓️"}
-          </button>
-          {isCalendarOpen && (
-            <div className="absolute top-8 right-0 bg-white text-black p-5 z-50 rounded-lg ">
-              <Calendar
-                onChange={(date) => {
-                  setSelectedDate(date as Date);
-                  setIsCalendarOpen(false);
-                }}
-                className='text-black p-2 w-48'
-                formatDay={(locale, date) => date.toLocaleDateString('es-ES', { day: '2-digit' })}
-                value={selectedDate}
-                minDate={new Date()}
-                maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)}
-                formatShortWeekday={(locale, date) => date.toLocaleDateString('es-ES', { weekday: 'narrow' })}
-
-              />
-            </div>
-          )}
-        </div>
+      <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
+        <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon /> 
         <p className='text-white text-xl font-bold'>Cliente: </p>
       </div>
       <div className='flex items-center justify-center space-x-2 '>

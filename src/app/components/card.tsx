@@ -272,7 +272,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
     <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
     onClick={(e) => onProductSelect && onProductSelect(product, e)}
     >
-      <div className="w-28 h-28 border-2 border-black rounded-full flex items-center justify-center">
+      <div className="w-28 h-28  rounded-full flex items-center justify-center">
       {product.image ? (
       <Image
         src={product.image}
