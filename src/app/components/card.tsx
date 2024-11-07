@@ -148,9 +148,10 @@ return (
 }
 
 export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts }: CardProductProps) => {
-  const textShadow = {
+  const textShadowWhite = {
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
+
   return (
     <div
       key={cell?.id}
@@ -173,8 +174,17 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
             </div>
           )
         }
-        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadow}>
-            { product?.name || cell?.id.toString() }
+
+        {
+          product ? 
+          <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
+            { product?.price || '15.68' }
+          </div>
+          : ''
+        }
+
+        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+          { product?.name || cell?.id.toString() }
         </div>
       </div>
     </div>
@@ -183,25 +193,33 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 
 
 // export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
+//   const textShadowWhite = {
+//     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
+//   }
 
 //   const propertyPerSize: any = { 
 //     '77px': {
-//       image: {
-//         'justify-self' : 'justify-self-end',
-//         'aling-self' : 'self-center'
-//       },
-//       name: {
-//         'text-size' : 'text-[9px]'
-//       }
+//       imageContainer: ['justify-self-end', 'self-end'],
+//       image: ['w-14', 'h-14'],
+//       name: ['leading-[10px]', 'text-[11px]', 'inset-[2px]'],
+//       price: ['text-[13px]']
+//     },
+//     '47px': {
+//       imageContainer: [],
+//       image: ['w-10', 'h-10'],
+//       name: ['text-[9px]','inset-[1px]', 'leading-[8px]'],
+//       price: ['text-[11px]']
+//     },
+//     '27px': {
+//       imageContainer: ['justify-self-center', 'self-end'],
+//       image: ['w8', 'h-8'],
+//       name: ['text-[7px]', 'inset-[1px]', 'leading-[6px]'],
+//       price: ['text-[10px]']
 //     }
 //   }
 
-//   function getItemStyle(width: string, property: string, style: string) {
-//     return propertyPerSize[width][property][style]
-//   }
-
-//   function getItemStyleProps(width: string, property: string) {
-//     return Object.keys(propertyPerSize[width][property])
+//   function getItemStyle(width: string, property: string) {
+//     return propertyPerSize[width][property]
 //   }
   
 //   const cardSizes =  Object.keys(propertyPerSize)
@@ -217,13 +235,24 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //       <div className="@container h-full w-full relative grid">
 //         {
 //           product?.image && ( 
-//             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyleProps(size, 'image').map((prop: string) => `@[${size}]:${getItemStyle(size, 'image', prop)}`).join(' '), '') } `}>
-//               <Image src={product.image} alt={product.name || ''} width={70} height={70} objectFit="cover" /> 
+//             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'imageContainer').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
+//               <div className={`${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'image').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
+//                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
+//               </div>
 //             </div>
 //           )
 //         }
-//         <div className={`absolute text-black font-bold inset-[2px] leading-[14px] ${ cardSizes.reduce((accu, size) => accu += getItemStyleProps(size, 'name').map((prop: string) => `@[${size}]:${getItemStyle(size, 'name', prop)}`).join(' '), '') }`}>
-//             { product?.name || cell?.id.toString() }
+
+//         {
+//           product ? 
+//           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
+//             { product?.price || '15.68' }
+//           </div>
+//           : ''
+//         }
+
+//         <div className={`absolute text-blue-950 font-bold ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'name').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`} style={textShadowWhite}>
+//           { product?.name || cell?.id.toString() }
 //         </div>
 //       </div>
 //     </div>
