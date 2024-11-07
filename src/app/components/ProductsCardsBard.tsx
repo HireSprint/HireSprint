@@ -51,7 +51,7 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                        placeholder="Buscar Producto"
                        value={searchTerm}
                        onChange={(e) => setSearchTerm(e.target.value)}
-                       className="w-full p-2 mb-3 border border-gray-300 rounded"
+                       className="text-black w-full p-2 mb-3 border border-gray-300 rounded"
                 />
 
                 {/* Pestañas Superiores */}
@@ -106,8 +106,9 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                                     </div>
                                 ))
                             ) : (
-                                products.map((product) => (
+                                filteredProducts.map((product) => (
                                     <CardShowSide key={product.id} product={product} />
+                                    
                                 ))
                             )}
                         </div>
