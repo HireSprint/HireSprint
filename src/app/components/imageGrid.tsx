@@ -155,7 +155,7 @@ export const ImageGrid = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-1.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-1.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = products?.find((p) => p.gridId === cell.id) ||
                     selectedProducts?.find((p) => p.gridId === cell.id);
@@ -437,7 +437,7 @@ export const ImageGrid2 = ({
     }, []);
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -731,7 +731,7 @@ export const ImageGrid3 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
@@ -1021,7 +1021,7 @@ export const ImageGrid4 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/file/demo-2.png" alt="PDF" width={400} height={400} priority/>
+            <Image src="/demo-2.png" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
 
