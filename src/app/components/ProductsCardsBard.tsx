@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { CardShowSide } from './card';
 import { getProductsRF } from '../api/productos/prductosRF';
 import { ProductTypes } from '@/types/product';
-
 const ProductContainer: React.FC<{ category: string, setCategory: (category: string | null) => void }> = ({ category, setCategory }) => {
     const [activeTab, setActiveTab] = useState('all');
     const [products, setProducts] = useState<ProductTypes[]>([]); 
@@ -33,9 +32,13 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
         };
     
         fetchProducts(); 
-      }, []); 
+      }, []);
+    const [searchTerm, setSearchTerm] = useState("");
 
-
+    const filteredProducts = products.filter((product) =>
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+        
     return (
         <div className="absolute flex h-[80vh] w-96 bg-white rounded-lg shadow-md overflow-hidden z-50 left-28 top-24 ">
             {/* Sección de Productos */}
@@ -47,8 +50,12 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                     }}>Cerrar</button>
                 </div>
 
-                <input type="text" placeholder="Buscar Producto"
-                       className="w-full p-2 mb-3 border border-gray-300 rounded"/>
+                <input type="text" 
+                       placeholder="Buscar Producto"
+                       value={searchTerm}
+                       onChange={(e) => setSearchTerm(e.target.value)}
+                       className="w-full p-2 mb-3 border border-gray-300 rounded"
+                />
 
                 {/* Pestañas Superiores */}
                 <div className="flex gap-2 mb-1">
@@ -96,7 +103,7 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                         <div className="grid grid-cols-2 gap-3">
                             {/* Aquí se agregarán los productos */}
                           {
-                            products.map((product) => (
+                              filteredProducts.map((product) => (
                                 <CardShowSide key={product.id} product={product}/>
                             ))
                           }
