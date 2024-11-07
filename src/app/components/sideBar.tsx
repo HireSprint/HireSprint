@@ -9,7 +9,7 @@ import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, M
 const Sidebar = ({ onCategorySelect }: SidebarProps) => {
 
     return (
-        <div className="flex flex-col justify-center items-center p-2 absolute left-0  bg-white shadow-lg p-4 z-50 overflow-y-auto space-y-2 pb-8 no-scrollbar sm:hidden">
+        <div className="flex flex-col justify-center items-center p-2 absolute left-0  bg-white shadow-lg p-4 z-50 overflow-y-auto space-y-2 pb-8 no-scrollbar ">
             <button className=' w-20 h-20 border-2 border-[#606060] hover:border-[#7cc304] rounded-lg cursor-pointer flex items-center justify-center' id="bakery" onClick={() => {
                 onCategorySelect('bakery');
             }}>
