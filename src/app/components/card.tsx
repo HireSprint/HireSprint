@@ -13,6 +13,7 @@ interface CardProductProps {
   onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void; 
   handleChangeProducts?: (cellId: string) => void; 
+  setProductArray?: (product: ProductTypes) => void; 
 }
 export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
   return (
@@ -147,7 +148,7 @@ return (
 )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts }: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray }: CardProductProps) => {
   const textShadowWhite = {
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
@@ -159,6 +160,13 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
       style={{width: cell?.width, height: cell?.height}}
       onClick={(e) => {
         cell && onProductGridSelect && onProductGridSelect(cell.id, e);
+
+        if (product) {
+          setProductArray && setProductArray(product);
+        } else {
+          console.warn("No se encontró un producto seleccionado para esta celda.");
+        }
+
         cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
       }
       }
