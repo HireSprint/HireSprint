@@ -11,6 +11,9 @@ import { ProductTypes } from "@/types/product";
 import { useProductContext } from "./context/productContext";
 import Image from "next/image";
 import ProductContainer from "./components/ProductsCardsBard";
+import ModalEditProduct from "@/app/components/ModalEditProduct";
+import {getProduct} from "@/app/api/apiMongo/getProduct";
+import {ProductItemInterface} from "@/app/interfaces/productInterface";
 
 
 interface Grid {
@@ -26,13 +29,21 @@ export default function HomePage() {
     const [loading, setLoading] = useState(true);
     const [grids, setGrids] = useState<Grid[]>([]);
     const { currentPage } = useProductContext();
-    const [direction, setDirection] = useState(0); 
+    const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
     const [moveMode, setMoveMode] = useState<{
         active: boolean;
         productId: string;
         sourceGridId: number;
     } | null>(null);
+
+    //states modal for grids with products selected AlexSM
+    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
+    const [productByApi, setProductByApi] = useState<[] | null>([])
+    const [productSelected, setProductSelected] = useState<ProductItemInterface>()
+
+
+
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
     useEffect(() => {
@@ -53,6 +64,20 @@ export default function HomePage() {
             fetchProducts();
         }
     }, [products.length]);
+
+    //consulta al api, getProducts
+    useEffect(() => {
+        const getProductView = async () => {
+            const resp = await getProduct();
+            console.log("respuesta del api vps Exitosa", resp);
+            if(resp.status === 200){
+                setProductByApi(resp.result);
+                setProductSelected(resp.result[1]);
+                setModalIsOpen(true)
+            }
+        }
+        getProductView();
+    }, []);
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
@@ -86,7 +111,7 @@ export default function HomePage() {
 
     const handleEditProduct = (productId: string) => {
         // Implementa la lógica para editar el producto
-        
+
     };
 
     const handleChangeProduct = (productId: string) => {
@@ -128,7 +153,7 @@ export default function HomePage() {
 
         // Resetear el modo de movimiento
         setMoveMode(null);
-        
+
         console.log({
             title: "Producto movido",
             description: "El producto ha sido movido exitosamente",
@@ -221,6 +246,7 @@ export default function HomePage() {
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
+
                             </motion.div>
                         </div>
                     </div>
@@ -250,6 +276,7 @@ export default function HomePage() {
                     </motion.div>
                 ) : null}
             </div>
+            <ModalEditProduct isOpen={modalIsOpen} setIsOpen={setModalIsOpen} Product={productSelected} GridID={120}/>
         </div>
     );
 };
@@ -266,7 +293,7 @@ const GridProduct: React.FC<GridProductProps> = ({
     loading,
     onProductSelect,
     onHideProducts,
-}) => { 
+}) => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = products.filter((product) =>
