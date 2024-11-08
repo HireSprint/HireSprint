@@ -20,12 +20,13 @@ export const getProductsRF = async (searchTerm = ''): Promise<ProductTypes[]> =>
                     const attachments = record.get('Product_Image') as { url: string }[] | undefined;
                     const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
                     const descriptions = record.get('Product_Subline') as string[] | undefined;
-
+                   
                     allProducts.push({
                         id: record.id,
                         name: record.get('Product_Name') as string,
                         image: imageUrl,
-                        descriptions: descriptions || []
+                        descriptions: descriptions || [],
+                       
                     });
                 });
                 fetchNextPage();
@@ -63,7 +64,7 @@ export const getTableName = async (): Promise<ProductTypes[]> => {
                         name: productName,
                         image: imageUrl,
                         descriptions: descriptions || [],
-                        price: parseFloat(price),
+                        price: parseFloat(price) || 0,
                         gridId: parseInt(gridId)
                     });
                 });
