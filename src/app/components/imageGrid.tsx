@@ -334,8 +334,8 @@ export const ImageGrid2 = ({
         // Establecer el estado del menú contextual con las coordenadas ajustadas
         setContextMenu({
             visible: true,
-            x: posX,
-            y: posY - 50,
+            x: posX-125,
+            y: posY,
             productId: cellId.toString(),
         });
     };
