@@ -47,8 +47,8 @@ export default function Header() {
         <button onClick={handleMenu} className="bg-green-200 text-black p-2">Menu</button>
       </div>
       <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
-        <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon /> 
-        <p className='text-white text-xl font-bold'>Cliente: </p>
+       {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/} 
+        <p className='text-white text-xl font-bold'>Client: </p>
       </div>
       <div className='flex items-center justify-center space-x-2 '>
        <h1 className='text-white text-xl font-bold'>Page:</h1>

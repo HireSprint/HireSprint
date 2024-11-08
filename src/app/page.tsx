@@ -144,7 +144,6 @@ export default function HomePage() {
         }
         setMousePosition({ x: event.clientX, y: event.clientY });
         if (moveMode?.active) {
-            // Si estamos en modo de movimiento, mover el producto al nuevo grid
             handleProductMove(gridId);
         } else {
             setSelectedGridId(gridId);
@@ -232,12 +231,15 @@ export default function HomePage() {
             <div className="flex ">
                 {showProducts && mousePosition ? (
                     <motion.div
-                        initial={{opacity: 0, y: 20}}
-                        exit={{opacity: 0, y: 20}}
-                        animate={{opacity: 1, y: 0}}
-                        transition={{duration: 0.5}}
+                        initial={{ opacity: 0, y: 20 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                         className="absolute"
-                        style={{ top: mousePosition.y, left: mousePosition.x + 20 }}
+                        style={{
+                            top: mousePosition.y,
+                            left: Math.min(mousePosition.x + 40, window.innerWidth - 600)
+                        }}
                     >
                         <GridProduct
                             products={products}
@@ -272,18 +274,18 @@ const GridProduct: React.FC<GridProductProps> = ({
     );
 
     return (
-        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
-            <div className="flex justify-between bg-white sticky top-0 z-10 ">
+        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+            <div className="flex justify-between bg-white sticky top-0 z-10 sm:grid sm:grid-cols-2">
                 <input
                     type="text"
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className=" p-2 border rounded text-black m-4 "
+                    className=" p-2 border rounded text-black m-4 sm:text-sm"
                 />
                 <button
                     onClick={onHideProducts}
-                    className="bg-red-500 text-white p-2 rounded m-4"
+                    className="bg-red-500 text-white p-2 rounded m-4 sm:text-sm"
                 >
                     Ocultar Productos
                 </button>
