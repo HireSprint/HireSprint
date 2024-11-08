@@ -126,22 +126,22 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="flex flex-col w-full">
-                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
+                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name?.substring(0, 20)}</h2>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
                 <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
             </div>
-            <div className="h-40 relative flex items-center justify-end">
+            <div className="relative flex items-center justify-end">
                 {product.image ? (
                     <Image
                         src={product.image}
-                        alt={product.name}
-                        width={200}
-                        height={200}
+                        alt={product.name || ""}
+                        width={150}
+                        height={150}
                         className="rounded object-cover"
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">No hay imagen disponible</span>
+                        <span className="text-black">No hay imagen disponible</span>
                     </div>
                 )}
             </div>
@@ -149,7 +149,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray }: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect }: CardProductProps) => {
   const textShadowWhite = {
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
@@ -161,6 +161,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
       style={{width: cell?.width, height: cell?.height}}
       onClick={(e) => {
         cell && onProductGridSelect && onProductGridSelect(cell.id, e);
+        cell && onProductSelect && onProductSelect(product, e);
 
         if (product) {
           setProductArray && setProductArray(product);
@@ -187,13 +188,16 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
         {
           product ? 
           <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
-            { product?.price || '15.68' }
+            ${product.price?.toFixed(2) || "0.00"}
           </div>
           : ''
         }
 
         <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-          { product?.name || cell?.id.toString() }
+          { product?.name }
+        </div>
+        <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+          { cell?.id }
         </div>
       </div>
     </div>

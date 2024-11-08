@@ -19,21 +19,21 @@ const RightClick: React.FC<RightClickProps> = ({
                 onClick={() => handleRemoveProduct(productId)}
             >
            
-                <span>Eliminar</span>
+                <span>Delete</span>
             </button>
             <button
                 className="flex flex-col items-center text-gray-600 text-sm hover:scale-105 transition-all duration-300 px-2 border-r border-gray-600"
                 onClick={() => handleChangeProduct(productId)}
             >
                
-                <span>Reemplazar</span>
+                <span>Replace</span>
             </button>
             <button
                 className="flex flex-col items-center text-gray-600 text-sm hover:scale-105 transition-all duration-300 px-2"
                 onClick={() => handleEditProduct(productId)}
             >
              
-                <span>Editar</span>
+                <span>Switch</span>
             </button>
         </div>
     )
