@@ -4,5 +4,5 @@ export interface cellTypes {
     left: string;
     width: string;
     height: string;
-    
+    idCategory: number | undefined;
 }

@@ -154,6 +154,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
 
+  console.log("cell ", cell)
   return (
     <div
       key={cell?.id}

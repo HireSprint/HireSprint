@@ -11,6 +11,8 @@ import { ProductTypes } from "@/types/product";
 import { useProductContext } from "./context/productContext";
 import Image from "next/image";
 import ProductContainer from "./components/ProductsCardsBard";
+import { getCategory } from "./api/apiMongo/getCategory";
+import { CategoryTypes } from "@/types/category";
 
 
 interface Grid {
@@ -34,6 +36,8 @@ export default function HomePage() {
         sourceGridId: number;
     } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+    const [categoriesList, setCategories] = useState<CategoryTypes[]>([]);
+
 
     useEffect(() => {
         if (products.length === 0) {
@@ -53,6 +57,24 @@ export default function HomePage() {
             fetchProducts();
         }
     }, [products.length]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await getCategory();
+                setCategories(data.categories || []);
+            } catch (err) {
+                console.error("Error al obtener categories:", err);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    const getCategoryByName = (categoryName: string): CategoryTypes | undefined => {
+        if (categoriesList.length == 0) return;
+        return categoriesList.find((category)=> category.name_category == categoryName )
+    }
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
@@ -158,6 +180,8 @@ export default function HomePage() {
         onEditProduct: handleEditProduct,
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
+        categoriesList: categoriesList,
+        getCategoryByName: getCategoryByName
     };
 
     const handleCategorySelect = (category: string) => {
