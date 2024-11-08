@@ -168,7 +168,7 @@ export default function HomePage() {
     return (
         <div className="flex flex-col" >
             <div>
-                 <Sidebar onCategorySelect={handleCategorySelect} />
+                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
                  {category && <ProductContainer category={category} setCategory={setCategory} />}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
