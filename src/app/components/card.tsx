@@ -188,7 +188,9 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
         {
           product ? 
           <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
+
             ${product.price?.toFixed(2) || "0.00"}
+
           </div>
           : ''
         }
@@ -259,7 +261,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //         {
 //           product ? 
 //           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
-//             { product?.price || '15.68' }
+//             { product?.price || '' }
 //           </div>
 //           : ''
 //         }
