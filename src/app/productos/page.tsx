@@ -79,10 +79,8 @@ const ProductosBase = () => {
   const handleSelectProduct = (id: ProductTypes) => {
     setSelectedProducts(prev => {
       if (!prev.includes(id)) {
-        console.log("Producto seleccionado:", id); 
         return [...prev, id]; 
       }
-      console.log("El producto ya fue seleccionado:", id); 
       return prev; 
     })
     setShowSidebar(true)
