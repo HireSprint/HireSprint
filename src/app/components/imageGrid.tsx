@@ -654,6 +654,7 @@ export const ImageGrid3 = ({
         fetchProducts();
     }, []);
 
+
     useEffect(() => {
         const getCategoriesView = async () => {
             const resp = await getCategories();
@@ -663,6 +664,7 @@ export const ImageGrid3 = ({
         }
         getCategoriesView();
     }, []);
+
 
     const removeDeletedProducts = (products: ProductTypes[], deletedProducts: ProductTypes[]): void => {
         // Filtrar los productos que no están en deletedProducts
