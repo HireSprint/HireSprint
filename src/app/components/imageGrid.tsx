@@ -526,7 +526,7 @@ export const ImageGrid2 = ({
                         product={selectedProduct!}
                         cell={cell}
                         //@ts-ignore
-                        onProductGridSelect={isCellOccupied ? handleChangeProducts : onProductSelect}
+                        onProductGridSelect={onProductSelect}
                         handleChangeProducts={handleChangeProducts}
                         onContextMenu={handleContextMenu}
 
