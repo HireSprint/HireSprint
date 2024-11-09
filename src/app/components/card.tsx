@@ -11,7 +11,7 @@ interface CardProductProps {
   cell?: cellTypes;
   onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
-  onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
+  onProductGridSelect?: (gridId: number,categoryCard:categoriesInterface, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void;
   handleChangeProducts?: (cellId: string) => void;
   setProductArray?: (product: ProductTypes) => void;
