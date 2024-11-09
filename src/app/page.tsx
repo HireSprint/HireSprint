@@ -142,6 +142,14 @@ export default function HomePage() {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
+        
+        // Verificar si el grid ya tiene un producto
+        const gridHasProduct = selectedProducts.some(product => product.gridId === gridId);
+        
+        if (gridHasProduct) {
+            return;
+        }
+        
         setMousePosition({ x: event.clientX, y: event.clientY });
         if (moveMode?.active) {
             handleProductMove(gridId);
@@ -158,6 +166,9 @@ export default function HomePage() {
         onEditProduct: handleEditProduct,
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
+        products: products,
+        isCellOccupied: Boolean,
+
     };
 
     const handleCategorySelect = (category: string) => {
@@ -167,7 +178,7 @@ export default function HomePage() {
     return (
         <div className="flex flex-col" >
             <div>
-                 <Sidebar onCategorySelect={handleCategorySelect} />
+                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
                  {category && <ProductContainer category={category} setCategory={setCategory} />}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
@@ -175,9 +186,6 @@ export default function HomePage() {
                     {/* @ts-ignore */}
 
                      <ImageGrid {...commonGridProps}/>
-
-
-
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
@@ -229,6 +237,7 @@ export default function HomePage() {
 
             {/* Mostrar / Ocultar productos */}
             <div className="flex ">
+                
                 {showProducts && mousePosition ? (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

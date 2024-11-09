@@ -13,7 +13,9 @@ interface CardProductProps {
   onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void; 
   handleChangeProducts?: (cellId: string) => void; 
-  setProductArray?: (product: ProductTypes) => void; 
+  setProductArray?: (product: ProductTypes) => void;
+  isCellOccupied?: boolean;
+  
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -149,7 +151,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect }: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect, isCellOccupied }: CardProductProps) => {
   const textShadowWhite = {
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
@@ -188,13 +190,15 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
         {
           product ? 
           <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
+
             ${product.price?.toFixed(2) || "0.00"}
+
           </div>
           : ''
         }
 
         <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-          { product?.name }
+          { product?.name?.toString().substring(0, 20) }
         </div>
         <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
           { cell?.id }
@@ -259,7 +263,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //         {
 //           product ? 
 //           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
-//             { product?.price || '15.68' }
+//             { product?.price || '' }
 //           </div>
 //           : ''
 //         }
@@ -277,7 +281,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
         <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
              onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
-            <div className="w-28 h-28 border-2 border-black rounded-full flex items-center justify-center">
+            <div className="w-28 h-28 flex items-center justify-center">
                 {product.image ? (
                     <Image
                         src={product.image}
@@ -292,7 +296,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                     </div>
                 )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.name}</p>
+            <p className="mt-2 text-center text-gray-950 font-medium">{product.name?.toString().substring(0, 20)}</p>
             <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
         </div>
     )
