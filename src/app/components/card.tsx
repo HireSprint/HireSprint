@@ -3,17 +3,19 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { cellTypes } from "@/types/cell";
+import {categoriesInterface} from "@/app/interfaces/categoryInterface";
 
 
 interface CardProductProps {
   product: ProductTypes;
-  cell?: cellTypes; 
-  onContextMenu?: (e: React.MouseEvent, cellId: number) => void; 
-  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void; 
-  onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
-  onPriceChange?: (id: string, price: number) => void; 
-  handleChangeProducts?: (cellId: string) => void; 
-  setProductArray?: (product: ProductTypes) => void; 
+  cell?: cellTypes;
+  onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
+  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
+  onProductGridSelect?: (gridId: number, categoryCard: categoriesInterface, event: React.MouseEvent) => void;
+  onPriceChange?: (id: string, price: number) => void;
+  handleChangeProducts?: (cellId: string) => void;
+  setProductArray?: (product: ProductTypes) => void;
+  categoryCard?:categoriesInterface
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -149,7 +151,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect }: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect,categoryCard }: CardProductProps) => {
   const textShadowWhite = {
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
@@ -160,7 +162,9 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
       className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
       style={{width: cell?.width, height: cell?.height}}
       onClick={(e) => {
-        cell && onProductGridSelect && onProductGridSelect(cell.id, e);
+          if (categoryCard) {
+              cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
+          }
         cell && onProductSelect && onProductSelect(product, e);
 
         if (product) {
@@ -176,7 +180,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
       >
       <div className="@container h-full w-full relative grid overflow-hidden">
         {
-          product?.image && ( 
+          product?.image && (
             <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
               <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
@@ -186,7 +190,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
         }
 
         {
-          product ? 
+          product ?
           <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
 
             ${product.price?.toFixed(2) || "0.00"}
@@ -204,7 +208,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
       </div>
     </div>
   )}
-  
+
 
 
 // export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
@@ -212,7 +216,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
 //   }
 
-//   const propertyPerSize: any = { 
+//   const propertyPerSize: any = {
 //     '77px': {
 //       imageContainer: ['justify-self-end', 'self-end'],
 //       image: ['w-14', 'h-14'],
@@ -236,7 +240,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //   function getItemStyle(width: string, property: string) {
 //     return propertyPerSize[width][property]
 //   }
-  
+
 //   const cardSizes =  Object.keys(propertyPerSize)
 
 //   return (
@@ -249,7 +253,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //       >
 //       <div className="@container h-full w-full relative grid">
 //         {
-//           product?.image && ( 
+//           product?.image && (
 //             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'imageContainer').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
 //               <div className={`${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'image').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
 //                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
@@ -259,7 +263,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //         }
 
 //         {
-//           product ? 
+//           product ?
 //           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
 //             { product?.price || '' }
 //           </div>

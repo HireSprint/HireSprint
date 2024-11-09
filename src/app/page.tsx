@@ -14,6 +14,7 @@ import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import {getProduct} from "@/app/api/apiMongo/getProduct";
 import {ProductItemInterface} from "@/app/interfaces/productInterface";
+import {categoriesInterface} from "@/app/interfaces/categoryInterface";
 
 
 interface Grid {
@@ -40,7 +41,10 @@ export default function HomePage() {
     //states modal for grids with products selected AlexSM
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false)
     const [productByApi, setProductByApi] = useState<[] | null>([])
-    const [productSelected, setProductSelected] = useState<ProductItemInterface>()
+    const [productSelected, setProductSelected] = useState<ProductItemInterface |undefined >( undefined)
+
+    //busqueda por categorias
+    const [categoryGridSelected, setCategoryGridSelected] = useState<categoriesInterface | undefined>(undefined)
 
 
 
@@ -73,7 +77,6 @@ export default function HomePage() {
             if(resp.status === 200){
                 setProductByApi(resp.result);
                 setProductSelected(resp.result[1]);
-                setModalIsOpen(true)
             }
         }
         getProductView();
@@ -111,6 +114,8 @@ export default function HomePage() {
 
     const handleEditProduct = (productId: string) => {
         // Implementa la lógica para editar el producto
+        console.log("prductos",productId);
+        setModalIsOpen(true)
 
     };
 
@@ -162,7 +167,7 @@ export default function HomePage() {
         });
     };
 
-    const handleGridSelect = (gridId: number, event: React.MouseEvent) => {
+    const handleGridSelect = (gridId: number,categoryGridSelected:categoriesInterface, event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
@@ -172,6 +177,7 @@ export default function HomePage() {
             handleProductMove(gridId);
         } else {
             setSelectedGridId(gridId);
+            setCategoryGridSelected(categoryGridSelected);
             setShowProducts(true);
         }
     };
@@ -276,7 +282,7 @@ export default function HomePage() {
                     </motion.div>
                 ) : null}
             </div>
-            <ModalEditProduct isOpen={modalIsOpen} setIsOpen={setModalIsOpen} Product={productSelected} GridID={120}/>
+            <ModalEditProduct isOpen={modalIsOpen} setIsOpen={setModalIsOpen} Product={productSelected as ProductItemInterface} GridID={120} SaveFC={()=>(console.log("save"))} ChangeFC={()=>(console.log("change"))} DeleteFC={()=>(console.log("Delete"))}/>
         </div>
     );
 };
