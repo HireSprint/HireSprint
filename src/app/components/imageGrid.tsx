@@ -178,7 +178,6 @@ export const ImageGrid = ({
     }, []);
 
 
-
     return (
         <div className="relative overflow-auto no-scrollbar" >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority/>
@@ -491,12 +490,27 @@ export const ImageGrid2 = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+
+    // Función helper para verificar si una celda tiene producto
+    const hasProductInCell = (cellId: number): boolean => {
+        const hasProduct = productsgrid2.some(p => p.gridId === cellId) ||
+                          selectedProducts.some(p => p.gridId === cellId);
+        return hasProduct;
+    }
+
+    // Función para obtener el producto de una celda específica
+    const getProductInCell = (cellId: number): ProductTypes | undefined => {
+        return productsgrid2.find(p => p.gridId === cellId) ||
+               selectedProducts.find(p => p.gridId === cellId);
+    }
+
     return (
         <div className="relative overflow-auto no-scrollbar" >
             <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority/>
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                const isCellOccupied = hasProductInCell(cell.id);
                 const categoryItem = categories.find((cat:categoriesInterface, index:number) =>(cell.category === cat.name_category));
                 if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
                     addProductIfAbsent(selectedProduct);
@@ -505,10 +519,13 @@ export const ImageGrid2 = ({
                     <GridCardProduct
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={onProductSelect}
+                        //@ts-ignore
+                        onProductGridSelect={isCellOccupied ? handleChangeProducts : onProductSelect}
                         handleChangeProducts={handleChangeProducts}
                         onContextMenu={handleContextMenu}
+                        isCellOccupied={isCellOccupied}
                         categoryCard={categoryItem as categoriesInterface}
+
                     />
                 );
             })}
@@ -779,6 +796,18 @@ export const ImageGrid3 = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+ // Función helper para verificar si una celda tiene producto
+ const hasProductInCell = (cellId: number): boolean => {
+    const hasProduct = productsgrid2.some(p => p.gridId === cellId) ||
+                      selectedProducts.some(p => p.gridId === cellId);
+    return hasProduct;
+}
+
+// Función para obtener el producto de una celda específica
+const getProductInCell = (cellId: number): ProductTypes | undefined => {
+    return productsgrid2.find(p => p.gridId === cellId) ||
+           selectedProducts.find(p => p.gridId === cellId);
+}
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
@@ -786,7 +815,10 @@ export const ImageGrid3 = ({
             {gridCells.map((cell, index) => {
 
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+                const isCellOccupied = hasProductInCell(cell.id);
                 const categoryItem = categories.find((cat:categoriesInterface, index:number) =>(cell.category === cat.name_category));
+
+
 
                 if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
                     addProductIfAbsent(selectedProduct);
@@ -795,10 +827,13 @@ export const ImageGrid3 = ({
                     <GridCardProduct
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={onProductSelect}
+                        //@ts-ignore
+                        onProductGridSelect={isCellOccupied ? handleChangeProducts : onProductSelect}
                         handleChangeProducts={handleChangeProducts}
                         onContextMenu={handleContextMenu}
+                        isCellOccupied={isCellOccupied}
                         categoryCard={categoryItem as categoriesInterface}
+
                     />
                 );
             })}
@@ -1064,12 +1099,27 @@ export const ImageGrid4 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+    // Función helper para verificar si una celda tiene producto
+    const hasProductInCell = (cellId: number): boolean => {
+        const hasProduct = productsgrid2.some(p => p.gridId === cellId) ||
+            selectedProducts.some(p => p.gridId === cellId);
+        return hasProduct;
+    }
+
+// Función para obtener el producto de una celda específica
+    const getProductInCell = (cellId: number): ProductTypes | undefined => {
+        return productsgrid2.find(p => p.gridId === cellId) ||
+            selectedProducts.find(p => p.gridId === cellId);
+    }
+
     return (
         <div className="relative overflow-auto no-scrollbar" >
             <Image src="/pages/page04.jpg" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
                 const categoryItem = categories.find((cat:categoriesInterface, index:number) =>(cell.category === cat.name_category));
+                const isCellOccupied = hasProductInCell(cell.id);
+
 
                 if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
                     addProductIfAbsent(selectedProduct);
@@ -1078,10 +1128,14 @@ export const ImageGrid4 = ({
                     <GridCardProduct
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={onProductSelect}
+                        //@ts-ignore
+                        onProductGridSelect={isCellOccupied ? handleChangeProducts : onProductSelect}
                         handleChangeProducts={handleChangeProducts}
                         onContextMenu={handleContextMenu}
+                        isCellOccupied={isCellOccupied}
                         categoryCard={categoryItem as categoriesInterface}
+
+
                     />
                 );
             })}
