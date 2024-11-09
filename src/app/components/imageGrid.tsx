@@ -9,6 +9,8 @@ import { ProductTypes } from "@/types/product";
 import {getCategories} from "@/app/api/apiMongo/getCategories";
 import {meta} from "eslint-plugin-react/lib/rules/jsx-props-no-spread-multi";
 import category = meta.docs.category;
+import {Simulate} from "react-dom/test-utils";
+import contextMenu = Simulate.contextMenu;
 
 interface Product {
     id: string;
@@ -496,14 +498,14 @@ export const ImageGrid2 = ({
 
     // Función helper para verificar si una celda tiene producto
     const hasProductInCell = (cellId: number): boolean => {
-        const hasProduct = productsgrid2.some(p => p.gridId === cellId) || 
+        const hasProduct = productsgrid2.some(p => p.gridId === cellId) ||
                           selectedProducts.some(p => p.gridId === cellId);
         return hasProduct;
     }
 
     // Función para obtener el producto de una celda específica
     const getProductInCell = (cellId: number): ProductTypes | undefined => {
-        return productsgrid2.find(p => p.gridId === cellId) || 
+        return productsgrid2.find(p => p.gridId === cellId) ||
                selectedProducts.find(p => p.gridId === cellId);
     }
 
@@ -800,21 +802,25 @@ export const ImageGrid3 = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
- // Función helper para verificar si una celda tiene producto
- const hasProductInCell = (cellId: number): boolean => {
-    const hasProduct = productsgrid2.some(p => p.gridId === cellId) || 
-                      selectedProducts.some(p => p.gridId === cellId);
-    return hasProduct;
-}
+     // Función helper para verificar si una celda tiene producto
+     const hasProductInCell = (cellId: number): boolean => {
+        const hasProduct = productsgrid2.some(p => p.gridId === cellId) ||
+                          selectedProducts.some(p => p.gridId === cellId);
+        return hasProduct;
+    }
 
-// Función para obtener el producto de una celda específica
-const getProductInCell = (cellId: number): ProductTypes | undefined => {
-    return productsgrid2.find(p => p.gridId === cellId) || 
-           selectedProducts.find(p => p.gridId === cellId);
-}
+    // Función para obtener el producto de una celda específica
+    const getProductInCell = (cellId: number): ProductTypes | undefined => {
+        return productsgrid2.find(p => p.gridId === cellId) ||
+               selectedProducts.find(p => p.gridId === cellId);
+    }
 
-
+    return (
+        <div className="relative overflow-auto no-scrollbar" >
+            <Image src="/pages/page04.jpg" alt="PDF" width={400} height={400} priority/>
+            {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+
                 const categoryItem = categories.find((cat:categoriesInterface, index:number) =>(cell.category === cat.name_category));
 
                 if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
@@ -1100,6 +1106,7 @@ export const ImageGrid4 = ({
             <Image src="/pages/page04.jpg" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell, index) => {
                 const selectedProduct = productsgrid2?.find((p) => p.gridId === cell.id) || selectedProducts?.find((p) => p.gridId === cell.id);
+
                 const categoryItem = categories.find((cat:categoriesInterface, index:number) =>(cell.category === cat.name_category));
 
                 if (selectedProduct !== undefined && productTempDeleted !== selectedProduct.id) {
