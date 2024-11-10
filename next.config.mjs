@@ -11,6 +11,12 @@ const nextConfig = {
           hostname: 'v5.airtableusercontent.com',
           pathname: '/**',
         },
+        {
+          protocol: 'http',
+          hostname: '173.236.219.227',
+          port: '3003',
+          pathname: '/**',
+        }
       ],
     },
     env:{

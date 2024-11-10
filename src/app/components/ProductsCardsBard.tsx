@@ -1,34 +1,26 @@
 import React, {useEffect, useState} from 'react';
 import { CardShowSide } from './card';
-import { getProductsRF } from '../api/productos/prductosRF';
 import { ProductTypes } from '@/types/product';
+import { getProduct } from '../api/apiMongo/getProduct';
 const ProductContainer: React.FC<{ category: string, setCategory: (category: string | null) => void }> = ({ category, setCategory }) => {
     const [activeTab, setActiveTab] = useState('all');
     const [products, setProducts] = useState<ProductTypes[]>([]); 
     const [loading, setLoading] = useState(true); 
 
     useEffect(() => {
-        const fetchProducts = async () => {
-          try {
-            const productsData = await getProductsRF();
-            const formattedProducts: ProductTypes[] = productsData.map(product => ({
-              ...product,
-              descriptions: Array.isArray(product.descriptions) 
-                ? product.descriptions.filter((desc): desc is string => typeof desc === 'string')
-                : typeof product.descriptions === 'string' 
-                  ? [product.descriptions]
-                  : []
-            }));
-            setProducts(formattedProducts);
-            setLoading(false);
-          } catch (error) {
-            console.error('Error al obtener productos:', error);
-            setLoading(false);
-          }
-        };
-    
-        fetchProducts(); 
-      }, []);
+        try{
+            const getProducts = async () => {
+                const resp = await getProduct();
+                setProducts(resp.result);
+                setLoading(false);
+            }
+            getProducts();
+        }catch(error){
+            console.log("error", error);
+        }
+    }, []);
+
+
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = products.filter((product) =>
@@ -106,7 +98,7 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                                 ))
                             ) : (
                                 filteredProducts.map((product) => (
-                                    <CardShowSide key={product.id} product={product} />
+                                    <CardShowSide key={product.id_product} product={product} />
                                     
                                 ))
                             )}
@@ -148,7 +140,7 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                                 ))
                             ) : (
                                 filteredProducts.map((product) => (
-                                    <CardShowSide key={product.id} product={product} />
+                                    <CardShowSide key={product.id_product} product={product} />
                                     
                                 ))
                             )}
