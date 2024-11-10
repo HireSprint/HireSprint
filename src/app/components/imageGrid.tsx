@@ -243,8 +243,6 @@ export const ImageGrid = ({
         productId: number;
     } | null>(null);
 
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
 
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
@@ -252,15 +250,6 @@ export const ImageGrid = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
@@ -320,8 +309,7 @@ export const ImageGrid = ({
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = productsData?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface, index: number) => (cell.category === cat.name_category));
-
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
                 return (
                     <GridCardProduct
                         key={cell.id}
@@ -330,7 +318,7 @@ export const ImageGrid = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
                     />
                 );
             })}
@@ -456,200 +444,6 @@ export const ImageGrid2 = ({
         y: number;
         productId: number;
     } | null>(null);
-
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
-
-
-    // const testProductos: ProductDataTest[] = [
-    //     {
-    //         "_id": "12345",
-    //         "id_category": "category1",
-    //         "name": "Producto 1",
-    //         "brand": "Marca",
-    //         "upc": "0123456789",
-    //         "size": "Tamaño",
-    //         "variety": "Variedad",
-    //         "price": 10.99,
-    //         "conditions": "Nuevo",
-    //         "sku": "SKU12345",
-    //         "desc": "Descripción del producto",
-    //         "main": "Principal",
-    //         "addl": "Adicional",
-    //         "burst": "Promoción",
-    //         "sale_price": 8.99,
-    //         "price_text": "Ahorra",
-    //         "reg_price": 12.99,
-    //         "save_up_to": "20%",
-    //         "item_code": "IC12345",
-    //         "group_code": "GC12345",
-    //         "burst2": "Descuento",
-    //         "burst3": "Oferta",
-    //         "burst4": "Especial",
-    //         "with_cart": true,
-    //         "color": "Color",
-    //         "notes": "Notas del producto",
-    //         "buyer_notes": "Notas del comprador",
-    //         "effective": "Efectivo",
-    //         "unit_price": 1.99,
-    //         "id_product": "PID12345",
-    //         "__v": 0
-    //     },
-    //     {
-    //         "_id": "12346",
-    //         "id_category": "category2",
-    //         "name": "Producto 2",
-    //         "brand": "Marca2",
-    //         "upc": "9876543210",
-    //         "size": "Grande",
-    //         "variety": "Especial",
-    //         "price": 15.50,
-    //         "conditions": "Usado",
-    //         "sku": "SKU12346",
-    //         "desc": "Descripción del producto 2",
-    //         "main": "Secundario",
-    //         "addl": "Complemento",
-    //         "burst": "Descuento",
-    //         "sale_price": 12.50,
-    //         "price_text": "Oferta",
-    //         "reg_price": 17.99,
-    //         "save_up_to": "30%",
-    //         "item_code": "IC12346",
-    //         "group_code": "GC12346",
-    //         "burst2": "Rebaja",
-    //         "burst3": "Especial",
-    //         "burst4": "Nuevo",
-    //         "with_cart": false,
-    //         "color": "Rojo",
-    //         "notes": "Notas adicionales del producto",
-    //         "buyer_notes": "Notas para el comprador",
-    //         "effective": "Efectivo",
-    //         "unit_price": 2.50,
-    //         "id_product": "PID12346",
-    //         "__v": 1
-    //     },
-    //     {
-    //         "_id": "12347",
-    //         "id_category": "category3",
-    //         "name": "Producto 3",
-    //         "brand": "Marca3",
-    //         "upc": "5647382910",
-    //         "size": "Mediano",
-    //         "variety": "Limitado",
-    //         "price": 25.00,
-    //         "conditions": "Nuevo",
-    //         "sku": "SKU12347",
-    //         "desc": "Descripción del producto 3",
-    //         "main": "Primario",
-    //         "addl": "Opcional",
-    //         "burst": "Edición limitada",
-    //         "sale_price": 20.00,
-    //         "price_text": "Ahorra más",
-    //         "reg_price": 27.99,
-    //         "save_up_to": "15%",
-    //         "item_code": "IC12347",
-    //         "group_code": "GC12347",
-    //         "burst2": "Promoción",
-    //         "burst3": "Oferta",
-    //         "burst4": "Limitado",
-    //         "with_cart": true,
-    //         "color": "Azul",
-    //         "notes": "Notas únicas del producto",
-    //         "buyer_notes": "Advertencia para el comprador",
-    //         "effective": "Efectivo",
-    //         "unit_price": 3.00,
-    //         "id_product": "PID12347",
-    //         "__v": 2
-    //     },
-    //     {
-    //         "_id": "12348",
-    //         "id_category": "category4",
-    //         "name": "Producto 4",
-    //         "brand": "Marca4",
-    //         "upc": "1122334455",
-    //         "size": "Pequeño",
-    //         "variety": "Estándar",
-    //         "price": 5.99,
-    //         "conditions": "Nuevo",
-    //         "sku": "SKU12348",
-    //         "desc": "Descripción del producto 4",
-    //         "main": "Principal",
-    //         "addl": "Accesorio",
-    //         "burst": "Precio bajo",
-    //         "sale_price": 4.99,
-    //         "price_text": "Descuento",
-    //         "reg_price": 6.99,
-    //         "save_up_to": "10%",
-    //         "item_code": "IC12348",
-    //         "group_code": "GC12348",
-    //         "burst2": "Oferta especial",
-    //         "burst3": "Promoción",
-    //         "burst4": "Bajo precio",
-    //         "with_cart": false,
-    //         "color": "Verde",
-    //         "notes": "Notas de inventario",
-    //         "buyer_notes": "Notas de compra",
-    //         "effective": "Inmediato",
-    //         "unit_price": 1.25,
-    //         "id_product": "PID12348",
-    //         "__v": 3
-    //     },
-    //     {
-    //         "_id": "12349",
-    //         "id_category": "category5",
-    //         "name": "Producto 5",
-    //         "brand": "Marca5",
-    //         "upc": "6677889900",
-    //         "size": "Extra Grande",
-    //         "variety": "Especial",
-    //         "price": 30.00,
-    //         "conditions": "Nuevo",
-    //         "sku": "SKU12349",
-    //         "desc": "Descripción del producto 5",
-    //         "main": "Exclusivo",
-    //         "addl": "Complementario",
-    //         "burst": "Última oferta",
-    //         "sale_price": 25.00,
-    //         "price_text": "Super ahorro",
-    //         "reg_price": 35.99,
-    //         "save_up_to": "20%",
-    //         "item_code": "IC12349",
-    //         "group_code": "GC12349",
-    //         "burst2": "Rebaja final",
-    //         "burst3": "Promoción única",
-    //         "burst4": "Exclusivo",
-    //         "with_cart": true,
-    //         "color": "Negro",
-    //         "notes": "Producto en alta demanda",
-    //         "buyer_notes": "Leer descripción antes de comprar",
-    //         "effective": "Inmediato",
-    //         "unit_price": 4.50,
-    //         "id_product": "PID12349",
-    //         "__v": 4
-    //     }
-    // ];
-
-// Llamada de prueba a addGoogleSheet
-//     addGoogleSheet3(testProductos)      
-//         .then(response => {
-//             console.log('Prueba completada, respuesta recibida:', response);         
-//         })
-//         .catch(error => {
-//             console.error('Error en la prueba:', error);
-//         });
-//
-//     console.log(testProductos);
-//    
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            setProductsData(resp.result);
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
 
 
@@ -787,7 +581,7 @@ export const ImageGrid2 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
+                const categoryItem = { name_category: cell.category } as categoriesInterface;               
                 actualizarArray();
                 return (
                     <GridCardProduct
@@ -796,7 +590,8 @@ export const ImageGrid2 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}                     
+                      
                         handleChangeProducts={handleChangeProductsInGrids}
                     />
                 );
@@ -898,21 +693,6 @@ export const ImageGrid3 = ({
         y: number;
         productId: number;
     } | null>(null);
-
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
-
-
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            setProductsData(resp.result);
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
 
     console.log(productArray, " array de productos global ? grid3")
@@ -1042,7 +822,8 @@ export const ImageGrid3 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
+               
                 actualizarArray();
                 return (
                     <GridCardProduct
@@ -1051,7 +832,8 @@ export const ImageGrid3 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
+                      
                         handleChangeProducts={handleChangeProductsInGrids}
 
                     />
@@ -1154,20 +936,6 @@ export const ImageGrid4 = ({
         productId: number;
     } | null>(null);
 
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
-
-
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            setProductsData(resp.result);
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
 
 
@@ -1303,7 +1071,8 @@ export const ImageGrid4 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
+                
                 actualizarArray();
                 return (
                     <GridCardProduct
@@ -1312,7 +1081,8 @@ export const ImageGrid4 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
+                                               
                         handleChangeProducts={handleChangeProductsInGrids}
 
                     />
