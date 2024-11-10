@@ -6,6 +6,8 @@ import { useProductContext } from "../context/productContext";
 import { categoriesInterface } from "@/types/category";
 import { ProductTypes } from "@/types/product";
 import { getCategories } from "@/app/api/apiMongo/getCategories";
+import {addGoogleSheet3} from "@/app/api/productos/prductosRF";
+import {Num} from "@zag-js/number-utils";
 
 
 interface ImageGridProps {
@@ -20,6 +22,149 @@ interface ImageGridProps {
     onPasteProduct: () => void;
 }
 
+export  let productoA : ProductTypes = {
+    _id: "",
+    id_category: 0,
+    name: "",
+    brand: "",
+    upc: 0,
+    size: "",
+    variety: "",
+    price: 0,
+    conditions: "",
+    sku: "",
+    desc: "",
+    main: "",
+    addl: "",
+    burst: "",
+    sale_price: 0,
+    price_text: "",
+    reg_price: 0,
+    save_up_to: "",
+    item_code: 0,
+    group_code: 0,
+    burst2: "",
+    burst3: "",
+    burst4: "",
+    with_cart: false,
+    notes: "",
+    buyer_notes: "",
+    effective: "",
+    unit_price: "",
+    id_product: 0,
+    __v: 0,
+    color: "",
+    url_image: ""
+};
+
+export  let productoB : ProductTypes = {
+    _id: "",
+    id_category: 0,
+    name: "",
+    brand: "",
+    upc: 0,
+    size: "",
+    variety: "",
+    price: 0,
+    conditions: "",
+    sku: "",
+    desc: "",
+    main: "",
+    addl: "",
+    burst: "",
+    sale_price: 0,
+    price_text: "",
+    reg_price: 0,
+    save_up_to: "",
+    item_code: 0,
+    group_code: 0,
+    burst2: "",
+    burst3: "",
+    burst4: "",
+    with_cart: false,
+    notes: "",
+    buyer_notes: "",
+    effective: "",
+    unit_price: "",
+    id_product: 0,
+    __v: 0,
+    color: "",
+    url_image: ""
+};
+
+const resetProductoA = (): void => {
+    productoA = {
+        _id: "",
+        id_category: 0,
+        name: "",
+        brand: "",
+        upc: 0,
+        size: "",
+        variety: "",
+        price: 0,
+        conditions: "",
+        sku: "",
+        desc: "",
+        main: "",
+        addl: "",
+        burst: "",
+        sale_price: 0,
+        price_text: "",
+        reg_price: 0,
+        save_up_to: "",
+        item_code: 0,
+        group_code: 0,
+        burst2: "",
+        burst3: "",
+        burst4: "",
+        with_cart: false,
+        notes: "",
+        buyer_notes: "",
+        effective: "",
+        unit_price: "",
+        id_product: 0,
+        __v: 0,
+        color: "",
+        url_image: ""};
+   
+};
+
+const resetProductoB = (): void => {
+    productoB = {
+        _id: "",
+        id_category: 0,
+        name: "",
+        brand: "",
+        upc: 0,
+        size: "",
+        variety: "",
+        price: 0,
+        conditions: "",
+        sku: "",
+        desc: "",
+        main: "",
+        addl: "",
+        burst: "",
+        sale_price: 0,
+        price_text: "",
+        reg_price: 0,
+        save_up_to: "",
+        item_code: 0,
+        group_code: 0,
+        burst2: "",
+        burst3: "",
+        burst4: "",
+        with_cart: false,
+        notes: "",
+        buyer_notes: "",
+        effective: "",
+        unit_price: "",
+        id_product: 0,
+        __v: 0,
+        color: "",
+        url_image: ""};
+    
+};
 export const ImageGrid = ({
     onProductSelect,
     selectedProducts,
@@ -120,15 +265,30 @@ export const ImageGrid = ({
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
-        const selectedProduct = selectedProducts.find(p => p.id_product === cellId);
-        if (selectedProduct) {
-            setContextMenu({
-                visible: true,
-                x: e.clientX,
-                y: e.clientY,
-                productId: cellId
-            });
+
+        // Coordenadas iniciales del clic derecho en relación a la ventana
+        let posX = e.pageX;
+        let posY = e.pageY;
+
+        // Ancho y alto estimados del menú contextual
+        const menuWidth = 150; // Ancho estimado del menú contextual
+        const menuHeight = 200; // Alto estimado del menú contextual
+
+        // Ajustar las coordenadas si el menú se sale de la pantalla
+        if (posX + menuWidth > window.innerWidth) {
+            posX = window.innerWidth - menuWidth - 10; // Resta 10px para que no quede pegado al borde
         }
+        if (posY + menuHeight > window.innerHeight) {
+            posY = window.innerHeight - menuHeight - 10; // Resta 10px para que no quede pegado al borde
+        }
+
+        // Establecer el estado del menú contextual con las coordenadas ajustadas
+        setContextMenu({
+            visible: true,
+            x: posX -125,
+            y: posY - 100,
+            productId: cellId,
+        });
     };
 
 
@@ -301,185 +461,185 @@ export const ImageGrid2 = ({
     const [categories, setCategories] = useState<[categoriesInterface] | []>([])
 
 
-    const testProductos: ProductDataTest[] = [
-        {
-            "_id": "12345",
-            "id_category": "category1",
-            "name": "Producto 1",
-            "brand": "Marca",
-            "upc": "0123456789",
-            "size": "Tamaño",
-            "variety": "Variedad",
-            "price": 10.99,
-            "conditions": "Nuevo",
-            "sku": "SKU12345",
-            "desc": "Descripción del producto",
-            "main": "Principal",
-            "addl": "Adicional",
-            "burst": "Promoción",
-            "sale_price": 8.99,
-            "price_text": "Ahorra",
-            "reg_price": 12.99,
-            "save_up_to": "20%",
-            "item_code": "IC12345",
-            "group_code": "GC12345",
-            "burst2": "Descuento",
-            "burst3": "Oferta",
-            "burst4": "Especial",
-            "with_cart": true,
-            "color": "Color",
-            "notes": "Notas del producto",
-            "buyer_notes": "Notas del comprador",
-            "effective": "Efectivo",
-            "unit_price": 1.99,
-            "id_product": "PID12345",
-            "__v": 0
-        },
-        {
-            "_id": "12346",
-            "id_category": "category2",
-            "name": "Producto 2",
-            "brand": "Marca2",
-            "upc": "9876543210",
-            "size": "Grande",
-            "variety": "Especial",
-            "price": 15.50,
-            "conditions": "Usado",
-            "sku": "SKU12346",
-            "desc": "Descripción del producto 2",
-            "main": "Secundario",
-            "addl": "Complemento",
-            "burst": "Descuento",
-            "sale_price": 12.50,
-            "price_text": "Oferta",
-            "reg_price": 17.99,
-            "save_up_to": "30%",
-            "item_code": "IC12346",
-            "group_code": "GC12346",
-            "burst2": "Rebaja",
-            "burst3": "Especial",
-            "burst4": "Nuevo",
-            "with_cart": false,
-            "color": "Rojo",
-            "notes": "Notas adicionales del producto",
-            "buyer_notes": "Notas para el comprador",
-            "effective": "Efectivo",
-            "unit_price": 2.50,
-            "id_product": "PID12346",
-            "__v": 1
-        },
-        {
-            "_id": "12347",
-            "id_category": "category3",
-            "name": "Producto 3",
-            "brand": "Marca3",
-            "upc": "5647382910",
-            "size": "Mediano",
-            "variety": "Limitado",
-            "price": 25.00,
-            "conditions": "Nuevo",
-            "sku": "SKU12347",
-            "desc": "Descripción del producto 3",
-            "main": "Primario",
-            "addl": "Opcional",
-            "burst": "Edición limitada",
-            "sale_price": 20.00,
-            "price_text": "Ahorra más",
-            "reg_price": 27.99,
-            "save_up_to": "15%",
-            "item_code": "IC12347",
-            "group_code": "GC12347",
-            "burst2": "Promoción",
-            "burst3": "Oferta",
-            "burst4": "Limitado",
-            "with_cart": true,
-            "color": "Azul",
-            "notes": "Notas únicas del producto",
-            "buyer_notes": "Advertencia para el comprador",
-            "effective": "Efectivo",
-            "unit_price": 3.00,
-            "id_product": "PID12347",
-            "__v": 2
-        },
-        {
-            "_id": "12348",
-            "id_category": "category4",
-            "name": "Producto 4",
-            "brand": "Marca4",
-            "upc": "1122334455",
-            "size": "Pequeño",
-            "variety": "Estándar",
-            "price": 5.99,
-            "conditions": "Nuevo",
-            "sku": "SKU12348",
-            "desc": "Descripción del producto 4",
-            "main": "Principal",
-            "addl": "Accesorio",
-            "burst": "Precio bajo",
-            "sale_price": 4.99,
-            "price_text": "Descuento",
-            "reg_price": 6.99,
-            "save_up_to": "10%",
-            "item_code": "IC12348",
-            "group_code": "GC12348",
-            "burst2": "Oferta especial",
-            "burst3": "Promoción",
-            "burst4": "Bajo precio",
-            "with_cart": false,
-            "color": "Verde",
-            "notes": "Notas de inventario",
-            "buyer_notes": "Notas de compra",
-            "effective": "Inmediato",
-            "unit_price": 1.25,
-            "id_product": "PID12348",
-            "__v": 3
-        },
-        {
-            "_id": "12349",
-            "id_category": "category5",
-            "name": "Producto 5",
-            "brand": "Marca5",
-            "upc": "6677889900",
-            "size": "Extra Grande",
-            "variety": "Especial",
-            "price": 30.00,
-            "conditions": "Nuevo",
-            "sku": "SKU12349",
-            "desc": "Descripción del producto 5",
-            "main": "Exclusivo",
-            "addl": "Complementario",
-            "burst": "Última oferta",
-            "sale_price": 25.00,
-            "price_text": "Super ahorro",
-            "reg_price": 35.99,
-            "save_up_to": "20%",
-            "item_code": "IC12349",
-            "group_code": "GC12349",
-            "burst2": "Rebaja final",
-            "burst3": "Promoción única",
-            "burst4": "Exclusivo",
-            "with_cart": true,
-            "color": "Negro",
-            "notes": "Producto en alta demanda",
-            "buyer_notes": "Leer descripción antes de comprar",
-            "effective": "Inmediato",
-            "unit_price": 4.50,
-            "id_product": "PID12349",
-            "__v": 4
-        }
-    ];
+    // const testProductos: ProductDataTest[] = [
+    //     {
+    //         "_id": "12345",
+    //         "id_category": "category1",
+    //         "name": "Producto 1",
+    //         "brand": "Marca",
+    //         "upc": "0123456789",
+    //         "size": "Tamaño",
+    //         "variety": "Variedad",
+    //         "price": 10.99,
+    //         "conditions": "Nuevo",
+    //         "sku": "SKU12345",
+    //         "desc": "Descripción del producto",
+    //         "main": "Principal",
+    //         "addl": "Adicional",
+    //         "burst": "Promoción",
+    //         "sale_price": 8.99,
+    //         "price_text": "Ahorra",
+    //         "reg_price": 12.99,
+    //         "save_up_to": "20%",
+    //         "item_code": "IC12345",
+    //         "group_code": "GC12345",
+    //         "burst2": "Descuento",
+    //         "burst3": "Oferta",
+    //         "burst4": "Especial",
+    //         "with_cart": true,
+    //         "color": "Color",
+    //         "notes": "Notas del producto",
+    //         "buyer_notes": "Notas del comprador",
+    //         "effective": "Efectivo",
+    //         "unit_price": 1.99,
+    //         "id_product": "PID12345",
+    //         "__v": 0
+    //     },
+    //     {
+    //         "_id": "12346",
+    //         "id_category": "category2",
+    //         "name": "Producto 2",
+    //         "brand": "Marca2",
+    //         "upc": "9876543210",
+    //         "size": "Grande",
+    //         "variety": "Especial",
+    //         "price": 15.50,
+    //         "conditions": "Usado",
+    //         "sku": "SKU12346",
+    //         "desc": "Descripción del producto 2",
+    //         "main": "Secundario",
+    //         "addl": "Complemento",
+    //         "burst": "Descuento",
+    //         "sale_price": 12.50,
+    //         "price_text": "Oferta",
+    //         "reg_price": 17.99,
+    //         "save_up_to": "30%",
+    //         "item_code": "IC12346",
+    //         "group_code": "GC12346",
+    //         "burst2": "Rebaja",
+    //         "burst3": "Especial",
+    //         "burst4": "Nuevo",
+    //         "with_cart": false,
+    //         "color": "Rojo",
+    //         "notes": "Notas adicionales del producto",
+    //         "buyer_notes": "Notas para el comprador",
+    //         "effective": "Efectivo",
+    //         "unit_price": 2.50,
+    //         "id_product": "PID12346",
+    //         "__v": 1
+    //     },
+    //     {
+    //         "_id": "12347",
+    //         "id_category": "category3",
+    //         "name": "Producto 3",
+    //         "brand": "Marca3",
+    //         "upc": "5647382910",
+    //         "size": "Mediano",
+    //         "variety": "Limitado",
+    //         "price": 25.00,
+    //         "conditions": "Nuevo",
+    //         "sku": "SKU12347",
+    //         "desc": "Descripción del producto 3",
+    //         "main": "Primario",
+    //         "addl": "Opcional",
+    //         "burst": "Edición limitada",
+    //         "sale_price": 20.00,
+    //         "price_text": "Ahorra más",
+    //         "reg_price": 27.99,
+    //         "save_up_to": "15%",
+    //         "item_code": "IC12347",
+    //         "group_code": "GC12347",
+    //         "burst2": "Promoción",
+    //         "burst3": "Oferta",
+    //         "burst4": "Limitado",
+    //         "with_cart": true,
+    //         "color": "Azul",
+    //         "notes": "Notas únicas del producto",
+    //         "buyer_notes": "Advertencia para el comprador",
+    //         "effective": "Efectivo",
+    //         "unit_price": 3.00,
+    //         "id_product": "PID12347",
+    //         "__v": 2
+    //     },
+    //     {
+    //         "_id": "12348",
+    //         "id_category": "category4",
+    //         "name": "Producto 4",
+    //         "brand": "Marca4",
+    //         "upc": "1122334455",
+    //         "size": "Pequeño",
+    //         "variety": "Estándar",
+    //         "price": 5.99,
+    //         "conditions": "Nuevo",
+    //         "sku": "SKU12348",
+    //         "desc": "Descripción del producto 4",
+    //         "main": "Principal",
+    //         "addl": "Accesorio",
+    //         "burst": "Precio bajo",
+    //         "sale_price": 4.99,
+    //         "price_text": "Descuento",
+    //         "reg_price": 6.99,
+    //         "save_up_to": "10%",
+    //         "item_code": "IC12348",
+    //         "group_code": "GC12348",
+    //         "burst2": "Oferta especial",
+    //         "burst3": "Promoción",
+    //         "burst4": "Bajo precio",
+    //         "with_cart": false,
+    //         "color": "Verde",
+    //         "notes": "Notas de inventario",
+    //         "buyer_notes": "Notas de compra",
+    //         "effective": "Inmediato",
+    //         "unit_price": 1.25,
+    //         "id_product": "PID12348",
+    //         "__v": 3
+    //     },
+    //     {
+    //         "_id": "12349",
+    //         "id_category": "category5",
+    //         "name": "Producto 5",
+    //         "brand": "Marca5",
+    //         "upc": "6677889900",
+    //         "size": "Extra Grande",
+    //         "variety": "Especial",
+    //         "price": 30.00,
+    //         "conditions": "Nuevo",
+    //         "sku": "SKU12349",
+    //         "desc": "Descripción del producto 5",
+    //         "main": "Exclusivo",
+    //         "addl": "Complementario",
+    //         "burst": "Última oferta",
+    //         "sale_price": 25.00,
+    //         "price_text": "Super ahorro",
+    //         "reg_price": 35.99,
+    //         "save_up_to": "20%",
+    //         "item_code": "IC12349",
+    //         "group_code": "GC12349",
+    //         "burst2": "Rebaja final",
+    //         "burst3": "Promoción única",
+    //         "burst4": "Exclusivo",
+    //         "with_cart": true,
+    //         "color": "Negro",
+    //         "notes": "Producto en alta demanda",
+    //         "buyer_notes": "Leer descripción antes de comprar",
+    //         "effective": "Inmediato",
+    //         "unit_price": 4.50,
+    //         "id_product": "PID12349",
+    //         "__v": 4
+    //     }
+    // ];
 
 // Llamada de prueba a addGoogleSheet
-    addGoogleSheet3(testProductos)      
-        .then(response => {
-            console.log('Prueba completada, respuesta recibida:', response);         
-        })
-        .catch(error => {
-            console.error('Error en la prueba:', error);
-        });
-
-    console.log(testProductos);
-    
+//     addGoogleSheet3(testProductos)      
+//         .then(response => {
+//             console.log('Prueba completada, respuesta recibida:', response);         
+//         })
+//         .catch(error => {
+//             console.error('Error en la prueba:', error);
+//         });
+//
+//     console.log(testProductos);
+//    
     useEffect(() => {
         const getCategoriesView = async () => {
             const resp = await getCategories();
@@ -528,6 +688,55 @@ export const ImageGrid2 = ({
             productId: cellId
         });
     };
+    console.log(productArray, " array de productos global ?")
+    console.log(selectedProducts, 'array de selectedProducts')
+    const handleInitChangeProduct = (cellId: number): void => {
+        console.log(cellId + ' dato entrante');       
+        const elementIndex: number = productArray.findIndex((p: ProductTypes): boolean => p.id_product === cellId);
+
+        if (elementIndex !== -1) {
+            productoA = productArray[elementIndex];
+            console.log(productoA);
+            console.log(productoA, ' producto encontrado');
+        } else {
+            console.log('Producto no encontrado');
+        }
+    };
+    const handleChangeProductsInGrids = (cellId: string): void => {
+        const cellIdNumber = parseInt(cellId, 10);
+        console.log(cellId,"Entro en cambio de producto")     
+        console.log("paso productoA", productoA)
+
+        if (productoA.id_product !== cellIdNumber) {
+            const elementIndex: number = productArray.findIndex((p: ProductTypes | null): boolean => p?.id_product === cellIdNumber);
+            console.log(elementIndex + ' index array producto');
+            // Si se encuentra la celda (puede ser vacía)
+            if (elementIndex !== -1) {
+                productoB = productArray[elementIndex];
+                console.log(productoB.id_product, ' producto b')
+               
+                // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
+                const tempGridId = productoA.id_product;
+                productoA.id_product = productoB.id_product;
+                productoB.id_product = tempGridId;
+
+                // Actualizar el array `productsgrid2` con los cambios
+                productArray[elementIndex] = productoB;
+
+                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                const indexA = productArray.findIndex((p: ProductTypes): boolean => p?._id === productoA._id);
+                if (indexA !== -1) {
+                    productArray[indexA] = productoA;
+                }
+                console.log('entro a remprasar', productArray);
+                selectedProducts = productArray;
+         
+            }
+            resetProductoA();
+            resetProductoB();
+        }
+       
+    };
 
 
     useEffect(() => {
@@ -559,6 +768,18 @@ export const ImageGrid2 = ({
         onProductSelect(gridId, categoryGridSelected, event);
     };
 
+    const actualizarArray = (): void => {
+        if (productArray.length !== selectedProducts.length) {
+            selectedProducts.forEach((selectedProduct) => {
+                const exists = productArray.some((product) => product.id_product === selectedProduct.id_product);
+                if (!exists) {
+                    productArray.push(selectedProduct);
+                }
+            });
+            setProductArray(productArray);
+        }
+    };
+
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
@@ -567,7 +788,7 @@ export const ImageGrid2 = ({
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
                 const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
-
+                actualizarArray();
                 return (
                     <GridCardProduct
                         product={selectedProduct!}
@@ -576,7 +797,7 @@ export const ImageGrid2 = ({
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem as categoriesInterface}
-                       
+                        handleChangeProducts={handleChangeProductsInGrids}
                     />
                 );
             })}
@@ -593,7 +814,7 @@ export const ImageGrid2 = ({
                     <RightClick
                         productId={contextMenu.productId}
                         handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
+                        handleChangeProduct={handleInitChangeProduct}
                         onCopyProduct={onCopyProduct}
                         selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
                         copiedProduct={copiedProduct}
@@ -694,40 +915,33 @@ export const ImageGrid3 = ({
     }, []);
 
 
-
+    console.log(productArray, " array de productos global ? grid3")
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
 
-        // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
-        const containerRect = container?.getBoundingClientRect();
+        // Coordenadas iniciales del clic derecho en relación a la ventana
+        let posX = e.pageX;
+        let posY = e.pageY;
 
-        let posX = e.clientX;
-        let posY = e.clientY;
-
-        if (containerRect) {
-            posX = e.clientX - containerRect.left + container.scrollLeft;
-            posY = e.clientY - containerRect.top + container.scrollTop;
-        }
-
-        // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
+        // Ancho y alto estimados del menú contextual
         const menuWidth = 150; // Ancho estimado del menú contextual
         const menuHeight = 200; // Alto estimado del menú contextual
 
+        // Ajustar las coordenadas si el menú se sale de la pantalla
         if (posX + menuWidth > window.innerWidth) {
-            posX -= menuWidth;
+            posX = window.innerWidth - menuWidth - 10; // Resta 10px para que no quede pegado al borde
         }
         if (posY + menuHeight > window.innerHeight) {
-            posY -= menuHeight;
+            posY = window.innerHeight - menuHeight - 10; // Resta 10px para que no quede pegado al borde
         }
 
         // Establecer el estado del menú contextual con las coordenadas ajustadas
         setContextMenu({
             visible: true,
             x: posX - 125,
-            y: posY,
-            productId: cellId
+            y: posY - 100,
+            productId: cellId,
         });
     };
 
@@ -738,6 +952,66 @@ export const ImageGrid3 = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+
+    const handleInitChangeProduct = (cellId: number): void => {        
+        const elementIndex: number = productArray.findIndex((p: ProductTypes): boolean => p.id_product === cellId);
+
+
+        if (elementIndex !== -1) {
+            productoA = productArray[elementIndex];
+            console.log(productoA);
+            console.log(productoA, ' producto encontrado');
+        } else {
+            console.log('Producto no encontrado');
+        }
+    };
+    const handleChangeProductsInGrids = (cellId: string): void => {
+        const cellIdNumber = parseInt(cellId, 10);
+        console.log(cellId, "Entro en cambio de producto")
+        console.log("paso productoA", productoA)
+
+        if (productoA.id_product !== cellIdNumber) {
+            const elementIndex: number = productArray.findIndex((p: ProductTypes | null): boolean => p?.id_product === cellIdNumber);
+            console.log(elementIndex + ' index array producto');
+            // Si se encuentra la celda (puede ser vacía)
+            if (elementIndex !== -1) {
+                productoB = productArray[elementIndex];
+                console.log(productoB.id_product, ' producto b')
+
+                // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
+                const tempGridId = productoA.id_product;
+                productoA.id_product = productoB.id_product;
+                productoB.id_product = tempGridId;
+
+                // Actualizar el array `productsgrid2` con los cambios
+                productArray[elementIndex] = productoB;
+
+                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                const indexA = productArray.findIndex((p: ProductTypes): boolean => p?._id === productoA._id);
+                if (indexA !== -1) {
+                    productArray[indexA] = productoA;
+                }
+                console.log('entro a remprasar', productArray);
+                selectedProducts = productArray;
+
+            }
+            resetProductoA();
+            resetProductoB();
+        }
+
+    };
+
+    const actualizarArray = (): void => {
+        if (productArray.length !== selectedProducts.length) {
+            selectedProducts.forEach((selectedProduct) => {
+                const exists = productArray.some((product) => product.id_product === selectedProduct.id_product);
+                if (!exists) {
+                    productArray.push(selectedProduct);
+                }
+            });
+            setProductArray(productArray);
+        }
+    };
 
 
     const handleGridSelect = (
@@ -756,7 +1030,7 @@ export const ImageGrid3 = ({
           onPasteProduct();
           return;
         }
-      
+
         // Lógica existente de selección...
         onProductSelect(gridId, categoryGridSelected, event);
     };
@@ -769,7 +1043,7 @@ export const ImageGrid3 = ({
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
                 const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
-
+                actualizarArray();
                 return (
                     <GridCardProduct
                         product={selectedProduct!}
@@ -778,7 +1052,8 @@ export const ImageGrid3 = ({
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem as categoriesInterface}
-                       
+                        handleChangeProducts={handleChangeProductsInGrids}
+
                     />
                 );
             })}
@@ -795,7 +1070,7 @@ export const ImageGrid3 = ({
                     <RightClick
                         productId={contextMenu.productId}
                         handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
+                        handleChangeProduct={handleInitChangeProduct}
                         onCopyProduct={onCopyProduct}
                         selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
                         copiedProduct={copiedProduct}
@@ -940,7 +1215,66 @@ export const ImageGrid4 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+    const handleInitChangeProduct = (cellId: number): void => {
+        console.log(cellId + ' dato entrante');
+        const elementIndex: number = productArray.findIndex((p: ProductTypes): boolean => p.id_product === cellId);
 
+
+        if (elementIndex !== -1) {
+            productoA = productArray[elementIndex];
+            console.log(productoA);
+            console.log(productoA, ' producto encontrado');
+        } else {
+            console.log('Producto no encontrado');
+        }
+    };
+    const handleChangeProductsInGrids = (cellId: string): void => {
+        const cellIdNumber = parseInt(cellId, 10);
+        console.log(cellId, "Entro en cambio de producto")
+        console.log("paso productoA", productoA)
+
+        if (productoA.id_product !== cellIdNumber) {
+            const elementIndex: number = productArray.findIndex((p: ProductTypes | null): boolean => p?.id_product === cellIdNumber);
+            console.log(elementIndex + ' index array producto');
+            // Si se encuentra la celda (puede ser vacía)
+            if (elementIndex !== -1) {
+                productoB = productArray[elementIndex];
+                console.log(productoB.id_product, ' producto b')
+
+                // Intercambiar las posiciones (gridId) de `productoA` y `productoB`
+                const tempGridId = productoA.id_product;
+                productoA.id_product = productoB.id_product;
+                productoB.id_product = tempGridId;
+
+                // Actualizar el array `productsgrid2` con los cambios
+                productArray[elementIndex] = productoB;
+
+                // Si `productoA` también pertenece a `productsgrid2`, actualizarlo también
+                const indexA = productArray.findIndex((p: ProductTypes): boolean => p?._id === productoA._id);
+                if (indexA !== -1) {
+                    productArray[indexA] = productoA;
+                }
+                console.log('entro a remprasar', productArray);
+                selectedProducts = productArray;
+
+            }
+            resetProductoA();
+            resetProductoB();
+        }
+
+    };
+
+    const actualizarArray = (): void => {
+        if (productArray.length !== selectedProducts.length) {
+            selectedProducts.forEach((selectedProduct) => {
+                const exists = productArray.some((product) => product.id_product === selectedProduct.id_product);
+                if (!exists) {
+                    productArray.push(selectedProduct);
+                }
+            });
+            setProductArray(productArray);
+        }
+    };
     const handleGridSelect = (
         gridId: number, 
         categoryGridSelected: categoriesInterface, 
@@ -957,7 +1291,7 @@ export const ImageGrid4 = ({
           onPasteProduct();
           return;
         }
-      
+
         // Lógica existente de selección...
         onProductSelect(gridId, categoryGridSelected, event);
     };
@@ -970,7 +1304,7 @@ export const ImageGrid4 = ({
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
                 const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
-
+                actualizarArray();
                 return (
                     <GridCardProduct
                         product={selectedProduct!}
@@ -979,7 +1313,8 @@ export const ImageGrid4 = ({
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem as categoriesInterface}
-                       
+                        handleChangeProducts={handleChangeProductsInGrids}
+
                     />
                 );
             })}
@@ -996,7 +1331,7 @@ export const ImageGrid4 = ({
                     <RightClick
                         productId={contextMenu.productId}
                         handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
+                        handleChangeProduct={handleInitChangeProduct}
                         onCopyProduct={onCopyProduct}
                         selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
                         copiedProduct={copiedProduct}
