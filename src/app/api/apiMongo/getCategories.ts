@@ -1,13 +1,13 @@
 import nextConfig from "../../../../next.config.mjs";
 
 
-export const getProduct = async () => {
+export const getCategories = async () => {
     try {
         if (!nextConfig.env?.API_URL) {
             throw new Error("API_URL no está definido en la configuración.");
         }
 
-        const resp = await fetch(`${nextConfig.env.API_URL}/getProducts`, {
+        const resp = await fetch(`${nextConfig.env.API_URL}/getCategories`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -18,12 +18,12 @@ export const getProduct = async () => {
             throw new Error(`Error en la respuesta de la API: ${resp.statusText}`);
         }
 
-        const respProductos = await resp.json();
+        const respCategories = await resp.json();
 
-        if (respProductos.status === 200) {
-            return respProductos;
+        if (respCategories.status === 200) {
+            return respCategories;
         } else {
-            throw new Error(respProductos.message || "Error desconocido");
+            throw new Error(respCategories.message || "Error desconocido");
         }
 
     } catch (err) {

@@ -1,86 +1,7 @@
-import Airtable from "airtable";
+
 import { ProductTypes } from "@/types/product";
 
-const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');
-
-
-export const getProductsRF = async (searchTerm = ''): Promise<ProductTypes[]> => {
-    return new Promise((resolve, reject) => {
-        const allProducts: ProductTypes[] = [];
-        const filterFormula = searchTerm ?
-            `SEARCH('${searchTerm}', {Product_Name})` :
-            '';
-
-        baseRF('Products-RF').select({
-            view: "Grid view",
-            filterByFormula: filterFormula
-        }).eachPage(
-            function page(records, fetchNextPage) {
-                records.forEach(function (record) {
-                    const attachments = record.get('Product_Image') as { url: string }[] | undefined;
-                    const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
-                    const descriptions = record.get('Product_Subline') as string[] | undefined;
-                   
-                    allProducts.push({
-                        id: record.id,
-                        name: record.get('Product_Name') as string,
-                        image: imageUrl,
-                        descriptions: descriptions || [],
-                       
-                    });
-                });
-                fetchNextPage();
-            },
-            function done(err) {
-                if (err) {
-                    console.error(err);
-                    reject(err);
-                } else {
-                    resolve(allProducts);
-                }
-            }
-        );
-    });
-};
-
-
-export const getTableName = async (): Promise<ProductTypes[]> => {
-    return new Promise((resolve, reject) => {
-        const allProducts: ProductTypes[] = [];
-        baseRF('J004S').select({
-            view: "Grid view",
-        }).eachPage(
-            function page(records, fetchNextPage) {
-                records.forEach(function (record) {
-                    const attachments = record.get('Product_Image (from Products-RF)') as { url: string }[] | undefined;
-                    const imageUrl = attachments && attachments.length > 0 ? attachments[0].url : '';
-                    const descriptions = record.get('Product_Subline (from Products-RF)') as string[] | undefined;
-                    const names = record.get('Product_Name (from Products-RF)') as string[] | undefined;
-                    const productName = names && names.length > 0 ? names[0] : 'Sin nombre';
-                    const price = record.get('Price') as string;
-                    const gridId = record.get('gridID') as string;
-                    allProducts.push({
-                        id: record.id,
-                        name: productName,
-                        image: imageUrl,
-                        descriptions: descriptions || [],
-                        price: parseFloat(price) || 0,
-                        gridId: parseInt(gridId)
-                    });
-                });
-                fetchNextPage();
-            },
-            function done(err) {
-                if (err) {
-                    console.error(err);
-                    reject(err);
-                } else {
-                    resolve(allProducts);
-                }
-            }
-        );
-    });
-};
+{/*const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');*/}
 
 
 // export const addGoogleSheet = async (data) => {
@@ -113,12 +34,12 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
         const formattedData = dataArray.map(product => ({
-            id: product.id,
+            id_product: product.id_product,
             name: product.name,
-            image: product.image,
-            gridId: product.gridId || null,
+            url_image: product.url_image,
+           
             price: product.price || null,
-            descriptions: Array.isArray(product.descriptions) ? product.descriptions.join(", ") : ""
+            desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
         }));
 
         // Hacer la solicitud HTTP POST al script de Google Apps
