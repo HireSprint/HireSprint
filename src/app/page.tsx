@@ -66,28 +66,24 @@ export default function HomePage() {
             const updatedGrids = prevGrids.map((grid) =>
                 grid.id === selectedGridId ? { ...grid, product: productWithGrid } : grid
             );
-            console.log("Grids after selecting product:", updatedGrids); // Confirmar grids después de selección
             return updatedGrids;
         });
     
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_product !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
-            console.log("Selected Products after selection:", updatedProducts); // Confirmar productos después de selección
             return updatedProducts;
         });
     };
     const handleRemoveProduct = (productId: number) => {
         setSelectedProducts((prevProducts) => {
             const updatedProducts = prevProducts.filter((product) => product.id_product !== productId);
-            console.log("Selected Products after removal:", updatedProducts); // Verificar productos después de eliminación
             return updatedProducts;
         });
         setGrids((prevGrids) => {
             const updatedGrids = prevGrids.map((grid) =>
                 grid.product && grid.product.id_product === productId ? { ...grid, product: null } : grid
             );
-            console.log("Grids after removal:", updatedGrids); // Verificar grids después de eliminación
             return updatedGrids;
         });
         setShowProducts(false);
@@ -95,7 +91,6 @@ export default function HomePage() {
 
     const handleCopyProduct = (product: ProductTypes) => {
         setCopiedProduct(product);
-        console.log("Producto copiado:", product);
     };
 
     const handlePasteProduct = () => {
@@ -122,10 +117,6 @@ export default function HomePage() {
         }
     };
 
-    useEffect(() => {
-        console.log("Current selected products:", selectedProducts);
-        console.log("Current grid structure:", grids);
-    }, [selectedProducts, grids]);
 
     const handleProductMove = (targetGridId: number) => {
         if (!moveMode) return;
@@ -212,7 +203,6 @@ export default function HomePage() {
         setCategory(category);
     };
 
-    console.log("IsCellOccupied",commonGridProps.isCellOccupied);
     return (
         <div className="flex flex-col" >
             <div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
-import { getCategories } from "@/app/api/apiMongo/getCategories";
 import Image from "next/image";
 
 interface ModalEditProductInterface {
@@ -21,15 +20,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
     const [categoria, setCategoria] = useState<categoriesInterface>()
     const SELECT_OPTIONS = ["kg", "mL", "L"]
 
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
     useEffect(() => {
         if (Array.isArray(categories) && categories.length > 0 && product?.id_category) {

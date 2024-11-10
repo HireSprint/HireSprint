@@ -1,8 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { ProductTypes } from '@/types/product';
-import { getCategories } from '../api/apiMongo/getCategories';
 
 
 interface ProductContextType {
@@ -27,14 +26,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
   const [currentPage, setCurrentPage] = useState(2); 
 
-
-  useEffect(() => {
-    const getCategoriesView = async () => {
-      const resp = await getCategories();
-      setProductsData(resp.result);
-    }
-    getCategoriesView();
-  }, [])
 
   return (
         <ProductContext.Provider value={{ productsData, setProductsData, client, setClient, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray }}>

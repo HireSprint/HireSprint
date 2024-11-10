@@ -1,6 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { getProduct } from '../api/apiMongo/getProduct';
+import { useState } from 'react';
 import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
@@ -12,34 +11,11 @@ const ProductosBase = () => {
   const [loading, setLoading] = useState(true); 
   const [searchTerm, setSearchTerm] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1); 
-  const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]); 
-  const [showSidebar, setShowSidebar] = useState(false);
+
 
 
   const productsPerPage = 12;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await getProduct();
-        const formattedProducts: ProductTypes[] = productsData.map((product: ProductTypes) => ({
-          ...product,
-          descriptions: Array.isArray(product.desc) 
-            ? product.desc.filter((desc: string): desc is string => typeof desc === 'string')
-            : typeof product.desc === 'string' 
-              ? [product.desc]
-              : []
-        }));
-        setProducts(formattedProducts);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error al obtener productos:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchProducts(); 
-  }, []); 
 
   const filteredProducts = products.filter(product =>
     product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,16 +51,7 @@ const ProductosBase = () => {
     return pageNumbers;
   };
 
-  const handleSelectProduct = (id: ProductTypes) => {
-    setSelectedProducts(prev => {
-      if (!prev.includes(id)) {
-        return [...prev, id]; 
-      }
-      return prev; 
-    })
-    setShowSidebar(true)
-    ;
-  };
+
 
 
   return (
@@ -112,7 +79,6 @@ const ProductosBase = () => {
               product={{
                 ...product,
               }}
-              onProductSelect={handleSelectProduct}
             />
           ))}
         </div>  
