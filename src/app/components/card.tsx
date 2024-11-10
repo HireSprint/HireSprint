@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { cellTypes } from "@/types/cell";
-import {categoriesInterface} from "@/app/interfaces/categoryInterface";
+import { categoriesInterface } from "@/types/category";
 
 
 interface CardProductProps {
@@ -17,6 +17,7 @@ interface CardProductProps {
   setProductArray?: (product: ProductTypes) => void;
   isCellOccupied?: boolean;
   categoryCard?:categoriesInterface
+  onEditProduct?: (productId: string) => void;
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -27,12 +28,12 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
         >
             <div className="text-center w-full">
                 <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions || "No hay descripción"}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc || "No hay descripción"}</p>
             </div>
             <div className="w-full h-40 relative">
-                {product.image ? (
+                {product.url_image ? (
                     <Image
-                        src={product.image}
+                        src={product.url_image}
                         alt={product.name}
                         layout="fill"
                         objectFit="cover"
@@ -67,7 +68,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
         const newPrice = parseFloat(e.target.value);
         setLocalPrice(newPrice);
         if (onPriceChange) {
-            onPriceChange(product.id, newPrice);
+            onPriceChange(product._id.toString(), newPrice);
         }
     };
 
@@ -78,14 +79,14 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
         }
         // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
         if (onPriceChange) {
-            onPriceChange(product.id, localPrice);
+            onPriceChange(product._id.toString(), localPrice);
         }
     };
 
     return (
         <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
             <p className="font-semibold text-black">{product.name}</p>
-            <p className="text-gray-600">{product.descriptions}</p>
+            <p className="text-gray-600">{product.desc}</p>
             <input
                 type="number"
                 value={localPrice}
@@ -93,9 +94,9 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
                 className="mt-2 p-1 border rounded"
                 placeholder="Precio"
             />
-            {showImage && product.image ? (
+            {showImage && product.url_image ? (
                 <Image
-                    src={product.image}
+                    src={product.url_image}
                     alt={product.name}
                     width={100}
                     height={100}
@@ -129,14 +130,14 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="flex flex-col w-full">
-                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name?.substring(0, 20)}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc}</p>
                 <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
             </div>
             <div className="relative flex items-center justify-end">
-                {product.image ? (
+                {product.url_image ? (
                     <Image
-                        src={product.image}
+                        src={product.url_image}
                         alt={product.name || ""}
                         width={150}
                         height={150}
@@ -152,7 +153,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect , isCellOccupied,categoryCard}: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onEditProduct , isCellOccupied,categoryCard}: CardProductProps) => {
   const textShadowWhite = {
     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
   }
@@ -163,28 +164,27 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
       className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
       style={{width: cell?.width, height: cell?.height}}
       onClick={(e) => {
-          if (categoryCard) {
-              cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
-          }
-        cell && onProductSelect && onProductSelect(product, e);
-
-        if (product) {
-          setProductArray && setProductArray(product);
-        } else {
-          console.warn("No se encontró un producto seleccionado para esta celda.");
+        if (isCellOccupied && product) {
+            // Si la celda está ocupada y hay un producto, mostrar el modal de edición
+            onEditProduct && onEditProduct(product.id_product.toString());
+        } else if (categoryCard) {
+            // Si no está ocupada, permitir selección normal
+            cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
         }
-
-        cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
-      }
-      }
+        
+        if (product && !isCellOccupied) {
+            setProductArray && setProductArray(product);
+            cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
+        }
+    }}
       onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
       >
       <div className="@container h-full w-full relative grid overflow-hidden">
         {
-          product?.image && (
+          product?.url_image && (
             <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
               <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
-                <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
+                <Image src={product.url_image} alt={product.name || ''} layout="fill" objectFit="cover" />
               </div>
             </div>
           )
@@ -285,9 +285,9 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
              onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="w-28 h-28 flex items-center justify-center">
-                {product.image ? (
+                {product.url_image ? (
                     <Image
-                        src={product.image}
+                        src={product.url_image}
                         alt={product.name}
                         width={100}  // Ajusta el tamaño según sea necesario
                         height={100} // Ajusta el tamaño según sea necesario

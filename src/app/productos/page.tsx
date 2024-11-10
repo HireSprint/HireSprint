@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { getProductsRF } from '../api/productos/prductosRF'; 
+import { getProduct } from '../api/apiMongo/getProduct';
 import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
-import Sidebar from '../components/sideBar';
 import { ProductTypes } from '@/types/product'; 
 
 
@@ -15,20 +14,20 @@ const ProductosBase = () => {
   const [currentPage, setCurrentPage] = useState(1); 
   const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]); 
   const [showSidebar, setShowSidebar] = useState(false);
-  const [customerName, setCustomerName] = useState("");
+
 
   const productsPerPage = 12;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsData = await getProductsRF();
-        const formattedProducts: ProductTypes[] = productsData.map(product => ({
+        const productsData = await getProduct();
+        const formattedProducts: ProductTypes[] = productsData.map((product: ProductTypes) => ({
           ...product,
-          descriptions: Array.isArray(product.descriptions) 
-            ? product.descriptions.filter((desc): desc is string => typeof desc === 'string')
-            : typeof product.descriptions === 'string' 
-              ? [product.descriptions]
+          descriptions: Array.isArray(product.desc) 
+            ? product.desc.filter((desc: string): desc is string => typeof desc === 'string')
+            : typeof product.desc === 'string' 
+              ? [product.desc]
               : []
         }));
         setProducts(formattedProducts);
@@ -86,13 +85,7 @@ const ProductosBase = () => {
     setShowSidebar(true)
     ;
   };
-  const handleSidebarClose = () => {
-    setShowSidebar(false);
-  };
 
-  const handleRemoveProduct = (productId: string) => {
-    // Implementar lógica para remover producto
-  };
 
   return (
     <div className="flex flex-col justify-center items-center text-black">
@@ -115,10 +108,9 @@ const ProductosBase = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentProducts.map(product => (
             <CardProduct 
-              key={product.id} 
+              key={product.id_product} 
               product={{
                 ...product,
-                descriptions: Array.isArray(product.descriptions) ? [product.descriptions[0] || ''] : ['']
               }}
               onProductSelect={handleSelectProduct}
             />
