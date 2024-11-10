@@ -16,7 +16,7 @@ interface CardProductProps {
   handleChangeProducts?: (cellId: string) => void;
   setProductArray?: (product: ProductTypes) => void;
   isCellOccupied?: boolean;
-  categoryCard?:categoriesInterface
+  categoryCard?:categoriesInterface | null | undefined
   onEditProduct?: (productId: string) => void;
 }
 

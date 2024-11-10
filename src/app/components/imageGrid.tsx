@@ -98,8 +98,6 @@ export const ImageGrid = ({
         productId: number;
     } | null>(null);
 
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
 
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
@@ -107,15 +105,6 @@ export const ImageGrid = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
@@ -160,8 +149,7 @@ export const ImageGrid = ({
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = productsData?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface, index: number) => (cell.category === cat.name_category));
-
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
                 return (
                     <GridCardProduct
                         key={cell.id}
@@ -170,7 +158,7 @@ export const ImageGrid = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
                     />
                 );
             })}
@@ -297,21 +285,6 @@ export const ImageGrid2 = ({
         productId: number;
     } | null>(null);
 
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
-
-
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            setProductsData(resp.result);
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
-
 
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
@@ -387,7 +360,7 @@ export const ImageGrid2 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
@@ -396,7 +369,7 @@ export const ImageGrid2 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
                        
                     />
                 );
@@ -499,21 +472,6 @@ export const ImageGrid3 = ({
         productId: number;
     } | null>(null);
 
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
-
-
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            setProductsData(resp.result);
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
-
 
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
@@ -589,7 +547,7 @@ export const ImageGrid3 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
@@ -598,7 +556,7 @@ export const ImageGrid3 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
                        
                     />
                 );
@@ -700,20 +658,6 @@ export const ImageGrid4 = ({
         productId: number;
     } | null>(null);
 
-    //categorieas
-    const [categories, setCategories] = useState<[categoriesInterface] | []>([])
-
-
-    useEffect(() => {
-        const getCategoriesView = async () => {
-            const resp = await getCategories();
-            setProductsData(resp.result);
-            if (resp.status === 200) {
-                setCategories(resp.result);
-            }
-        }
-        getCategoriesView();
-    }, []);
 
 
 
@@ -790,7 +734,7 @@ export const ImageGrid4 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = categories.find((cat: categoriesInterface) => (cell.category === cat.name_category));
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
@@ -799,7 +743,7 @@ export const ImageGrid4 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem as categoriesInterface}
+                        categoryCard={categoryItem}
                        
                     />
                 );

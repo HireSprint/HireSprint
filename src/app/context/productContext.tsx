@@ -7,8 +7,6 @@ import { ProductTypes } from '@/types/product';
 interface ProductContextType {
   productsData: ProductTypes[];
   setProductsData: (products: ProductTypes[]) => void;
-  client: string; 
-  setClient: (client: string) => void;
   selectedProducts: ProductTypes[];
   setSelectedProducts: React.Dispatch<React.SetStateAction<ProductTypes[]>>;
   productArray: ProductTypes[];
@@ -21,14 +19,13 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [productsData, setProductsData] = useState<ProductTypes[]>([]);
-  const [client, setClient] = useState<string>('');
   const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
   const [currentPage, setCurrentPage] = useState(2); 
 
 
   return (
-        <ProductContext.Provider value={{ productsData, setProductsData, client, setClient, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray }}>
+        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray }}>
       {children}
     </ProductContext.Provider>
   );
