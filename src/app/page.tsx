@@ -9,7 +9,6 @@ import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imag
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import {getProduct} from "@/app/api/apiMongo/getProduct";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 
@@ -17,7 +16,7 @@ import { categoriesInterface } from "@/types/category";
 export default function HomePage() {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const {selectedProducts, setSelectedProducts} = useProductContext();
+    const {selectedProducts, setSelectedProducts } = useProductContext();
     const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
     const [grids, setGrids] = useState<{id:number, product: ProductTypes | null}[]>([]);
@@ -38,24 +37,25 @@ export default function HomePage() {
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
 
-
-    //consulta al api, getProducts
-    useEffect(() => {
-        try{
-            const getProductView = async () => {
-                const resp = await getProduct();
-            setProductsData(resp.result);
-            setLoading(false);
-            if(resp.status === 200){
-                setProductByApi(resp.result);
-                setProductSelected(resp.result[1]);
-                }
+    
+  useEffect(() => {
+    const getProductView = async () => {
+      try {
+        const resp = await fetch("/api/apiMongo/getProduct");
+        const data = await resp.json();
+        setProductsData(data.result);
+        setLoading(false);
+        if(resp.status === 200){
+            setProductByApi(data.result);
+            setProductSelected(data.result[1]);
             }
-            getProductView();
-        }catch(error){
-            console.log("error", error);
-        }
-    }, []);
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      }
+    };
+    
+    getProductView();
+  }, []);
 
 
     const handleProductSelect = (product: ProductTypes) => {

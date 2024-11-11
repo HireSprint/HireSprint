@@ -5,7 +5,6 @@ import { GridCardProduct } from "./card";
 import { useProductContext } from "../context/productContext";
 import { categoriesInterface } from "@/types/category";
 import { ProductTypes } from "@/types/product";
-import { getCategories } from "@/app/api/apiMongo/getCategories";
 
 
 interface ImageGridProps {

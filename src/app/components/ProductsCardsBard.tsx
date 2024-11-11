@@ -1,24 +1,26 @@
 import React, {useEffect, useState} from 'react';
 import { CardShowSide } from './card';
 import { ProductTypes } from '@/types/product';
-import { getProduct } from '../api/apiMongo/getProduct';
 const ProductContainer: React.FC<{ category: string, setCategory: (category: string | null) => void }> = ({ category, setCategory }) => {
     const [activeTab, setActiveTab] = useState('all');
     const [products, setProducts] = useState<ProductTypes[]>([]); 
     const [loading, setLoading] = useState(true); 
 
-    useEffect(() => {
-        try{
-            const getProducts = async () => {
-                const resp = await getProduct();
-                setProducts(resp.result);
-                setLoading(false);
-            }
-            getProducts();
-        }catch(error){
-            console.log("error", error);
-        }
-    }, []);
+    
+  useEffect(() => {
+    const getProductView = async () => {
+      try {
+        const resp = await fetch("/api/apiMongo/getProduct");
+        const data = await resp.json();
+        setProducts(data.result);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      }
+    };
+    
+    getProductView();
+  }, []);
 
 
     const [searchTerm, setSearchTerm] = useState("");
