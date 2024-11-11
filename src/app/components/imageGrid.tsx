@@ -5,9 +5,6 @@ import { GridCardProduct } from "./card";
 import { useProductContext } from "../context/productContext";
 import { categoriesInterface } from "@/types/category";
 import { ProductTypes } from "@/types/product";
-import { getCategories } from "@/app/api/apiMongo/getCategories";
-import {addGoogleSheet3} from "@/app/api/productos/prductosRF";
-import {Num} from "@zag-js/number-utils";
 
 
 interface ImageGridProps {
