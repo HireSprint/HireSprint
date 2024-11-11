@@ -26,10 +26,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (err) {
         console.error("Error al obtener categories:", err);
       } finally {
-        setTimeout(() => {
-          
-          setIsLoading(false);
-        }, 1000);
+        setIsLoading(false);
       }
     };
 
