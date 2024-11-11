@@ -1,10 +1,8 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { getProductsRF } from '../api/productos/prductosRF'; 
+import { useState } from 'react';
 import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
-import Sidebar from '../components/sideBar';
 import { ProductTypes } from '@/types/product'; 
 
 
@@ -13,34 +11,11 @@ const ProductosBase = () => {
   const [loading, setLoading] = useState(true); 
   const [searchTerm, setSearchTerm] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1); 
-  const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]); 
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [customerName, setCustomerName] = useState("");
+
+
 
   const productsPerPage = 12;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await getProductsRF();
-        const formattedProducts: ProductTypes[] = productsData.map(product => ({
-          ...product,
-          descriptions: Array.isArray(product.descriptions) 
-            ? product.descriptions.filter((desc): desc is string => typeof desc === 'string')
-            : typeof product.descriptions === 'string' 
-              ? [product.descriptions]
-              : []
-        }));
-        setProducts(formattedProducts);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error al obtener productos:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchProducts(); 
-  }, []); 
 
   const filteredProducts = products.filter(product =>
     product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -76,25 +51,8 @@ const ProductosBase = () => {
     return pageNumbers;
   };
 
-  const handleSelectProduct = (id: ProductTypes) => {
-    setSelectedProducts(prev => {
-      if (!prev.includes(id)) {
-        console.log("Producto seleccionado:", id); 
-        return [...prev, id]; 
-      }
-      console.log("El producto ya fue seleccionado:", id); 
-      return prev; 
-    })
-    setShowSidebar(true)
-    ;
-  };
-  const handleSidebarClose = () => {
-    setShowSidebar(false);
-  };
 
-  const handleRemoveProduct = (productId: string) => {
-    // Implementar lógica para remover producto
-  };
+
 
   return (
     <div className="flex flex-col justify-center items-center text-black">
@@ -117,12 +75,10 @@ const ProductosBase = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentProducts.map(product => (
             <CardProduct 
-              key={product.id} 
+              key={product.id_product} 
               product={{
                 ...product,
-                descriptions: Array.isArray(product.descriptions) ? [product.descriptions[0] || ''] : ['']
               }}
-              onProductSelect={handleSelectProduct}
             />
           ))}
         </div>  

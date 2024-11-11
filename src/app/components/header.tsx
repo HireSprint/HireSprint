@@ -3,26 +3,36 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getProduct } from "@/app/api/apiMongo/getProduct";
 import { Calendar } from 'primereact/calendar';
 import { Nullable } from "primereact/ts-helpers";
 import { useProductContext } from '../context/productContext';
 import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 
 
+
+
 export default function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
-  const { currentPage, setCurrentPage } = useProductContext();
+  const { currentPage, setCurrentPage, productsData, setProductsData } = useProductContext();
   const [direction, setDirection] = useState(0);
+
+
   useEffect(() => {
     const getProductView = async () => {
-      const resp = await getProduct();
-      console.log("respuesta del api vps Exitosa", resp);
-    }
+      try {
+        const resp = await fetch("/api/apiMongo/getProduct");
+        const data = await resp.json();
+        setProductsData(data.result);
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      }
+    };
+    
     getProductView();
   }, []);
+
 
   const handleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

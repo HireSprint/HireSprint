@@ -3,17 +3,22 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { cellTypes } from "@/types/cell";
-
+import { categoriesInterface } from "@/types/category";
+import { Skeleton } from 'primereact/skeleton';
 
 interface CardProductProps {
   product: ProductTypes;
-  cell?: cellTypes; 
-  onContextMenu?: (e: React.MouseEvent, cellId: number) => void; 
-  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void; 
-  onProductGridSelect?: (gridId: number, event: React.MouseEvent) => void;
-  onPriceChange?: (id: string, price: number) => void; 
-  handleChangeProducts?: (cellId: string) => void; 
-  setProductArray?: (product: ProductTypes) => void; 
+  cell?: cellTypes;
+  onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
+  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
+  onProductGridSelect?: (gridId: number,categoryCard:categoriesInterface, event: React.MouseEvent) => void;
+  onPriceChange?: (id: string, price: number) => void;
+  handleChangeProducts?: (cellId: string) => void;
+  setProductArray?: (product: ProductTypes) => void;
+  isCellOccupied?: boolean;
+  categoryCard?:categoriesInterface | null | undefined
+  onEditProduct?: (productId: string) => void;
+  isLoading?: boolean;
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -24,12 +29,12 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
         >
             <div className="text-center w-full">
                 <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions || "No hay descripción"}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc || "No hay descripción"}</p>
             </div>
             <div className="w-full h-40 relative">
-                {product.image ? (
+                {product.url_image ? (
                     <Image
-                        src={product.image}
+                        src={product.url_image}
                         alt={product.name}
                         layout="fill"
                         objectFit="cover"
@@ -64,7 +69,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
         const newPrice = parseFloat(e.target.value);
         setLocalPrice(newPrice);
         if (onPriceChange) {
-            onPriceChange(product.id, newPrice);
+            onPriceChange(product._id.toString(), newPrice);
         }
     };
 
@@ -75,14 +80,14 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
         }
         // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
         if (onPriceChange) {
-            onPriceChange(product.id, localPrice);
+            onPriceChange(product._id.toString(), localPrice);
         }
     };
 
     return (
         <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
             <p className="font-semibold text-black">{product.name}</p>
-            <p className="text-gray-600">{product.descriptions}</p>
+            <p className="text-gray-600">{product.desc}</p>
             <input
                 type="number"
                 value={localPrice}
@@ -90,9 +95,9 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
                 className="mt-2 p-1 border rounded"
                 placeholder="Precio"
             />
-            {showImage && product.image ? (
+            {showImage && product.url_image ? (
                 <Image
-                    src={product.image}
+                    src={product.url_image}
                     alt={product.name}
                     width={100}
                     height={100}
@@ -126,14 +131,14 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="flex flex-col w-full">
-                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name?.substring(0, 20)}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.descriptions}</p>
+                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc}</p>
                 <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
             </div>
             <div className="relative flex items-center justify-end">
-                {product.image ? (
+                {product.url_image ? (
                     <Image
-                        src={product.image}
+                        src={product.url_image}
                         alt={product.name || ""}
                         width={150}
                         height={150}
@@ -149,63 +154,70 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onProductSelect }: CardProductProps) => {
-  const textShadowWhite = {
-    'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
-  }
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onEditProduct , isCellOccupied, categoryCard, isLoading}: CardProductProps) => {
+    if ( typeof isLoading !== "boolean" ) isLoading = false;
 
-  console.log("cell ", cell)
-  return (
-    <div
-      key={cell?.id}
-      className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
-      style={{width: cell?.width, height: cell?.height}}
-      onClick={(e) => {
-        cell && onProductGridSelect && onProductGridSelect(cell.id, e);
-        cell && onProductSelect && onProductSelect(product, e);
+    const textShadowWhite = {
+        'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
+    }
 
-        if (product) {
-          setProductArray && setProductArray(product);
-        } else {
-          console.warn("No se encontró un producto seleccionado para esta celda.");
-        }
+    return (
+        <div
+            key={cell?.id}
+            className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
+            style={{width: cell?.width, height: cell?.height}}
+            onClick={(e) => {
+                if (isCellOccupied && product) {
+                    // Si la celda está ocupada y hay un producto, mostrar el modal de edición
+                    onEditProduct && onEditProduct(product.id_product.toString());
+                } else if (categoryCard) {
+                    // Si no está ocupada, permitir selección normal
+                    cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
+                }
+                
+                if (product && !isCellOccupied) {
+                    setProductArray && setProductArray(product);
+                    cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
+                }
+            }}
+            onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+            >
+                { isLoading ?
+                    <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
+                :
+                    <div className="@container h-full w-full relative grid overflow-hidden">
+                        {
+                            product?.url_image && (
+                                <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
+                                    <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
+                                        <Image src={product.url_image} alt={product.name || ''} layout="fill" objectFit="cover" />
+                                    </div>
+                                </div>
+                            )
+                        }
 
-        cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
-      }
-      }
-      onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
-      >
-      <div className="@container h-full w-full relative grid overflow-hidden">
-        {
-          product?.image && ( 
-            <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
-              <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
-                <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
-              </div>
-            </div>
-          )
-        }
+                        {
+                            product ?
+                                <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
 
-        {
-          product ? 
-          <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
+                                    ${product.price?.toFixed(2) || "0.00"}
 
-            ${product.price?.toFixed(2) || "0.00"}
+                                </div>
+                                : ''
+                        }
 
-          </div>
-          : ''
-        }
-
-        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-          { product?.name }
+                        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                            { product?.name?.toString().substring(0, 20) }
+                        </div>
+                        <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                            { cell?.id }
+                        </div>
+                    </div>
+                }
         </div>
-        <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-          { cell?.id }
-        </div>
-      </div>
-    </div>
-  )}
-  
+    )
+}
+
 
 
 // export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
@@ -213,7 +225,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
 //   }
 
-//   const propertyPerSize: any = { 
+//   const propertyPerSize: any = {
 //     '77px': {
 //       imageContainer: ['justify-self-end', 'self-end'],
 //       image: ['w-14', 'h-14'],
@@ -237,7 +249,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //   function getItemStyle(width: string, property: string) {
 //     return propertyPerSize[width][property]
 //   }
-  
+
 //   const cardSizes =  Object.keys(propertyPerSize)
 
 //   return (
@@ -250,7 +262,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //       >
 //       <div className="@container h-full w-full relative grid">
 //         {
-//           product?.image && ( 
+//           product?.image && (
 //             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'imageContainer').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
 //               <div className={`${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'image').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
 //                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
@@ -260,7 +272,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 //         }
 
 //         {
-//           product ? 
+//           product ?
 //           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
 //             { product?.price || '' }
 //           </div>
@@ -280,10 +292,10 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
         <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
              onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
-            <div className="w-28 h-28 border-2 border-black rounded-full flex items-center justify-center">
-                {product.image ? (
+            <div className="w-28 h-28 flex items-center justify-center">
+                {product.url_image ? (
                     <Image
-                        src={product.image}
+                        src={product.url_image}
                         alt={product.name}
                         width={100}  // Ajusta el tamaño según sea necesario
                         height={100} // Ajusta el tamaño según sea necesario
@@ -295,7 +307,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                     </div>
                 )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.name}</p>
+            <p className="mt-2 text-center text-gray-950 font-medium">{product.name?.toString().substring(0, 20)}</p>
             <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
         </div>
     )

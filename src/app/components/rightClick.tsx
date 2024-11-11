@@ -1,16 +1,21 @@
+import { ProductTypes } from "@/types/product";
 
 interface RightClickProps {
-    productId: string;
-    handleRemoveProduct: (productId: string) => void;
-    handleEditProduct: (productId: string) => void;
-    handleChangeProduct: (productId: string) => void;
+    productId: number;
+    handleRemoveProduct: (productId: number) => void;
+    handleChangeProduct: (productId: number) => void;
+    onCopyProduct: (product: ProductTypes) => void;
+    selectedProduct: ProductTypes | null; // Agregar esta prop
+    copiedProduct: ProductTypes | null;
 }
 
 const RightClick: React.FC<RightClickProps> = ({
     productId,
     handleRemoveProduct,
-    handleEditProduct,
-    handleChangeProduct
+    handleChangeProduct,
+    onCopyProduct,
+    selectedProduct,
+    copiedProduct
 }) => {
     return (
         <div className="flex items-center justify-around w-64 bg-[#7cc304] rounded-lg p-2 shadow-md">
@@ -30,10 +35,10 @@ const RightClick: React.FC<RightClickProps> = ({
             </button>
             <button
                 className="flex flex-col items-center text-gray-600 text-sm hover:scale-105 transition-all duration-300 px-2"
-                onClick={() => handleEditProduct(productId)}
+                onClick={() => selectedProduct && onCopyProduct(selectedProduct)}
             >
              
-                <span>Switch</span>
+                <span>Copy</span>
             </button>
         </div>
     )
