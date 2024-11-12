@@ -5,22 +5,30 @@ import Lottie from "lottie-react";
 import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
-import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
-import { useProductContext } from "./context/productContext";
+import {
+    ImageGrid,
+    ImageGrid2,
+    ImageGrid3,
+    ImageGrid4,
+    productoA, productoB, resetProductoA, resetProductoB,
+    updateProductoA,
+    updateProductoB
+} from "./components/imageGrid";
+import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { ProductTypes } from "@/types/product";
-import { categoriesInterface } from "@/types/category";
+import {ProductTypes} from "@/types/product";
+import {categoriesInterface} from "@/types/category";
 
 
 export default function HomePage() {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const {selectedProducts, setSelectedProducts } = useProductContext();
+    const {selectedProducts, setSelectedProducts} = useProductContext();
     const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
-    const [grids, setGrids] = useState<{id:number, product: ProductTypes | null}[]>([]);
-    const { currentPage } = useProductContext();
+    const [grids, setGrids] = useState<{ id: number, product: ProductTypes | null }[]>([]);
+    const {currentPage} = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
@@ -30,50 +38,56 @@ export default function HomePage() {
         sourceGridId: number;
     } | null>(null);
 
+    let productoShowForce: boolean = true;
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
-    const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-
-
-    
-  useEffect(() => {
-    const getProductView = async () => {
-      try {
-        const resp = await fetch("/api/apiMongo/getProduct");
-        const data = await resp.json();
-        setProductsData(data.result);
-        setLoading(false);
-        if(resp.status === 200){
-            setProductByApi(data.result);
-            setProductSelected(data.result[1]);
+    const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({x: 0, y: 0});
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getProduct");
+                const data = await resp.json();
+                setProductsData(data.result);
+                setLoading(false);
+                if (resp.status === 200) {
+                    setProductByApi(data.result);
+                    setProductSelected(data.result[1]);
+                }
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
-      } catch (error) {
-        console.error("Error al obtener los productos:", error);
-      }
-    };
-    
-    getProductView();
-  }, []);
+        };
+
+        getProductView();
+    }, []);
 
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
-    
-        const productWithGrid = { ...product, id_product: selectedGridId };
+
+        const productWithGrid = {...product, id_product: selectedGridId};
+
+        // Actualizar el estado de `grids` con el nuevo producto seleccionado
         setGrids((prevGrids) => {
             const updatedGrids = prevGrids.map((grid) =>
-                grid.id === selectedGridId ? { ...grid, product: productWithGrid } : grid
+                grid.id === selectedGridId ? {...grid, product: productWithGrid} : grid
             );
             return updatedGrids;
         });
-    
+
+        // Actualizar el estado de `selectedProducts` con el nuevo producto
         setSelectedProducts((prev) => {
+            // Filtrar el producto que estaba previamente en `selectedGridId` si existía
             const newProducts = prev.filter((p) => p.id_product !== selectedGridId);
+            // Añadir el nuevo producto seleccionado al array de `selectedProducts`
             const updatedProducts = [...newProducts, productWithGrid];
             return updatedProducts;
         });
+
+        // Ocultar el grid de selección después de asignar el producto
+        setShowProducts(false);
     };
     const handleRemoveProduct = (productId: number) => {
         setSelectedProducts((prevProducts) => {
@@ -82,15 +96,16 @@ export default function HomePage() {
         });
         setGrids((prevGrids) => {
             const updatedGrids = prevGrids.map((grid) =>
-                grid.product && grid.product.id_product === productId ? { ...grid, product: null } : grid
+                grid.product && grid.product.id_product === productId ? {...grid, product: null} : grid
             );
             return updatedGrids;
         });
         setShowProducts(false);
     };
 
-    const handleCopyProduct = (product: ProductTypes) => {
-        setCopiedProduct(product);
+    const handleCopyProduct = () => {
+        console.log()
+      //  setCopiedProduct(product);
     };
 
     const handlePasteProduct = () => {
@@ -99,41 +114,59 @@ export default function HomePage() {
 
     const handleChangeProduct = (productId: number) => {
         // Encontrar el producto y su grid actual
-        const productToMove = selectedProducts.find(p => p.id_product === productId);
-        if (productToMove && productToMove.id_product) {
-            setMoveMode({
-                active: true,
-                productId: productId,
-                sourceGridId: productToMove.id_product
-            });
-            // Mostrar mensaje al usuario
-            console.log({
-                title: "Modo de movimiento activado",
-                description: "Selecciona el grid destino para mover el producto",
-                status: "info",
-                duration: 3000,
-            });
-            setShowProducts(false); // Ocultar el panel de productos si está visible
-        }
+
+        // const productToMove = selectedProducts.find(p => p.id_product === productId);
+        // updateProductoA(productToMove);
+        // if (productToMove && productToMove.id_product) {
+        //     setMoveMode({
+        //         active: true,
+        //         productId: productId,
+        //         sourceGridId: productToMove.id_product
+        //     });
+        //     // Mostrar mensaje al usuario
+        //     console.log({
+        //         title: "Modo de movimiento activado",
+        //         description: "Selecciona el grid destino para mover el producto",
+        //         status: "info",
+        //         duration: 3000,
+        //     });
+        //     setShowProducts(false);
+        // }
+
     };
 
-
-    const handleProductMove = (targetGridId: number) => {
+    
+    const handleProductMove = (targetGridId: number) => {        
         if (!moveMode) return;
+        if (productoA.id_product !== targetGridId) {            
+            // Encuentra el índice del producto en `selectedProducts` que coincide con `targetGridId`
+            const elementIndex = selectedProducts.findIndex((p: ProductTypes | null) => p?.id_product === targetGridId);            
+            if (elementIndex !== -1) {
+                // Actualiza `productoB` con el producto encontrado en `targetGridId`
+                updateProductoB(selectedProducts[elementIndex]);
+                // Intercambia los `id_product` entre `productoA` y `productoB`
+                const tempGridId = productoA.id_product;
+                productoA.id_product = productoB.id_product;
+                productoB.id_product = tempGridId;
+                // Actualiza `selectedProducts` usando `setSelectedProducts` para reflejar el intercambio
+                setSelectedProducts((prevProducts) => {
+                    // Crear una copia de `prevProducts`
+                    const updatedProducts = [...prevProducts];
 
-        setSelectedProducts(prevProducts => {
-            return prevProducts.map(product => {
-                if (product.id_product=== moveMode.productId) {
-                    // Actualizar el gridId del producto que se está moviendo
-                    return { ...product, id_product: targetGridId };
-                }
-                if (product.id_product === targetGridId) {
-                    // Si hay un producto en el grid destino, moverlo al grid origen
-                    return { ...product, id: moveMode.sourceGridId };
-                }
-                return product;
-            });
-        });
+                    // Actualiza el producto en el índice de `targetGridId` con `productoB`
+                    updatedProducts[elementIndex] = {...productoB};
+
+                    // Encuentra el índice de `productoA` en `updatedProducts` y actualízalo
+                    const sourceIndex = updatedProducts.findIndex((p: ProductTypes | null) => p?.id_product === productoB.id_product);
+                    if (sourceIndex !== -1) {
+                        updatedProducts[sourceIndex] = {...productoA};
+                    }
+                    return updatedProducts;
+                });
+
+          
+            }
+        }
 
         // Resetear el modo de movimiento
         setMoveMode(null);
@@ -144,33 +177,36 @@ export default function HomePage() {
             status: "success",
             duration: 2000,
         });
+        resetProductoA();
+        resetProductoB();
     };
-
-    const handleGridSelect = (gridId: number, categoryGridSelected:categoriesInterface, event: React.MouseEvent) => {
+    const handleGridSelect = (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-        
+        console.log(mousePosition);
         // Verificar si el grid ya tiene un producto
-        setMousePosition({ x: event.clientX, y: event.clientY });
+        setMousePosition({x: event.clientX, y: event.clientY});
 
         const gridHasProduct = selectedProducts.some(product => product.id_product === gridId);
-
+        
+        //realiza copiado de elemento 
         if (copiedProduct && !selectedProducts.some(product => product.id_product === gridId)) {
-            const productWithNewGrid = { ...copiedProduct, id_product: gridId };
+            const productWithNewGrid = {...copiedProduct, id_product: gridId};
             setSelectedProducts(prev => [...prev, productWithNewGrid]);
             setGrids(prevGrids => {
-                return prevGrids.map(grid => 
-                    grid.id === gridId ? { ...grid, product: productWithNewGrid } : grid
+                return prevGrids.map(grid =>
+                    grid.id === gridId ? {...grid, product: productWithNewGrid} : grid
                 );
             });
             return;
         }
-        
+       
         if (moveMode?.active) {
-            handleProductMove(gridId);
-        } else if (gridHasProduct) {
+        //    handleProductMove(gridId);
+      
+        } else if (gridHasProduct && productoShowForce ) {
             // Si el grid tiene un producto, mostrar el modal de edición
             const selectedProduct = selectedProducts.find(product => product.id_product === gridId);
             setProductSelected(selectedProduct);
@@ -182,8 +218,7 @@ export default function HomePage() {
             setShowProducts(true);
         }
     };
-
-
+    
 
     const commonGridProps = {
         onProductSelect: handleGridSelect,
@@ -199,21 +234,30 @@ export default function HomePage() {
 
     };
 
+    const handleChangeProductForOther = (gridId : number) => {
+        productoShowForce = false;        
+        console.log(productoShowForce,'valor del bool', showProducts , gridId)
+        setIsModalOpen(false);
+        setSelectedGridId(gridId);
+        setShowProducts(true);
+    
+    }
     const handleCategorySelect = (category: string) => {
         setCategory(category);
     };
 
     return (
-        <div className="flex flex-col" >
+        <div className="flex flex-col">
             <div>
-                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                 {category && <ProductContainer category={category} setCategory={setCategory} />}
+                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category}/>
+                {category && <ProductContainer category={category} setCategory={setCategory}/>}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
-                <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                <div
+                    className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
                     {/* @ts-ignore */}
 
-                     <ImageGrid {...commonGridProps}/>
+                    <ImageGrid {...commonGridProps}/>
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
@@ -223,10 +267,10 @@ export default function HomePage() {
                         <div className="flex flex-col items-center w-full relative">
                             <motion.div
                                 key={currentPage}
-                                initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                transition={{ duration: 0.5 }}
+                                initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                animate={{x: 0, opacity: 1}}
+                                exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                transition={{duration: 0.5}}
                                 className="w-full relative"
                             >
                                 {currentPage === 2 && (
@@ -266,40 +310,41 @@ export default function HomePage() {
 
             {/* Mostrar / Ocultar productos */}
             <div className="flex ">
-    {showProducts && mousePosition && (
-        selectedProducts.some(product => product.id_product === selectedGridId) ? (
-            <ModalEditProduct 
-                isOpen={isModalOpen} 
-                setIsOpen={setIsModalOpen} 
-                product={productSelected as ProductTypes} 
-                GridID={selectedGridId || 0} 
-                SaveFC={()=>(console.log("save"))} 
-                ChangeFC={()=>(console.log("change"))} 
-                DeleteFC={()=>(console.log("Delete"))}
-            />
-        ) : (
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                exit={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute"
-                style={{
-                    top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                    left: Math.min(mousePosition.x + 40, window.innerWidth - 600)
-                }}
-            >
-                <GridProduct
-                    productsData={productsData}
-                    loading={loading}
-                    onProductSelect={handleProductSelect}
-                    onHideProducts={() => setShowProducts(false)}
-                />
-            </motion.div>
-        )
-    )}
-</div>
-            
+                {isModalOpen && productSelected && (
+                    <ModalEditProduct
+                        isOpen={isModalOpen}
+                        setIsOpen={setIsModalOpen}
+                        product={productSelected as ProductTypes}
+                        GridID={selectedGridId || 0}
+                        SaveFC={() => console.log("save")}
+                        ChangeFC={(productId: number) => handleChangeProductForOther(productId)}
+                        DeleteFC={(productId: number) => handleRemoveProduct(productId)}
+                    />
+                )}
+
+                {/* Mostrar el panel de selección de productos (GridProduct) */}
+                {showProducts && mousePosition && (
+                    <motion.div
+                        initial={{opacity: 0, y: 20}}
+                        exit={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{duration: 0.5}}
+                        className="absolute"
+                        style={{
+                            top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                            left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
+                        }}
+                    >
+                        <GridProduct
+                            productsData={productsData}
+                            loading={loading}
+                            onProductSelect={handleProductSelect}
+                            onHideProducts={() => setShowProducts(false)}
+                        />
+                    </motion.div>
+                )}
+            </div>
+
         </div>
     );
 };
@@ -312,20 +357,20 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
-    loading,
-    onProductSelect,
-    onHideProducts,
-    productsData
-}) => {
+                                                     loading,
+                                                     onProductSelect,
+                                                     onHideProducts,
+                                                     productsData
+                                                 }) => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = productsData?.filter((product) =>
         product.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        
     );
 
     return (
-        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+        <div
+            className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
             <div className="flex justify-between bg-white sticky top-0 z-10 sm:grid sm:grid-cols-2">
                 <input
                     type="text"
