@@ -1,25 +1,26 @@
 "use client"
-import {CardShow} from "./components/card";
-import {useEffect, useState} from "react";
+import { CardShow, CardShowSide } from "./components/card";
+import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
 import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
-import {motion} from "framer-motion"; // Para animaciones
+import { motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
+import SendModal from "./components/sendModal";
 
 
 export default function HomePage() {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const {selectedProducts, setSelectedProducts } = useProductContext();
+    const { selectedProducts, setSelectedProducts, isSendModalOpen } = useProductContext();
     const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
-    const [grids, setGrids] = useState<{id:number, product: ProductTypes | null}[]>([]);
+    const [grids, setGrids] = useState<{ id: number, product: ProductTypes | null }[]>([]);
     const { currentPage } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
@@ -33,34 +34,36 @@ export default function HomePage() {
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
-    const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
+    const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
 
-    
-  useEffect(() => {
-    const getProductView = async () => {
-      try {
-        const resp = await fetch("/api/apiMongo/getProduct");
-        const data = await resp.json();
-        setProductsData(data.result);
-        setLoading(false);
-        if(resp.status === 200){
-            setProductByApi(data.result);
-            setProductSelected(data.result[1]);
+
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getProduct");
+                const data = await resp.json();
+                setProductsData(data.result);
+                setLoading(false);
+                if (resp.status === 200) {
+                    setProductByApi(data.result);
+                    setProductSelected(data.result[1]);
+                }
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
-      } catch (error) {
-        console.error("Error al obtener los productos:", error);
-      }
-    };
-    
-    getProductView();
-  }, []);
+        };
+
+        getProductView();
+    }, []);
+
+    console.log(productsData, "productsData")
 
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
-    
+
         const productWithGrid = { ...product, id_product: selectedGridId };
         setGrids((prevGrids) => {
             const updatedGrids = prevGrids.map((grid) =>
@@ -68,7 +71,7 @@ export default function HomePage() {
             );
             return updatedGrids;
         });
-    
+
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_product !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
@@ -123,7 +126,7 @@ export default function HomePage() {
 
         setSelectedProducts(prevProducts => {
             return prevProducts.map(product => {
-                if (product.id_product=== moveMode.productId) {
+                if (product.id_product === moveMode.productId) {
                     // Actualizar el gridId del producto que se está moviendo
                     return { ...product, id_product: targetGridId };
                 }
@@ -146,12 +149,12 @@ export default function HomePage() {
         });
     };
 
-    const handleGridSelect = (gridId: number, categoryGridSelected:categoriesInterface, event: React.MouseEvent) => {
+    const handleGridSelect = (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-        
+
         // Verificar si el grid ya tiene un producto
         setMousePosition({ x: event.clientX, y: event.clientY });
 
@@ -161,13 +164,13 @@ export default function HomePage() {
             const productWithNewGrid = { ...copiedProduct, id_product: gridId };
             setSelectedProducts(prev => [...prev, productWithNewGrid]);
             setGrids(prevGrids => {
-                return prevGrids.map(grid => 
+                return prevGrids.map(grid =>
                     grid.id === gridId ? { ...grid, product: productWithNewGrid } : grid
                 );
             });
             return;
         }
-        
+
         if (moveMode?.active) {
             handleProductMove(gridId);
         } else if (gridHasProduct) {
@@ -206,14 +209,14 @@ export default function HomePage() {
     return (
         <div className="flex flex-col" >
             <div>
-                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                 {category && <ProductContainer category={category} setCategory={setCategory} />}
+                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
+                {category && <ProductContainer category={category} setCategory={setCategory} />}
             </div>
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
                 <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
                     {/* @ts-ignore */}
 
-                     <ImageGrid {...commonGridProps}/>
+                    <ImageGrid {...commonGridProps} />
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
@@ -233,7 +236,7 @@ export default function HomePage() {
                                     <div className=" flex flex-col justify-center items-center w-full border-r-2">
                                         {/* @ts-ignore */}
 
-                                        <ImageGrid2 {...commonGridProps}/>
+                                        <ImageGrid2 {...commonGridProps} />
 
 
                                         <p className="text-black text-md">Pagina {currentPage} </p>
@@ -243,7 +246,7 @@ export default function HomePage() {
                                     <div className="flex flex-col justify-center items-center w-full border-r-2">
                                         {/* @ts-ignore */}
 
-                                        <ImageGrid3 {...commonGridProps}/>
+                                        <ImageGrid3 {...commonGridProps} />
 
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
@@ -252,13 +255,14 @@ export default function HomePage() {
                                     <div className="flex flex-col justify-center items-center w-full border-r-2">
                                         {/* @ts-ignore */}
 
-                                        <ImageGrid4 {...commonGridProps}/>
+                                        <ImageGrid4 {...commonGridProps} />
 
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
 
                             </motion.div>
+                            {isSendModalOpen && <SendModal />}
                         </div>
                     </div>
                 </div>
@@ -266,40 +270,41 @@ export default function HomePage() {
 
             {/* Mostrar / Ocultar productos */}
             <div className="flex ">
-    {showProducts && mousePosition && (
-        selectedProducts.some(product => product.id_product === selectedGridId) ? (
-            <ModalEditProduct 
-                isOpen={isModalOpen} 
-                setIsOpen={setIsModalOpen} 
-                product={productSelected as ProductTypes} 
-                GridID={selectedGridId || 0} 
-                SaveFC={()=>(console.log("save"))} 
-                ChangeFC={()=>(console.log("change"))} 
-                DeleteFC={()=>(console.log("Delete"))}
-            />
-        ) : (
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                exit={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute"
-                style={{
-                    top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                    left: Math.min(mousePosition.x + 40, window.innerWidth - 600)
-                }}
-            >
-                <GridProduct
-                    productsData={productsData}
-                    loading={loading}
-                    onProductSelect={handleProductSelect}
-                    onHideProducts={() => setShowProducts(false)}
-                />
-            </motion.div>
-        )
-    )}
-</div>
-            
+                {showProducts && mousePosition && (
+                    selectedProducts.some(product => product.id_product === selectedGridId) ? (
+                        <ModalEditProduct
+                            isOpen={isModalOpen}
+                            setIsOpen={setIsModalOpen}
+                            product={productSelected as ProductTypes}
+                            GridID={selectedGridId || 0}
+                            SaveFC={() => (console.log("save"))}
+                            ChangeFC={() => (console.log("change"))}
+                            DeleteFC={() => (console.log("Delete"))}
+                        />
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="absolute"
+                            style={{
+                                top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                                left: Math.min(mousePosition.x + 40, window.innerWidth - 600)
+                            }}
+                        >
+                            <GridProduct
+                                productsData={productsData}
+                                loading={loading}
+                                onProductSelect={handleProductSelect}
+                                onHideProducts={() => setShowProducts(false)}
+                                category={category}
+                            />
+                        </motion.div>
+                    )
+                )}
+            </div>
+
         </div>
     );
 };
@@ -309,24 +314,41 @@ interface GridProductProps {
     loading: boolean;
     onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
+    category: string | null;
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
     loading,
     onProductSelect,
-    onHideProducts,
-    productsData
+    category,
+    productsData,
 }) => {
     const [searchTerm, setSearchTerm] = useState("");
+    const [, setCategory] = useState(category || "");
+    const [activeTab, setActiveTab] = useState('all');
 
+    
     const filteredProducts = productsData?.filter((product) =>
         product.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        
+
     );
 
     return (
-        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
-            <div className="flex justify-between bg-white sticky top-0 z-10 sm:grid sm:grid-cols-2">
+        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+            <div className="flex  bg-white sticky top-0 z-10 items-center justify-between">
+                <div>
+                    <select
+                        className=" text-black w-fit font-bold"
+                        onChange={(e) => setCategory(e.target.value)} >
+                        <option value="specials">Specials</option>
+                        <option value="bakery">Bakery </option>
+                        <option value="deli">Deli</option>
+                        <option value="dairy">Dairy</option>
+                        <option value="frozen">Frozen </option>
+                        <option value="grocery">Grocery</option>
+                        <option value="meat">Meat</option>
+                    </select>
+                </div>
                 <input
                     type="text"
                     placeholder="Buscar productos..."
@@ -334,31 +356,41 @@ const GridProduct: React.FC<GridProductProps> = ({
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className=" p-2 border rounded text-black m-4 sm:text-sm"
                 />
-                <button
-                    onClick={onHideProducts}
-                    className="bg-red-500 text-white p-2 rounded m-4 sm:text-sm"
-                >
-                    Ocultar Productos
-                </button>
-            </div>
-            {loading ? (
-                <div className="flex justify-center items-center ">
-                    <Lottie animationData={LoadingLottie}/>
+                <div className="flex gap-2 mb-1">
+                    <button
+                        className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
+                            }`}
+                        onClick={() => setActiveTab('all')}
+                    >
+                        All Products
+                    </button>
+                    <button
+                        className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
+                            }`}
+                        onClick={() => setActiveTab('circular')}
+                    >
+                        En Circular
+                    </button>
                 </div>
-            ) : filteredProducts.length > 0 ? (
-                <div className="flex flex-col h-fit overflow-y-auto space-y-4">
-                    {filteredProducts.map((product) => (
-                        <CardShow
-                            product={product}
-                            key={product.id_product}
-                            onProductSelect={onProductSelect}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <p>No se encontraron productos.</p>
-            )}
 
+
+            </div>
+            <div className="flex flex-wrap gap-4">
+                            {loading ? (
+                                Array.from({length: 8}).map((_, index) => (
+                                    <div key={index} className=" bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
+                                        <div className="w-28 h-28  flex items-center justify-center "></div>
+                                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                                    </div>
+                                ))
+                            ) : (
+                                filteredProducts.map((product) => (
+                                    <CardShowSide key={product.id_product} product={product} />
+                                    
+                                ))
+                            )}
+                        </div>
         </div>
     );
 };

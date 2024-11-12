@@ -13,6 +13,8 @@ interface ProductContextType {
   setProductArray: (product: ProductTypes[]) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
+  isSendModalOpen: boolean;
+  setIsSendModalOpen: (isOpen: boolean) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -22,10 +24,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
   const [currentPage, setCurrentPage] = useState(2); 
-
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
   return (
-        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray }}>
+        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, isSendModalOpen, setIsSendModalOpen }}>
       {children}
     </ProductContext.Provider>
   );
