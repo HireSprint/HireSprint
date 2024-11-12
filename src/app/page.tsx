@@ -5,24 +5,24 @@ import Lottie from "lottie-react";
 import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
-import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
-import { useProductContext } from "./context/productContext";
+import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "./components/imageGrid";
+import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
-import { getCategory } from "./api/category/categories";
+import {getCategory} from "./api/category/categories";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { ProductTypes } from "@/types/product";
-import { categoriesInterface } from "@/types/category";
-import { CategoryProvider } from "./context/categoryContext";
+import {ProductTypes} from "@/types/product";
+import {categoriesInterface} from "@/types/category";
+import {CategoryProvider} from "./context/categoryContext";
 
 
 export default function HomePage() {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const {selectedProducts, setSelectedProducts } = useProductContext();
+    const {selectedProducts, setSelectedProducts} = useProductContext();
     const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
-    const [grids, setGrids] = useState<{id:number, product: ProductTypes | null}[]>([]);
-    const { currentPage } = useProductContext();
+    const [grids, setGrids] = useState<{ id: number, product: ProductTypes | null }[]>([]);
+    const {currentPage} = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
@@ -35,49 +35,55 @@ export default function HomePage() {
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
-    const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+    const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({x: 0, y: 0});
     const [categoriesList, setCategories] = useState<categoriesInterface[]>([]);
 
 
-
-    
-  useEffect(() => {
-    const getProductView = async () => {
-      try {
-        const resp = await fetch("/api/apiMongo/getProduct");
-        const data = await resp.json();
-        setProductsData(data.result);
-        setLoading(false);
-        if(resp.status === 200){
-            setProductByApi(data.result);
-            setProductSelected(data.result[1]);
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getProduct");
+                const data = await resp.json();
+                setProductsData(data.result);
+                setLoading(false);
+                if (resp.status === 200) {
+                    setProductByApi(data.result);
+                    setProductSelected(data.result[1]);
+                }
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
-      } catch (error) {
-        console.error("Error al obtener los productos:", error);
-      }
-    };
-    
-    getProductView();
-  }, []);
+        };
+
+        getProductView();
+    }, []);
 
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
-    
-        const productWithGrid = { ...product, id_product: selectedGridId };
+
+        const productWithGrid = {...product, id_product: selectedGridId};
+
+        // Actualizar el estado de `grids` con el nuevo producto seleccionado
         setGrids((prevGrids) => {
             const updatedGrids = prevGrids.map((grid) =>
-                grid.id === selectedGridId ? { ...grid, product: productWithGrid } : grid
+                grid.id === selectedGridId ? {...grid, product: productWithGrid} : grid
             );
             return updatedGrids;
         });
-    
+
+        // Actualizar el estado de `selectedProducts` con el nuevo producto
         setSelectedProducts((prev) => {
+            // Filtrar el producto que estaba previamente en `selectedGridId` si existía
             const newProducts = prev.filter((p) => p.id_product !== selectedGridId);
+            // Añadir el nuevo producto seleccionado al array de `selectedProducts`
             const updatedProducts = [...newProducts, productWithGrid];
             return updatedProducts;
         });
+
+        // Ocultar el grid de selección después de asignar el producto
+        setShowProducts(false);
     };
     const handleRemoveProduct = (productId: number) => {
         setSelectedProducts((prevProducts) => {
@@ -86,7 +92,7 @@ export default function HomePage() {
         });
         setGrids((prevGrids) => {
             const updatedGrids = prevGrids.map((grid) =>
-                grid.product && grid.product.id_product === productId ? { ...grid, product: null } : grid
+                grid.product && grid.product.id_product === productId ? {...grid, product: null} : grid
             );
             return updatedGrids;
         });
@@ -127,13 +133,13 @@ export default function HomePage() {
 
         setSelectedProducts(prevProducts => {
             return prevProducts.map(product => {
-                if (product.id_product=== moveMode.productId) {
+                if (product.id_product === moveMode.productId) {
                     // Actualizar el gridId del producto que se está moviendo
-                    return { ...product, id_product: targetGridId };
+                    return {...product, id_product: targetGridId};
                 }
                 if (product.id_product === targetGridId) {
                     // Si hay un producto en el grid destino, moverlo al grid origen
-                    return { ...product, id: moveMode.sourceGridId };
+                    return {...product, id: moveMode.sourceGridId};
                 }
                 return product;
             });
@@ -150,28 +156,28 @@ export default function HomePage() {
         });
     };
 
-    const handleGridSelect = (gridId: number, categoryGridSelected:categoriesInterface, event: React.MouseEvent) => {
+    const handleGridSelect = (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-        
+
         // Verificar si el grid ya tiene un producto
-        setMousePosition({ x: event.clientX, y: event.clientY });
+        setMousePosition({x: event.clientX, y: event.clientY});
 
         const gridHasProduct = selectedProducts.some(product => product.id_product === gridId);
 
         if (copiedProduct && !selectedProducts.some(product => product.id_product === gridId)) {
-            const productWithNewGrid = { ...copiedProduct, id_product: gridId };
+            const productWithNewGrid = {...copiedProduct, id_product: gridId};
             setSelectedProducts(prev => [...prev, productWithNewGrid]);
             setGrids(prevGrids => {
-                return prevGrids.map(grid => 
-                    grid.id === gridId ? { ...grid, product: productWithNewGrid } : grid
+                return prevGrids.map(grid =>
+                    grid.id === gridId ? {...grid, product: productWithNewGrid} : grid
                 );
             });
             return;
         }
-        
+
         if (moveMode?.active) {
             handleProductMove(gridId);
         } else if (gridHasProduct) {
@@ -186,7 +192,6 @@ export default function HomePage() {
             setShowProducts(true);
         }
     };
-
 
 
     const commonGridProps = {
@@ -208,15 +213,27 @@ export default function HomePage() {
         setCategory(category);
     };
 
+    let productoShowForce: boolean = true;
+
+    const handleChangeProductForOther = (gridId: number) => {
+        productoShowForce = false;
+        console.log(productoShowForce, 'valor del bool', showProducts, gridId)
+        setIsModalOpen(false);
+        setSelectedGridId(gridId);
+        setShowProducts(true);
+
+    }
+    
     return (
         <CategoryProvider>
-            <div className="flex flex-col" >
+            <div className="flex flex-col">
                 <div>
-                    <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                    {category && <ProductContainer category={category} setCategory={setCategory} />}
+                    <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category}/>
+                    {category && <ProductContainer category={category} setCategory={setCategory}/>}
                 </div>
                 <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
-                    <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                    <div
+                        className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
                         {/* @ts-ignore */}
 
                         <ImageGrid {...commonGridProps}/>
@@ -229,10 +246,10 @@ export default function HomePage() {
                             <div className="flex flex-col items-center w-full relative">
                                 <motion.div
                                     key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
                                     className="w-full relative"
                                 >
                                     {currentPage === 2 && (
@@ -272,40 +289,41 @@ export default function HomePage() {
 
                 {/* Mostrar / Ocultar productos */}
                 <div className="flex ">
-        {showProducts && mousePosition && (
-            selectedProducts.some(product => product.id_product === selectedGridId) ? (
-                <ModalEditProduct 
-                    isOpen={isModalOpen} 
-                    setIsOpen={setIsModalOpen} 
-                    product={productSelected as ProductTypes} 
-                    GridID={selectedGridId || 0} 
-                    SaveFC={()=>(console.log("save"))} 
-                    ChangeFC={()=>(console.log("change"))} 
-                    DeleteFC={()=>(console.log("Delete"))}
-                />
-            ) : (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute"
-                    style={{
-                        top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                        left: Math.min(mousePosition.x + 40, window.innerWidth - 600)
-                    }}
-                >
-                    <GridProduct
-                        productsData={productsData}
-                        loading={loading}
-                        onProductSelect={handleProductSelect}
-                        onHideProducts={() => setShowProducts(false)}
-                    />
-                </motion.div>
-            )
-        )}
-    </div>
-                
+                    {isModalOpen && productSelected && (
+                        <ModalEditProduct
+                            isOpen={isModalOpen}
+                            setIsOpen={setIsModalOpen}
+                            product={productSelected as ProductTypes}
+                            GridID={selectedGridId || 0}
+                            SaveFC={() => console.log("save")}
+                            ChangeFC={(productId: number) => handleChangeProductForOther(productId)}
+                            DeleteFC={(productId: number) => handleRemoveProduct(productId)}
+                        />
+                    )}
+
+                    {/* Mostrar el panel de selección de productos (GridProduct) */}
+                    {showProducts && mousePosition && (
+                        <motion.div
+                            initial={{opacity: 0, y: 20}}
+                            exit={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.5}}
+                            className="absolute"
+                            style={{
+                                top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                                left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
+                            }}
+                        >
+                            <GridProduct
+                                productsData={productsData}
+                                loading={loading}
+                                onProductSelect={handleProductSelect}
+                                onHideProducts={() => setShowProducts(false)}
+                            />
+                        </motion.div>
+                    )}
+                </div>
+
             </div>
         </CategoryProvider>
     );
@@ -319,20 +337,20 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
-    loading,
-    onProductSelect,
-    onHideProducts,
-    productsData
-}) => {
+                                                     loading,
+                                                     onProductSelect,
+                                                     onHideProducts,
+                                                     productsData
+                                                 }) => {
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = productsData?.filter((product) =>
         product.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        
     );
 
     return (
-        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+        <div
+            className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
             <div className="flex justify-between bg-white sticky top-0 z-10 sm:grid sm:grid-cols-2">
                 <input
                     type="text"

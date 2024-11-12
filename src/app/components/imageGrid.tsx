@@ -136,17 +136,31 @@ export const ImageGrid = ({
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
-        const selectedProduct = selectedProducts.find(p => p.id_product === cellId);
-        if (selectedProduct) {
-            setContextMenu({
-                visible: true,
-                x: e.clientX,
-                y: e.clientY,
-                productId: cellId
-            });
-        }
-    };
 
+        // Coordenadas iniciales del clic derecho en relación a la ventana
+        let posX = e.pageX;
+        let posY = e.pageY;
+
+        // Ancho y alto estimados del menú contextual
+        const menuWidth = 150; // Ancho estimado del menú contextual
+        const menuHeight = 200; // Alto estimado del menú contextual
+
+        // Ajustar las coordenadas si el menú se sale de la pantalla
+        if (posX + menuWidth > window.innerWidth) {
+            posX = window.innerWidth - menuWidth - 10; // Resta 10px para que no quede pegado al borde
+        }
+        if (posY + menuHeight > window.innerHeight) {
+            posY = window.innerHeight - menuHeight - 10; // Resta 10px para que no quede pegado al borde
+        }
+
+        // Establecer el estado del menú contextual con las coordenadas ajustadas
+        setContextMenu({
+            visible: true,
+            x: posX - 125,
+            y: posY - 100,
+            productId: cellId,
+        });
+    };
 
 
     const handleGridSelect = (
@@ -183,7 +197,7 @@ export const ImageGrid = ({
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
-                        onContextMenu={handleContextMenu}
+                    //    onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
@@ -411,7 +425,7 @@ export const ImageGrid2 = ({
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
-                        onContextMenu={handleContextMenu}
+                     //   onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
@@ -682,7 +696,7 @@ export const ImageGrid3 = ({
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
-                        onContextMenu={handleContextMenu}
+                        //onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
@@ -904,7 +918,7 @@ export const ImageGrid4 = ({
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
-                        onContextMenu={handleContextMenu}
+                     //   onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
