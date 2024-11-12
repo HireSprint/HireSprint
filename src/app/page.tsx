@@ -16,11 +16,9 @@ import {
 } from "./components/imageGrid";
 import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
-import { getCategory } from "./api/category/categories";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { ProductTypes } from "@/types/product";
-import { categoriesInterface } from "@/types/category";
-import { CategoryProvider } from "./context/categoryContext";
+import {ProductTypes} from "@/types/product";
+import {categoriesInterface} from "@/types/category";
 
 
 export default function HomePage() {
@@ -44,23 +42,21 @@ export default function HomePage() {
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
-    const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-    const [categoriesList, setCategories] = useState<categoriesInterface[]>([]);
-
-
-
-    
-  useEffect(() => {
-    const getProductView = async () => {
-      try {
-        const resp = await fetch("/api/apiMongo/getProduct");
-        const data = await resp.json();
-        setProductsData(data.result);
-        setLoading(false);
-        if(resp.status === 200){
-            setProductByApi(data.result);
-            setProductSelected(data.result[1]);
+    const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({x: 0, y: 0});
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getProduct");
+                const data = await resp.json();
+                setProductsData(data.result);
+                setLoading(false);
+                if (resp.status === 200) {
+                    setProductByApi(data.result);
+                    setProductSelected(data.result[1]);
+                }
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
         };
 
@@ -230,7 +226,6 @@ export default function HomePage() {
         onRemoveProduct: handleRemoveProduct,
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
-        categoriesList: categoriesList,
         products: productsData,
         isCellOccupied: selectedProducts.some(product => product.id_product === selectedGridId),
         onCopyProduct: handleCopyProduct,
@@ -252,66 +247,66 @@ export default function HomePage() {
     };
 
     return (
-        <CategoryProvider>
-            <div className="flex flex-col" >
-                <div>
-                    <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                    {category && <ProductContainer category={category} setCategory={setCategory} />}
+        <div className="flex flex-col">
+            <div>
+                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category}/>
+                {category && <ProductContainer category={category} setCategory={setCategory}/>}
+            </div>
+            <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
+                <div
+                    className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                    {/* @ts-ignore */}
+
+                    <ImageGrid {...commonGridProps}/>
+                    <p className="text-black text-md">Pagina 1</p>
                 </div>
-                <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
-                    <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
-                        {/* @ts-ignore */}
+                <div className="scroll-container flex flex-col h-fit items-center w-full">
+                    {/* Contenedor de la cuadrícula centrado */}
+                    <div className=" flex justify-center items-center w-full">
+                        {/* Contenedor para botones y cuadrícula */}
+                        <div className="flex flex-col items-center w-full relative">
+                            <motion.div
+                                key={currentPage}
+                                initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                animate={{x: 0, opacity: 1}}
+                                exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                transition={{duration: 0.5}}
+                                className="w-full relative"
+                            >
+                                {currentPage === 2 && (
+                                    <div className=" flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
 
-                        <ImageGrid {...commonGridProps}/>
-                        <p className="text-black text-md">Pagina 1</p>
-                    </div>
-                    <div className="scroll-container flex flex-col h-fit items-center w-full">
-                        {/* Contenedor de la cuadrícula centrado */}
-                        <div className=" flex justify-center items-center w-full">
-                            {/* Contenedor para botones y cuadrícula */}
-                            <div className="flex flex-col items-center w-full relative">
-                                <motion.div
-                                    key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="w-full relative"
-                                >
-                                    {currentPage === 2 && (
-                                        <div className=" flex flex-col justify-center items-center w-full border-r-2">
-                                            {/* @ts-ignore */}
-
-                                            <ImageGrid2 {...commonGridProps}/>
+                                        <ImageGrid2 {...commonGridProps}/>
 
 
-                                            <p className="text-black text-md">Pagina {currentPage} </p>
-                                        </div>
-                                    )}
-                                    {currentPage === 3 && (
-                                        <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                            {/* @ts-ignore */}
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
+                                    </div>
+                                )}
+                                {currentPage === 3 && (
+                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
 
-                                            <ImageGrid3 {...commonGridProps}/>
+                                        <ImageGrid3 {...commonGridProps}/>
 
-                                            <p className="text-black text-md">Pagina {currentPage} </p>
-                                        </div>
-                                    )}
-                                    {currentPage === 4 && (
-                                        <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                            {/* @ts-ignore */}
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
+                                    </div>
+                                )}
+                                {currentPage === 4 && (
+                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
 
-                                            <ImageGrid4 {...commonGridProps}/>
+                                        <ImageGrid4 {...commonGridProps}/>
 
-                                            <p className="text-black text-md">Pagina {currentPage} </p>
-                                        </div>
-                                    )}
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
+                                    </div>
+                                )}
 
-                                </motion.div>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
                 </div>
+            </div>
 
             {/* Mostrar / Ocultar productos */}
             <div className="flex ">
