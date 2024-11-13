@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb' // Ajusta este valor según tus necesidades
+    }
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb' // Ajusta este valor según tus necesidades
+    },
+  },
     i18n: {
       locales: ['en', 'es'],
       defaultLocale: 'en',

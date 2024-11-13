@@ -10,17 +10,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
         }
 
+        // No enviar headers de Content-Type para que fetch maneje el FormData correctamente
         const resp = await fetch(`${process.env.API_URL}/createProduct`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(req.body)
+            body: req.body // Enviar el FormData directamente
         });
 
         if (!resp.ok) {
+            const errorData = await resp.json().catch(() => ({ message: resp.statusText }));
             return res.status(resp.status).json({ 
-                error: `Error en la respuesta de la API: ${resp.statusText}` 
+                error: errorData.message || `Error en la respuesta de la API: ${resp.statusText}` 
             });
         }
 
@@ -37,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err) {
         console.error(err);
         return res.status(500).json({ 
-            error: "Error interno del servidor" 
+            error: err instanceof Error ? err.message : "Error interno del servidor" 
         });
     }
-};
+}
