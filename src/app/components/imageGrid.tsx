@@ -192,6 +192,7 @@ export const ImageGrid = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
+                        isDragging={isDragging}
                     />
                 );
             })}
@@ -423,6 +424,7 @@ export const ImageGrid2 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
+                        isDragging={isDragging}
                     />
                 );
             })}
@@ -697,6 +699,7 @@ export const ImageGrid3 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
+                        isDragging={isDragging}
                     />
                 );
             })}
@@ -922,6 +925,7 @@ export const ImageGrid4 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
+                        isDragging={isDragging}
                     />
                 );
             })}
