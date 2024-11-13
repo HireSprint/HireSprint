@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { categoriesInterface } from "@/types/category";
-import { getCategory } from "../api/category/categories";
 
 interface CategoryContextType {
   categoriesData: categoriesInterface[];
@@ -19,19 +18,22 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoadingCategories, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const getProductView = async () => {
       try {
-        const data = await getCategory();
-        setCategories(data.result || []);
-      } catch (err) {
-        console.error("Error al obtener categories:", err);
-      } finally {
+        const resp = await fetch("/api/apiMongo/getCategories");
+        const data = await resp.json();
+        setCategories(data.result);
         setIsLoading(false);
+        if(resp.status === 200){
+            }
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
       }
     };
-
-    fetchCategories();
+    
+    getProductView();
   }, []);
+
 
   const getCategoryByName = (categoryName: string): categoriesInterface | undefined => {
     if (categoriesData.length == 0) return;

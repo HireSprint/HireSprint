@@ -10,25 +10,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
         }
 
-        const resp = await fetch(`${process.env.API_URL}/getCategories`, {
-            method: "GET",
+        const resp = await fetch(`${process.env.API_URL}/createProduct`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            body: JSON.stringify(req.body)
         });
+
         if (!resp.ok) {
             return res.status(resp.status).json({ 
                 error: `Error en la respuesta de la API: ${resp.statusText}` 
             });
         }
 
-        const respCategories = await resp.json();
+        const respProductos = await resp.json();
 
-        if (respCategories.status === 200) {
-            return res.status(200).json(respCategories);
+        if (respProductos.status === 200) {
+            return res.status(200).json(respProductos);
         } else {
             return res.status(400).json({ 
-                error: respCategories.message || "Error desconocido" 
+                error: respProductos.message || "Error desconocido" 
             });
         }
 
