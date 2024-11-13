@@ -19,6 +19,7 @@ interface ImageGridProps {
     onCopyProduct: (product: ProductTypes) => void;
     copiedProduct: ProductTypes | null;
     onPasteProduct: () => void;
+    onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
 }
 
 export const ImageGrid = ({
@@ -29,9 +30,11 @@ export const ImageGrid = ({
     isMoveModeActive,
     onCopyProduct,
     copiedProduct,
-    onPasteProduct
+    onPasteProduct,
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const [isDragging, setIsDragging] = useState(false);
 
     const initialGridCells: cellTypes[] = [
         //meats
@@ -172,7 +175,7 @@ export const ImageGrid = ({
 
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = productsData?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
@@ -187,6 +190,8 @@ export const ImageGrid = ({
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        onDragAndDropCell={onDragAndDropCell}
+                        setIsDragging={setIsDragging}
                     />
                 );
             })}
@@ -223,10 +228,11 @@ export const ImageGrid2 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
-    onPasteProduct
+    onPasteProduct,
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-
+    const [isDragging, setIsDragging] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -398,7 +404,7 @@ export const ImageGrid2 = ({
 
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority />
             {gridCells.map((cell) => {
 
@@ -415,6 +421,8 @@ export const ImageGrid2 = ({
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        onDragAndDropCell={onDragAndDropCell}
+                        setIsDragging={setIsDragging}
                     />
                 );
             })}
@@ -452,10 +460,11 @@ export const ImageGrid3 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
-    onPasteProduct
+    onPasteProduct,
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-
+    const [isDragging, setIsDragging] = useState(false);
     // + 5.7 top
 
     const initialGridCells: cellTypes[] = [
@@ -669,7 +678,7 @@ export const ImageGrid3 = ({
 
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page03.jpg" alt="PDF" width={470} height={460} priority />
             {gridCells.map((cell) => {
 
@@ -686,6 +695,8 @@ export const ImageGrid3 = ({
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        onDragAndDropCell={onDragAndDropCell}
+                        setIsDragging={setIsDragging}
                     />
                 );
             })}
@@ -722,10 +733,11 @@ export const ImageGrid4 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
-    onPasteProduct
+    onPasteProduct,
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-
+    const [isDragging, setIsDragging] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Meat
         { id: 4001, top: "top-[1.5%]", left: "left-[21.6%]", width: "26.3%", height: "8.2%", category: "Meat" },
@@ -891,7 +903,7 @@ export const ImageGrid4 = ({
 
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority />
             {gridCells.map((cell) => {
 
@@ -908,6 +920,8 @@ export const ImageGrid4 = ({
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        onDragAndDropCell={onDragAndDropCell}
+                        setIsDragging={setIsDragging}
                     />
                 );
             })}

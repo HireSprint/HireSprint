@@ -121,23 +121,40 @@ export default function HomePage() {
         }
     };
 
+    const handleDragAndDropGridCell = (gridCellToMove: any, stopDragEvent: MouseEvent) => {
+        const getCellId = (htmlElement:HTMLElement) => {
+            const htmlElementId = htmlElement && htmlElement.id
+            const cellId = htmlElementId && Number(htmlElementId.replace('grid-card-product-',''))
+            return cellId
+        }
+        
+        const findGridCellTarget = ( parentElement: any, count= 0 ) => {
+            if ( !parentElement ) return;
+            if ( parentElement.id && parentElement.id.includes('grid-card-product-') ) return parentElement
+            
+            if ( count <= 7 ) return findGridCellTarget( parentElement.parentNode, count += 1 )
+                else return 
+            
+        }
+        // id del grid que se quiere mover su contenido
+        const cellIdToMove = getCellId(gridCellToMove.node)
+        
+        // id del grid que al que se quiere mover el producto
+        const gridCellTarget = findGridCellTarget(stopDragEvent.target)
+        const cellIdTarget = getCellId(gridCellTarget)
+        
+        if (cellIdTarget && cellIdToMove) {
+            moveProduct(cellIdToMove, cellIdTarget)
+            setShowProducts(false); // Ocultar el panel de productos si está visible
+        }
+
+    };
+
 
     const handleProductMove = (targetGridId: number) => {
         if (!moveMode) return;
 
-        setSelectedProducts(prevProducts => {
-            return prevProducts.map(product => {
-                if (product.id_product=== moveMode.productId) {
-                    // Actualizar el gridId del producto que se está moviendo
-                    return { ...product, id_product: targetGridId };
-                }
-                if (product.id_product === targetGridId) {
-                    // Si hay un producto en el grid destino, moverlo al grid origen
-                    return { ...product, id: moveMode.sourceGridId };
-                }
-                return product;
-            });
-        });
+        moveProduct(moveMode.sourceGridId, targetGridId)
 
         // Resetear el modo de movimiento
         setMoveMode(null);
@@ -149,6 +166,25 @@ export default function HomePage() {
             duration: 2000,
         });
     };
+
+    const moveProduct = (sourceGridId: number, targetGridId: number) => {
+        
+        
+        setSelectedProducts(prevProducts => {
+            return prevProducts.map(product => {
+                if (product.id_product === sourceGridId) {
+                    // Actualizar el gridId del producto que se está moviendo
+                    return { ...product, id_product: targetGridId };
+                }
+                
+                if ( product.id_product === targetGridId) {
+                    // Si hay un producto en el grid destino, moverlo al grid origen
+                    return { ...product, id_product: sourceGridId };
+                }
+                return product;
+            });
+        });
+    }
 
     const handleGridSelect = (gridId: number, categoryGridSelected:categoriesInterface, event: React.MouseEvent) => {
         if (!event) {
@@ -200,7 +236,8 @@ export default function HomePage() {
         isCellOccupied: selectedProducts.some(product => product.id_product === selectedGridId),
         onCopyProduct: handleCopyProduct,
         copiedProduct: copiedProduct,
-        onPasteProduct: handlePasteProduct
+        onPasteProduct: handlePasteProduct,
+        onDragAndDropCell: handleDragAndDropGridCell
 
     };
 
