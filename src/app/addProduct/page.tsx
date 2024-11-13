@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useState } from "react"
-import { useForm, SubmitHandler, FieldValues, UseFormRegister, UseFormSetValue, FieldValues } from "react-hook-form"
+import { useForm, SubmitHandler, FieldValues, UseFormRegister, UseFormSetValue } from "react-hook-form"
 import { ProductTypes } from "@/types/product"
 import { categoriesInterface } from "@/types/category"
+import {any} from "prop-types";
 
 const AddProductPage = () => {
     const {
@@ -20,7 +21,7 @@ const AddProductPage = () => {
     useEffect(() => {
         const subscription = watch((value, { name }) => {
             if (name) {
-                console.log(`Campo ${name}:`, value[name]);
+                // console.log(`Campo ${name}:`, value[name]);
             }
         });
         return () => subscription.unsubscribe();
@@ -51,17 +52,17 @@ const AddProductPage = () => {
             // Campos básicos
             formData.append('name', data.name);
             formData.append('brand', data.brand);
-            formData.append('upc', data.upc);
-            formData.append('sku', data.sku);
+            formData.append('upc', String(data.upc));
+            formData.append('sku', String(data.sku));
             formData.append('price', '0');
             formData.append('sale_price', "0");
             formData.append('reg_price', '0');
             formData.append('unit_price', "0");
-            formData.append('size', data.size);
+            formData.append('size', String(data.size));
             formData.append('variety', JSON.stringify(["Fruits", "test"]));
-            formData.append('color', data.color);
-            formData.append('conditions', data.conditions);
-            formData.append('id_category', data.id_category);
+            formData.append('color', String(data.color));
+            formData.append('conditions', String(data.conditions));
+            formData.append('id_category',String(data.id_category));
 
             // Campos adicionales
             formData.append('desc', "test");
