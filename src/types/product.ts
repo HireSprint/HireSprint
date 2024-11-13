@@ -4,7 +4,7 @@ export interface ProductTypes {
     brand: string,
     upc: number,
     size?: string,
-    variety?: string[],
+    variety?: [string],
     price: number,
     conditions?: string,
     sku?: string,
@@ -28,5 +28,6 @@ export interface ProductTypes {
     effective?: string,
     unit_price?: string,
     color?: string,
-    url_image: string
+    url_image?: string
+    image?:any
 }

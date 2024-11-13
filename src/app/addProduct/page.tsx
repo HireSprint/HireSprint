@@ -1,16 +1,8 @@
 'use client'
 import { useEffect, useState } from "react"
-import { useForm, SubmitHandler } from "react-hook-form"
+import { useForm, SubmitHandler, FieldValues, UseFormRegister, UseFormSetValue, FieldValues } from "react-hook-form"
 import { ProductTypes } from "@/types/product"
-
-// Añade este array de categorías (puedes moverlo a un archivo separado)
-const categories = [
-  { id: 1, name: "Frozen" },
-  { id: 2, name: "Dairy" },
-  { id: 3, name: "Beverages" },
-  { id: 4, name: "Snacks" },
-  // Añade más categorías según necesites
-];
+import { categoriesInterface } from "@/types/category"
 
 const AddProductPage = () => {
     const {
@@ -19,82 +11,97 @@ const AddProductPage = () => {
         formState: { errors },
         watch
     } = useForm<ProductTypes>()
-      
-    const imageFile = watch("url_image");
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Agregar este useEffect para monitorear los cambios
+    const imageFile = watch("image");
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [categories, setCategories] = useState<categoriesInterface[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
     useEffect(() => {
         const subscription = watch((value, { name }) => {
             if (name) {
                 console.log(`Campo ${name}:`, value[name]);
             }
         });
-        
         return () => subscription.unsubscribe();
     }, [watch]);
 
-    const onSubmit: SubmitHandler<ProductTypes> = async (data) => {
-        try {
-            setIsSubmitting(true);
-            
-            // Crear el objeto personalizado con los datos
-            const productData = {
-                name: data.name,
-                brand: data.brand,
-                upc: data.upc,
-                sku: data.sku,
-                price: data.price,
-                sale_price: data.sale_price,
-                reg_price: data.reg_price,
-                unit_price: data.unit_price,
-                size: data.size,
-                variety: data.variety,
-                color: data.color,
-                conditions: data.conditions,
-                id_category: data.id_category
-            };
-
-            // Crear FormData
-            const formData = new FormData();
-            if (data.url_image && data.url_image[0]) {
-                formData.append('url_image', data.url_image[0]);
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getCategories");
+                const data = await resp.json();
+                console.log("descarga categorias en form", data);
+                if (resp.status === 200) {
+                    setCategories(data.result);
+                }
+            } catch (error) {
+                console.error("Error al obtener las categorías:", error);
             }
+        };
 
-            // Agregar el resto de datos al FormData
-            Object.entries(productData).forEach(([key, value]) => {
-                if (value) formData.append(key, value.toString());
-            });
+        getProductView();
+    }, []);
 
-            // Log para ver qué datos se están enviando
-            console.log("Datos a enviar:", Object.fromEntries(formData));
+    const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
+        try {
 
-            const response = await fetch('/api/apiMongo/addProduct', {
+            const formData = new FormData();
+
+            // Campos básicos
+            formData.append('name', data.name);
+            formData.append('brand', data.brand);
+            formData.append('upc', data.upc);
+            formData.append('sku', data.sku);
+            formData.append('price', '0');
+            formData.append('sale_price', "0");
+            formData.append('reg_price', '0');
+            formData.append('unit_price', "0");
+            formData.append('size', data.size);
+            formData.append('variety', JSON.stringify(["Fruits", "test"]));
+            formData.append('color', data.color);
+            formData.append('conditions', data.conditions);
+            formData.append('id_category', data.id_category);
+
+            // Campos adicionales
+            formData.append('desc', "test");
+            formData.append('main', "test");
+            formData.append('addl', "test");
+            formData.append('burst', "test");
+            formData.append('price_text', "test");
+            formData.append('save_up_to', "test");
+            formData.append('item_code', '0');
+            formData.append('group_code', '0');
+            formData.append('burst2', "test");
+            formData.append('burst3', "test");
+            formData.append('burst4', "test");
+            formData.append('with_cart', 'true');
+            formData.append('notes', "test");
+            formData.append('buyer_notes', "test");
+            formData.append('effective', "test");
+
+            // Agregar la imagen
+            if (data.image) formData.append('image', data.image[0]);
+
+            console.log("datos enviados", Object.fromEntries(formData));
+
+            const response = await fetch(`http://173.236.219.227:3003/createProduct`, {
                 method: 'POST',
-                body: formData
+                body: formData,
             });
-
-            // Log para ver la respuesta completa
-            console.log("Respuesta completa:", response);
 
             if (!response.ok) {
-                // Intentar obtener el mensaje de error del servidor
                 const errorData = await response.json().catch(() => null);
-                console.log("Datos del error:", errorData);
                 throw new Error(errorData?.message || `Error del servidor: ${response.status}`);
             }
 
             const result = await response.json();
-            console.log("Respuesta exitosa:", result);
-            
+            console.log("Producto creado exitosamente:", result);
+
         } catch (error) {
-            console.error('Error detallado:', error);
-            throw error; // Re-lanzar el error para que pueda ser manejado por el componente
-        } finally {
-            setIsSubmitting(false);
+            console.error('Error al crear producto:', error);
         }
-    }
+    };
 
     useEffect(() => {
         if (imageFile && imageFile[0]) {
@@ -115,28 +122,15 @@ const AddProductPage = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <input {...register("name", { required: true })} placeholder="Name" className="bg-gray-500 text-white p-2 rounded-md"/>
                         {errors.name && <span className="text-red-500">Este campo es requerido</span>}
-                        
+
                         <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        
+
                         <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" maxLength={12} minLength={12}/>
                         {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
-                        
+
                         <input {...register("sku")} placeholder="SKU" className="bg-gray-500 text-white p-2 rounded-md"/>
                     </div>
                 </div>
-
-                {/* Precios y códigos */}
-              {/*  <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
-                    <h2 className="text-white text-xl mb-4">Prices</h2>
-                    <div className="space-y-4">
-                        <input type="number" {...register("price", { required: true })} placeholder="Price" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        {errors.price && <span className="text-red-500">Este campo es requerido</span>}
-                        
-                        <input type="number" {...register("sale_price")} placeholder="Sale Price" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input type="number" {...register("reg_price")} placeholder="Regular Price" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("unit_price")} placeholder="Unit Price" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                    </div>
-                </div>*/}
 
                 {/* Detalles del producto */}
                 <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
@@ -154,35 +148,34 @@ const AddProductPage = () => {
                     <h2 className="text-white text-xl mb-4">Image and Category</h2>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <select 
+                            <select
                                 {...register("id_category", { required: true })}
                                 className="w-full bg-gray-500 text-white p-2 rounded-md"
                             >
                                 <option value="">Select a category</option>
-                                {categories.map((category) => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
+                                {categories?.length > 0 && categories?.map((category: categoriesInterface) => (
+                                    <option key={category.id_category} value={category.id_category}>
+                                        {category.name_category}
                                     </option>
                                 ))}
                             </select>
-                            {errors.id_category && <span className="text-red-500">This field is required</span>}
+                            {errors.id_category && <span className="text-red-500">Este campo es requerido</span>}
                         </div>
                         <div className="flex gap-4 items-start">
                             <div className="flex-1">
-                                <input 
-                                    {...register("url_image")} 
-                                    className="w-full bg-gray-500 text-white p-2 rounded-md" 
-                                    type="file" 
+                                <input
+                                    {...register("image")}
+                                    className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                    type="file"
                                     accept="image/*"
-                                    
                                 />
-                                {errors.url_image && <span className="text-red-500">This field is required</span>}
+                                {errors.image && <span className="text-red-500">Este campo es requerido</span>}
                             </div>
                             {previewUrl && (
                                 <div className="flex-shrink-0">
-                                    <img 
-                                        src={previewUrl} 
-                                        alt="Vista previa" 
+                                    <img
+                                        src={previewUrl}
+                                        alt="Vista previa"
                                         className="w-24 h-24 object-cover rounded-md"
                                     />
                                 </div>
@@ -191,8 +184,8 @@ const AddProductPage = () => {
                     </div>
                 </div>
 
-                <button 
-                    type="submit" 
+                <button
+                    type="submit"
                     disabled={isSubmitting}
                     className="h-10 col-span-2 md:col-span-3 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center"
                 >
@@ -210,4 +203,4 @@ const AddProductPage = () => {
     )
 }
 
-export default AddProductPage;
+export default AddProductPage
