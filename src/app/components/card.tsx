@@ -8,6 +8,7 @@ import { categoriesInterface } from "@/types/category";
 
 interface CardProductProps {
   product: ProductTypes;
+  key:number;
   cell?: cellTypes;
   onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
@@ -171,7 +172,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
             // Si no está ocupada, permitir selección normal
             cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
         }
-        
+
         if (product && !isCellOccupied) {
             setProductArray && setProductArray(product);
             cell && handleChangeProducts && handleChangeProducts(cell.id.toString());

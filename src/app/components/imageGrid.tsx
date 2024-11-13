@@ -122,8 +122,8 @@ export const ImageGrid = ({
 
 
     const handleGridSelect = (
-        gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        gridId: number,
+        categoryGridSelected: categoriesInterface,
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -137,7 +137,7 @@ export const ImageGrid = ({
           onPasteProduct();
           return;
         }
-      
+
         // Lógica existente de selección...
         onProductSelect(gridId, categoryGridSelected, event);
     };
@@ -332,8 +332,8 @@ export const ImageGrid2 = ({
 
 
     const handleGridSelect = (
-        gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        gridId: number,
+        categoryGridSelected: categoriesInterface,
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -347,7 +347,7 @@ export const ImageGrid2 = ({
           onPasteProduct();
           return;
         }
-      
+
         // Lógica existente de selección...
         onProductSelect(gridId, categoryGridSelected, event);
     };
@@ -363,13 +363,14 @@ export const ImageGrid2 = ({
 
                 return (
                     <GridCardProduct
+                        key={cell.id}
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
-                       
+
                     />
                 );
             })}
@@ -519,8 +520,8 @@ export const ImageGrid3 = ({
 
 
     const handleGridSelect = (
-        gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        gridId: number,
+        categoryGridSelected: categoriesInterface,
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -534,7 +535,7 @@ export const ImageGrid3 = ({
           onPasteProduct();
           return;
         }
-      
+
         // Lógica existente de selección...
         onProductSelect(gridId, categoryGridSelected, event);
     };
@@ -550,13 +551,14 @@ export const ImageGrid3 = ({
 
                 return (
                     <GridCardProduct
+                        key={cell.id}
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
-                       
+
                     />
                 );
             })}
@@ -706,8 +708,8 @@ export const ImageGrid4 = ({
 
 
     const handleGridSelect = (
-        gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        gridId: number,
+        categoryGridSelected: categoriesInterface,
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -721,7 +723,7 @@ export const ImageGrid4 = ({
           onPasteProduct();
           return;
         }
-      
+
         // Lógica existente de selección...
         onProductSelect(gridId, categoryGridSelected, event);
     };
@@ -737,13 +739,14 @@ export const ImageGrid4 = ({
 
                 return (
                     <GridCardProduct
+                        key={cell.id}
                         product={selectedProduct!}
                         cell={cell}
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
                         categoryCard={categoryItem}
-                       
+
                     />
                 );
             })}
