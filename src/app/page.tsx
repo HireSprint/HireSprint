@@ -84,7 +84,9 @@ export default function HomePage() {
         // Ocultar el grid de selección después de asignar el producto
         setShowProducts(false);
     };
-    const handleRemoveProduct = (productId: number) => {
+    const handleRemoveProduct = (productId: number | undefined) => {
+        if(productId === undefined)
+            return;
         setSelectedProducts((prevProducts) => {
             const updatedProducts = prevProducts.filter((product) => product.id_product !== productId);
             return updatedProducts;
@@ -96,6 +98,7 @@ export default function HomePage() {
             return updatedGrids;
         });
         setShowProducts(false);
+        setIsModalOpen(false);
     };
 
     const handleCopyProduct = (product: ProductTypes) => {
@@ -207,14 +210,16 @@ export default function HomePage() {
         onPasteProduct: handlePasteProduct
 
     };
-
+    
     const handleCategorySelect = (category: string) => {
         setCategory(category);
     };
 
     let productoShowForce: boolean = true;
 
-    const handleChangeProductForOther = (gridId: number) => {
+    const handleChangeProductForOther = (gridId: number | undefined) => {
+        if(gridId === undefined)
+            return;
         productoShowForce = false;
         console.log(productoShowForce, 'valor del bool', showProducts, gridId)
         setIsModalOpen(false);
@@ -295,8 +300,8 @@ export default function HomePage() {
                             product={productSelected as ProductTypes}
                             GridID={selectedGridId || 0}
                             SaveFC={() => console.log("save")}
-                            ChangeFC={(productId: number) => handleChangeProductForOther(productId)}
-                            DeleteFC={(productId: number) => handleRemoveProduct(productId)}
+                            ChangeFC={(productId: number | undefined ) => handleChangeProductForOther(productId)}
+                            DeleteFC={(productId: number | undefined ) => handleRemoveProduct(productId)}
                         />
                     )}
 

@@ -7,8 +7,8 @@ interface ModalEditProductInterface {
 
     product: ProductTypes;
     GridID: number
-    ChangeFC: (gridId: number) => void,
-    DeleteFC: (productId: number) => void,
+    ChangeFC: (gridId: number | undefined) => void,
+    DeleteFC: (productId: number | undefined ) => void,
     SaveFC: () => void,
     isOpen: boolean
     setIsOpen: (isOpen: boolean) => void

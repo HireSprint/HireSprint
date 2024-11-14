@@ -22,7 +22,7 @@ export interface ProductTypes {
     burst3?: string,
     burst4?: string,
     with_cart?: boolean,
-    id_product?: number,
+    id_product?: number | undefined,
     notes?: string,
     buyer_notes?: string,
     effective?: string,
