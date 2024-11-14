@@ -30,4 +30,6 @@ export interface ProductTypes {
     color?: string,
     url_image?: string
     image?:any
+    type_of_meat?: string
+    quantity?: string
 }
