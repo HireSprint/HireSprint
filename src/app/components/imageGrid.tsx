@@ -333,96 +333,56 @@ export const ImageGrid2 = ({
     } | null>(null);
 
 //prueba googleSheet
-//     const sendSampleProductsToGoogleSheet = async () => {
-//
-//         if (soloUnEnvio) {
-//
-//
-//             soloUnEnvio = false;
-//             const sampleSheetId = "101"; // Reemplaza con el ID de tu hoja de cálculo de Google Sheets
-//
-//             const sampleProducts: ProductDataTest[] = [
-//                 {
-//                     _id: "1111",
-//                     id_category: "10",
-//                     name: "Producto A",
-//                     brand: "Marca A",
-//                     upc: "123456789012",
-//                     size: "M",
-//                     variety: "Variedad 1",
-//                     price: 19.99,
-//                     conditions: "Nuevo",
-//                     sku: "SKU001",
-//                     desc: "Descripción del Producto A",
-//                     main: "ImagenPrincipalA.jpg",
-//                     addl: "ImagenSecundariaA1.jpg",
-//                     burst: "Promoción A",
-//                     sale_price: 17.99,
-//                     price_text: "17.99 USD",
-//                     reg_price: 19.99,
-//                     save_up_to: "10%",
-//                     item_code: "ItemCodeA",
-//                     group_code: "GroupCodeA",
-//                     burst2: "Descuento del 5%",
-//                     burst3: "Entrega gratuita",
-//                     burst4: "Devolución gratuita",
-//                     with_cart: true,
-//                     color: "Rojo",
-//                     notes: "Nota del Producto A",
-//                     buyer_notes: "Información adicional del comprador",
-//                     effective: "Inmediato",
-//                     unit_price: 5.99,
-//                     id_product: "P001",
-//                     __v: 1
-//                 },
-//                 {
-//                     _id: "002",
-//                     id_category: "20",
-//                     name: "Producto B",
-//                     brand: "Marca B",
-//                     upc: "123456789013",
-//                     size: "L",
-//                     variety: "Variedad 2",
-//                     price: 29.99,
-//                     conditions: "Usado",
-//                     sku: "SKU002",
-//                     desc: "Descripción del Producto B",
-//                     main: "ImagenPrincipalB.jpg",
-//                     addl: "ImagenSecundariaB1.jpg",
-//                     burst: "Promoción B",
-//                     sale_price: 27.99,
-//                     price_text: "27.99 USD",
-//                     reg_price: 29.99,
-//                     save_up_to: "7%",
-//                     item_code: "ItemCodeB",
-//                     group_code: "GroupCodeB",
-//                     burst2: "10% de descuento",
-//                     burst3: "Entrega en 48 horas",
-//                     burst4: "Soporte técnico incluido",
-//                     with_cart: false,
-//                     color: "Azul",
-//                     notes: "Nota del Producto B",
-//                     buyer_notes: "Información de mantenimiento",
-//                     effective: "A partir de compra",
-//                     unit_price: 9.99,
-//                     id_product: "P002",
-//                     __v: 1
-//                 }
-//             ];
-//
-//             // Llamada a addGoogleSheet3 con manejo de respuesta y errores
-//             try {
-//                 const response = await addGoogleSheet3('idUsarioNuevo', sampleProducts);
-//                 console.log("Productos enviados con éxito:", response);
-//             } catch (error) {
-//                 console.error("Error al enviar productos:", error);
-//             }
-//         }
-//
-//     };
-//
-// // Llama a la función para enviar los productos de muestra
-//     sendSampleProductsToGoogleSheet();
+    const sendSampleProductsToGoogleSheet = async () => {
+
+        if (soloUnEnvio) {
+
+
+            soloUnEnvio = false;
+            const sampleSheetId = "101"; // Reemplaza con el ID de tu hoja de cálculo de Google Sheets
+
+            const sampleProducts: ProductDataTest[] = [
+                {
+                    category: 'carne',
+                    upc: 2324546,
+                    masterBrand: 'loqeusea',
+                    brand: 'chicle',
+                    typeOfMeat: '',
+                    description: 'clichoso',
+                    variety: 'todas',
+                    typeOfCutVariety: '',
+                    qualityCf: '',
+                    size: 'samll',
+                    pack_Size: '30 box',
+                },
+                {
+                    category: 'carne',
+                    upc: 666666,
+                    masterBrand: 'loqeusea',
+                    brand: 'chicle',
+                    typeOfMeat: '',
+                    description: 'clichoso',
+                    variety: 'todas',
+                    typeOfCutVariety: '',
+                    qualityCf: '',
+                    size: 'samll',
+                    pack_Size: '30 box',
+                }
+            ];
+
+            // Llamada a addGoogleSheet3 con manejo de respuesta y errores
+            try {
+                const response = await addGoogleSheet3('idUsarioNuevo', sampleProducts);
+                console.log("Productos enviados con éxito:", response);
+            } catch (error) {
+                console.error("Error al enviar productos:", error);
+            }
+        }
+
+    };
+
+// Llama a la función para enviar los productos de muestra
+ //   sendSampleProductsToGoogleSheet();
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();
