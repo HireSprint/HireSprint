@@ -7,8 +7,7 @@ import { Calendar } from 'primereact/calendar';
 import { Nullable } from "primereact/ts-helpers";
 import { useProductContext } from '../context/productContext';
 import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
-
-
+import { usePathname } from 'next/navigation';
 
 
 export default function Header() {
@@ -17,6 +16,7 @@ export default function Header() {
   const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
   const { currentPage, setCurrentPage, productsData, setProductsData } = useProductContext();
   const [direction, setDirection] = useState(0);
+  const pathname = usePathname();
 
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Header() {
         console.error("Error al obtener los productos:", error);
       }
     };
-    
+
     getProductView();
   }, []);
 
@@ -40,7 +40,7 @@ export default function Header() {
   const changePage = (newPage: number) => {
     setDirection(newPage > currentPage ? 1 : -1);
     setCurrentPage(newPage);
-};
+  };
 
 
 
@@ -57,25 +57,31 @@ export default function Header() {
         <button onClick={handleMenu} className="bg-green-200 text-black p-2">Menu</button>
       </div>
       <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
-       {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/} 
+        {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/}
         <p className='text-white text-xl font-bold'>Client: </p>
       </div>
       <div className='flex items-center justify-center space-x-2 '>
-       <h1 className='text-white text-xl font-bold'>Page:</h1>
-       <button className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 2 ? 'bg-[#7cc304] text-black' : ''}`} onClick={() => changePage(2)}>2</button>
-       <button className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 3 ? 'bg-[#7cc304] text-black' : ''}`} onClick={() => changePage(3)}>3</button>
-       <button className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 4 ? 'bg-[#7cc304] text-black' : ''}`} onClick={() => changePage(4)}>4</button>
-       <div className='flex items-center justify-center space-x-2 pl-8'>
-       <button>
-       <VideoIcon />
-       </button>
-       <button >
-       <ProfileIcon />
-       </button>
-       <button>
-       <MessageIcon />
-       </button>
-       </div>
+        {
+          pathname === '/' && (
+            <div className='flex items-center justify-center space-x-2 '>
+              <h1 className='text-white text-xl font-bold'>Page:</h1>
+              <button className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 2 ? 'bg-[#7cc304] text-black' : ''}`} onClick={() => changePage(2)}>2</button>
+              <button className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 3 ? 'bg-[#7cc304] text-black' : ''}`} onClick={() => changePage(3)}>3</button>
+              <button className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 4 ? 'bg-[#7cc304] text-black' : ''}`} onClick={() => changePage(4)}>4</button>
+            </div>
+          )
+        }
+        <div className='flex items-center justify-center space-x-2 pl-8'>
+          <button>
+            <VideoIcon />
+          </button>
+          <button >
+            <ProfileIcon />
+          </button>
+          <button>
+            <MessageIcon />
+          </button>
+        </div>
       </div>
       {isMenuOpen && (
         <div className="flex flex-col space-y-4 md:hidden items-start absolute bg-black p-3 top-16 right-0">
