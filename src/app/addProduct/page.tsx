@@ -1,16 +1,18 @@
 'use client'
 import { useEffect, useState } from "react"
-import { useForm, SubmitHandler, FieldValues, UseFormRegister, UseFormSetValue } from "react-hook-form"
+import { useForm, SubmitHandler } from "react-hook-form"
 import { ProductTypes } from "@/types/product"
 import { categoriesInterface } from "@/types/category"
-import {any} from "prop-types";
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const AddProductPage = () => {
     const {
         register,
         handleSubmit,
         formState: { errors },
-        watch
+        watch, 
+        reset
     } = useForm<ProductTypes>()
 
     const imageFile = watch("image");
@@ -18,14 +20,7 @@ const AddProductPage = () => {
     const [categories, setCategories] = useState<categoriesInterface[]>([]);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    useEffect(() => {
-        const subscription = watch((value, { name }) => {
-            if (name) {
-                // console.log(`Campo ${name}:`, value[name]);
-            }
-        });
-        return () => subscription.unsubscribe();
-    }, [watch]);
+ 
 
     useEffect(() => {
         const getProductView = async () => {
@@ -51,35 +46,37 @@ const AddProductPage = () => {
 
             // Campos básicos
             formData.append('name', data.name);
-            formData.append('brand', data.brand);
+            formData.append('brand', data.brand || "");
             formData.append('upc', String(data.upc));
-            formData.append('sku', String(data.sku));
+            formData.append('sku', data.sku || "");
             formData.append('price', '0');
             formData.append('sale_price', "0");
             formData.append('reg_price', '0');
             formData.append('unit_price', "0");
             formData.append('size', String(data.size));
-            formData.append('variety', JSON.stringify(["Fruits", "test"]));
+            formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
             formData.append('color', String(data.color));
             formData.append('conditions', String(data.conditions));
             formData.append('id_category',String(data.id_category));
 
             // Campos adicionales
-            formData.append('desc', "test");
-            formData.append('main', "test");
-            formData.append('addl', "test");
-            formData.append('burst', "test");
-            formData.append('price_text', "test");
-            formData.append('save_up_to', "test");
+            formData.append('desc', data.desc || "");
+            formData.append('main', data.main || "");
+            formData.append('addl', data.addl || "");
+            formData.append('burst', data.burst || "");
+            formData.append('price_text', data.price_text || "");
+            formData.append('save_up_to', data.save_up_to || "");
             formData.append('item_code', '0');
             formData.append('group_code', '0');
-            formData.append('burst2', "test");
-            formData.append('burst3', "test");
-            formData.append('burst4', "test");
+            formData.append('burst2', data.burst2 || "");
+            formData.append('burst3', data.burst3 || "");
+            formData.append('burst4', data.burst4 || "");
             formData.append('with_cart', 'true');
-            formData.append('notes', "test");
-            formData.append('buyer_notes', "test");
-            formData.append('effective', "test");
+            formData.append('notes', data.notes || "");
+            formData.append('buyer_notes', data.buyer_notes || "");
+            formData.append('effective', data.effective || "");
+            formData.append('type_of_meat', data.type_of_meat || "");
+            formData.append('quantity', data.quantity || "");
 
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
@@ -91,8 +88,15 @@ const AddProductPage = () => {
                 body: formData,
             });
 
+            if (response.ok) {
+                toast.success("¡Producto creado exitosamente!");
+                setPreviewUrl(null);
+                reset();
+            }
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
+                toast.error(errorData?.message || `Error del servidor: ${response.status}`);
                 throw new Error(errorData?.message || `Error del servidor: ${response.status}`);
             }
 
@@ -121,34 +125,7 @@ const AddProductPage = () => {
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Basic Information</h2>
                     <div className="grid grid-cols-2 gap-4">
-                        <input {...register("name", { required: true })} placeholder="Name" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        {errors.name && <span className="text-red-500">Este campo es requerido</span>}
-
-                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
-
-                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" maxLength={12} minLength={12}/>
-                        {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
-
-                        <input {...register("sku")} placeholder="SKU" className="bg-gray-500 text-white p-2 rounded-md"/>
-                    </div>
-                </div>
-
-                {/* Detalles del producto */}
-                <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
-                    <h2 className="text-white text-xl mb-4">Details</h2>
-                    <div className="space-y-4">
-                        <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("color")} placeholder="Color" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("conditions")} placeholder="Conditions" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                    </div>
-                </div>
-
-                {/* Imagen y categoría */}
-                <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
-                    <h2 className="text-white text-xl mb-4">Image and Category</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
+                    <div>
                             <select
                                 {...register("id_category", { required: true })}
                                 className="w-full bg-gray-500 text-white p-2 rounded-md"
@@ -162,6 +139,36 @@ const AddProductPage = () => {
                             </select>
                             {errors.id_category && <span className="text-red-500">Este campo es requerido</span>}
                         </div>
+                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        {errors.desc && <span className="text-red-500">Este campo es requerido</span>}
+
+                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+
+                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" maxLength={12} minLength={12}/>
+                        {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
+
+                    </div>
+                </div>
+
+                {/* Detalles del producto */}
+                <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-white text-xl mb-4">Details</h2>
+                    <div className="space-y-4">
+                        <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("color")} placeholder="Color" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("conditions")} placeholder="Conditions" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("type_of_meat")} placeholder="Type of meat" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("quantity")} placeholder="Quantity" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                    </div>
+
+                </div>
+
+                {/* Imagen y categoría */}
+                <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-white text-xl mb-4">Image </h2>
+                    <div className="grid grid-cols-2 gap-4">
+
                         <div className="flex gap-4 items-start">
                             <div className="flex-1">
                                 <input
@@ -170,7 +177,16 @@ const AddProductPage = () => {
                                     type="file"
                                     accept="image/*"
                                 />
-                                {errors.image && <span className="text-red-500">Este campo es requerido</span>}
+                                <ToastContainer 
+                                    position="top-right"
+                                    autoClose={3000}
+                                    hideProgressBar={false}
+                                    closeOnClick
+                                    pauseOnHover
+                                    theme="light"
+                                />
+
+
                             </div>
                             {previewUrl && (
                                 <div className="flex-shrink-0">
