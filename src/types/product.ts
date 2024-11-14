@@ -1,11 +1,10 @@
 export interface ProductTypes {
-    _id:string ,
     id_category: number,
     name: string,
     brand: string,
     upc: number,
     size?: string,
-    variety?: string,
+    variety?: [string],
     price: number,
     conditions?: string,
     sku?: string,
@@ -23,12 +22,12 @@ export interface ProductTypes {
     burst3?: string,
     burst4?: string,
     with_cart?: boolean,
+    id_product?: number,
     notes?: string,
     buyer_notes?: string,
     effective?: string,
     unit_price?: string,
-    id_product: number,
-    __v?: number,
     color?: string,
-    url_image: string
+    url_image?: string
+    image?:any
 }

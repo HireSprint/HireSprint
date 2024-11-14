@@ -8,7 +8,6 @@ import {motion} from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
-import { getCategory } from "./api/category/categories";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
