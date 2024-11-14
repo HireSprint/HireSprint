@@ -83,7 +83,7 @@ const AddProductPage = () => {
 
             console.log("datos enviados", Object.fromEntries(formData));
 
-            const response = await fetch(`http://173.236.219.227:3003/createProduct`, {
+            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/createProduct`, {
                 method: 'POST',
                 body: formData,
             });

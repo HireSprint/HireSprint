@@ -20,7 +20,7 @@ The project uses environment variables to configure the API URL. These are autom
 
 The `.env` file is not included in the repository, but it is used in the project.
 This is the API_URL:
-API_URL=http://173.236.219.227:3003
+API_URL=https://hiresprintcanvas.dreamhosters.com/
 
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
