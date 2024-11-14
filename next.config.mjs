@@ -17,6 +17,11 @@ const nextConfig = {
           pathname: '/**',
         },
         {
+          protocol: 'https',
+          hostname: 'hiresprintcanvas.dreamhosters.com',
+          pathname: '/**',
+        },
+        {
           protocol: 'http',
           hostname: '173.236.219.227',
           port: '3003',
