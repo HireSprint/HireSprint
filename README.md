@@ -14,6 +14,15 @@ pnpm dev
 bun dev
 ```
 
+## Environment Variables
+
+The project uses environment variables to configure the API URL. These are automatically loaded from the `.env` file.
+
+The `.env` file is not included in the repository, but it is used in the project.
+This is the API_URL:
+API_URL=http://173.236.219.227:3003
+
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

@@ -1,17 +1,16 @@
 import { NextApiResponse } from "next";
 import { NextApiRequest } from "next";
-import nextConfig from "../../../../next.config.mjs";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        if (!nextConfig.env?.API_URL) {
+        if (!process.env?.API_URL) {
             return res.status(400).json({ 
                 error: "API_URL no está definido en la configuración." 
             });
         }
 
-        const resp = await fetch(`${nextConfig.env.API_URL}/getProducts`, {
+        const resp = await fetch(`${process.env.API_URL}/getProducts`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
