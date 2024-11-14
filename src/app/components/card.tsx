@@ -12,12 +12,9 @@ interface CardProductProps {
   cell?: cellTypes;
   onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
-  onProductGridSelect?: (gridId: number,categoryCard:categoriesInterface, event: React.MouseEvent) => void;
+  onProductGridSelect?: (gridId: number, categoryId: number | undefined, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void;
-  handleChangeProducts?: (cellId: string) => void;
   setProductArray?: (product: ProductTypes) => void;
-  isCellOccupied?: boolean;
-  categoryCard?:categoriesInterface | null | undefined
   onEditProduct?: (productId: string) => void;
   isLoading?: boolean;
   onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
@@ -158,7 +155,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onEditProduct, onDragAndDropCell, setIsDragging, isDragging, isCellOccupied, categoryCard, isLoading}: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect,  setProductArray, onEditProduct, onDragAndDropCell, setIsDragging, isDragging, isLoading}: CardProductProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef(null);
@@ -207,38 +204,26 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
     
 
     return (
-        <div
-            key={cell?.id}
-            className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
-            style={{width: cell?.width, height: cell?.height}}
-            onClick={(e) => {
-                if (isCellOccupied && product) {
-                    // Si la celda está ocupada y hay un producto, mostrar el modal de edición
-                    onEditProduct && onEditProduct(String(product.id_product));
-                } else if (categoryCard) {
-                    // Si no está ocupada, permitir selección normal
-                    cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
-                }
+        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
+            <Draggable disabled={!readyToDrag} onStart={handleStart} onStop={handleStop} position={position}>
+                <div
+                    ref={elementRef}
+                    id={ 'grid-card-product-' + cell?.id }
+                    key={cell?.id}
+                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20 ${!isDragging && readyToDrag ? 'shake' : ''}`}
+                    style={{width: cell?.width, height: cell?.height}}
+                    onClick={(e) => {
+                        
+                        console.log("  ");
+                        console.log("  ");
+                        
+                        if (!readyToDrag && !isDragging) {
+                            console.log("product ", product);
+                            console.log("cell ", cell);
 
-                if (product && !isCellOccupied) {
-                    setProductArray && setProductArray(product);
-                    cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
-                }
-            }}
-            onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
-            >
-                { isLoading ?
-                    <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
-                :
-                    <div className="@container h-full w-full relative grid overflow-hidden">
-                        {
-                            product?.url_image && (
-                                <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
-                                    <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
-                                        <Image src={product.url_image} alt={product.name || ''} layout="fill" objectFit="cover" />
-                                    </div>
-                                </div>
-                            )
+                            cell && onProductGridSelect && onProductGridSelect(cell.id, cell.idCategory, e);
+
+                            product && setProductArray && setProductArray(product);
                         }
                     }}
                     onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}

@@ -10,7 +10,7 @@ import { useCategoryContext } from "../context/categoryContext";
 
 
 interface ImageGridProps {
-    onProductSelect: (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => void;
+    onProductSelect: (gridId: number, categoryGridSelected: number | undefined, event: React.MouseEvent) => void;
     selectedProducts: ProductTypes[];
     onRemoveProduct: (productId: number) => void;
     onEditProduct: (productId: number) => void;
@@ -154,7 +154,7 @@ export const ImageGrid = ({
 
     const handleGridSelect = (
         gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        categoryIdGridSelected: number | undefined, 
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -163,14 +163,14 @@ export const ImageGrid = ({
             ...copiedProduct,
             id_product: gridId
           };
-          onProductSelect(gridId, categoryGridSelected, event);
+          onProductSelect(gridId, categoryIdGridSelected, event);
           setProductArray([newProduct]);
           onPasteProduct();
           return;
         }
       
         // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
+        onProductSelect(gridId, categoryIdGridSelected, event);
     };
 
 
@@ -179,7 +179,7 @@ export const ImageGrid = ({
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = productsData?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
+                
                 return (
                     <GridCardProduct
                         key={cell?.id}
@@ -188,7 +188,6 @@ export const ImageGrid = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
@@ -384,7 +383,7 @@ export const ImageGrid2 = ({
 
     const handleGridSelect = (
         gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        categoryIdGridSelected: number | undefined, 
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -393,14 +392,14 @@ export const ImageGrid2 = ({
             ...copiedProduct,
             id_product: gridId
           };
-          onProductSelect(gridId, categoryGridSelected, event);
+          onProductSelect(gridId, categoryIdGridSelected, event);
           setProductArray([newProduct]);
           onPasteProduct();
           return;
         }
       
         // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
+        onProductSelect(gridId, categoryIdGridSelected, event);
     };
 
 
@@ -410,7 +409,6 @@ export const ImageGrid2 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
@@ -420,7 +418,6 @@ export const ImageGrid2 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
@@ -659,7 +656,7 @@ export const ImageGrid3 = ({
 
     const handleGridSelect = (
         gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        categoryIdGridSelected: number | undefined, 
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -668,14 +665,14 @@ export const ImageGrid3 = ({
             ...copiedProduct,
             id_product: gridId
           };
-          onProductSelect(gridId, categoryGridSelected, event);
+          onProductSelect(gridId, categoryIdGridSelected, event);
           setProductArray([newProduct]);
           onPasteProduct();
           return;
         }
       
         // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
+        onProductSelect(gridId, categoryIdGridSelected, event);
     };
 
 
@@ -685,7 +682,6 @@ export const ImageGrid3 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
@@ -695,7 +691,6 @@ export const ImageGrid3 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
@@ -885,7 +880,7 @@ export const ImageGrid4 = ({
 
     const handleGridSelect = (
         gridId: number, 
-        categoryGridSelected: categoriesInterface, 
+        categoryIdGridSelected: number | undefined, 
         event: React.MouseEvent
       ) => {
         // Si hay un producto copiado y la celda está vacía
@@ -894,14 +889,14 @@ export const ImageGrid4 = ({
             ...copiedProduct,
             id_product: gridId
           };
-          onProductSelect(gridId, categoryGridSelected, event);
+          onProductSelect(gridId, categoryIdGridSelected, event);
           setProductArray([newProduct]);
           onPasteProduct();
           return;
         }
       
         // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
+        onProductSelect(gridId, categoryIdGridSelected, event);
     };
 
 
@@ -911,7 +906,6 @@ export const ImageGrid4 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
@@ -921,7 +915,6 @@ export const ImageGrid4 = ({
                         onProductGridSelect={handleGridSelect}
                         onContextMenu={handleContextMenu}
                         setProductArray={(product: ProductTypes) => setProductArray([product])}
-                        categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
