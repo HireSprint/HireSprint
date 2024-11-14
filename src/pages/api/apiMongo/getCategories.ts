@@ -1,33 +1,41 @@
-import nextConfig from "../../../../next.config.mjs";
+import { NextApiResponse } from "next";
+import { NextApiRequest } from "next";
 
 
-export const getCategories = async () => {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        if (!nextConfig.env?.API_URL) {
-            throw new Error("API_URL no está definido en la configuración.");
+        if (!process.env?.API_URL) {
+            return res.status(400).json({ 
+                error: "API_URL no está definido en la configuración." 
+            });
         }
 
-        const resp = await fetch(`${nextConfig.env.API_URL}/getCategories`, {
+        const resp = await fetch(`${process.env.API_URL}/getCategories`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
         });
-
         if (!resp.ok) {
-            throw new Error(`Error en la respuesta de la API: ${resp.statusText}`);
+            return res.status(resp.status).json({ 
+                error: `Error en la respuesta de la API: ${resp.statusText}` 
+            });
         }
 
         const respCategories = await resp.json();
 
         if (respCategories.status === 200) {
-            return respCategories;
+            return res.status(200).json(respCategories);
         } else {
-            throw new Error(respCategories.message || "Error desconocido");
+            return res.status(400).json({ 
+                error: respCategories.message || "Error desconocido" 
+            });
         }
 
     } catch (err) {
         console.error(err);
-        return err as Error;
+        return res.status(500).json({ 
+            error: "Error interno del servidor" 
+        });
     }
 };

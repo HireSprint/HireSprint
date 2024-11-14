@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    i18n: {
+      locales: ['en', 'es'],
+      defaultLocale: 'en',
+      localeDetection: false // Desactiva la detección automática del idioma
+    },
     eslint: {
         ignoreDuringBuilds: true,
     },
@@ -19,9 +24,6 @@ const nextConfig = {
         }
       ],
     },
-    env:{
-        API_URL: 'http://173.236.219.227:3003',
-    }
   };
 
   export default nextConfig;

@@ -69,7 +69,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
         const newPrice = parseFloat(e.target.value);
         setLocalPrice(newPrice);
         if (onPriceChange) {
-            onPriceChange(product._id.toString(), newPrice);
+            onPriceChange(String(product.id_product), newPrice);
         }
     };
 
@@ -80,7 +80,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
         }
         // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
         if (onPriceChange) {
-            onPriceChange(product._id.toString(), localPrice);
+            onPriceChange(String(product.id_product), localPrice);
         }
     };
 
@@ -169,12 +169,12 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
             onClick={(e) => {
                 if (isCellOccupied && product) {
                     // Si la celda está ocupada y hay un producto, mostrar el modal de edición
-                    onEditProduct && onEditProduct(product.id_product.toString());
+                    onEditProduct && onEditProduct(String(product.id_product));
                 } else if (categoryCard) {
                     // Si no está ocupada, permitir selección normal
                     cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
                 }
-                
+
                 if (product && !isCellOccupied) {
                     setProductArray && setProductArray(product);
                     cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
