@@ -22,10 +22,14 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const resp = await fetch("/api/apiMongo/getCategories");
         const data = await resp.json();
-        setCategories(data.result);
-        setIsLoading(false);
+        
         if(resp.status === 200){
-            }
+          setCategories(data.result);
+          setIsLoading(false);
+        }else{
+          console.error("Error al obtener los productos:", resp);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error("Error al obtener los productos:", error);
       }

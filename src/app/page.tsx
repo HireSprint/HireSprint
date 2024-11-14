@@ -139,18 +139,15 @@ export default function HomePage() {
         // id del grid que se quiere mover su contenido
         const cellIdToMove = getCellId(gridCellToMove.node)
         if (gridCellToMove.node) (gridCellToMove.node as any).style.pointerEvents = 'auto';
-        console.log('gridCellToMove.node:  ', gridCellToMove.node)
         
         // id del grid que al que se quiere mover el producto
         const gridCellTarget = findGridCellTarget(stopDragEvent.target)
         if (gridCellTarget) (gridCellTarget as any).style.pointerEvents = 'auto';
-        console.log('gridCellTarget:  ', gridCellTarget)
         const cellIdTarget = getCellId(gridCellTarget);
         
         if (cellIdTarget && cellIdToMove) {
             moveProduct(cellIdToMove, cellIdTarget);
             setShowProducts(false); // Ocultar el panel de productos si está visible
-            console.log('selectedProducts:  ', selectedProducts);
         }
 
     };
@@ -199,45 +196,36 @@ export default function HomePage() {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-        console.log("gridId ",gridId);
-        console.log("event ",event);
         
         // Verificar si el grid ya tiene un producto
         setMousePosition({ x: event.clientX, y: event.clientY });
 
         const gridHasProduct = selectedProducts.some(product => product.id_product === gridId);
-        console.log("gridHasProduct ", gridHasProduct);
         
         if (copiedProduct && !selectedProducts.some(product => product.id_product === gridId)) {
             const productWithNewGrid = { ...copiedProduct, id_product: gridId };
             setSelectedProducts(prev => [...prev, productWithNewGrid]);
-            console.log('selectedProducts:  ', selectedProducts);
  
             setGrids(prevGrids => {
                 return prevGrids.map(grid => 
                     grid.id === gridId ? { ...grid, product: productWithNewGrid } : grid
                 );
             });
-            console.log("ANMDO AQUIII");
 
             return;
         }
         
         if (moveMode?.active) {
-            console.log(1);
             
             handleProductMove(gridId);
         } else if (gridHasProduct) {
-            console.log('>>> 2');
             // Si el grid tiene un producto, mostrar el modal de edición
             const selectedProduct = selectedProducts.find(product => product.id_product === gridId);
-            console.log("selectedProduct ", selectedProduct);
             
             setProductSelected(selectedProduct);
             setSelectedGridId(gridId);
             setIsModalOpen(true)
         } else {
-            console.log('>>> 3');
             // Si el grid está vacío, mostrar el selector de productos
             setSelectedGridId(gridId);
             setShowProducts(true);

@@ -184,7 +184,6 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
 
     const handleMouseDown = () => {
         timeoutRef.current = setTimeout(() => {
-            console.log("mouseDown");
             setReadyToDrag(readyToDrag ? false : product != undefined && product != null);
         }, 1000); // 2000ms = 2 segundos
     };
@@ -214,15 +213,9 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
                     style={{width: cell?.width, height: cell?.height}}
                     onClick={(e) => {
                         
-                        console.log("  ");
-                        console.log("  ");
                         
                         if (!readyToDrag && !isDragging) {
-                            console.log("product ", product);
-                            console.log("cell ", cell);
-
                             cell && onProductGridSelect && onProductGridSelect(cell.id, cell.idCategory, e);
-
                             product && setProductArray && setProductArray(product);
                         }
                     }}
