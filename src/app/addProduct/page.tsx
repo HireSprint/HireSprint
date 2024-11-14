@@ -11,7 +11,8 @@ const AddProductPage = () => {
         register,
         handleSubmit,
         formState: { errors },
-        watch
+        watch, 
+        reset
     } = useForm<ProductTypes>()
 
     const imageFile = watch("image");
@@ -89,6 +90,8 @@ const AddProductPage = () => {
 
             if (response.ok) {
                 toast.success("¡Producto creado exitosamente!");
+                setPreviewUrl(null);
+                reset();
             }
 
             if (!response.ok) {
