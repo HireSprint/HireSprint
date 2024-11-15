@@ -5,7 +5,7 @@ import { ProductTypes } from "@/types/product"
 import { categoriesInterface } from "@/types/category"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { Input } from "postcss"
+import { ProductAddedModal } from "../components/card"
 
 const AddProductPage = () => {
     const {
@@ -25,20 +25,20 @@ const AddProductPage = () => {
     const [categories, setCategories] = useState<categoriesInterface[]>([]);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const selectedCategory = watch("id_category");
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [addProduct, setAddProduct] = useState<ProductTypes[]>([]);
 
  const categoryFields: Record<string, {name: string, placeholder: string}[]> = {
     "5": [
         {name: "type_of_meat", placeholder: "Type of meat"},
-        {name: "desc", placeholder: "Description"},
-        {name: "variety", placeholder: "Type OF cut / Variety"},
+        {name: "type_of_cut", placeholder: "Type OF cut"},
         {name: "quality_cf", placeholder: "Quality CF"},
         {name: "size", placeholder: "Size / Pack"},
         {name: "sku", placeholder: "SKU"},
     ],
     "16": [
         {name: "type_of_meat", placeholder: "Type of meat"},
-        {name: "desc", placeholder: "Description"},
-        {name: "variety", placeholder: "Type OF cut / Variety"},
+        {name: "type_of_cut", placeholder: "Type OF cut"},
         {name: "quality_cf", placeholder: "Quality CF"},
         {name: "size", placeholder: "Size / Pack"},
         {name: "sku", placeholder: "SKU"},
@@ -100,6 +100,8 @@ const AddProductPage = () => {
             formData.append('effective', data.effective || "");
             formData.append('type_of_meat', data.type_of_meat || "");
             formData.append('quantity', data.quantity || "");
+            formData.append('master_brand', data.master_brand || "");
+            formData.append('type_of_cut', data.type_of_cut || "");
 
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
@@ -112,6 +114,9 @@ const AddProductPage = () => {
             });
 
             if (response.ok) {
+                setAddProduct([...addProduct, data]);
+                console.log("addProduct", addProduct);
+                setShowModal(true);
                 toast.success("¡Producto creado exitosamente!");
                 setPreviewUrl(null);
                 reset();
@@ -143,6 +148,10 @@ const AddProductPage = () => {
 
     return (
         <div className="flex p-2 bg-[#121212] h-screen">
+            {showModal && addProduct && (
+                <ProductAddedModal product={addProduct[addProduct.length - 1]} onClose={()=>setShowModal(false)} categories={categories}/>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-6xl mx-auto">
                 {/* Información básica del producto */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
@@ -163,11 +172,12 @@ const AddProductPage = () => {
                             {errors.id_category && <span className="text-red-500">Este campo es requerido</span>}
                         </div>
                         <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        {errors.desc && <span className="text-red-500">Este campo es requerido</span>}
+                        {errors.desc && <span className="text-red-500">This field is required description</span>}
 
+                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
                         <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
 
-                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" minLength={12}/>
+                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" />
                         {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
 
                     </div>

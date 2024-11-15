@@ -6,11 +6,11 @@ import Image from "next/image";
 interface ModalEditProductInterface {
 
     product: ProductTypes;
-    GridID: number
-    ChangeFC: () => void,
-    DeleteFC: () => void,
-    SaveFC: () => void,
-    isOpen: boolean
+    GridID?: number
+    ChangeFC?: () => void,
+    DeleteFC?: () => void,
+    SaveFC?: () => void,
+    isOpen?: boolean
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -129,7 +129,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                             <div className={"flex w-full h-full flex-row"}>
                                 <button
                                     className="px-4 py-2 mt-4 w-2/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 left-10 xl:left-32"
-                                    onClick={() => ChangeFC()}
+                                    onClick={() => ChangeFC && ChangeFC()}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"
@@ -142,7 +142,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-40 xl:right-80"
-                                    onClick={() => DeleteFC()}
+                                    onClick={() => DeleteFC && DeleteFC()}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="30" width="26"
@@ -155,7 +155,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-10 xl:right-28"
-                                    onClick={() => SaveFC()}
+                                    onClick={() => SaveFC && SaveFC()}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="28"
