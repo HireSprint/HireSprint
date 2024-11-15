@@ -216,75 +216,6 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
     )
 }
 
-
-
-// export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
-//   const textShadowWhite = {
-//     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
-//   }
-
-//   const propertyPerSize: any = {
-//     '77px': {
-//       imageContainer: ['justify-self-end', 'self-end'],
-//       image: ['w-14', 'h-14'],
-//       name: ['leading-[10px]', 'text-[11px]', 'inset-[2px]'],
-//       price: ['text-[13px]']
-//     },
-//     '47px': {
-//       imageContainer: [],
-//       image: ['w-10', 'h-10'],
-//       name: ['text-[9px]','inset-[1px]', 'leading-[8px]'],
-//       price: ['text-[11px]']
-//     },
-//     '27px': {
-//       imageContainer: ['justify-self-center', 'self-end'],
-//       image: ['w8', 'h-8'],
-//       name: ['text-[7px]', 'inset-[1px]', 'leading-[6px]'],
-//       price: ['text-[10px]']
-//     }
-//   }
-
-//   function getItemStyle(width: string, property: string) {
-//     return propertyPerSize[width][property]
-//   }
-
-//   const cardSizes =  Object.keys(propertyPerSize)
-
-//   return (
-//     <div
-//       key={cell?.id}
-//       className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-red-300`}
-//       style={{width: cell?.width, height: cell?.height}}
-//       onClick={(e) => cell && onProductGridSelect && onProductGridSelect(cell.id, e)}
-//       onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
-//       >
-//       <div className="@container h-full w-full relative grid">
-//         {
-//           product?.image && (
-//             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'imageContainer').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
-//               <div className={`${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'image').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
-//                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
-//               </div>
-//             </div>
-//           )
-//         }
-
-//         {
-//           product ?
-//           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
-//             { product?.price || '' }
-//           </div>
-//           : ''
-//         }
-
-//         <div className={`absolute text-blue-950 font-bold ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'name').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`} style={textShadowWhite}>
-//           { product?.name || cell?.id.toString() }
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
 export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
     return (
         <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
@@ -310,3 +241,87 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
         </div>
     )
 }
+
+interface ProductAddedModalProps {
+    product: ProductTypes;
+    onClose: () => void;
+    categories: categoriesInterface[];
+}
+
+export const ProductAddedModal = ({ product, onClose, categories }: ProductAddedModalProps) => {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Manejar diferentes casos de la imagen
+        console.log(product.image?.[0] , "product.image?.[0]")
+        if (product.image?.[0] instanceof File) {
+            // Si es un archivo, crear URL temporal
+            const url = URL.createObjectURL(product.image[0]);
+            setImageUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } else if (product.url_image) {
+            // Si ya tiene una URL de imagen
+            setImageUrl(product.url_image);
+        }
+    }, [product.image, product.url_image]);
+
+    // Encontrar el nombre de la categoría
+    const categoryName = categories.find(cat => cat.id_category === Number(product.id_category))?.name_category || 'Categoría no encontrada';
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-gray-800">¡Producto Añadido!</h2>
+                    <button 
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="space-y-4">
+                    {/* Imagen del producto */}
+                    {imageUrl && (
+                        <div className="relative h-48 w-full">
+                            <Image 
+                                src={imageUrl}
+                                alt={product.desc || 'Producto'}
+                                fill
+                                className="object-contain rounded-lg"
+                            />
+                        </div>
+                    )}
+
+                    {/* Detalles del producto */}
+                    <div className="space-y-2">
+                        <p className="text-sm">
+                            <span className="font-semibold text-gray-800">Categoría: </span>
+                            <span className="text-gray-600">{categoryName}</span>
+                        </p>
+                        
+                        {Object.entries(product).map(([key, value]) => {
+                            if (value && 
+                                key !== 'image' && 
+                                key !== 'url_image' &&
+                                key !== 'id_category' && 
+                                typeof value !== 'object') {
+                                return (
+                                    <p key={key} className="text-sm">
+                                        <span className="font-semibold capitalize text-gray-800">
+                                            {key.replace(/_/g, ' ')}: 
+                                        </span>
+                                        <span className="text-gray-600"> {value.toString()}</span>
+                                    </p>
+                                );
+                            }
+                            return null;
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+  

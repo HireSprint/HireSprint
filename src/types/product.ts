@@ -32,4 +32,6 @@ export interface ProductTypes {
     image?:any
     type_of_meat?: string
     quantity?: string
+    master_brand?: string
+    type_of_cut?: string
 }
