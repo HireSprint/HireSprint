@@ -228,8 +228,7 @@ export default function HomePage() {
 
     }
     
-    return (
-        <CategoryProvider>
+    return (      
             <div className="flex flex-col">
                 <div>
                     <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category}/>
@@ -328,8 +327,7 @@ export default function HomePage() {
                     )}
                 </div>
 
-            </div>
-        </CategoryProvider>
+            </div>      
     );
 };
 

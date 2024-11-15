@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
+import {useProductContext} from "@/app/context/productContext";
 
 interface ModalEditProductInterface {
 
     product: ProductTypes;
     GridID?: number
-    ChangeFC?: () => void,
-    DeleteFC?: () => void,
+    ChangeFC?: (idGrid : number | undefined) => void,
+    DeleteFC?: (idGrid: number | undefined) => void,
     SaveFC?: () => void,
     isOpen?: boolean
     setIsOpen: (isOpen: boolean) => void
@@ -18,6 +19,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
 
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
+  
     const SELECT_OPTIONS = ["kg", "mL", "L"]
 
 
@@ -40,13 +42,18 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
     useEffect(() => {
         if (Array.isArray(categories) && categories.length > 0 && product?.id_category) {
             const categoryMatch = categories.find((item: categoriesInterface) => item.id_category === product.id_category);
+                    
             if (categoryMatch) {
-                setCategoria(categoryMatch);
+                setCategoria(categoryMatch);               
+            
+               
             }
         }
+      
+        
     }, [categories, product]);
 
-
+    
 
     return (
         <React.Fragment>
@@ -129,7 +136,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                             <div className={"flex w-full h-full flex-row"}>
                                 <button
                                     className="px-4 py-2 mt-4 w-2/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 left-10 xl:left-32"
-                                    onClick={() => ChangeFC && ChangeFC()}
+                                    onClick={() => product.id_product}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"
@@ -142,7 +149,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-40 xl:right-80"
-                                    onClick={() => DeleteFC && DeleteFC()}
+                                    onClick={() => product.id_product}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="30" width="26"

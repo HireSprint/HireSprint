@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { ProductTypes } from '@/types/product';
+import {categoriesInterface} from "@/types/category";
 
 
 interface ProductContextType {
@@ -12,7 +13,7 @@ interface ProductContextType {
   productArray: ProductTypes[];
   setProductArray: (product: ProductTypes[]) => void;
   currentPage: number;
-  setCurrentPage: (page: number) => void;
+  setCurrentPage: (page: number) => void;  
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -21,8 +22,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [productsData, setProductsData] = useState<ProductTypes[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
-  const [currentPage, setCurrentPage] = useState(2); 
-
+  const [currentPage, setCurrentPage] = useState(2);
+  
 
   return (
         <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray }}>

@@ -7,7 +7,7 @@ import {ProductTypes} from "@/types/product";
 import {categoriesInterface} from "@/types/category";
 import {cellTypes} from "@/types/cell";
 import {useCategoryContext} from "../context/categoryContext";
-import {addGoogleSheet3, ProductDataTest} from "@/app/api/productos/prductosRF";
+
 
 
 interface ImageGridProps {
@@ -332,57 +332,6 @@ export const ImageGrid2 = ({
         productId: number;
     } | null>(null);
 
-//prueba googleSheet
-    const sendSampleProductsToGoogleSheet = async () => {
-
-        if (soloUnEnvio) {
-
-
-            soloUnEnvio = false;
-            const sampleSheetId = "101"; // Reemplaza con el ID de tu hoja de cálculo de Google Sheets
-
-            const sampleProducts: ProductDataTest[] = [
-                {
-                    category: 'carne',
-                    upc: 2324546,
-                    masterBrand: 'loqeusea',
-                    brand: 'chicle',
-                    typeOfMeat: '',
-                    description: 'clichoso',
-                    variety: 'todas',
-                    typeOfCutVariety: '',
-                    qualityCf: '',
-                    size: 'samll',
-                    pack_Size: '30 box',
-                },
-                {
-                    category: 'carne',
-                    upc: 666666,
-                    masterBrand: 'loqeusea',
-                    brand: 'chicle',
-                    typeOfMeat: '',
-                    description: 'clichoso',
-                    variety: 'todas',
-                    typeOfCutVariety: '',
-                    qualityCf: '',
-                    size: 'samll',
-                    pack_Size: '30 box',
-                }
-            ];
-
-            // Llamada a addGoogleSheet3 con manejo de respuesta y errores
-            try {
-                const response = await addGoogleSheet3('idUsarioNuevo', sampleProducts);
-                console.log("Productos enviados con éxito:", response);
-            } catch (error) {
-                console.error("Error al enviar productos:", error);
-            }
-        }
-
-    };
-
-// Llama a la función para enviar los productos de muestra
- //   sendSampleProductsToGoogleSheet();
 
     const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
         e.preventDefault();

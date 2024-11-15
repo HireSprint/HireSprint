@@ -4,6 +4,7 @@ import Header from "./components/header";
 import { ProductProvider } from "./context/productContext";
 import { PrimeReactProvider } from "primereact/api";
 import Tailwind from 'primereact/passthrough/tailwind';
+import {CategoryProvider} from "@/app/context/categoryContext";
 
 
 export const metadata: Metadata = {
@@ -20,11 +21,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
       <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
-      <ProductProvider>
+          <CategoryProvider>
+          <ProductProvider>
           <Header />
           {children}
         </ProductProvider>
-        </PrimeReactProvider>
+          </CategoryProvider>
+      </PrimeReactProvider>
       </body>
     </html>
   );

@@ -1,7 +1,10 @@
+import {ProductTypes} from "@/types/product";
+import {CategoryProvider, useCategoryContext} from "@/app/context/categoryContext";
+import {useProductContext} from "@/app/context/productContext";
+import {categoriesInterface} from "@/types/category";
 
-import { ProductTypes } from "@/types/product";
-
-{/*const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');*/}
+{/*const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');*/
+}
 
 
 export const addGoogleSheet = async (data: any) => {
@@ -37,7 +40,7 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             id_product: product.id_product,
             name: product.name,
             url_image: product.url_image,
-           
+
             price: product.price || null,
             desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
         }));
@@ -69,40 +72,28 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
 };
 
 
-export interface ProductDataTest {
-    category: string;
-    upc: number;
-    masterBrand: string;
-    brand: string;
-    typeOfMeat: string;
-    description: string;
-    variety: string;
-    typeOfCutVariety: string;
-    qualityCf: string;
-    size: string;
-    pack_Size: string;
+export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
+  
+    const url = "https://script.google.com/macros/s/AKfycbzwhuX7fteMZmPJ48C1APoiMAjO5wJplZHONRxEjUboVXh2_yOF4fvQ1MEZckvtnvM/exec";
     
-}
-
-export const addGoogleSheet3 = async (sheetId : string, dataArray : ProductDataTest[]) => {
-    const url = "https://script.google.com/macros/s/AKfycbwK_-5xyA5LE6wqMhAVbnzmkAjGHSDm8O64XKsCmJYsdgmXS4v-H7wNl6JmkQZ9V9bO/exec";
-
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
-        const formattedData = dataArray.map(product => ({
-            category : product.category,
-            upc : product.upc,
-            masterBrand : product.masterBrand,
-            brand : product.brand,
-            typeOfMeat : product.typeOfMeat,
-            description : product.description,
-            variety : product.variety,
-            typeOfCutVariety: product.typeOfCutVariety,
-            qualityCf: product.qualityCf,
-            size : product.size,
-            pack_Size: product.pack_Size,
-        }));
+        const formattedData = selectedProducts.map(product => ({
+            upc: product.upc,
+            id_product : product.id_product,
+            masterBrand: product.master_brand,
+            brand: product.brand,
+            description: product.desc,
+            category: categoriesData.find((category: categoriesInterface) => category.id_category === product.id_category)?.name_category,
+            variety: product.variety && product.variety[0] ? product.variety : '',
+            pack_Size: product.size,
+            qualityCf: product.quality__Cf,
+            typeOfMeat: product.type_of_meat,
+            typeOfCutVariety: product.type_of_cut,
+            price: product.price,
 
+        }));
+        console.log(formattedData);
         // Hacer la solicitud HTTP POST al script de Google Apps con `sheetId`
         await fetch(url, {
             method: 'POST',
@@ -124,73 +115,7 @@ export const addGoogleSheet3 = async (sheetId : string, dataArray : ProductDataT
         throw error;
     }
 };
-// export const addGoogleSheet3 = async (dataArray: ProductDataTest[]) => {
-//     const url = "https://script.google.com/macros/s/AKfycbxSzFx8XtIAxKOMqZNa9L8k7ODR-fs7PPyo6PQvPGGb7PQI94-WVTSxpNWxfgHf9EHY/exec";
-//
-//     try {
-//         // Convertir los productos al formato adecuado para la API de Google Sheets
-//         const formattedData = dataArray.map(product => ({
-//             _id: product._id,
-//             id_category: product.id_category,
-//             name: product.name,
-//             brand: product.brand,
-//             upc: product.upc,
-//             size: product.size,
-//             variety: product.variety,
-//             price: product.price,
-//             conditions: product.conditions,
-//             sku: product.sku,
-//             desc: product.desc,
-//             main: product.main,
-//             addl: product.addl,
-//             burst: product.burst,
-//             sale_price: product.sale_price,
-//             price_text: product.price_text,
-//             reg_price: product.reg_price,
-//             save_up_to: product.save_up_to,
-//             item_code: product.item_code,
-//             group_code: product.group_code,
-//             burst2: product.burst2,
-//             burst3: product.burst3,
-//             burst4: product.burst4,
-//             with_cart: product.with_cart,
-//             color: product.color,
-//             notes: product.notes,
-//             buyer_notes: product.buyer_notes,
-//             effective: product.effective,
-//             unit_price: product.unit_price,
-//             id_product: product.id_product,
-//             __v: product.__v
-//         }));
-//
-//         // Hacer la solicitud HTTP POST al script de Google Apps con `sheetId`
-//         const response = await fetch(url, {
-//             method: 'POST',
-//             mode: 'no-cors',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({
-//                 //sheetId: sheetId, // Agregar el `sheetId` aquí
-//                 productos: formattedData
-//             }),
-//         });
-//
-//         // Verificar si la respuesta HTTP fue exitosa (aunque en no-cors no puedes ver el resultado)
-//         if (!response.ok) {
-//             throw new Error(`Error en la solicitud HTTP! status: ${response.status}`);
-//         }
-//
-//         // Intentar obtener el resultado en formato JSON (esto no funcionará en modo no-cors)
-//         const result = await response.json();
-//         console.log("Respuesta de Google Sheet:", result);
-//         return result;
-//
-//     } catch (error) {
-//         console.error('Error al interactuar con Google Sheet:', error);
-//         throw error;
-//     }
-// };
+
 {/*  AIzaSyDRdER7z-xWfILxTUO-nhuo96uULVp02Rw*/
 }
 {/*479944829804-u47ce5ne0n2f7c0qbccsirr1be0nu110.apps.googleusercontent.com */
