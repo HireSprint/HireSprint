@@ -8,7 +8,7 @@ import {Nullable} from "primereact/ts-helpers";
 import {useProductContext} from '../context/productContext';
 import {MessageIcon, ProfileIcon, VideoIcon} from './icons';
 import {usePathname} from 'next/navigation';
-import {addGoogleSheet3, PruebaElementosGoogleSheet} from "@/app/api/productos/prductosRF";
+import {addGoogleSheet3} from "@/app/api/productos/prductosRF";
 import {ProductProvider} from "../context/productContext";
 import {useCategoryContext} from "@/app/context/categoryContext";
 
