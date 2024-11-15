@@ -23,6 +23,7 @@ export interface ProductTypes {
     burst4?: string,
     with_cart?: boolean,
     id_product?: number,
+    id_grid?: number,
     notes?: string,
     buyer_notes?: string,
     effective?: string,

@@ -15,81 +15,65 @@ import { CategoryProvider } from "./context/categoryContext";
 
 
 export default function HomePage() {
-    const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const {selectedProducts, setSelectedProducts, productsData, setProductsData} = useProductContext();
     
     const [loading, setLoading] = useState(true);
-    const [grids, setGrids] = useState<{id:number, product: ProductTypes | null}[]>([]);
+    
     const { currentPage } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
-    const [moveMode, setMoveMode] = useState<{
-        active: boolean;
-        productId: number;
-        sourceGridId: number;
-    } | null>(null);
+    const [moveMode, setMoveMode] = useState<{ active: boolean; sourceCellId: number; } | null>(null);
 
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-    const [categoriesList, setCategories] = useState<categoriesInterface[]>([]);
-
-
-
     
-  useEffect(() => {
-    const getProductView = async () => {
-      try {
-        const resp = await fetch("/api/apiMongo/getProduct");
-        const data = await resp.json();
-        setProductsData(data.result);
-        setLoading(false);
-        if(resp.status === 200){
-            setProductByApi(data.result);
-            setProductSelected(data.result[1]);
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getProduct");
+                const data = await resp.json();
+                setProductsData(data.result);
+                setLoading(false);
+                if(resp.status === 200){
+                    setProductByApi(data.result);
+                    setProductSelected(data.result[1]);
+                    }
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
-      } catch (error) {
-        console.error("Error al obtener los productos:", error);
-      }
-    };
-    
-    getProductView();
-  }, []);
+        };
+        
+        getProductView();
+    }, []);
 
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
     
-        const productWithGrid = { ...product, id_product: selectedGridId };
-        setGrids((prevGrids) => {
-            const updatedGrids = prevGrids.map((grid) =>
-                grid.id === selectedGridId ? { ...grid, product: productWithGrid } : grid
-            );
-            return updatedGrids;
-        });
-    
+        const productWithGrid = { ...product, id_grid: selectedGridId };
+        
         setSelectedProducts((prev) => {
-            const newProducts = prev.filter((p) => p.id_product !== selectedGridId);
+            const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
             return updatedProducts;
         });
+
+        setIsModalOpen(false)
     };
-    const handleRemoveProduct = (productId: number) => {
+
+
+    const handleRemoveProduct = (idCell: number) => {
         setSelectedProducts((prevProducts) => {
-            const updatedProducts = prevProducts.filter((product) => product.id_product !== productId);
+            const updatedProducts = prevProducts.filter((product) => product.id_grid !== idCell);
             return updatedProducts;
         });
-        setGrids((prevGrids) => {
-            const updatedGrids = prevGrids.map((grid) =>
-                grid.product && grid.product.id_product === productId ? { ...grid, product: null } : grid
-            );
-            return updatedGrids;
-        });
-        setShowProducts(false);
+        
+        setIsModalOpen(false);
     };
 
     const handleCopyProduct = (product: ProductTypes) => {
@@ -100,14 +84,13 @@ export default function HomePage() {
         setCopiedProduct(null); // Limpiar el producto copiado después de pegar
     };
 
-    const handleChangeProduct = (productId: number) => {
+    const handleChangeProduct = (idCell: number) => {
         // Encontrar el producto y su grid actual
-        const productToMove = selectedProducts.find(p => p.id_product === productId);
-        if (productToMove && productToMove.id_product) {
+        const productToMove = selectedProducts.find(p => p.id_grid === idCell);
+        if (productToMove && productToMove.id_grid) {
             setMoveMode({
                 active: true,
-                productId: productId,
-                sourceGridId: productToMove.id_product
+                sourceCellId: productToMove.id_grid
             });
             // Mostrar mensaje al usuario
             console.log({
@@ -116,23 +99,23 @@ export default function HomePage() {
                 status: "info",
                 duration: 3000,
             });
-            setShowProducts(false); // Ocultar el panel de productos si está visible
+            setIsModalOpen(false); // Ocultar el panel de productos si está visible
         }
     };
 
 
-    const handleProductMove = (targetGridId: number) => {
+    const handleProductMove = (targetCellId: number) => {
         if (!moveMode) return;
 
         setSelectedProducts(prevProducts => {
             return prevProducts.map(product => {
-                if (product.id_product=== moveMode.productId) {
+                if (product.id_grid=== moveMode.sourceCellId) {
                     // Actualizar el gridId del producto que se está moviendo
-                    return { ...product, id_product: targetGridId };
+                    return { ...product, id_grid: targetCellId };
                 }
-                if (product.id_product === targetGridId) {
+                if (product.id_grid === targetCellId) {
                     // Si hay un producto en el grid destino, moverlo al grid origen
-                    return { ...product, id: moveMode.sourceGridId };
+                    return { ...product, id: moveMode.sourceCellId };
                 }
                 return product;
             });
@@ -149,25 +132,23 @@ export default function HomePage() {
         });
     };
 
-    const handleGridSelect = (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => {
+    const handleGridClick = (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => {
+        
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
         
-        // Verificar si el grid ya tiene un producto
         setMousePosition({ x: event.clientX, y: event.clientY });
 
-        const gridHasProduct = selectedProducts.some(product => product.id_product === gridId);
+        // Verificar si el grid ya tiene un producto
+        const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
 
-        if (copiedProduct && !selectedProducts.some(product => product.id_product === gridId)) {
-            const productWithNewGrid = { ...copiedProduct, id_product: gridId };
+        if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
+            const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
+            
             setSelectedProducts(prev => [...prev, productWithNewGrid]);
-            setGrids(prevGrids => {
-                return prevGrids.map(grid => 
-                    grid.id === gridId ? { ...grid, product: productWithNewGrid } : grid
-                );
-            });
+            handlePasteProduct()
             return;
         }
         
@@ -175,28 +156,25 @@ export default function HomePage() {
             handleProductMove(gridId);
         } else if (gridHasProduct) {
             // Si el grid tiene un producto, mostrar el modal de edición
-            const selectedProduct = selectedProducts.find(product => product.id_product === gridId);
+            const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
             setSelectedGridId(gridId);
             setIsModalOpen(true)
         } else {
             // Si el grid está vacío, mostrar el selector de productos
             setSelectedGridId(gridId);
-            setShowProducts(true);
+            setIsModalOpen(true);
         }
     };
 
 
 
     const commonGridProps = {
-        onProductSelect: handleGridSelect,
-        selectedProducts: selectedProducts,
+        onGridCellClick: handleGridClick,
         onRemoveProduct: handleRemoveProduct,
         onChangeProduct: handleChangeProduct,
         isMoveModeActive: moveMode?.active || false,
-        categoriesList: categoriesList,
         products: productsData,
-        isCellOccupied: selectedProducts.some(product => product.id_product === selectedGridId),
         onCopyProduct: handleCopyProduct,
         copiedProduct: copiedProduct,
         onPasteProduct: handlePasteProduct
@@ -240,7 +218,6 @@ export default function HomePage() {
 
                                             <ImageGrid2 {...commonGridProps}/>
 
-
                                             <p className="text-black text-md">Pagina {currentPage} </p>
                                         </div>
                                     )}
@@ -271,10 +248,9 @@ export default function HomePage() {
 
                 {/* Mostrar / Ocultar productos */}
                 <div className="flex ">
-        {showProducts && mousePosition && (
-            selectedProducts.some(product => product.id_product === selectedGridId) ? (
+        {isModalOpen && mousePosition && (
+            selectedProducts.some(product => product.id_grid === selectedGridId) ? (
                 <ModalEditProduct 
-                    isOpen={isModalOpen} 
                     setIsOpen={setIsModalOpen} 
                     product={productSelected as ProductTypes} 
                     GridID={selectedGridId || 0} 
@@ -298,7 +274,7 @@ export default function HomePage() {
                         productsData={productsData}
                         loading={loading}
                         onProductSelect={handleProductSelect}
-                        onHideProducts={() => setShowProducts(false)}
+                        onHideProducts={() => setIsModalOpen(false)}
                     />
                 </motion.div>
             )
@@ -355,8 +331,8 @@ const GridProduct: React.FC<GridProductProps> = ({
                 <div className="flex flex-col h-fit overflow-y-auto space-y-4">
                     {filteredProducts.map((product) => (
                         <CardShow
-                            product={product}
                             key={product.id_product}
+                            product={product}
                             onProductSelect={onProductSelect}
                         />
                     ))}
