@@ -5,6 +5,7 @@ import { ProductTypes } from "@/types/product"
 import { categoriesInterface } from "@/types/category"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Input } from "postcss"
 
 const AddProductPage = () => {
     const {
@@ -13,14 +14,36 @@ const AddProductPage = () => {
         formState: { errors },
         watch, 
         reset
-    } = useForm<ProductTypes>()
+    } = useForm<ProductTypes>({
+        defaultValues: {
+            id_category: 0,
+        }
+    })
 
     const imageFile = watch("image");
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [categories, setCategories] = useState<categoriesInterface[]>([]);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const selectedCategory = watch("id_category");
 
- 
+ const categoryFields: Record<string, {name: string, placeholder: string}[]> = {
+    "5": [
+        {name: "type_of_meat", placeholder: "Type of meat"},
+        {name: "desc", placeholder: "Description"},
+        {name: "variety", placeholder: "Type OF cut / Variety"},
+        {name: "quality_cf", placeholder: "Quality CF"},
+        {name: "size", placeholder: "Size / Pack"},
+        {name: "sku", placeholder: "SKU"},
+    ],
+    "16": [
+        {name: "type_of_meat", placeholder: "Type of meat"},
+        {name: "desc", placeholder: "Description"},
+        {name: "variety", placeholder: "Type OF cut / Variety"},
+        {name: "quality_cf", placeholder: "Quality CF"},
+        {name: "size", placeholder: "Size / Pack"},
+        {name: "sku", placeholder: "SKU"},
+    ]
+ };
 
     useEffect(() => {
         const getProductView = async () => {
@@ -130,7 +153,7 @@ const AddProductPage = () => {
                                 {...register("id_category", { required: true })}
                                 className="w-full bg-gray-500 text-white p-2 rounded-md"
                             >
-                                <option value="">Select a category</option>
+                                <option value=""> Select a category</option>
                                 {categories?.length > 0 && categories?.map((category: categoriesInterface) => (
                                     <option key={category.id_category} value={category.id_category}>
                                         {category.name_category}
@@ -144,7 +167,7 @@ const AddProductPage = () => {
 
                         <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
 
-                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" maxLength={12} minLength={12}/>
+                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" minLength={12}/>
                         {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
 
                     </div>
@@ -154,12 +177,21 @@ const AddProductPage = () => {
                 <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Details</h2>
                     <div className="space-y-4">
-                        <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("color")} placeholder="Color" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("conditions")} placeholder="Conditions" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("type_of_meat")} placeholder="Type of meat" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("quantity")} placeholder="Quantity" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                    {(String(selectedCategory) === "5" || String(selectedCategory) === "16")
+                            ? categoryFields[selectedCategory]?.map((field) => (
+                                  <input
+                                      key={field.name}
+                                      {...register(field.name as keyof ProductTypes)}
+                                      placeholder={field.placeholder}
+                                      className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                  />
+                              ))
+                            : <>
+
+                              <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                              <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                              </>
+                    }
                     </div>
 
                 </div>
