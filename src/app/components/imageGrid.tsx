@@ -226,6 +226,9 @@ export const ImageGrid2 = ({
     onPasteProduct
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const { setSelectedProducts } = useProductContext();
+    const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
+
 
     const initialGridCells: cellTypes[] = [
         // Grocery
@@ -365,10 +368,48 @@ export const ImageGrid2 = ({
             );
         }
     }, [categoriesData])
+    
+    useEffect(() => {
+        if (productsData.length && gridCells.length && !hasFilledGrid) {
+            
+            const gridFilled = fillGridWithProducts(gridCells, productsData)
+            setSelectedProducts(prev => [...prev, ...gridFilled]);
+
+            if (gridCells.some((cell)=> cell?.idCategory != undefined && cell?.idCategory != null)) setHasFilledGrid(true)
+        }
+    }, [productsData, gridCells])
+
+    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
+        // 1. Crear un mapa para agrupar productos por categoría
+        const productsByCategory = [...products].reduce((acc, product) => {
+            if (!acc[product.id_category]) {
+                acc[product.id_category] = [];
+            }
+            acc[product.id_category].push(product);
+            return acc;
+        }, {} as Record<number, ProductTypes[]>);
+    
+        // 2. Asignar productos a las celdas de la grilla
+        const filledGrid = [...gridCells].reduce((acc: any, cell: cellTypes) => {
+            const { idCategory } = cell;
+            if (idCategory) {
+                const productsForCategory = productsByCategory[idCategory] || [];
+
+                if (productsForCategory.length > 0) {
+                    // Tomar el primer producto disponible para esta categoría
+                    const product = productsForCategory.shift()!;
+                    acc.push({ ...product, id_product: cell.id }); // Agregar el producto a la celda
+                }
+            }
+
+            return acc;
+        }, []) as ProductTypes[];
+
+        return filledGrid;
+    };
 
 
     useEffect(() => {
-
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);

@@ -17,8 +17,8 @@ import { CategoryProvider } from "./context/categoryContext";
 export default function HomePage() {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const {selectedProducts, setSelectedProducts } = useProductContext();
-    const [productsData, setProductsData] = useState<ProductTypes[]>([]);
+    const {selectedProducts, setSelectedProducts, productsData, setProductsData} = useProductContext();
+    
     const [loading, setLoading] = useState(true);
     const [grids, setGrids] = useState<{id:number, product: ProductTypes | null}[]>([]);
     const { currentPage } = useProductContext();
@@ -149,7 +149,7 @@ export default function HomePage() {
         });
     };
 
-    const handleGridSelect = (gridId: number, categoryGridSelected:categoriesInterface, event: React.MouseEvent) => {
+    const handleGridSelect = (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;

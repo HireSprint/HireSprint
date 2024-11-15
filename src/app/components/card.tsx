@@ -208,7 +208,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
                             { product?.name?.toString().substring(0, 20) }
                         </div>
                         <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                            { cell?.id }
+                            { cell?.id } - { cell?.idCategory }
                         </div>
                     </div>
                 }
