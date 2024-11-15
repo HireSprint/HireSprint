@@ -67,9 +67,9 @@ export default function HomePage() {
     };
 
 
-    const handleRemoveProduct = (idCell: number) => {
+    const handleRemoveProduct = (idGrid: number) => {
         setSelectedProducts((prevProducts) => {
-            const updatedProducts = prevProducts.filter((product) => product.id_grid !== idCell);
+            const updatedProducts = prevProducts.filter((product) => product.id_grid !== idGrid);
             return updatedProducts;
         });
         
@@ -84,9 +84,9 @@ export default function HomePage() {
         setCopiedProduct(null); // Limpiar el producto copiado después de pegar
     };
 
-    const handleChangeProduct = (idCell: number) => {
+    const handleChangeProduct = (idGrid: number) => {
         // Encontrar el producto y su grid actual
-        const productToMove = selectedProducts.find(p => p.id_grid === idCell);
+        const productToMove = selectedProducts.find(p => p.id_grid === idGrid);
         if (productToMove && productToMove.id_grid) {
             setMoveMode({
                 active: true,
