@@ -32,7 +32,7 @@ export const addGoogleSheet = async (data: any) => {
 };
 
 export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
-    const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
+    const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec";
 
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
@@ -74,13 +74,13 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
 
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
   
-    const url = "https://script.google.com/macros/s/AKfycbzwhuX7fteMZmPJ48C1APoiMAjO5wJplZHONRxEjUboVXh2_yOF4fvQ1MEZckvtnvM/exec";
+    const url = "https://script.google.com/macros/s/AKfycby_Fai8CGt9_uX4yTP1JAgjKwZQMfmlr3BlCN08DAq0trwnMf88P_TwX8ofKfTOPtuL/exec";
     
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
         const formattedData = selectedProducts.map(product => ({
             upc: product.upc,
-            id_product : product.id_product,
+            idCell : product.id_product,
             masterBrand: product.master_brand,
             brand: product.brand,
             description: product.desc,
