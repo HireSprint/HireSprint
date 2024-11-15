@@ -1,4 +1,5 @@
 
+import { useCategoryContext } from "@/app/context/categoryContext";
 import { ProductTypes } from "@/types/product";
 
 {/*const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');*/}
@@ -29,6 +30,8 @@ export const addGoogleSheet = async (data: any) => {
 };
 
 export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
+    const { categoriesData } = useCategoryContext()
+
     const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
 
     try {
@@ -37,6 +40,7 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             id_product: product.id_product,
             name: product.name,
             url_image: product.url_image,
+            id_category: product.id_category,
            
             price: product.price || null,
             desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
@@ -67,39 +71,3 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
         throw error;
     }
 };
-
-// export const addGoogleSheet2 = async (dataArray: any) => {
-//     const url = "https://script.google.com/macros/s/AKfycbyrtdLbUcOcx4JLzHKiT_RVVoppbg3KO1bXpnYxD3oz2zi__fWYA_OX8FJ0qAZMoyLBzw/exec";
-//
-//     try {
-//         const response = await fetch(url, {
-//             method: 'POST',
-//             mode: "no-cors",
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({data: dataArray}),
-//         });
-//
-//         // Verificar si la respuesta HTTP fue exitosa
-//         if (!response.ok) {
-//             throw new Error(`Error en la solicitud HTTP! status: ${response.status}`);
-//         }
-//
-//         // Obtener el resultado en formato JSON
-//         const result = await response.json();
-//         console.log('Respuesta de Google Sheet:', result);
-//         return result;
-//
-//     } catch (error) {
-//         console.error('Error al interactuar con Google Sheet:', error);
-//         throw error;
-//     }
-// };
-
-
-
-{/*  AIzaSyDRdER7z-xWfILxTUO-nhuo96uULVp02Rw*/
-}
-{/*479944829804-u47ce5ne0n2f7c0qbccsirr1be0nu110.apps.googleusercontent.com */
-}
