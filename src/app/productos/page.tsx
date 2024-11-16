@@ -3,7 +3,8 @@ import { useState } from 'react';
 import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
-import { ProductTypes } from '@/types/product'; 
+import { ProductTypes } from '@/types/product';
+import {useProductContext} from "@/app/context/productContext"; 
 
 
 const ProductosBase = () => {
@@ -118,3 +119,4 @@ const ProductosBase = () => {
 }
 
 export default ProductosBase;
+

@@ -1,8 +1,8 @@
-
+import {categoriesInterface} from "@/types/category";
 import { useCategoryContext } from "@/app/context/categoryContext";
 import { ProductTypes } from "@/types/product";
 
-{/*const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');*/}
+
 
 
 export const addGoogleSheet = async (data: any) => {
@@ -30,9 +30,10 @@ export const addGoogleSheet = async (data: any) => {
 };
 
 export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
+
     const { categoriesData } = useCategoryContext()
 
-    const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
+   const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec"
 
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
@@ -41,7 +42,6 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             name: product.name,
             url_image: product.url_image,
             id_category: product.id_category,
-           
             price: product.price || null,
             desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
         }));
@@ -71,3 +71,53 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
         throw error;
     }
 };
+
+export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
+  
+    const url = "https://script.google.com/macros/s/AKfycby_Fai8CGt9_uX4yTP1JAgjKwZQMfmlr3BlCN08DAq0trwnMf88P_TwX8ofKfTOPtuL/exec";
+    
+    try {
+        // Convertir los productos al formato adecuado para la API de Google Sheets
+        const formattedData = selectedProducts.map(product => ({
+            upc: product.upc,
+            idCell : product.id_product,
+            masterBrand: product.master_brand,
+            brand: product.brand,
+            description: product.desc,
+            category: categoriesData.find((category: categoriesInterface) => category.id_category === product.id_category)?.name_category,
+            variety: product.variety && product.variety[0] ? product.variety : '',
+            pack_Size: product.size,
+            qualityCf: product.quality_cf,
+            typeOfMeat: product.type_of_meat,
+            typeOfCutVariety: product.type_of_cut,
+            price: product.price,
+
+        }));
+        console.log(formattedData);
+        // Hacer la solicitud HTTP POST al script de Google Apps con `sheetId`
+        await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors', // Habilitar no-cors
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sheetId: sheetId, // Agregar el `sheetId` aquí
+                productos: formattedData
+            }),
+        });
+
+        // Solo un mensaje de confirmación en consola (sin datos de la respuesta)
+        console.log("Solicitud enviada a Google Sheets.");
+
+    } catch (error) {
+        console.error('Error al interactuar con Google Sheet:', error);
+        throw error;
+    }
+};
+
+{/*  AIzaSyDRdER7z-xWfILxTUO-nhuo96uULVp02Rw*/
+}
+{/*479944829804-u47ce5ne0n2f7c0qbccsirr1be0nu110.apps.googleusercontent.com */
+}
+
