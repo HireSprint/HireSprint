@@ -5,19 +5,19 @@ import Lottie from "lottie-react";
 import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
 import {motion} from "framer-motion"; // Para animaciones
-import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
-import { useProductContext } from "./context/productContext";
+import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "./components/imageGrid";
+import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { ProductTypes } from "@/types/product";
-import { CategoryProvider } from "./context/categoryContext";
+import {ProductTypes} from "@/types/product";
+import {CategoryProvider} from "./context/categoryContext";
 
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const {selectedProducts, setSelectedProducts, productsData, setProductsData} = useProductContext();
     const [loading, setLoading] = useState(true);
-    const { currentPage } = useProductContext();
+    const {currentPage} = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
@@ -26,8 +26,10 @@ export default function HomePage() {
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
-    const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+    const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({x: 0, y: 0});
+    //
+    const [showProducts, setShowProducts] = useState(false);
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -35,24 +37,24 @@ export default function HomePage() {
                 const data = await resp.json();
                 setProductsData(data.result);
                 setLoading(false);
-                if(resp.status === 200){
+                if (resp.status === 200) {
                     setProductByApi(data.result);
                     setProductSelected(data.result[1]);
-                    }
+                }
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
             }
         };
-        
+
         getProductView();
     }, []);
 
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
-    
-        const productWithGrid = { ...product, id_grid: selectedGridId };
-        
+
+        const productWithGrid = {...product, id_grid: selectedGridId};
+
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
@@ -60,6 +62,7 @@ export default function HomePage() {
         });
 
         setIsModalOpen(false)
+        setShowProducts(false);
     };
 
 
@@ -68,8 +71,9 @@ export default function HomePage() {
             const updatedProducts = prevProducts.filter((product) => product.id_grid !== idGrid);
             return updatedProducts;
         });
-        
+
         setIsModalOpen(false);
+        setShowProducts(false);
     };
 
     const handleCopyProduct = (product: ProductTypes) => {
@@ -96,6 +100,7 @@ export default function HomePage() {
                 duration: 3000,
             });
             setIsModalOpen(false); // Ocultar el panel de productos si está visible
+            setShowProducts(false);
         }
     };
 
@@ -105,13 +110,13 @@ export default function HomePage() {
 
         setSelectedProducts(prevProducts => {
             return prevProducts.map(product => {
-                if (product.id_grid=== moveMode.sourceCellId) {
+                if (product.id_grid === moveMode.sourceCellId) {
                     // Actualizar el gridId del producto que se está moviendo
-                    return { ...product, id_grid: targetCellId };
+                    return {...product, id_grid: targetCellId};
                 }
                 if (product.id_grid === targetCellId) {
                     // Si hay un producto en el grid destino, moverlo al grid origen
-                    return { ...product, id: moveMode.sourceCellId };
+                    return {...product, id: moveMode.sourceCellId};
                 }
                 return product;
             });
@@ -119,6 +124,7 @@ export default function HomePage() {
 
         // Resetear el modo de movimiento
         setMoveMode(null);
+   
 
         console.log({
             title: "Producto movido",
@@ -129,28 +135,28 @@ export default function HomePage() {
     };
 
     const handleGridClick = (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => {
-        
+
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-        
-        setMousePosition({ x: event.clientX, y: event.clientY });
+
+        setMousePosition({x: event.clientX, y: event.clientY});
 
         // Verificar si el grid ya tiene un producto
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
 
         if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
-            const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
-            
+            const productWithNewGrid = {...copiedProduct, id_grid: gridId};
+
             setSelectedProducts(prev => [...prev, productWithNewGrid]);
             handlePasteProduct()
             return;
         }
-        
+
         if (moveMode?.active) {
             handleProductMove(gridId);
-        } else if (gridHasProduct && !productoShowForce) {
+        } else if (gridHasProduct && productoShowForce) {
             // Si el grid tiene un producto, mostrar el modal de edición
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
@@ -160,9 +166,9 @@ export default function HomePage() {
             // Si el grid está vacío, mostrar el selector de productos
             setSelectedGridId(gridId);
             setIsModalOpen(true);
+            setShowProducts(true);
         }
     };
-
 
 
     const commonGridProps = {
@@ -179,26 +185,63 @@ export default function HomePage() {
 
 
     let productoShowForce: boolean = true;
+
     const handleChangeProductForOther = (gridId: number | undefined) => {
         if (gridId === undefined)
             return;
-        productoShowForce = false;      
+        productoShowForce = false;
+        console.log(productoShowForce, 'valor del bool', showProducts, gridId)
         setIsModalOpen(false);
         setSelectedGridId(gridId);
+        setShowProducts(true);
+
     }
+
+    const handleSaveChangeProduct = (gridID: number | undefined, price: number) => {
+        if (gridID === undefined) {
+            return;
+        }
+
+        console.log(gridID, 'valor', price, 'precio');
+
+        // Encuentra el índice del producto que deseas actualizar
+        const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
+        if (productIndex === -1) {
+            console.log('Producto no encontrado');
+            return;
+        }
+
+        // Actualiza directamente el producto
+        selectedProducts[productIndex].price = price;
+
+        console.log(selectedProducts[productIndex], 'precio cambiado');
+
+        // Llama a setProductsData para que React reconozca el cambio
+        setProductsData([...selectedProducts]);  // El operador de propagación crea una nueva referencia para que React detecte cambios
+
+        console.log(selectedProducts);
+        ClosetPanels();
+    };
     const handleCategorySelect = (category: string) => {
         setCategory(category);
     };
+    
+    const ClosetPanels = ()=> {
+        setShowProducts(false)
+        setIsModalOpen(false)
+    }
 
+  
     return (
         <CategoryProvider>
-            <div className="flex flex-col" >
+            <div className="flex flex-col">
                 <div>
-                    <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                    {category && <ProductContainer category={category} setCategory={setCategory} />}
+                    <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category}/>
+                    {category && <ProductContainer category={category} setCategory={setCategory}/>}
                 </div>
                 <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
-                    <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                    <div
+                        className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
                         {/* @ts-ignore */}
 
                         <ImageGrid {...commonGridProps}/>
@@ -211,10 +254,10 @@ export default function HomePage() {
                             <div className="flex flex-col items-center w-full relative">
                                 <motion.div
                                     key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
                                     className="w-full relative"
                                 >
                                     {currentPage === 2 && (
@@ -252,45 +295,43 @@ export default function HomePage() {
                 </div>
 
                 {/* Mostrar / Ocultar productos */}
-                <div className="flex">
-                    {isModalOpen && mousePosition &&
-                    selectedProducts.some((product: ProductTypes) => product.id_grid === selectedGridId) ? (
+                <div className="flex ">
+                    {isModalOpen && productSelected && !showProducts && (
                         <ModalEditProduct
                             setIsOpen={setIsModalOpen}
                             product={productSelected as ProductTypes}
                             GridID={selectedGridId || 0}
-                            SaveFC={() => console.log("save")}
+                            SaveFC={handleSaveChangeProduct}
                             ChangeFC={() => {
                                 handleChangeProductForOther(selectedGridId || 0);
                             }}
                             DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
                         />
-                    ) : (
-                        productoShowForce && mousePosition && (
-                            <motion.div
-                                initial={{opacity: 0, y: 20}}
-                                exit={{opacity: 0, y: 20}}
-                                animate={{opacity: 1, y: 0}}
-                                transition={{duration: 0.5}}
-                                className="absolute"
-                                style={{
-                                    top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                                    left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
-                                }}
-                            >
-                                <GridProduct
-                                    productsData={productsData}
-                                    loading={loading}
-                                    onProductSelect={handleProductSelect}
-                                    onHideProducts={() => {
-                                        productoShowForce = false; // Ocultamos el panel cuando se cierra
-                                    }}
-                                />
-                            </motion.div>
-                        )
+                    )}
+
+                    {/* Mostrar el panel de selección de productos (GridProduct) */}
+                    {showProducts && mousePosition && (
+                        <motion.div
+                            initial={{opacity: 0, y: 20}}
+                            exit={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.5}}
+                            className="absolute"
+                            style={{
+                                top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                                left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
+                            }}
+                        >
+                            <GridProduct
+                                productsData={productsData}
+                                loading={loading}
+                                onProductSelect={handleProductSelect}
+                                onHideProducts={ClosetPanels}
+                            />
+                        </motion.div>
                     )}
                 </div>
-                
+
             </div>
         </CategoryProvider>
     );
@@ -304,24 +345,25 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
-    loading,
-    onProductSelect,
-    onHideProducts,
-    productsData
-}) => {
+                                                     loading,
+                                                     onProductSelect,
+                                                     onHideProducts,
+                                                     productsData
+                                                 }) => {
     const [searchTerm, setSearchTerm] = useState<string>("");
-    
+
     const filteredProducts = productsData?.filter((product) =>
         product.desc?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.master_brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.upc?.toString().includes(searchTerm) || 
+        product.upc?.toString().includes(searchTerm) ||
         product.variety?.includes(searchTerm)
     );
 
     return (
-        <div className="bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+        <div
+            className="bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
             <div className="flex justify-between bg-white sticky top-0 z-10 sm:grid sm:grid-cols-2">
                 <input
                     type="text"

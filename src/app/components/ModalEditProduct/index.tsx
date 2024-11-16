@@ -10,7 +10,7 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid : number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: () => void,
+    SaveFC?: (idGrid: number  | undefined, priceValue : number) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -21,7 +21,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
   
     const SELECT_OPTIONS = ["kg", "mL", "L"]
 
-
+    const [price, setPrice] = useState(product?.price || 0);
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -116,8 +116,16 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         </div>
 
                                         <div className={"flex w-full flex-row  justify-start gap-5"}>
-                                            <input type={"number"} defaultValue={product?.price}
-                                                className="w-2/12 p-1 border border-gray-950 rounded font-bold text-black mt-8 " />
+                                            <input
+                                                type="number"
+                                                value={price} // El valor está controlado por el estado
+                                                onChange={(event) => {
+                                                    const newValue = parseFloat(event.target.value) || 0; // Convertir a número
+                                                    setPrice(newValue); // Actualiza el valor del estado
+                                                    console.log('Precio guardado:', event.target.value); // Guarda el dato directamente al cambiar
+                                                }}
+                                                className="w-2/12 p-1 border border-gray-950 rounded font-bold text-black mt-8"
+                                            />
                                             <select
                                                 className="w-2/12 p-1 border border-gray-950 rounded font-bold text-black mt-8 ">
                                                 {
@@ -134,7 +142,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             <div className={"flex w-full h-full flex-row"}>
                                 <button
                                     className="px-4 py-2 mt-4 w-2/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 left-10 xl:left-32"
-                                    onClick={() => ChangeFC(product.id_product)}
+                                    onClick={() => ChangeFC(GridID)}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"
@@ -147,7 +155,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-40 xl:right-80"
-                                    onClick={() => DeleteFC(product.id_product)}
+                                    onClick={() => DeleteFC(GridID)}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="30" width="26"
@@ -160,7 +168,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-10 xl:right-28"
-                                    onClick={() => SaveFC && SaveFC()}
+                                    onClick={() => SaveFC?.(GridID ,price)}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="28"
