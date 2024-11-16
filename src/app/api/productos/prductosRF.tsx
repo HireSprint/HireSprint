@@ -1,9 +1,4 @@
-import {ProductTypes} from "@/types/product";
-import {CategoryProvider, useCategoryContext} from "@/app/context/categoryContext";
-import {useProductContext} from "@/app/context/productContext";
 import {categoriesInterface} from "@/types/category";
-
-
 import { useCategoryContext } from "@/app/context/categoryContext";
 import { ProductTypes } from "@/types/product";
 
@@ -38,8 +33,7 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
 
     const { categoriesData } = useCategoryContext()
 
-    const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
-
+   const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec"
 
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
@@ -93,7 +87,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             category: categoriesData.find((category: categoriesInterface) => category.id_category === product.id_category)?.name_category,
             variety: product.variety && product.variety[0] ? product.variety : '',
             pack_Size: product.size,
-            qualityCf: product.quality__Cf,
+            qualityCf: product.quality_cf,
             typeOfMeat: product.type_of_meat,
             typeOfCutVariety: product.type_of_cut,
             price: product.price,
