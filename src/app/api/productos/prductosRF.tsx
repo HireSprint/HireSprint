@@ -3,8 +3,11 @@ import {CategoryProvider, useCategoryContext} from "@/app/context/categoryContex
 import {useProductContext} from "@/app/context/productContext";
 import {categoriesInterface} from "@/types/category";
 
-{/*const baseRF = new Airtable({apiKey: 'pat43oy35gnnqisLE.de53fde6af103790ef4d26e5421a53a75df7c09f93759ce1fa19b872c787b1aa'}).base('app1cSmD9pprWVvGd');*/
-}
+
+import { useCategoryContext } from "@/app/context/categoryContext";
+import { ProductTypes } from "@/types/product";
+
+
 
 
 export const addGoogleSheet = async (data: any) => {
@@ -32,7 +35,11 @@ export const addGoogleSheet = async (data: any) => {
 };
 
 export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
-    const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec";
+
+    const { categoriesData } = useCategoryContext()
+
+    const url = "https://script.google.com/macros/s/AKfycbx7sIsNM0SKAUnK9QSmMsgUuSrC_m1Kbu1vweBtqfmcW5NQxM_I3dGkI9JEIlVAZ5LJ/exec";
+
 
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
@@ -40,7 +47,7 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             id_product: product.id_product,
             name: product.name,
             url_image: product.url_image,
-
+            id_category: product.id_category,
             price: product.price || null,
             desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
         }));
@@ -70,7 +77,6 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
         throw error;
     }
 };
-
 
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
   
@@ -120,3 +126,4 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
 }
 {/*479944829804-u47ce5ne0n2f7c0qbccsirr1be0nu110.apps.googleusercontent.com */
 }
+

@@ -11,11 +11,10 @@ interface ModalEditProductInterface {
     ChangeFC: (idGrid : number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
     SaveFC?: () => void,
-    isOpen?: boolean
     setIsOpen: (isOpen: boolean) => void
 }
 
-const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen, setIsOpen }: ModalEditProductInterface) => {
+const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
@@ -29,7 +28,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                 const resp = await fetch("/api/apiMongo/getCategories");
                 const data = await resp.json();
                 if(resp.status === 200){
-                   setCategories(data.result);
+                    setCategories(data.result);
                 }
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
@@ -57,7 +56,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
 
     return (
         <React.Fragment>
-                {isOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50  ">
                     {/* Contenido del Modal */}
                     <div className={"w-2/3 p-2 relative xl:w-1/2"}>
@@ -177,7 +175,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                         </div>
                     </div>
                 </div>
-            )}
         </React.Fragment>
     )
 }

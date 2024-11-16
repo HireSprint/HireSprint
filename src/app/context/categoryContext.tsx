@@ -1,6 +1,7 @@
 "use client"
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {categoriesInterface} from "@/types/category";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { categoriesInterface } from "@/types/category";
 
 interface CategoryContextType {
     categoriesData: categoriesInterface[];

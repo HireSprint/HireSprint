@@ -11,29 +11,26 @@ import {useCategoryContext} from "../context/categoryContext";
 
 
 interface ImageGridProps {
-    onProductSelect: (gridId: number, categoryGridSelected: categoriesInterface, event: React.MouseEvent) => void;
-    selectedProducts: ProductTypes[];
-    onRemoveProduct: (productId: number) => void;
-    onEditProduct: (productId: number) => void;
-    onChangeProduct: (productId: number) => void;
+    onGridCellClick: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
+    onRemoveProduct: (gridId: number) => void;
+    onEditProduct: (gridId: number) => void;
+    onChangeProduct: (gridId: number) => void;
     isMoveModeActive: boolean;
     onCopyProduct: (product: ProductTypes) => void;
     copiedProduct: ProductTypes | null;
-    onPasteProduct: () => void;
 }
 
 export let soloUnEnvio: boolean = true;
 export const ImageGrid = ({
-                              onProductSelect,
-                              selectedProducts,
-                              onRemoveProduct,
-                              onChangeProduct,
-                              isMoveModeActive,
-                              onCopyProduct,
-                              copiedProduct,
-                              onPasteProduct
-                          }: ImageGridProps) => {
-    const {getCategoryByName, isLoadingCategories, categoriesData} = useCategoryContext()
+
+    onGridCellClick,
+    onRemoveProduct,
+    onChangeProduct,
+    isMoveModeActive,
+    onCopyProduct,
+    copiedProduct,
+}: ImageGridProps) => {
+    const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
 
     const initialGridCells: cellTypes[] = [
         //meats
@@ -106,8 +103,8 @@ export const ImageGrid = ({
     const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
 
-    const {setProductArray} = useProductContext();
 
+    const { selectedProducts } = useProductContext();
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -124,7 +121,7 @@ export const ImageGrid = ({
         visible: boolean;
         x: number;
         y: number;
-        productId: number;
+        gridId: number;
     } | null>(null);
 
 
@@ -135,72 +132,33 @@ export const ImageGrid = ({
     }, []);
 
 
-    const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
-
-        // Coordenadas iniciales del clic derecho en relación a la ventana
-        let posX = e.pageX;
-        let posY = e.pageY;
-
-        // Ancho y alto estimados del menú contextual
-        const menuWidth = 150; // Ancho estimado del menú contextual
-        const menuHeight = 200; // Alto estimado del menú contextual
-
-        // Ajustar las coordenadas si el menú se sale de la pantalla
-        if (posX + menuWidth > window.innerWidth) {
-            posX = window.innerWidth - menuWidth - 10; // Resta 10px para que no quede pegado al borde
+        const selectedProduct = selectedProducts.find(p => p.id_grid === gridId);
+        if (selectedProduct) {
+            setContextMenu({
+                visible: true,
+                x: e.clientX,
+                y: e.clientY,
+                gridId: gridId
+            });
         }
-        if (posY + menuHeight > window.innerHeight) {
-            posY = window.innerHeight - menuHeight - 10; // Resta 10px para que no quede pegado al borde
-        }
-
-        // Establecer el estado del menú contextual con las coordenadas ajustadas
-        setContextMenu({
-            visible: true,
-            x: posX - 125,
-            y: posY - 100,
-            productId: cellId,
-        });
-    };
-
-
-    const handleGridSelect = (
-        gridId: number,
-        categoryGridSelected: categoriesInterface,
-        event: React.MouseEvent
-    ) => {
-        // Si hay un producto copiado y la celda está vacía
-        if (copiedProduct && !selectedProducts.some(p => p.id_product === gridId)) {
-            const newProduct = {
-                ...copiedProduct,
-                id_product: gridId
-            };
-            onProductSelect(gridId, categoryGridSelected, event);
-            setProductArray([newProduct]);
-            onPasteProduct();
-            return;
-        }
-
-        // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
-    };
-
 
     return (
         <div className="relative overflow-auto no-scrollbar">
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority/>
             {gridCells.map((cell) => {
-                const selectedProduct = productsData?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = {name_category: cell.category} as categoriesInterface;
+
+                const selectedProduct = productsData?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
                 return (
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={handleGridSelect}
-                        //    onContextMenu={handleContextMenu}
-                        setProductArray={(product: ProductTypes) => setProductArray([product])}
+                        onGridCellClick={onGridCellClick}
+                        onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                     />
@@ -217,11 +175,11 @@ export const ImageGrid = ({
                     }}
                 >
                     <RightClick
-                        productId={contextMenu.productId}
+                        gridId={contextMenu.gridId}
                         handleRemoveProduct={onRemoveProduct}
                         handleChangeProduct={onChangeProduct}
                         onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
+                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
                         copiedProduct={copiedProduct}
                     />
                 </div>
@@ -232,16 +190,16 @@ export const ImageGrid = ({
 
 
 export const ImageGrid2 = ({
-                               onProductSelect,
-                               selectedProducts,
-                               isMoveModeActive,
-                               onRemoveProduct,
-                               onChangeProduct,
-                               onCopyProduct,
-                               copiedProduct,
-                               onPasteProduct
-                           }: ImageGridProps) => {
-    const {getCategoryByName, isLoadingCategories, categoriesData} = useCategoryContext()
+    onGridCellClick,
+    isMoveModeActive,
+    onRemoveProduct,
+    onChangeProduct,
+    onCopyProduct,
+    copiedProduct,
+}: ImageGridProps) => {
+    const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const { setSelectedProducts } = useProductContext();
+    const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
 
     const initialGridCells: cellTypes[] = [
         // Grocery
@@ -323,17 +281,19 @@ export const ImageGrid2 = ({
 
     ];
 
-    const {productArray, setProductArray, productsData, setProductsData} = useProductContext();
+
+    const { productArray,  productsData, setProductsData, selectedProducts} = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
         y: number;
-        productId: number;
+        gridId: number;
     } | null>(null);
 
 
-    const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+
+    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
 
@@ -365,7 +325,7 @@ export const ImageGrid2 = ({
             visible: true,
             x: posX - 125,
             y: posY,
-            productId: cellId
+            gridId: gridId
         });
     };
 
@@ -380,36 +340,53 @@ export const ImageGrid2 = ({
             );
         }
     }, [categoriesData])
+    
+    useEffect(() => {
+        if (productsData.length && gridCells.length && !hasFilledGrid) {
+            
+            const gridFilled = fillGridWithProducts(gridCells, productsData)
+            setSelectedProducts(prev => [...prev, ...gridFilled]);
+            
+            if (gridCells.some((cell)=> cell?.idCategory != undefined && cell?.idCategory != null)) setHasFilledGrid(true)
+        }
+    }, [productsData, gridCells])
+
+
+    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
+        // 1. Crear un mapa para agrupar productos por categoría
+        const productsByCategory = [...products].reduce((acc, product) => {
+            if (!acc[product.id_category]) {
+                acc[product.id_category] = [];
+            }
+            acc[product.id_category].push(product);
+            return acc;
+        }, {} as Record<number, ProductTypes[]>);
+    
+        // 2. Asignar productos a las celdas de la grilla
+        const filledGrid = [...gridCells].reduce((acc: any, cell: cellTypes) => {
+            const { idCategory } = cell;
+            if (idCategory) {
+                const productsForCategory = productsByCategory[idCategory] || [];
+
+                if (productsForCategory.length > 0) {
+                    // Tomar el primer producto disponible para esta categoría
+                    const product = productsForCategory.shift()!;
+                    acc.push({ ...product, id_grid: cell.id }); // Agregar el producto a la celda
+                }
+            }
+
+            return acc;
+        }, []) as ProductTypes[];
+
+        return filledGrid;
+    };
 
 
     useEffect(() => {
-
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
-
-
-    const handleGridSelect = (
-        gridId: number,
-        categoryGridSelected: categoriesInterface,
-        event: React.MouseEvent
-    ) => {
-        // Si hay un producto copiado y la celda está vacía
-        if (copiedProduct && !selectedProducts.some(p => p.id_product === gridId)) {
-            const newProduct = {
-                ...copiedProduct,
-                id_product: gridId
-            };
-            onProductSelect(gridId, categoryGridSelected, event);
-            setProductArray([newProduct]);
-            onPasteProduct();
-            return;
-        }
-
-        // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
-    };
 
 
     return (
@@ -417,17 +394,16 @@ export const ImageGrid2 = ({
             <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority/>
             {gridCells.map((cell) => {
 
-                const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = {name_category: cell.category} as categoriesInterface;
+                const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
 
                 return (
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={handleGridSelect}
-                        //   onContextMenu={handleContextMenu}
-                        setProductArray={(product: ProductTypes) => setProductArray([product])}
+                        onGridCellClick={onGridCellClick}
+                        onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                     />
@@ -444,11 +420,11 @@ export const ImageGrid2 = ({
                     }}
                 >
                     <RightClick
-                        productId={contextMenu.productId}
+                        gridId={contextMenu.gridId}
                         handleRemoveProduct={onRemoveProduct}
                         handleChangeProduct={onChangeProduct}
                         onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
+                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
                         copiedProduct={copiedProduct}
                     />
                 </div>
@@ -460,16 +436,16 @@ export const ImageGrid2 = ({
 };
 
 export const ImageGrid3 = ({
-                               onProductSelect,
-                               selectedProducts,
-                               isMoveModeActive,
-                               onRemoveProduct,
-                               onChangeProduct,
-                               onCopyProduct,
-                               copiedProduct,
-                               onPasteProduct
-                           }: ImageGridProps) => {
-    const {getCategoryByName, isLoadingCategories, categoriesData} = useCategoryContext()
+    onGridCellClick,
+    isMoveModeActive,
+    onRemoveProduct,
+    onChangeProduct,
+    onCopyProduct,
+    copiedProduct,
+    
+}: ImageGridProps) => {
+    const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+
 
     // + 5.7 top
 
@@ -593,18 +569,21 @@ export const ImageGrid3 = ({
 
     ];
 
-    const {productArray, setProductArray, productsData, setProductsData} = useProductContext();
+    const { productArray, productsData, setProductsData, selectedProducts } = useProductContext();
+
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
         y: number;
-        productId: number;
+        gridId: number;
     } | null>(null);
 
 
-    const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+
+    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
+
         e.preventDefault();
         if (isMoveModeActive) return;
 
@@ -636,7 +615,7 @@ export const ImageGrid3 = ({
             visible: true,
             x: posX - 125,
             y: posY,
-            productId: cellId
+            gridId: gridId
         });
     };
 
@@ -659,45 +638,22 @@ export const ImageGrid3 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-
-    const handleGridSelect = (
-        gridId: number,
-        categoryGridSelected: categoriesInterface,
-        event: React.MouseEvent
-    ) => {
-        // Si hay un producto copiado y la celda está vacía
-        if (copiedProduct && !selectedProducts.some(p => p.id_product === gridId)) {
-            const newProduct = {
-                ...copiedProduct,
-                id_product: gridId
-            };
-            onProductSelect(gridId, categoryGridSelected, event);
-            setProductArray([newProduct]);
-            onPasteProduct();
-            return;
-        }
-
-        // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
-    };
-
-
     return (
         <div className="relative overflow-auto no-scrollbar">
             <Image src="/pages/page03.jpg" alt="PDF" width={470} height={460} priority/>
             {gridCells.map((cell) => {
 
-                const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = {name_category: cell.category} as categoriesInterface;
+                const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
+
 
                 return (
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={handleGridSelect}
-                        //onContextMenu={handleContextMenu}
-                        setProductArray={(product: ProductTypes) => setProductArray([product])}
+                        onGridCellClick={onGridCellClick}
+                        onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                     />
@@ -714,11 +670,11 @@ export const ImageGrid3 = ({
                     }}
                 >
                     <RightClick
-                        productId={contextMenu.productId}
+                        gridId={contextMenu.gridId}
                         handleRemoveProduct={onRemoveProduct}
                         handleChangeProduct={onChangeProduct}
                         onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
+                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
                         copiedProduct={copiedProduct}
                     />
                 </div>
@@ -729,16 +685,16 @@ export const ImageGrid3 = ({
 };
 
 export const ImageGrid4 = ({
-                               onProductSelect,
-                               selectedProducts,
-                               isMoveModeActive,
-                               onRemoveProduct,
-                               onChangeProduct,
-                               onCopyProduct,
-                               copiedProduct,
-                               onPasteProduct
-                           }: ImageGridProps) => {
-    const {getCategoryByName, isLoadingCategories, categoriesData} = useCategoryContext()
+
+    onGridCellClick,
+    isMoveModeActive,
+    onRemoveProduct,
+    onChangeProduct,
+    onCopyProduct,
+    copiedProduct,
+}: ImageGridProps) => {
+    const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+
 
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -849,17 +805,17 @@ export const ImageGrid4 = ({
 
     ];
 
-    const {productArray, setProductArray, productsData, setProductsData} = useProductContext();
+
+    const { productArray, productsData, setProductsData, selectedProducts } = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
         y: number;
-        productId: number;
+        gridId: number;
     } | null>(null);
 
-
-    const handleContextMenu = (e: React.MouseEvent, cellId: number) => {
+    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
         e.preventDefault();
         if (isMoveModeActive) return;
 
@@ -891,7 +847,7 @@ export const ImageGrid4 = ({
             visible: true,
             x: posX - 125,
             y: posY,
-            productId: cellId
+            gridId: gridId
         });
     };
 
@@ -914,45 +870,23 @@ export const ImageGrid4 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-
-    const handleGridSelect = (
-        gridId: number,
-        categoryGridSelected: categoriesInterface,
-        event: React.MouseEvent
-    ) => {
-        // Si hay un producto copiado y la celda está vacía
-        if (copiedProduct && !selectedProducts.some(p => p.id_product === gridId)) {
-            const newProduct = {
-                ...copiedProduct,
-                id_product: gridId
-            };
-            onProductSelect(gridId, categoryGridSelected, event);
-            setProductArray([newProduct]);
-            onPasteProduct();
-            return;
-        }
-
-        // Lógica existente de selección...
-        onProductSelect(gridId, categoryGridSelected, event);
-    };
-
-
     return (
         <div className="relative overflow-auto no-scrollbar">
             <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority/>
             {gridCells.map((cell) => {
 
-                const selectedProduct = productArray?.find((p) => p.id_product === cell.id) || selectedProducts?.find((p) => p.id_product === cell.id);
-                const categoryItem = {name_category: cell.category} as categoriesInterface;
+
+                const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
+                const categoryItem = { name_category: cell.category } as categoriesInterface;
+
 
                 return (
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onProductGridSelect={handleGridSelect}
-                        //   onContextMenu={handleContextMenu}
-                        setProductArray={(product: ProductTypes) => setProductArray([product])}
+                        onGridCellClick={onGridCellClick}
+                        onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
                     />
@@ -969,11 +903,11 @@ export const ImageGrid4 = ({
                     }}
                 >
                     <RightClick
-                        productId={contextMenu.productId}
+                        gridId={contextMenu.gridId}
                         handleRemoveProduct={onRemoveProduct}
                         handleChangeProduct={onChangeProduct}
                         onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_product === contextMenu.productId) as ProductTypes}
+                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
                         copiedProduct={copiedProduct}
                     />
                 </div>

@@ -22,7 +22,8 @@ export interface ProductTypes {
     burst3?: string,
     burst4?: string,
     with_cart?: boolean,
-    id_product?: number | undefined,
+    id_product?: number,
+    id_grid?: number,
     notes?: string,
     buyer_notes?: string,
     effective?: string,
@@ -34,6 +35,6 @@ export interface ProductTypes {
     quantity?: string
     master_brand?: string
     type_of_cut?: string
-    quality__Cf: string
-    
+    quality_cf?: string
+
 }
