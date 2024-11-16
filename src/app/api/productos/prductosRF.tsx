@@ -1,8 +1,6 @@
 import {categoriesInterface} from "@/types/category";
-import { useCategoryContext } from "@/app/context/categoryContext";
-import { ProductTypes } from "@/types/product";
-
-
+import {useCategoryContext} from "@/app/context/categoryContext";
+import {ProductTypes} from "@/types/product";
 
 
 export const addGoogleSheet = async (data: any) => {
@@ -31,9 +29,9 @@ export const addGoogleSheet = async (data: any) => {
 
 export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
 
-    const { categoriesData } = useCategoryContext()
+    const {categoriesData} = useCategoryContext()
 
-   const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec"
+    const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec"
 
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
@@ -73,19 +71,27 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
 };
 
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
-  
-    const url = "https://script.google.com/macros/s/AKfycby_Fai8CGt9_uX4yTP1JAgjKwZQMfmlr3BlCN08DAq0trwnMf88P_TwX8ofKfTOPtuL/exec";
-    
+
+    const url = "https://script.google.com/macros/s/AKfycbxVve5NPN7EQWcfO_F_xlOLuom0xNtQCxyolgSOVc-Qvr1CBrZW1J6t5WrjyDbMa9Rt/exec";
+
+    let idGeneral = 1;
     try {
         // Convertir los productos al formato adecuado para la API de Google Sheets
-        const formattedData = selectedProducts.map(product => ({
+        const sortedProducts = selectedProducts
+            .filter((product) => product.id_grid !== undefined) // Filtra productos sin id_grid
+            .sort((a, b) => a.id_grid! - b.id_grid!) // Ordena los productos
+            .filter((product, index, self) =>
+                index === self.findIndex((p) => p.id_grid === product.id_grid) // Elimina duplicados
+            );
+        const formattedData = sortedProducts.map(product => ({
+            idGeneral: idGeneral++,
             upc: product.upc,
-            idCell : product.id_product,
+            idCell: product.id_grid,
             masterBrand: product.master_brand,
             brand: product.brand,
-            description: product.desc,
+            description: product.desc ? product.desc : product.name,
             category: categoriesData.find((category: categoriesInterface) => category.id_category === product.id_category)?.name_category,
-            variety: product.variety && product.variety[0] ? product.variety : '',
+            variety: product.variety && product.variety[0] ? product.variety[0] : '',
             pack_Size: product.size,
             qualityCf: product.quality_cf,
             typeOfMeat: product.type_of_meat,

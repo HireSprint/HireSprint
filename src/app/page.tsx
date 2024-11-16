@@ -150,7 +150,7 @@ export default function HomePage() {
         
         if (moveMode?.active) {
             handleProductMove(gridId);
-        } else if (gridHasProduct) {
+        } else if (gridHasProduct && !productoShowForce) {
             // Si el grid tiene un producto, mostrar el modal de edición
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
@@ -177,6 +177,15 @@ export default function HomePage() {
 
     };
 
+
+    let productoShowForce: boolean = true;
+    const handleChangeProductForOther = (gridId: number | undefined) => {
+        if (gridId === undefined)
+            return;
+        productoShowForce = false;      
+        setIsModalOpen(false);
+        setSelectedGridId(gridId);
+    }
     const handleCategorySelect = (category: string) => {
         setCategory(category);
     };
@@ -243,41 +252,44 @@ export default function HomePage() {
                 </div>
 
                 {/* Mostrar / Ocultar productos */}
-                <div className="flex ">
-        {isModalOpen && mousePosition && (
-            selectedProducts.some(product => product.id_grid === selectedGridId) ? (
-                <ModalEditProduct 
-                    setIsOpen={setIsModalOpen} 
-                    product={productSelected as ProductTypes} 
-                    GridID={selectedGridId || 0} 
-                    SaveFC={()=>(console.log("save"))} 
-                    ChangeFC={()=> {
-                        setIsModalOpen(false);
-                    }}
-                    DeleteFC={()=>handleRemoveProduct(selectedGridId || 0)}
-                />
-            ) : (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute"
-                    style={{
-                        top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                        left: Math.min(mousePosition.x + 40, window.innerWidth - 600)
-                    }}
-                >
-                    <GridProduct
-                        productsData={productsData}
-                        loading={loading}
-                        onProductSelect={handleProductSelect}
-                        onHideProducts={() => setIsModalOpen(false)}
-                    />
-                </motion.div>
-            )
-        )}
-    </div>
+                <div className="flex">
+                    {isModalOpen && mousePosition &&
+                    selectedProducts.some((product: ProductTypes) => product.id_grid === selectedGridId) ? (
+                        <ModalEditProduct
+                            setIsOpen={setIsModalOpen}
+                            product={productSelected as ProductTypes}
+                            GridID={selectedGridId || 0}
+                            SaveFC={() => console.log("save")}
+                            ChangeFC={() => {
+                                handleChangeProductForOther(selectedGridId || 0);
+                            }}
+                            DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
+                        />
+                    ) : (
+                        productoShowForce && mousePosition && (
+                            <motion.div
+                                initial={{opacity: 0, y: 20}}
+                                exit={{opacity: 0, y: 20}}
+                                animate={{opacity: 1, y: 0}}
+                                transition={{duration: 0.5}}
+                                className="absolute"
+                                style={{
+                                    top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                                    left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
+                                }}
+                            >
+                                <GridProduct
+                                    productsData={productsData}
+                                    loading={loading}
+                                    onProductSelect={handleProductSelect}
+                                    onHideProducts={() => {
+                                        productoShowForce = false; // Ocultamos el panel cuando se cierra
+                                    }}
+                                />
+                            </motion.div>
+                        )
+                    )}
+                </div>
                 
             </div>
         </CategoryProvider>
