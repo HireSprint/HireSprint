@@ -128,8 +128,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="flex flex-col w-full">
-                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc}</p>
+                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product?.desc ? product?.desc : product?.name}</h2>
                 <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
             </div>
             <div className="relative flex items-center justify-end">
@@ -143,7 +142,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-black">No hay imagen disponible</span>
+                        <span className="text-black">No Image</span>
                     </div>
                 )}
             </div>
@@ -176,7 +175,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                             product?.url_image && (
                                 <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
                                     <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
-                                        <Image src={product.url_image} alt={product.name || ''} layout="fill" objectFit="cover" />
+                                        <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
                                     </div>
                                 </div>
                             )
@@ -191,7 +190,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                         }
 
                         <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                            { product?.name?.toString().substring(0, 20) }
+                            { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
                         </div>
                         <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
                             { cell?.id }
@@ -218,7 +217,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">No hay imagen disponible</span>
+                        <span className="text-gray-500">No Image</span>
                     </div>
                 )}
             </div>

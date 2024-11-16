@@ -378,9 +378,8 @@ export const ImageGrid2 = ({
 
         return filledGrid;
     };
-
-
     useEffect(() => {
+
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
@@ -388,7 +387,7 @@ export const ImageGrid2 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority />
+            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -441,7 +440,8 @@ export const ImageGrid3 = ({
     copiedProduct,
     
 }: ImageGridProps) => {
-    const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
+    const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
 
     // + 5.7 top
 
@@ -565,7 +565,7 @@ export const ImageGrid3 = ({
 
     ];
 
-    const { productArray, productsData, setProductsData, selectedProducts } = useProductContext();
+    const { productsData, selectedProducts, setSelectedProducts, productArray } = useProductContext();
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
@@ -624,7 +624,46 @@ export const ImageGrid3 = ({
             );
         }
     }, [categoriesData])
+    
+    useEffect(() => {
+        if (productsData.length && gridCells.length && !hasFilledGrid) {
+            
+            const gridFilled = fillGridWithProducts(gridCells, productsData)
+            setSelectedProducts(prev => [...prev, ...gridFilled]);
+            
+            if (gridCells.some((cell)=> cell?.idCategory != undefined && cell?.idCategory != null)) setHasFilledGrid(true)
+        }
+    }, [productsData, gridCells])
 
+
+    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
+        // 1. Crear un mapa para agrupar productos por categoría
+        const productsByCategory = [...products].reduce((acc, product) => {
+            if (!acc[product.id_category]) {
+                acc[product.id_category] = [];
+            }
+            acc[product.id_category].push(product);
+            return acc;
+        }, {} as Record<number, ProductTypes[]>);
+    
+        // 2. Asignar productos a las celdas de la grilla
+        const filledGrid = [...gridCells].reduce((acc: any, cell: cellTypes) => {
+            const { idCategory } = cell;
+            if (idCategory) {
+                const productsForCategory = productsByCategory[idCategory] || [];
+
+                if (productsForCategory.length > 0) {
+                    // Tomar el primer producto disponible para esta categoría
+                    const product = productsForCategory.shift()!;
+                    acc.push({ ...product, id_grid: cell.id }); // Agregar el producto a la celda
+                }
+            }
+
+            return acc;
+        }, []) as ProductTypes[];
+
+        return filledGrid;
+    };
     useEffect(() => {
 
         const handleClickOutside = () => setContextMenu(null);
@@ -635,7 +674,14 @@ export const ImageGrid3 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/pages/page03.jpg" alt="PDF" width={470} height={460} priority />
+            <Image 
+                src="/pages/page03.jpg" 
+                alt="PDF" 
+                width={470} 
+                height={460} 
+                priority 
+                sizes="(max-width: 768px) 100vw, 470px"
+            />
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -762,15 +808,15 @@ export const ImageGrid4 = ({
 
     ];
 
-    const { productArray, productsData, setProductsData, selectedProducts } = useProductContext();
+    const { productsData, selectedProducts, setSelectedProducts, productArray } = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
+    const [hasFilledGrid, setHasFilledGrid] = useState(false);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
         x: number;
         y: number;
         gridId: number;
     } | null>(null);
-
 
 
 
@@ -811,16 +857,44 @@ export const ImageGrid4 = ({
     };
 
     useEffect(() => {
-        if (!isLoadingCategories) {
-            setGridCells((initialCells) =>
-                initialCells.map((cell) => {
-                    const matchedCategory = getCategoryByName(cell.category ?? '')
-                    cell.idCategory = matchedCategory?.id_category
-                    return cell;
-                })
-            );
+        if (productsData.length && gridCells.length && !hasFilledGrid) {
+            
+            const gridFilled = fillGridWithProducts(gridCells, productsData)
+            setSelectedProducts(prev => [...prev, ...gridFilled]);
+            
+            if (gridCells.some((cell)=> cell?.idCategory != undefined && cell?.idCategory != null)) setHasFilledGrid(true)
         }
-    }, [categoriesData])
+    }, [productsData, gridCells])
+
+
+    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
+        // 1. Crear un mapa para agrupar productos por categoría
+        const productsByCategory = [...products].reduce((acc, product) => {
+            if (!acc[product.id_category]) {
+                acc[product.id_category] = [];
+            }
+            acc[product.id_category].push(product);
+            return acc;
+        }, {} as Record<number, ProductTypes[]>);
+    
+        // 2. Asignar productos a las celdas de la grilla
+        const filledGrid = [...gridCells].reduce((acc: any, cell: cellTypes) => {
+            const { idCategory } = cell;
+            if (idCategory) {
+                const productsForCategory = productsByCategory[idCategory] || [];
+
+                if (productsForCategory.length > 0) {
+                    // Tomar el primer producto disponible para esta categoría
+                    const product = productsForCategory.shift()!;
+                    acc.push({ ...product, id_grid: cell.id }); // Agregar el producto a la celda
+                }
+            }
+
+            return acc;
+        }, []) as ProductTypes[];
+
+        return filledGrid;
+    };
     
     useEffect(() => {
 
@@ -831,7 +905,7 @@ export const ImageGrid4 = ({
 
     return (
         <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority />
+            <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority sizes="(max-width: 768px) 100vw, 470px" />
             {gridCells.map((cell) => {
 
                 const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);

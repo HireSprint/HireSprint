@@ -87,7 +87,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                     <div className="grid p-4 grid-cols-1 md:grid-cols-2h-72 ">
                                         <div>
                                             <div className={"flex w-full flex-col  justify-between xl:flex-row"}>
-                                                <h1 className={"text-black font-bold text-xl"}>{product?.name}</h1>
+                                                <h1 className={"text-black font-bold text-xl"}>{product?.desc ? product.desc : product?.name}</h1>
                                                 <div className={"flex flex-row "}>
                                                     <h1 className={"text-black font-bold text-lg self-center mr-0.5"}>UPC: </h1>
                                                     <h1 className={"text-black text-md self-center"}>{product?.upc}</h1>
