@@ -17,6 +17,7 @@ interface ImageGridProps {
     isMoveModeActive: boolean;
     onCopyProduct: (product: ProductTypes) => void;
     copiedProduct: ProductTypes | null;
+    onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
 }
 
 export const ImageGrid = ({
@@ -27,8 +28,10 @@ export const ImageGrid = ({
     isMoveModeActive,
     onCopyProduct,
     copiedProduct,
+    onDragAndDropCell,
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const [isDragging, setIsDragging] = useState(false);
 
     const initialGridCells: cellTypes[] = [
         //meats
@@ -145,7 +148,7 @@ export const ImageGrid = ({
     };
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = productsData?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -159,6 +162,8 @@ export const ImageGrid = ({
                         onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        setIsDragging={setIsDragging}
+                        onDragAndDropCell={onDragAndDropCell}
                     />
                 );
             })}
@@ -194,11 +199,12 @@ export const ImageGrid2 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
+    onDragAndDropCell,
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { setSelectedProducts } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-
+    const [isDragging, setIsDragging] = useState(false);
 
     const initialGridCells: cellTypes[] = [
         // Grocery
@@ -386,7 +392,7 @@ export const ImageGrid2 = ({
     }, []);
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
             {gridCells.map((cell) => {
 
@@ -402,6 +408,8 @@ export const ImageGrid2 = ({
                         onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        setIsDragging={setIsDragging}
+                        onDragAndDropCell={onDragAndDropCell}
                     />
                 );
             })}
@@ -438,11 +446,11 @@ export const ImageGrid3 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
-    
+    onDragAndDropCell,
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-
+    const [isDragging, setIsDragging] = useState(false);
     // + 5.7 top
 
     const initialGridCells: cellTypes[] = [
@@ -673,7 +681,7 @@ export const ImageGrid3 = ({
 
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image 
                 src="/pages/page03.jpg" 
                 alt="PDF" 
@@ -696,6 +704,8 @@ export const ImageGrid3 = ({
                         onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        setIsDragging={setIsDragging}
+                        onDragAndDropCell={onDragAndDropCell}
                     />
                 );
             })}
@@ -731,8 +741,10 @@ export const ImageGrid4 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
+    onDragAndDropCell,
 }: ImageGridProps) => {
-    const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const {  isLoadingCategories } = useCategoryContext()
+    const [isDragging, setIsDragging] = useState(false);
 
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -808,7 +820,7 @@ export const ImageGrid4 = ({
 
     ];
 
-    const { productsData, selectedProducts, setSelectedProducts, productArray } = useProductContext();
+    const { productsData, selectedProducts, setSelectedProducts, productArray,  } = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
     const [contextMenu, setContextMenu] = useState<{
@@ -895,7 +907,7 @@ export const ImageGrid4 = ({
 
         return filledGrid;
     };
-    
+
     useEffect(() => {
 
         const handleClickOutside = () => setContextMenu(null);
@@ -904,7 +916,7 @@ export const ImageGrid4 = ({
     }, []);
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority sizes="(max-width: 768px) 100vw, 470px" />
             {gridCells.map((cell) => {
 
@@ -920,6 +932,8 @@ export const ImageGrid4 = ({
                         onContextMenu={handleContextMenu}
                         categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        setIsDragging={setIsDragging}
+                        onDragAndDropCell={onDragAndDropCell}
                     />
                 );
             })}

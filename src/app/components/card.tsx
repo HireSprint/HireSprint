@@ -1,24 +1,29 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ProductTypes } from "@/types/product";
 import { cellTypes } from "@/types/cell";
 import { categoriesInterface } from "@/types/category";
 import { Skeleton } from 'primereact/skeleton';
+import Draggable, { DraggableCore } from "react-draggable";
+
 
 interface CardProductProps {
-  product: ProductTypes;
-  cell?: cellTypes;
-  onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
-  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
-  onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
-  onPriceChange?: (id: string, price: number) => void;
-  isCellOccupied?: boolean;
-  categoryCard?:categoriesInterface | null | undefined
-  isLoading?: boolean;
+    product: ProductTypes;
+    cell?: cellTypes;
+    onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
+    onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
+    onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
+    onPriceChange?: (id: string, price: number) => void;
+    isCellOccupied?: boolean;
+    categoryCard?: categoriesInterface | null | undefined
+    isLoading?: boolean;
+    onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
+    setIsDragging?: (boolean: boolean) => void;
+    isDragging?: boolean;
 }
 
-export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
+export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
     return (
         <div
             className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80"
@@ -47,7 +52,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
     );
 };
 
-export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, onProductSelect}) => {
+export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, onProductSelect }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [showImage, setShowImage] = useState(false);
     const [localPrice, setLocalPrice] = useState(product.price || 0)
@@ -72,7 +77,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
 
     const handleUpdate = (e: React.MouseEvent) => {
         if (onProductSelect) {
-            const updatedProduct = {...product, price: localPrice};
+            const updatedProduct = { ...product, price: localPrice };
             onProductSelect(updatedProduct, e);
         }
         // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
@@ -121,7 +126,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
     );
 };
 
-export const CardShow = ({product, onProductSelect}: CardProductProps) => {
+export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
     return (
         <div
             className="flex bg-white  justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer h-48 border border-gray-200  "
@@ -150,26 +155,56 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick, isLoading}: CardProductProps) => {
-    if ( typeof isLoading !== "boolean" ) isLoading = false;
+export const GridCardProduct = ({ product, cell, onContextMenu, onGridCellClick, isLoading, setIsDragging, onDragAndDropCell, isDragging }: CardProductProps) => {
+    if (typeof isLoading !== "boolean") isLoading = false;
 
     const textShadowWhite = {
         'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
     }
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const elementRef = useRef(null);
+    const [readyToDrag, setReadyToDrag] = useState(false);
+
+
+    const handleStart = (e: any, data: any) => {
+        setPosition({ x: data.x, y: data.y })
+
+        if (elementRef.current) {
+            setTimeout(() => {
+                (elementRef.current as any).style.pointerEvents = 'none';
+            }, 250);
+        }
+        setIsDragging && setIsDragging(true);
+    }
+
+    const handleStop = (e: any, data: any) => {
+        if (elementRef.current) (elementRef.current as any).style.pointerEvents = 'auto';
+        setPosition({ x: 0, y: 0 });
+        onDragAndDropCell && onDragAndDropCell(data, e)
+        setIsDragging && setIsDragging(false);
+        setTimeout(() => {
+           setReadyToDrag(false) 
+        }, 250);
+    }
+
+    
 
     return (
-        <div
-            key={cell?.id}
-            className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
-            style={{width: cell?.width, height: cell?.height}}
-            onClick={(e) => {
-                cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
-            }}
-            onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+        <Draggable disabled={!product} onStart={handleStart} onStop={handleStop} position={position}>
+            <div
+                ref={elementRef}
+                key={cell?.id}
+                data-grid-id={cell?.id}
+                className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
+                style={{ width: cell?.width, height: cell?.height }}
+                onClick={(e) => {
+                    cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
+                }}
+                onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
             >
-                { isLoading ?
+                {isLoading ?
                     <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
-                :
+                    :
                     <div className="@container h-full w-full relative grid overflow-hidden">
                         {
                             product?.url_image && (
@@ -190,50 +225,51 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                         }
 
                         <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                            { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
+                            {product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20)}
                         </div>
                         <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                            { cell?.id }
+                            {cell?.id}
                         </div>
                     </div>
                 }
-        </div>
-    )
-}
-
-export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
-    return (
-        <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
-             onClick={(e) => onProductSelect && onProductSelect(product, e)}
-        >
-            <div className="w-28 h-28 flex items-center justify-center">
-                {product.url_image ? (
-                    <Image
-                        src={product.url_image}
-                        alt={product.name}
-                        width={100}  // Ajusta el tamaño según sea necesario
-                        height={100} // Ajusta el tamaño según sea necesario
-                        className="w-[80%] h-[80%] object-center object-cover"
-                    />
-                ) : (
-                    <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">No Image</span>
-                    </div>
-                )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.name?.toString().substring(0, 20)}</p>
-            <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
-        </div>
+        </Draggable>
     )
 }
 
-interface ProductAddedModalProps {
-    product: ProductTypes;
-    onClose: () => void;
-    categories: categoriesInterface[];
+            export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
+    return (
+            <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
+                onClick={(e) => onProductSelect && onProductSelect(product, e)}
+            >
+                <div className="w-28 h-28 flex items-center justify-center">
+                    {product.url_image ? (
+                        <Image
+                            src={product.url_image}
+                            alt={product.name}
+                            width={100}  // Ajusta el tamaño según sea necesario
+                            height={100} // Ajusta el tamaño según sea necesario
+                            className="w-[80%] h-[80%] object-center object-cover"
+                        />
+                    ) : (
+                        <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span className="text-gray-500">No Image</span>
+                        </div>
+                    )}
+                </div>
+                <p className="mt-2 text-center text-gray-950 font-medium">{product.name?.toString().substring(0, 20)}</p>
+                <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+            </div>
+            )
 }
 
-export const ProductAddedModal = ({ product, onClose, categories }: ProductAddedModalProps) => {
+            interface ProductAddedModalProps {
+                product: ProductTypes;
+    onClose: () => void;
+            categories: categoriesInterface[];
+}
+
+            export const ProductAddedModal = ({product, onClose, categories}: ProductAddedModalProps) => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     useEffect(() => {
@@ -244,68 +280,67 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
             setImageUrl(url);
             return () => URL.revokeObjectURL(url);
         } else if (product.url_image) {
-            // Si ya tiene una URL de imagen
-            setImageUrl(product.url_image);
+                // Si ya tiene una URL de imagen
+                setImageUrl(product.url_image);
         }
     }, [product.image, product.url_image]);
 
     // Encontrar el nombre de la categoría
     const categoryName = categories.find(cat => cat.id_category === Number(product.id_category))?.name_category || 'Categoría no encontrada';
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-800">¡Producto Añadido!</h2>
-                    <button 
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        ✕
-                    </button>
-                </div>
+            return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-gray-800">¡Producto Añadido!</h2>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-500 hover:text-gray-700"
+                        >
+                            ✕
+                        </button>
+                    </div>
 
-                <div className="space-y-4">
-                    {/* Imagen del producto */}
-                    {imageUrl && (
-                        <div className="relative h-48 w-full">
-                            <Image 
-                                src={imageUrl}
-                                alt={product.desc || 'Producto'}
-                                fill
-                                className="object-contain rounded-lg"
-                            />
+                    <div className="space-y-4">
+                        {/* Imagen del producto */}
+                        {imageUrl && (
+                            <div className="relative h-48 w-full">
+                                <Image
+                                    src={imageUrl}
+                                    alt={product.desc || 'Producto'}
+                                    fill
+                                    className="object-contain rounded-lg"
+                                />
+                            </div>
+                        )}
+
+                        {/* Detalles del producto */}
+                        <div className="space-y-2">
+                            <p className="text-sm">
+                                <span className="font-semibold text-gray-800">Categoría: </span>
+                                <span className="text-gray-600">{categoryName}</span>
+                            </p>
+
+                            {Object.entries(product).map(([key, value]) => {
+                                if (value &&
+                                    key !== 'image' &&
+                                    key !== 'url_image' &&
+                                    key !== 'id_category' &&
+                                    typeof value !== 'object') {
+                                    return (
+                                        <p key={key} className="text-sm">
+                                            <span className="font-semibold capitalize text-gray-800">
+                                                {key.replace(/_/g, ' ')}:
+                                            </span>
+                                            <span className="text-gray-600"> {value.toString()}</span>
+                                        </p>
+                                    );
+                                }
+                                return null;
+                            })}
                         </div>
-                    )}
-
-                    {/* Detalles del producto */}
-                    <div className="space-y-2">
-                        <p className="text-sm">
-                            <span className="font-semibold text-gray-800">Categoría: </span>
-                            <span className="text-gray-600">{categoryName}</span>
-                        </p>
-                        
-                        {Object.entries(product).map(([key, value]) => {
-                            if (value && 
-                                key !== 'image' && 
-                                key !== 'url_image' &&
-                                key !== 'id_category' && 
-                                typeof value !== 'object') {
-                                return (
-                                    <p key={key} className="text-sm">
-                                        <span className="font-semibold capitalize text-gray-800">
-                                            {key.replace(/_/g, ' ')}: 
-                                        </span>
-                                        <span className="text-gray-600"> {value.toString()}</span>
-                                    </p>
-                                );
-                            }
-                            return null;
-                        })}
                     </div>
                 </div>
             </div>
-        </div>
-    );
+            );
 };
-  

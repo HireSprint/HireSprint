@@ -47,6 +47,25 @@ export default function HomePage() {
         getProductView();
     }, []);
 
+    const moveProduct = (sourceGridId: number, targetGridId: number) => {
+
+
+        setSelectedProducts(prevProducts => {
+            return prevProducts.map(product => {
+                if (product.id_product === sourceGridId) {
+                    // Actualizar el gridId del producto que se está moviendo
+                    return { ...product, id_product: targetGridId };
+                }
+
+                if ( product.id_product === targetGridId) {
+                    // Si hay un producto en el grid destino, moverlo al grid origen
+                    return { ...product, id_product: sourceGridId };
+                }
+                return product;
+            });
+        });
+    }
+
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
@@ -163,6 +182,47 @@ export default function HomePage() {
         }
     };
 
+    const handleDragAndDropGridCell = (gridCellToMove: any, stopDragEvent: MouseEvent) => {
+        const getCellId = (element: HTMLElement | null): number | null => {
+            if (!element) return null;
+            
+            // Buscar el atributo data-grid-id en el elemento o sus padres
+            const gridElement = element.closest('[data-grid-id]');
+            if (gridElement) {
+                return parseInt(gridElement.getAttribute('data-grid-id') || '');
+            }
+            return null;
+        }
+
+        // Obtener el elemento origen
+        const sourceElement = gridCellToMove?.node as HTMLElement;
+        const sourceGridId = getCellId(sourceElement);
+
+        // Obtener el elemento destino
+        const targetElement = stopDragEvent.target as HTMLElement;
+        const targetGridId = getCellId(targetElement);
+
+        console.log('Source Grid ID:', sourceGridId);
+        console.log('Target Grid ID:', targetGridId);
+
+        if (sourceGridId !== null && targetGridId !== null && sourceGridId !== targetGridId) {
+            setSelectedProducts(prevProducts => {
+                const updatedProducts = [...prevProducts];
+                const sourceProduct = updatedProducts.find(p => p.id_grid === sourceGridId);
+                const targetProduct = updatedProducts.find(p => p.id_grid === targetGridId);
+
+                if (sourceProduct && targetProduct) {
+                    // Intercambiar los id_grid
+                    const tempGridId = sourceProduct.id_grid;
+                    sourceProduct.id_grid = targetProduct.id_grid;
+                    targetProduct.id_grid = tempGridId;
+                }
+
+                return updatedProducts;
+            });
+        }
+    };
+
 
 
     const commonGridProps = {
@@ -173,13 +233,16 @@ export default function HomePage() {
         products: productsData,
         onCopyProduct: handleCopyProduct,
         copiedProduct: copiedProduct,
-        onPasteProduct: handlePasteProduct
+        onPasteProduct: handlePasteProduct,
+        onDragAndDropCell: handleDragAndDropGridCell
 
     };
 
     const handleCategorySelect = (category: string) => {
         setCategory(category);
     };
+
+
 
     return (
         <CategoryProvider>
