@@ -253,7 +253,6 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
 
     useEffect(() => {
         // Manejar diferentes casos de la imagen
-        console.log(product.image?.[0] , "product.image?.[0]")
         if (product.image?.[0] instanceof File) {
             // Si es un archivo, crear URL temporal
             const url = URL.createObjectURL(product.image[0]);

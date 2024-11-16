@@ -50,7 +50,6 @@ const AddProductPage = () => {
             try {
                 const resp = await fetch("/api/apiMongo/getCategories");
                 const data = await resp.json();
-                console.log("descarga categorias en form", data);
                 if (resp.status === 200) {
                     setCategories(data.result);
                 }
@@ -68,7 +67,7 @@ const AddProductPage = () => {
             const formData = new FormData();
 
             // Campos básicos
-            formData.append('name', data.name);
+            formData.append('name', data.name || "");
             formData.append('brand', data.brand || "");
             formData.append('upc', String(data.upc));
             formData.append('sku', data.sku || "");
@@ -76,10 +75,10 @@ const AddProductPage = () => {
             formData.append('sale_price', "0");
             formData.append('reg_price', '0');
             formData.append('unit_price', "0");
-            formData.append('size', String(data.size));
+            formData.append('size', String(data.size) || "");
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
-            formData.append('color', String(data.color));
-            formData.append('conditions', String(data.conditions));
+            formData.append('color', String(data.color) || "");
+            formData.append('conditions', String(data.conditions) || "");
             formData.append('id_category',String(data.id_category));
 
             // Campos adicionales
@@ -94,7 +93,6 @@ const AddProductPage = () => {
             formData.append('burst2', data.burst2 || "");
             formData.append('burst3', data.burst3 || "");
             formData.append('burst4', data.burst4 || "");
-            formData.append('with_cart', 'true');
             formData.append('notes', data.notes || "");
             formData.append('buyer_notes', data.buyer_notes || "");
             formData.append('effective', data.effective || "");
@@ -102,11 +100,10 @@ const AddProductPage = () => {
             formData.append('quantity', data.quantity || "");
             formData.append('master_brand', data.master_brand || "");
             formData.append('type_of_cut', data.type_of_cut || "");
-
+            formData.append('quality_cf', data.quality_cf || "");
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
 
-            console.log("datos enviados", Object.fromEntries(formData));
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/createProduct`, {
                 method: 'POST',
@@ -115,7 +112,6 @@ const AddProductPage = () => {
 
             if (response.ok) {
                 setAddProduct([...addProduct, data]);
-                console.log("addProduct", addProduct);
                 setShowModal(true);
                 toast.success("¡Producto creado exitosamente!");
                 setPreviewUrl(null);
@@ -129,7 +125,6 @@ const AddProductPage = () => {
             }
 
             const result = await response.json();
-            console.log("Producto creado exitosamente:", result);
 
         } catch (error) {
             console.error('Error al crear producto:', error);
