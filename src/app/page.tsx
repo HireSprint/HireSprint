@@ -10,16 +10,13 @@ import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
-import { categoriesInterface } from "@/types/category";
 import { CategoryProvider } from "./context/categoryContext";
 
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const {selectedProducts, setSelectedProducts, productsData, setProductsData} = useProductContext();
-    
     const [loading, setLoading] = useState(true);
-    
     const { currentPage } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<string | null>(null);
@@ -31,7 +28,6 @@ export default function HomePage() {
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes |undefined >( undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-    
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -255,8 +251,10 @@ export default function HomePage() {
                     product={productSelected as ProductTypes} 
                     GridID={selectedGridId || 0} 
                     SaveFC={()=>(console.log("save"))} 
-                    ChangeFC={()=>(console.log("change"))} 
-                    DeleteFC={()=>(console.log("Delete"))}
+                    ChangeFC={()=> {
+                        setIsModalOpen(false);
+                    }}
+                    DeleteFC={()=>handleRemoveProduct(selectedGridId || 0)}
                 />
             ) : (
                 <motion.div
@@ -299,15 +297,19 @@ const GridProduct: React.FC<GridProductProps> = ({
     onHideProducts,
     productsData
 }) => {
-    const [searchTerm, setSearchTerm] = useState("");
-
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    
     const filteredProducts = productsData?.filter((product) =>
-        product.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        
+        product.desc?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.master_brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.upc?.toString().includes(searchTerm) || 
+        product.variety?.includes(searchTerm)
     );
 
     return (
-        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+        <div className="bg-[#f5f5f5] p-4 h-[45vh] w-[30vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
             <div className="flex justify-between bg-white sticky top-0 z-10 sm:grid sm:grid-cols-2">
                 <input
                     type="text"
@@ -338,7 +340,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                     ))}
                 </div>
             ) : (
-                <p>No se encontraron productos.</p>
+                <p className="text-black text-md">No Products Found</p>
             )}
 
         </div>
