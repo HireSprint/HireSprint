@@ -9,15 +9,12 @@ import { Skeleton } from 'primereact/skeleton';
 interface CardProductProps {
   product: ProductTypes;
   cell?: cellTypes;
-  onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
+  onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
-  onProductGridSelect?: (gridId: number,categoryCard:categoriesInterface, event: React.MouseEvent) => void;
+  onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void;
-  handleChangeProducts?: (cellId: string) => void;
-  setProductArray?: (product: ProductTypes) => void;
   isCellOccupied?: boolean;
   categoryCard?:categoriesInterface | null | undefined
-  onEditProduct?: (productId: string) => void;
   isLoading?: boolean;
 }
 
@@ -154,7 +151,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect, handleChangeProducts, setProductArray, onEditProduct , isCellOccupied, categoryCard, isLoading}: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick, isLoading}: CardProductProps) => {
     if ( typeof isLoading !== "boolean" ) isLoading = false;
 
     const textShadowWhite = {
@@ -167,18 +164,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
             className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
             style={{width: cell?.width, height: cell?.height}}
             onClick={(e) => {
-                if (isCellOccupied && product) {
-                    // Si la celda está ocupada y hay un producto, mostrar el modal de edición
-                    onEditProduct && onEditProduct(String(product.id_product));
-                } else if (categoryCard) {
-                    // Si no está ocupada, permitir selección normal
-                    cell && onProductGridSelect && onProductGridSelect(cell.id, categoryCard, e);
-                }
-
-                if (product && !isCellOccupied) {
-                    setProductArray && setProductArray(product);
-                    cell && handleChangeProducts && handleChangeProducts(cell.id.toString());
-                }
+                cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
             }}
             onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
             >
