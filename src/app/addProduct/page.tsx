@@ -27,6 +27,8 @@ const AddProductPage = () => {
     const selectedCategory = watch("id_category");
     const [showModal, setShowModal] = useState<boolean>(false);
     const [addProduct, setAddProduct] = useState<ProductTypes[]>([]);
+    const [newCategory, setNewCategory] = useState<string>("");
+    const [isCreatingCategory, setIsCreatingCategory] = useState<boolean>(false);
 
  const categoryFields: Record<string, {name: string, placeholder: string}[]> = {
     "5": [
@@ -141,6 +143,40 @@ const AddProductPage = () => {
         }
     }, [imageFile]);
 
+    const handleCreateCategory = async () => {
+        if (!newCategory.trim()) {
+            toast.error("El nombre de la categoría no puede estar vacío");
+            return;
+        }
+
+        setIsCreatingCategory(true);
+        try {
+            const response = await fetch("https://hiresprintcanvas.dreamhosters.com/createCategory", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name_category: newCategory
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCategories([...categories, data.result]);
+                toast.success("Categoría creada exitosamente");
+                setNewCategory("");
+                setIsCreatingCategory(false);
+            } else {
+                throw new Error("Error al crear la categoría");
+            }
+        } catch (error) {
+            toast.error("Error al crear la categoría");
+            console.log(error)
+            setIsCreatingCategory(false);
+        }
+    };
+
     return (
         <div className="flex p-2 bg-[#121212] h-screen">
             {showModal && addProduct && (
@@ -155,25 +191,50 @@ const AddProductPage = () => {
                     <div>
                             <select
                                 {...register("id_category", { required: true })}
-                                className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                className="w-full bg-gray-500 text-white p-2 rounded-md mb-2"
                             >
-                                <option value=""> Select a category</option>
+                                <option value=""> Select category</option>
                                 {categories?.length > 0 && categories?.map((category: categoriesInterface) => (
-                                    <option key={category.id_category} value={category.id_category}>
-                                        {category.name_category}
+                                    <option key={category?.id_category} value={category?.id_category}>
+                                        {category?.name_category}
                                     </option>
                                 ))}
+                                <option value="create">+ Add new category</option>
                             </select>
-                            {errors.id_category && <span className="text-red-500">Este campo es requerido</span>}
+                            {String(watch("id_category")) === "create" && (
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={newCategory}
+                                        onChange={(e) => setNewCategory(e.target.value)}
+                                        placeholder="New category name"
+                                        className="flex-1 bg-gray-500 text-white p-2 rounded-md"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleCreateCategory}
+                                        disabled={isCreatingCategory}
+                                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-800"
+                                    >
+                                        {isCreatingCategory ? (
+                                            <span>Creating...</span>
+                                        ) : (
+                                            <span>Create</span>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+                            {errors.id_category && <span className="text-red-500">This field is required</span>}
                         </div>
-                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        {errors.desc && <span className="text-red-500">This field is required description</span>}
-
-                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
-
                         <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" />
-                        {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
+                        {errors.upc && <span className="text-red-500">This field is required</span>}
+                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+
+                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        {errors.brand && <span className="text-red-500">This field is required</span>}
+
+                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        {errors.desc && <span className="text-red-500">This field is required </span>}
 
                     </div>
                 </div>
