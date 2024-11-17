@@ -193,13 +193,13 @@ const AddProductPage = () => {
                                 {...register("id_category", { required: true })}
                                 className="w-full bg-gray-500 text-white p-2 rounded-md mb-2"
                             >
-                                <option value=""> Seleccionar categoría</option>
+                                <option value=""> Select category</option>
                                 {categories?.length > 0 && categories?.map((category: categoriesInterface) => (
                                     <option key={category?.id_category} value={category?.id_category}>
                                         {category?.name_category}
                                     </option>
                                 ))}
-                                <option value="create">+ Crear nueva categoría</option>
+                                <option value="create">+ Add new category</option>
                             </select>
                             {String(watch("id_category")) === "create" && (
                                 <div className="flex gap-2">
@@ -207,7 +207,7 @@ const AddProductPage = () => {
                                         type="text"
                                         value={newCategory}
                                         onChange={(e) => setNewCategory(e.target.value)}
-                                        placeholder="Nombre de la nueva categoría"
+                                        placeholder="New category name"
                                         className="flex-1 bg-gray-500 text-white p-2 rounded-md"
                                     />
                                     <button
@@ -217,23 +217,24 @@ const AddProductPage = () => {
                                         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-800"
                                     >
                                         {isCreatingCategory ? (
-                                            <span>Creando...</span>
+                                            <span>Creating...</span>
                                         ) : (
-                                            <span>Crear</span>
+                                            <span>Create</span>
                                         )}
                                     </button>
                                 </div>
                             )}
-                            {errors.id_category && <span className="text-red-500">Este campo es requerido</span>}
+                            {errors.id_category && <span className="text-red-500">This field is required</span>}
                         </div>
-                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        {errors.desc && <span className="text-red-500">This field is required description</span>}
-
-                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
-                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
-
                         <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" />
-                        {errors.upc && <span className="text-red-500">Este campo es requerido</span>}
+                        {errors.upc && <span className="text-red-500">This field is required</span>}
+                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+
+                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        {errors.brand && <span className="text-red-500">This field is required</span>}
+
+                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        {errors.desc && <span className="text-red-500">This field is required </span>}
 
                     </div>
                 </div>
