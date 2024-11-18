@@ -23,7 +23,7 @@ export default function Header() {
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
-    const {currentPage, setCurrentPage, productsData, setProductsData} = useProductContext();
+    const {currentPage, setCurrentPage, setProductsData} = useProductContext();
     const [direction, setDirection] = useState(0);
     const {categoriesData} = useCategoryContext()
     const {selectedProducts} = useProductContext();
@@ -71,7 +71,7 @@ export default function Header() {
             </div>
             <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
                 {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/}
-                <p className='text-white text-xl font-bold hover:underline cursor-pointer' onClick={() => router.push('/profile')}>Client: {user?.userData.name}</p>
+                <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
             </div>
             <div className='flex items-center justify-center space-x-2 pl-8'>
                 <button>
@@ -99,16 +99,6 @@ export default function Header() {
                     <MessageIcon/>
                 </button>
             </div>
-            {isMenuOpen && (
-                <div className="flex flex-col space-y-4 md:hidden items-start absolute bg-black p-3 top-16 right-0">
-                    <button onClick={() => router.push('/diseno')}
-                            className="underline cursor-pointer hover:text-green-200">Agregar nuevo Diseño
-                    </button>
-                    <button className="underline cursor-pointer hover:text-green-200"
-                            onClick={() => router.push('/productos')}>Productos
-                    </button>
-                </div>
-            )}
         </div>
     );
 }
