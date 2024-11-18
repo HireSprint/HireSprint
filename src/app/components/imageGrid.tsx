@@ -21,7 +21,6 @@ interface ImageGridProps {
 
 export const ImageGrid = ({
     onGridCellClick,
-
     onRemoveProduct,
     onChangeProduct,
     isMoveModeActive,
