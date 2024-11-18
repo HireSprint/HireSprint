@@ -232,7 +232,6 @@ export default function HomePage() {
         setIsModalOpen(false)
     }
 
-    console.log(handleProductSelect, "handleProductSelect")
 
     return (
         <CategoryProvider>
@@ -357,15 +356,21 @@ const GridProduct: React.FC<GridProductProps> = ({
     const [category, setCategory] = useState<categoriesInterface>(categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
 
-    const filteredProducts = productsData?.filter((product) =>
-        (product.id_category === category?.id_category) &&
-        (product.desc?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.master_brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.upc?.toString().includes(searchTerm) ||
-        product.variety?.includes(searchTerm))
-    );
+    const filteredProducts = productsData?.filter((product) => {
+        // Si hay un término de búsqueda, buscar en todos los productos sin importar la categoría
+        if (searchTerm) {
+            return (
+                product.desc?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.master_brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.upc?.toString().includes(searchTerm) ||
+                product.variety?.includes(searchTerm)
+            );
+        }
+        // Si no hay término de búsqueda, filtrar solo por categoría
+        return product.id_category === category?.id_category;
+    });
 
     useEffect(() => {
         if (categoriesData.length > 0 && !category) {
@@ -420,9 +425,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                         In Circular
                     </button>
                 </div>
-                <button className="bg-red-500 rounded-md px-4 py-2 text-white hover:bg-red-600" onClick={onHideProducts}>
-                    Close
-                </button>
+
             </div>
             <div className="flex flex-wrap gap-4">
                 {loading ? (
@@ -440,6 +443,9 @@ const GridProduct: React.FC<GridProductProps> = ({
                     ))
                 )}
             </div>
+            <button className="absolute top-0 right-0 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+                X
+            </button>
         </div>
     );
-};
+}
