@@ -10,12 +10,12 @@ import Draggable, {DraggableCore} from 'react-draggable';
 interface CardProductProps {
   product: ProductTypes;
   cell?: cellTypes;
-  onContextMenu?: (e: React.MouseEvent, cellId: number) => void;
+  onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
-  onProductGridSelect?: (gridId: number, categoryId: number | undefined, event: React.MouseEvent) => void;
+  onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void;
-  setProductArray?: (product: ProductTypes) => void;
-  onEditProduct?: (productId: string) => void;
+  isCellOccupied?: boolean;
+  categoryCard?:categoriesInterface | null | undefined
   isLoading?: boolean;
   onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
   setIsDragging?: (boolean: boolean) => void;
@@ -132,8 +132,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="flex flex-col w-full">
-                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc}</p>
+                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product?.desc ? product?.desc : product?.name}</h2>
                 <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
             </div>
             <div className="relative flex items-center justify-end">
@@ -147,7 +146,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-black">No hay imagen disponible</span>
+                        <span className="text-black">No Image</span>
                     </div>
                 )}
             </div>
@@ -155,7 +154,6 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect,  setProductArray, onEditProduct, onDragAndDropCell, setIsDragging, isDragging, isLoading}: CardProductProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef(null);
@@ -194,6 +192,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
     
     
 
+export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick, isLoading}: CardProductProps) => {
     if ( typeof isLoading !== "boolean" ) isLoading = false;
 
     const textShadowWhite = {
@@ -203,20 +202,27 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
     
 
     return (
-        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
-            <Draggable disabled={!readyToDrag} onStart={handleStart} onStop={handleStop} position={position}>
-                <div
-                    ref={elementRef}
-                    id={ 'grid-card-product-' + cell?.id }
-                    key={cell?.id}
-                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20 ${!isDragging && readyToDrag ? 'shake' : ''}`}
-                    style={{width: cell?.width, height: cell?.height}}
-                    onClick={(e) => {
-                        
-                        
-                        if (!readyToDrag && !isDragging) {
-                            cell && onProductGridSelect && onProductGridSelect(cell.id, cell.idCategory, e);
-                            product && setProductArray && setProductArray(product);
+        <div
+            key={cell?.id}
+            className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20`}
+            style={{width: cell?.width, height: cell?.height}}
+            onClick={(e) => {
+                cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
+            }}
+            onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+            >
+                { isLoading ?
+                    <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
+                :
+                    <div className="@container h-full w-full relative grid overflow-hidden">
+                        {
+                            product?.url_image && (
+                                <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
+                                    <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
+                                        <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
+                                    </div>
+                                </div>
+                            )
                         }
                     }}
                     onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
@@ -252,103 +258,129 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSe
                                 </div>
                             </div>
                         }
-                </div>
-            </Draggable>
+
+                        <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                            { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
+                        </div>
+                        <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                            { cell?.id }
+                        </div>
+                    </div>
+                }
         </div>
     )
 }
 
-
-
-// export const GridCardProduct = ({ product, cell, onContextMenu,  onProductGridSelect }: CardProductProps) => {
-//   const textShadowWhite = {
-//     'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
-//   }
-
-//   const propertyPerSize: any = {
-//     '77px': {
-//       imageContainer: ['justify-self-end', 'self-end'],
-//       image: ['w-14', 'h-14'],
-//       name: ['leading-[10px]', 'text-[11px]', 'inset-[2px]'],
-//       price: ['text-[13px]']
-//     },
-//     '47px': {
-//       imageContainer: [],
-//       image: ['w-10', 'h-10'],
-//       name: ['text-[9px]','inset-[1px]', 'leading-[8px]'],
-//       price: ['text-[11px]']
-//     },
-//     '27px': {
-//       imageContainer: ['justify-self-center', 'self-end'],
-//       image: ['w8', 'h-8'],
-//       name: ['text-[7px]', 'inset-[1px]', 'leading-[6px]'],
-//       price: ['text-[10px]']
-//     }
-//   }
-
-//   function getItemStyle(width: string, property: string) {
-//     return propertyPerSize[width][property]
-//   }
-
-//   const cardSizes =  Object.keys(propertyPerSize)
-
-//   return (
-//     <div
-//       key={cell?.id}
-//       className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-red-300`}
-//       style={{width: cell?.width, height: cell?.height}}
-//       onClick={(e) => cell && onProductGridSelect && onProductGridSelect(cell.id, e)}
-//       onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
-//       >
-//       <div className="@container h-full w-full relative grid">
-//         {
-//           product?.image && (
-//             <div className={`absolute ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'imageContainer').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
-//               <div className={`${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'image').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`}>
-//                 <Image src={product.image} alt={product.name || ''} layout="fill" objectFit="cover" />
-//               </div>
-//             </div>
-//           )
-//         }
-
-//         {
-//           product ?
-//           <div className={`absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px] ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'price').map((style: string) => `@[${size}]:${style}`).join(' '), '') } `} style={textShadowWhite}>
-//             { product?.price || '' }
-//           </div>
-//           : ''
-//         }
-
-//         <div className={`absolute text-blue-950 font-bold ${ cardSizes.reduce((accu, size) => accu + getItemStyle(size, 'name').map((style: string) => `@[${size}]:${style}`).join(' '), '') }`} style={textShadowWhite}>
-//           { product?.name || cell?.id.toString() }
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
 export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
+    const [imageError, setImageError] = useState(false);
     return (
         <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
              onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
-            <div className="w-28 h-28 flex items-center justify-center">
-                {product.url_image ? (
+            <div className=" flex w-28 h-28 items-center justify-center">
+            {product.url_image && !imageError ? (
                     <Image
                         src={product.url_image}
                         alt={product.name}
-                        width={100}  // Ajusta el tamaño según sea necesario
-                        height={100} // Ajusta el tamaño según sea necesario
-                        className="w-[80%] h-[80%] object-center object-cover"
+                        width={100}
+                        height={100}
+                        objectFit="cover"
+                        className="rounded-lg"
+                        onError={() => setImageError(true)}
+                        loading="lazy"
+                        placeholder="blur"
+                        blurDataURL={product.url_image}
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">No hay imagen disponible</span>
+                        <span className="text-gray-500">No Image</span>
                     </div>
                 )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.name?.toString().substring(0, 20)}</p>
-            <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+            <p className="mt-2 text-center text-gray-950 font-medium">{product.desc ? product.desc.toString().substring(0, 20) : product.name?.toString().substring(0, 20)}</p>
         </div>
     )
 }
+
+interface ProductAddedModalProps {
+    product: ProductTypes;
+    onClose: () => void;
+    categories: categoriesInterface[];
+}
+
+export const ProductAddedModal = ({ product, onClose, categories }: ProductAddedModalProps) => {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Manejar diferentes casos de la imagen
+        if (product.image?.[0] instanceof File) {
+            // Si es un archivo, crear URL temporal
+            const url = URL.createObjectURL(product.image[0]);
+            setImageUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } else if (product.url_image) {
+            // Si ya tiene una URL de imagen
+            setImageUrl(product.url_image);
+        }
+    }, [product.image, product.url_image]);
+
+    // Encontrar el nombre de la categoría
+    const categoryName = categories.find(cat => cat.id_category === Number(product.id_category))?.name_category || 'Categoría no encontrada';
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-gray-800">¡Producto Añadido!</h2>
+                    <button 
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="space-y-4">
+                    {/* Imagen del producto */}
+                    {imageUrl && (
+                        <div className="relative h-48 w-full">
+                            <Image 
+                                src={imageUrl}
+                                alt={product.desc || 'Producto'}
+                                fill
+                                className="object-contain rounded-lg"
+                            />
+                        </div>
+                    )}
+
+                    {/* Detalles del producto */}
+                    <div className="space-y-2">
+                        <p className="text-sm">
+                            <span className="font-semibold text-gray-800">Categoría: </span>
+                            <span className="text-gray-600">{categoryName}</span>
+                        </p>
+                        
+                        {Object.entries(product).map(([key, value]) => {
+                            if (value && 
+                                key !== 'image' && 
+                                key !== 'url_image' &&
+                                key !== 'id_category' && 
+                                typeof value !== 'object') {
+                                return (
+                                    <p key={key} className="text-sm">
+                                        <span className="font-semibold capitalize text-gray-800">
+                                            {key.replace(/_/g, ' ')}: 
+                                        </span>
+                                        <span className="text-gray-600"> {value.toString()}</span>
+                                    </p>
+                                );
+                            }
+                            return null;
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+  

@@ -1,7 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import { CardShowSide } from './card';
 import { ProductTypes } from '@/types/product';
-const ProductContainer: React.FC<{ category: string, setCategory: (category: string | null) => void }> = ({ category, setCategory }) => {
+import { categoriesInterface } from '@/types/category';
+
+
+const ProductContainer: React.FC<{ category: categoriesInterface | null, setCategory: (category: categoriesInterface | null) => void, onProductSelect: (product: ProductTypes) => void }> = ({ category, setCategory, onProductSelect }) => {
     const [activeTab, setActiveTab] = useState('all');
     const [products, setProducts] = useState<ProductTypes[]>([]); 
     const [loading, setLoading] = useState(true); 
@@ -22,19 +25,22 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
     getProductView();
   }, []);
 
-
+    const productsSameCategory = products.filter(product => product.id_category === category?.id_category);
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredProducts = products.filter((product) =>
+        productsSameCategory.includes(product) &&
         product.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-        
+
+
+        console.log(onProductSelect, "onProductSelect")
     return (
         <div className="absolute flex h-[80vh] w-96 bg-white rounded-lg shadow-md overflow-hidden z-50 left-28 top-24 ">
             {/* Sección de Productos */}
             <div className="flex-grow p-3 mt-4">
                 <div className='flex justify-between items-center'>
-                    <p className='text-gray-500 font-bold uppercase'>{category}</p>
+                    <p className='text-gray-500 font-bold uppercase'>{category?.name_category}</p>
                     <button className='text-white font-bold bg-red-500 rounded-md p-2 mb-4' onClick={() => {
                         setCategory(null);
                     }}>Cerrar</button>
@@ -100,7 +106,7 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                                 ))
                             ) : (
                                 filteredProducts.map((product) => (
-                                    <CardShowSide key={product.id_product} product={product} />
+                                    <CardShowSide key={product.id_product} product={product} onProductSelect={onProductSelect}/>
                                     
                                 ))
                             )}
@@ -114,19 +120,23 @@ const ProductContainer: React.FC<{ category: string, setCategory: (category: str
                         className="flex-grow p-3 mt-4 overflow-y-auto h-[calc(100vh-150px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
-                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">Sub
+                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
+                                    Sub
                                 Categoría 1
                             </button>
                             <button
-                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">Sub
+                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
+                                    Sub
                                 Categoría 2
                             </button>
                             <button
-                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">Sub
+                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
+                                    Sub
                                 Categoría 3
                             </button>
                             <button
-                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">Sub
+                                className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
+                                    Sub
                                 Categoría 4
                             </button>
                         </div>

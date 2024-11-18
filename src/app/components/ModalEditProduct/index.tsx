@@ -2,32 +2,33 @@ import React, { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
+import {useProductContext} from "@/app/context/productContext";
 
 interface ModalEditProductInterface {
 
     product: ProductTypes;
-    GridID: number
-    ChangeFC: () => void,
-    DeleteFC: () => void,
-    SaveFC: () => void,
-    isOpen: boolean
+    GridID?: number
+    ChangeFC: (idGrid : number | undefined) => void,
+    DeleteFC: (idGrid: number | undefined) => void,
+    SaveFC?: (idGrid: number  | undefined, priceValue : number) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
-const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen, setIsOpen }: ModalEditProductInterface) => {
+const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
+  
     const SELECT_OPTIONS = ["kg", "mL", "L"]
 
-
+    const [price, setPrice] = useState(product?.price || 0);
     useEffect(() => {
         const getProductView = async () => {
             try {
                 const resp = await fetch("/api/apiMongo/getCategories");
                 const data = await resp.json();
                 if(resp.status === 200){
-                   setCategories(data.result);
+                    setCategories(data.result);
                 }
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
@@ -40,17 +41,21 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
     useEffect(() => {
         if (Array.isArray(categories) && categories.length > 0 && product?.id_category) {
             const categoryMatch = categories.find((item: categoriesInterface) => item.id_category === product.id_category);
+                    
             if (categoryMatch) {
-                setCategoria(categoryMatch);
+                setCategoria(categoryMatch);               
+            
+               
             }
         }
+      
+        
     }, [categories, product]);
 
-
+    
 
     return (
         <React.Fragment>
-                {isOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50  ">
                     {/* Contenido del Modal */}
                     <div className={"w-2/3 p-2 relative xl:w-1/2"}>
@@ -82,7 +87,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                     <div className="grid p-4 grid-cols-1 md:grid-cols-2h-72 ">
                                         <div>
                                             <div className={"flex w-full flex-col  justify-between xl:flex-row"}>
-                                                <h1 className={"text-black font-bold text-xl"}>{product?.name}</h1>
+                                                <h1 className={"text-black font-bold text-xl"}>{product?.desc ? product.desc : product?.name}</h1>
                                                 <div className={"flex flex-row "}>
                                                     <h1 className={"text-black font-bold text-lg self-center mr-0.5"}>UPC: </h1>
                                                     <h1 className={"text-black text-md self-center"}>{product?.upc}</h1>
@@ -111,8 +116,16 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                         </div>
 
                                         <div className={"flex w-full flex-row  justify-start gap-5"}>
-                                            <input type={"number"} defaultValue={product?.price}
-                                                className="w-2/12 p-1 border border-gray-950 rounded font-bold text-black mt-8 " />
+                                            <input
+                                                type="number"
+                                                value={price} // El valor está controlado por el estado
+                                                onChange={(event) => {
+                                                    const newValue = parseFloat(event.target.value) || 0; // Convertir a número
+                                                    setPrice(newValue); // Actualiza el valor del estado
+                                                    console.log('Precio guardado:', event.target.value); // Guarda el dato directamente al cambiar
+                                                }}
+                                                className="w-2/12 p-1 border border-gray-950 rounded font-bold text-black mt-8"
+                                            />
                                             <select
                                                 className="w-2/12 p-1 border border-gray-950 rounded font-bold text-black mt-8 ">
                                                 {
@@ -129,7 +142,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                             <div className={"flex w-full h-full flex-row"}>
                                 <button
                                     className="px-4 py-2 mt-4 w-2/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 left-10 xl:left-32"
-                                    onClick={() => ChangeFC()}
+                                    onClick={() => ChangeFC(GridID)}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="32"
@@ -142,7 +155,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-40 xl:right-80"
-                                    onClick={() => DeleteFC()}
+                                    onClick={() => DeleteFC(GridID)}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="30" width="26"
@@ -155,7 +168,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                                 </button>
                                 <button
                                     className="px-4 py-2 mt-4 w-1/6 text-black font-bold bg-lime-500 rounded-md drop-shadow-lg absolute top-3/4 right-10 xl:right-28"
-                                    onClick={() => SaveFC()}
+                                    onClick={() => SaveFC?.(GridID ,price)}
                                 >
                                     <div className="flex items-center justify-around">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="32" width="28"
@@ -170,7 +183,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, isOpen,
                         </div>
                     </div>
                 </div>
-            )}
         </React.Fragment>
     )
 }

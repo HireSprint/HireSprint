@@ -23,6 +23,7 @@ export interface ProductTypes {
     burst4?: string,
     with_cart?: boolean,
     id_product?: number,
+    id_grid?: number,
     notes?: string,
     buyer_notes?: string,
     effective?: string,
@@ -32,4 +33,8 @@ export interface ProductTypes {
     image?:any
     type_of_meat?: string
     quantity?: string
+    master_brand?: string
+    type_of_cut?: string
+    quality_cf?: string
+    
 }
