@@ -52,10 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 localStorage.setItem('user', JSON.stringify(data.result));
                 router.push('/');
             } else {
-                throw new Error(data.json() || 'Error al iniciar sesión');
+                throw new Error(data.message || 'Error al iniciar sesión');
             }
         } catch (error: any) {
-            console.error('Error al iniciar sesión:', error.json());
+            console.error('Error al iniciar sesión:', error);
         } finally {
             setLoading(false);
         }
