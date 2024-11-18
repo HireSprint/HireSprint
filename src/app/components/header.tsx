@@ -74,6 +74,25 @@ export default function Header() {
                 <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
             </div>
             <div className='flex items-center justify-center space-x-2 pl-8'>
+            {
+                    pathname === '/' && (
+                        <div className='flex items-center justify-center space-x-2 '>
+                            <h1 className='text-white text-xl font-bold'>Page:</h1>
+                            <button
+                                className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 2 ? 'bg-[#7cc304] text-black' : ''}`}
+                                onClick={() => changePage(2)}>2
+                            </button>
+                            <button
+                                className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 3 ? 'bg-[#7cc304] text-black' : ''}`}
+                                onClick={() => changePage(3)}>3
+                            </button>
+                            <button
+                                className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 4 ? 'bg-[#7cc304] text-black' : ''}`}
+                                onClick={() => changePage(4)}>4
+                            </button>
+                        </div>
+                    )
+                }
                 <button>
                     <VideoIcon/>
                 </button>
