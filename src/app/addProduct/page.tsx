@@ -79,8 +79,8 @@ const AddProductPage = () => {
             formData.append('unit_price', "0");
             formData.append('size', String(data.size) || "");
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
-            formData.append('color', String(data.color) || "");
-            formData.append('conditions', String(data.conditions) || "");
+            formData.append('color', data.color || "");
+            formData.append('conditions', data.conditions || "");
             formData.append('id_category',String(data.id_category));
 
             // Campos adicionales
