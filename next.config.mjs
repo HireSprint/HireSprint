@@ -12,11 +12,6 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'v5.airtableusercontent.com',
-        pathname: '/**',
-      },
-      {
         protocol: 'http',
         hostname: 'hiresprintcanvas.dreamhosters.com',
         pathname: '/**', 
