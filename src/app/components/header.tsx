@@ -9,18 +9,25 @@ import {useProductContext} from '../context/productContext';
 import {MessageIcon, ProfileIcon, VideoIcon} from './icons';
 import {usePathname} from 'next/navigation';
 import {addGoogleSheet3} from "@/app/api/productos/prductosRF";
-import {ProductProvider} from "../context/productContext";
 import {useCategoryContext} from "@/app/context/categoryContext";
+import { useAuth } from './provider/authprovider';
 
 export default function Header() {
+    const { user, logout } = useAuth();
+    const pathname = usePathname();
+
+    if (!user || pathname === '/login') {
+        return null;
+    }
+
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
     const {currentPage, setCurrentPage, productsData, setProductsData} = useProductContext();
     const [direction, setDirection] = useState(0);
-    const pathname = usePathname();
     const {categoriesData} = useCategoryContext()
     const {selectedProducts} = useProductContext();
+    const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -65,39 +72,33 @@ export default function Header() {
             </div>
             <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
                 {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/}
-                <p className='text-white text-xl font-bold'>Client: </p>
+                <p className='text-white text-xl font-bold hover:underline cursor-pointer' onClick={() => router.push('/profile')}>Client: {user?.userData.name}</p>
             </div>
-            <div className='flex items-center justify-center space-x-2 '>
-                {
-                    pathname === '/' && (
-                        <div className='flex items-center justify-center space-x-2 '>
-                            <h1 className='text-white text-xl font-bold'>Page:</h1>
-                            <button
-                                className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 2 ? 'bg-[#7cc304] text-black' : ''}`}
-                                onClick={() => changePage(2)}>2
-                            </button>
-                            <button
-                                className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 3 ? 'bg-[#7cc304] text-black' : ''}`}
-                                onClick={() => changePage(3)}>3
-                            </button>
-                            <button
-                                className={`bg-[#585858] text-white font-bold text-md h-8 w-8 rounded-lg hover:bg-[#7cc304] hover:text-black ${currentPage === 4 ? 'bg-[#7cc304] text-black' : ''}`}
-                                onClick={() => changePage(4)}>4
-                            </button>
-                        </div>
-                    )
-                }
-                <div className='flex items-center justify-center space-x-2 pl-8'>
-                    <button>
-                        <VideoIcon/>
-                    </button>
-                    <button>
+            <div className='flex items-center justify-center space-x-2 pl-8'>
+                <button>
+                    <VideoIcon/>
+                </button>
+                <div className="relative">
+                    <button onClick={() => setShowDropdown(!showDropdown)}>
                         <ProfileIcon/>
                     </button>
-                    <button onClick={() => enviarGoogle()}>
-                        <MessageIcon/>
-                    </button>
+                    {showDropdown && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <button
+                                onClick={() => {
+                                    logout();
+                                    setShowDropdown(false);
+                                }}
+                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
                 </div>
+                <button onClick={() => enviarGoogle()}>
+                    <MessageIcon/>
+                </button>
             </div>
             {isMenuOpen && (
                 <div className="flex flex-col space-y-4 md:hidden items-start absolute bg-black p-3 top-16 right-0">

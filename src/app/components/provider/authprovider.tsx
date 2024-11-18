@@ -1,6 +1,6 @@
 "use client"
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useState, useLayoutEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface AuthContextProps {
     user: any;
@@ -14,37 +14,25 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const router = useRouter()
+    const router = useRouter();
+    const pathname = usePathname();
 
-    useEffect(() => {
-        const checkUserLoggedIn = async () => {
-            try {
-                const res = await fetch('https://hiresprintcanvas.dreamhosters.com/login', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                });
-                
-                if (!res.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                
-                const data = await res.json();
-                setUser(data.user);
-            } catch (error) {
-                console.error('Error al verificar el usuario:', error);
-                setUser(null);
-            } finally {
-                setLoading(false);
+    useLayoutEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+            setLoading(false);
+            if (pathname === '/login') {
+                router.push('/');
             }
-        };
+            return;
+        }
 
-        checkUserLoggedIn();
-    }, []);
-
-    console.log(user, "user")
+        if (!storedUser && pathname !== '/login') {
+            router.push('/login');
+        }
+        setLoading(false);
+    }, [pathname]);
 
     const login = async (email: string, password: string) => {
         setLoading(true);
@@ -58,13 +46,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 credentials: 'same-origin',
                 body: JSON.stringify({ email, password }),
             });
-            console.log(res, "res")
-
-            const data = res.headers.get('content-type')?.includes('application/json') 
-                ? await res.json()
-                : null;
+            const data = await res.json()
             if (res.ok) {
-                setUser(data.user);
+                setUser(data.result);
+                localStorage.setItem('user', JSON.stringify(data.result));
                 router.push('/');
             } else {
                 throw new Error(data.json() || 'Error al iniciar sesión');
@@ -75,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-    console.log(user, "user")
 
     const logout = async () => {
         setLoading(true);
@@ -86,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (res.ok) {
                 setUser(null);
+                localStorage.removeItem('user');
                 router.push('/login');
             } else {
                 throw new Error('Error al cerrar sesión');
