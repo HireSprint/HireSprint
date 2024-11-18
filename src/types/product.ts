@@ -36,5 +36,5 @@ export interface ProductTypes {
     master_brand?: string
     type_of_cut?: string
     quality_cf?: string
-
+    
 }

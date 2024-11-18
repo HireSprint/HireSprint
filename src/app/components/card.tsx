@@ -202,18 +202,24 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
 }
 
 export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
+    const [imageError, setImageError] = useState(false);
     return (
         <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
              onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
-            <div className="w-28 h-28 flex items-center justify-center">
-                {product.url_image ? (
+            <div className=" flex w-28 h-28 items-center justify-center">
+            {product.url_image && !imageError ? (
                     <Image
                         src={product.url_image}
                         alt={product.name}
-                        width={100}  // Ajusta el tamaño según sea necesario
-                        height={100} // Ajusta el tamaño según sea necesario
-                        className="w-[80%] h-[80%] object-center object-cover"
+                        width={100}
+                        height={100}
+                        objectFit="cover"
+                        className="rounded-lg"
+                        onError={() => setImageError(true)}
+                        loading="lazy"
+                        placeholder="blur"
+                        blurDataURL={product.url_image}
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -221,8 +227,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                     </div>
                 )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.name?.toString().substring(0, 20)}</p>
-            <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+            <p className="mt-2 text-center text-gray-950 font-medium">{product.desc ? product.desc.toString().substring(0, 20) : product.name?.toString().substring(0, 20)}</p>
         </div>
     )
 }
