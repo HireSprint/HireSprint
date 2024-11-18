@@ -443,7 +443,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                     ))
                 )}
             </div>
-            <button className="absolute top-0 right-0 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+            <button className="fixed -top-3 left-[39vw] bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
                 X
             </button>
         </div>
