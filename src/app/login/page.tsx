@@ -2,9 +2,10 @@
 import Image from "next/image"
 import React from "react"
 import { useForm } from "react-hook-form"
+import { useAuth } from "../components/provider/authprovider"
 
-
- const Login = ({ login }: { login: (email: string, password: string) => Promise<void> }) => {
+ const Login = () => {
+    const { login } = useAuth();
   const {
     register,
     handleSubmit,
@@ -32,7 +33,7 @@ import { useForm } from "react-hook-form"
           <input
             placeholder="Email"
             id="email"
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
             {...register("email", {
               required: "required",
               pattern: {
@@ -53,7 +54,7 @@ import { useForm } from "react-hook-form"
           <input
             placeholder="Password"
             id="password"
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
             {...register("password", {
               required: "required",
               minLength: {
