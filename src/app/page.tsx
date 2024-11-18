@@ -12,7 +12,7 @@ import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
 import { CategoryProvider, useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
-
+import { useAuth } from "./components/provider/authprovider";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);

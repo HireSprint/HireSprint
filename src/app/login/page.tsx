@@ -20,14 +20,14 @@ import { useAuth } from "../components/provider/authprovider"
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 ">
-            <div className='flex items-center justify-center w-96 h-16 bg-[#393939] rounded-tr-3xl rounded-tl-3xl'>
+            <div className='flex items-center justify-center w-96 h-16 bg-[#393939] rounded-tr-3xl rounded-tl-3xl shadow-lg'>
                     <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70}/>
                     <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3'/>
 
             </div>
       <form 
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-white p-8 rounded-lg shadow-md w-96"
+        className="bg-white p-8 rounded-lg shadow-lg w-96"
       >
         <div className="mb-4 ">
           <input

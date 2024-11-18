@@ -18,20 +18,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const pathname = usePathname();
 
     useLayoutEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-            setLoading(false);
-            if (pathname === '/login') {
-                router.push('/');
+        const checkAuth = async () => {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                setUser(JSON.parse(storedUser));
+                if (pathname === '/login') {
+                    router.push('/');
+                }
+            } else if (pathname !== '/login') {
+                router.push('/login');
             }
-            return;
-        }
+            setLoading(false);
+        };
 
-        if (!storedUser && pathname !== '/login') {
-            router.push('/login');
-        }
-        setLoading(false);
+        checkAuth();
     }, [pathname]);
 
     const login = async (email: string, password: string) => {
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (res.ok) {
                 setUser(data.result);
                 localStorage.setItem('user', JSON.stringify(data.result));
+
                 router.push('/');
             } else {
                 throw new Error(data.message || 'Error al iniciar sesión');
@@ -61,20 +63,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const logout = async () => {
+    const logout = () => {
         setLoading(true);
         try {
-            const res = await fetch('', {
-                method: 'POST',
-            });
-
-            if (res.ok) {
-                setUser(null);
-                localStorage.removeItem('user');
-                router.push('/login');
-            } else {
-                throw new Error('Error al cerrar sesión');
-            }
+            setUser(null);
+            localStorage.removeItem('user');
+            router.push('/login');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         } finally {
@@ -84,7 +78,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return (
         <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {children}
+            {loading ? (
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     );
 };
