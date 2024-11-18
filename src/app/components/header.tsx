@@ -57,8 +57,7 @@ export default function Header() {
     }
   
     return (
-        <>
-        {pathname === '/' && (
+        
         <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between ">
             <div className='flex items-center justify-center '>
                 <button className="flex items-center justify-center" onClick={() => router.push('/')}>
@@ -111,7 +110,5 @@ export default function Header() {
                 </div>
             )}
         </div>
-        )}
-        </>
     );
 }
