@@ -21,21 +21,21 @@ interface SidebarProps {
 const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
   const { categoriesData, getCategoryByName } = useCategoryContext();
 	
-  const initialSidebarButtons = [{ label: "Bakery", Icon: BakeryIcon }];
+  const initialSidebarButtons = [
+		{ label: "Bakery", Icon: BakeryIcon },
+		{ label: "Deli", Icon: DeliIcon },
+	];
+	
   const [sideBarButtons, setSideBarButtons] = useState<any[]>( initialSidebarButtons );
 
   useEffect(() => {
     setSideBarButtons((initialBtns) => {
       return categoriesData.map((category) => {
         const iconMatched = initialSidebarButtons.find((btn) => btn.label === category.name_category );
-
-        return {
-          label: category.name_category,
-          Icon: iconMatched?.Icon ?? null,
-          category: category,
-        };
+        return { label: category.name_category, category: category, Icon: iconMatched?.Icon ?? null};
       });
     });
+
   }, [categoriesData]);
 
   function isActive(category: number): boolean {
@@ -45,7 +45,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
   return (
     <div className="h-full flex flex-col items-center absolute left-0  bg-white shadow-lg p-1 pt-8 z-50 overflow-y-auto space-y-4 pb-8">
       {sideBarButtons.map(({ category, label, Icon }) => (
-				<div key={category.id_category} className="flex flex-col items-center max-w-[145px] text-center group cursor-pointer" >
+				<div key={category?.id_category} className="flex flex-col items-center max-w-[145px] text-center group cursor-pointer" >
 
 					<button id={`btn-${label}`} className={`w-20 h-20 border-2 ${isActive(category?.id_category) ? 'border-[#7cc304]' : 'border-[#606060]' } group-hover:border-[#7cc304] rounded-lg  flex items-center justify-center`} onClick={() => { onCategorySelect(category) }} >
 						{ Icon && <Icon isActive={isActive(category?.id_category)}/> }
