@@ -106,6 +106,7 @@ export default function HomePage() {
     };
 
     const handleDragAndDropGridCell = (gridCellToMove: any, stopDragEvent: MouseEvent) => {
+
         const getCellId = (htmlElement:HTMLElement) => {
             const htmlElementId = htmlElement && htmlElement.id
             const cellId = htmlElementId && Number(htmlElementId.replace('grid-card-product-',''))
@@ -122,14 +123,12 @@ export default function HomePage() {
 
         // id del grid que se quiere mover su contenido
         const cellIdToMove = getCellId(gridCellToMove.node)
-        if (gridCellToMove.node) (gridCellToMove.node as any).style.pointerEvents = 'auto';
         
         // id del grid que al que se quiere mover el producto
         const gridCellTarget = findGridCellTarget(stopDragEvent.target)
-        if (gridCellTarget) (gridCellTarget as any).style.pointerEvents = 'auto';
         const cellIdTarget = getCellId(gridCellTarget);
         
-        if (cellIdTarget && cellIdToMove) {
+        if (cellIdTarget && cellIdToMove && (cellIdTarget != cellIdToMove)) {
             moveProduct(cellIdToMove, cellIdTarget);
             setShowProducts(false); // Ocultar el panel de productos si está visible
         }
@@ -140,11 +139,10 @@ export default function HomePage() {
     const handleProductMove = (targetGridId: number) => {
         if (!moveMode) return;
 
-        moveProduct(moveMode.sourceGridId, targetGridId);
+        moveProduct(moveMode.sourceCellId, targetGridId);
 
         // Resetear el modo de movimiento
         setMoveMode(null);
-
 
         console.log({
             title: "Producto movido",
@@ -157,14 +155,14 @@ export default function HomePage() {
     const moveProduct = (sourceGridId: number, targetGridId: number) => {
         setSelectedProducts((prev) => {
             const updatedProducts = prev.map(product => {
-                if (product.id_product === sourceGridId) {
+                if (product.id_grid === sourceGridId) {
                     // Actualizar el gridId del producto que se está moviendo
-                    return { ...product, id_product: targetGridId };
+                    return { ...product, id_grid: targetGridId };
                 }
                 
-                if ( product.id_product === targetGridId) {
+                if ( product.id_grid === targetGridId) {
                     // Si hay un producto en el grid destino, moverlo al grid origen
-                    return { ...product, id_product: sourceGridId };
+                    return { ...product, id_grid: sourceGridId };
                 }
 
                 return product;
@@ -481,7 +479,6 @@ const GridProduct: React.FC<GridProductProps> = ({
                 ) : (
                     filteredProducts.map((product) => (
                         <CardShowSide key={product.id_product} product={product} onProductSelect={onProductSelect} />
-
                     ))
                 )}
             </div>
