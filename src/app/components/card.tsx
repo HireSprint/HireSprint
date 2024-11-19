@@ -6,6 +6,8 @@ import { cellTypes } from "@/types/cell";
 import { categoriesInterface } from "@/types/category";
 import { Skeleton } from 'primereact/skeleton';
 import Draggable from 'react-draggable';
+import { Tooltip } from 'primereact/tooltip';
+
 
 interface CardProductProps {
   product: ProductTypes;
@@ -172,7 +174,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
-        
+
         if (elementRef.current){
             setTimeout(() => {
                 (elementRef.current as any).style.pointerEvents = 'auto';
@@ -208,6 +210,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     
         return (
             <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
+                <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
                 <Draggable disabled={!readyToDrag} onStart={startDragging} onStop={stopDragging} position={position}>
                     <div
                         ref={elementRef}
