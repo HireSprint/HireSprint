@@ -114,9 +114,13 @@ export default function Header() {
                         </div>
                     )}
                 </div>
-                <button onClick={() => enviarGoogle()}>
-                    <MessageIcon/>
-                </button>
+                {
+                    pathname === '/' && (
+                        <button onClick={() => enviarGoogle()}>
+                            <MessageIcon/>
+                        </button>
+                    )
+                }
             </div>
         </div>
     );

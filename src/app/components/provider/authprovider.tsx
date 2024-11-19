@@ -7,6 +7,8 @@ interface AuthContextProps {
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     loading: boolean;
+    update: any;
+    setUpdate: (update: any) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -14,6 +16,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [update, setUpdate] = useState (null);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -77,14 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {loading ? (
-                <div className="loading-container">
-                    <div className="loading-spinner"></div>
-                </div>
-            ) : (
-                children
-            )}
+        <AuthContext.Provider value={{ user, login, logout, loading, update, setUpdate }}>
+            {children}
         </AuthContext.Provider>
     );
 };
