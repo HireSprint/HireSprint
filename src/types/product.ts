@@ -2,7 +2,7 @@ export interface ProductTypes {
     id_category: number,
     name: string,
     brand: string,
-    upc: number,
+    upc: string,
     size?: string,
     variety?: [string],
     price: number,

@@ -1,8 +1,6 @@
 "use client"
 import { CardShow, CardShowSide } from "./components/card";
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
 import { motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
@@ -198,24 +196,21 @@ export default function HomePage() {
 
     }
 
-    const handleSaveChangeProduct = (gridID: number | undefined, price: number) => {
+    const handleSaveChangeProduct = (gridID: number | undefined, price: number, note : string, brust : string) => {
         if (gridID === undefined) {
             return;
-        }
-
-        console.log(gridID, 'valor', price, 'precio');
-
+        }        
         // Encuentra el índice del producto que deseas actualizar
         const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
         if (productIndex === -1) {
-            console.log('Producto no encontrado');
+         
             return;
         }
 
         // Actualiza directamente el producto
         selectedProducts[productIndex].price = price;
-
-        console.log(selectedProducts[productIndex], 'precio cambiado');
+        selectedProducts[productIndex].notes = note;     
+        selectedProducts[productIndex].burst = brust;
 
         // Llama a setProductsData para que React reconozca el cambio
         setProductsData([...selectedProducts]);  // El operador de propagación crea una nueva referencia para que React detecte cambios
