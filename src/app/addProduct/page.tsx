@@ -12,7 +12,7 @@ const AddProductPage = () => {
         register,
         handleSubmit,
         formState: { errors },
-        watch, 
+        watch,
         reset
     } = useForm<ProductTypes>({
         defaultValues: {
@@ -35,20 +35,20 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
-    const categoryFields: Record<string, {name: string, placeholder: string}[]> = {
+    const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
-            {name: "type_of_meat", placeholder: "Type of meat"},
-            {name: "type_of_cut", placeholder: "Type OF cut"},
-            {name: "quality_cf", placeholder: "Quality CF"},
-            {name: "size", placeholder: "Size / Pack"},
-            {name: "sku", placeholder: "SKU"},
+            { name: "type_of_meat", placeholder: "Type of meat" },
+            { name: "type_of_cut", placeholder: "Type OF cut" },
+            { name: "quality_cf", placeholder: "Quality CF" },
+            { name: "size", placeholder: "Size / Pack" },
+            { name: "sku", placeholder: "SKU" },
         ],
         "16": [
-            {name: "type_of_meat", placeholder: "Type of meat"},
-            {name: "type_of_cut", placeholder: "Type OF cut"},
-            {name: "quality_cf", placeholder: "Quality CF"},
-            {name: "size", placeholder: "Size / Pack"},
-            {name: "sku", placeholder: "SKU"},
+            { name: "type_of_meat", placeholder: "Type of meat" },
+            { name: "type_of_cut", placeholder: "Type OF cut" },
+            { name: "quality_cf", placeholder: "Quality CF" },
+            { name: "size", placeholder: "Size / Pack" },
+            { name: "sku", placeholder: "SKU" },
         ]
     };
     const [selectedProduct, setSelectedProduct] = useState<ProductTypes | null>(null);
@@ -91,12 +91,12 @@ const AddProductPage = () => {
                 product => product.upc === data.upc || product.sku === data.sku
             );
             console.log(existingProduct, "existingProduct");
-    
+
             if (existingProduct) {
                 toast.error("Ya existe un producto con el mismo UPC o SKU");
                 return;
             }
-    
+
             const formData = new FormData();
 
             // Campos básicos
@@ -112,7 +112,7 @@ const AddProductPage = () => {
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
             formData.append('color', data.color || "");
             formData.append('conditions', data.conditions || "");
-            formData.append('id_category',String(data.id_category));
+            formData.append('id_category', String(data.id_category));
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
@@ -211,14 +211,14 @@ const AddProductPage = () => {
         setIsUpdating(true);
         try {
             const formData = new FormData();
-            
+
             // Verificar y agregar la imagen solo si existe
             if (dataUpdate?.image && dataUpdate.image.length > 0) {
                 formData.append('image', dataUpdate.image[0]);
             } else {
-                console.log(dataUpdate?.image, "no image", );
+                console.log(dataUpdate?.image, "no image",);
             }
-            
+
             // Campos básicos con validación estricta
             formData.append('id_product', String(dataUpdate?.id_product || ''));
             formData.append('upc', dataUpdate?.upc || '');
@@ -247,14 +247,14 @@ const AddProductPage = () => {
             }
 
             const data = await response.json();
-            
+
             // Actualizar UI solo si la respuesta es exitosa
-            setProductsData(prevData => 
-                prevData.map(prod => 
-                    prod.id_product === dataUpdate.id_product ? {...prod, ...dataUpdate} : prod
+            setProductsData(prevData =>
+                prevData.map(prod =>
+                    prod.id_product === dataUpdate.id_product ? { ...prod, ...dataUpdate } : prod
                 )
             );
-            
+
             toast.success("¡Producto actualizado exitosamente!");
             setIsEditModalOpen(false);
             setSelectedProduct(null);
@@ -287,14 +287,14 @@ const AddProductPage = () => {
                     (product.desc?.toLowerCase().includes(searchLower)) ||
                     (product.master_brand?.toLowerCase().includes(searchLower)) ||
                     (product.brand?.toLowerCase().includes(searchLower)) ||
-                    (String(product.upc).includes(searchTerm)) || 
+                    (String(product.upc).includes(searchTerm)) ||
                     (String(product.sku).includes(searchTerm))
                 );
             });
 
             setSearchResults(filtered);
             setOpenSearch(true);
-            
+
             if (filtered.length === 0) {
                 toast.info("No se encontraron productos");
             }
@@ -311,40 +311,40 @@ const AddProductPage = () => {
         setIsEditModalOpen(true);
     };
 
+
     // Componente Modal de Edición
-    const EditProductModal = ({ product, onClose, onUpdate }: { 
-        product: ProductTypes, 
+    const EditProductModal = ({ product, onClose, onUpdate }: {
+        product: ProductTypes,
         onClose: () => void,
-        onUpdate: (product: ProductTypes) => void 
+        onUpdate: (product: ProductTypes) => void
     }) => {
         const [editedProduct, setEditedProduct] = useState(product);
-        const imageFileEdit = watch("image");
+        const [imageFileEdit, setImageFileEdit] = useState<File | null>(null);
+        const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
+
 
         useEffect(() => {
-            if (imageFileEdit && imageFileEdit[0]) {
+            if (imageFileEdit instanceof File) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     setEditPreviewUrl(e.target?.result as string);
-                    setEditedProduct(prev => ({...prev, image: imageFileEdit}));
+                    setEditedProduct(prev => ({ ...prev, image: [imageFileEdit] }));
                 };
-                reader.readAsDataURL(imageFileEdit[0] as Blob);
+                reader.readAsDataURL(imageFileEdit);
             }
         }, [imageFileEdit]);
 
-        const hasValue = (field: string) => {
-            return product[field as keyof ProductTypes] !== null && 
-                   product[field as keyof ProductTypes] !== undefined && 
-                   product[field as keyof ProductTypes] !== "";
-        };
+        console.log(imageFileEdit, "imageFileEdit");
 
         const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.files && e.target.files[0]) {
                 const file = e.target.files[0];
+                setImageFileEdit(file);
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     setEditPreviewUrl(e.target?.result as string);
-                    setEditedProduct({...editedProduct, image: [file]});
-                    
+                    setEditedProduct(prev => ({ ...prev, image: [file] }));
                 };
                 reader.readAsDataURL(file);
             }
@@ -358,83 +358,82 @@ const AddProductPage = () => {
                         <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
                     </div>
                     <div className="col-span-2 flex justify-center">
-                            {editedProduct.url_image && (
-                                <img 
-                                    src={editedProduct.url_image}
-                                    alt={editedProduct.desc}
-                                    className="h-48 object-contain"
-                                />
-                            )}
-                        </div>
+                        {editedProduct.url_image && (
+                            <img
+                                src={editedProduct.url_image}
+                                alt={editedProduct.desc}
+                                className="h-48 object-contain"
+                            />
+                        )}
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         {/* Solo mostrar campos con datos */}
                         <input
                             className="bg-gray-700 text-white p-2 rounded"
                             value={editedProduct.upc || ''}
-                            onChange={e => setEditedProduct({...editedProduct, upc: e.target.value})}
-                                placeholder="UPC"
+                            onChange={e => setEditedProduct({ ...editedProduct, upc: e.target.value })}
+                            placeholder="UPC"
                         />
                         <input
                             className="bg-gray-700 text-white p-2 rounded"
                             value={editedProduct.sku || ''}
-                                onChange={e => setEditedProduct({...editedProduct, sku: e.target.value})}
-                                placeholder="SKU"
-                            />
-                        
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.desc || ''}
-                                onChange={e => setEditedProduct({...editedProduct, desc: e.target.value})}
-                                placeholder="Description"
-                            />
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.brand || ''}
-                                onChange={e => setEditedProduct({...editedProduct, brand: e.target.value})}
-                                placeholder="Brand"
-                            />
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.variety || ''}
-                                onChange={e => setEditedProduct({...editedProduct, variety: [e.target.value]})}
-                                placeholder="Variety"
-                            />
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.master_brand || ''}
-                                onChange={e => setEditedProduct({...editedProduct, master_brand: e.target.value})}
-                                placeholder="Master Brand"
-                            />
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.type_of_cut || ''}
-                                onChange={e => setEditedProduct({...editedProduct, type_of_cut: e.target.value})}
-                                placeholder="Type of cut"
-                            />
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.quality_cf || ''}
-                                onChange={e => setEditedProduct({...editedProduct, quality_cf: e.target.value})}
-                                placeholder="Quality CF"
-                            />
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.type_of_meat || ''}
-                                onChange={e => setEditedProduct({...editedProduct, type_of_meat: e.target.value})}
-                                placeholder="Type of meat"
-                            />
+                            onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
+                            placeholder="SKU"
+                        />
+
                         <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.size || ''}
-                                onChange={e => setEditedProduct({...editedProduct, size: e.target.value})}
-                                placeholder="Size"
-                            />
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.desc || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, desc: e.target.value })}
+                            placeholder="Description"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.brand || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, brand: e.target.value })}
+                            placeholder="Brand"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.variety || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, variety: [e.target.value] })}
+                            placeholder="Variety"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.master_brand || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, master_brand: e.target.value })}
+                            placeholder="Master Brand"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.type_of_cut || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, type_of_cut: e.target.value })}
+                            placeholder="Type of cut"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.quality_cf || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, quality_cf: e.target.value })}
+                            placeholder="Quality CF"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.type_of_meat || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, type_of_meat: e.target.value })}
+                            placeholder="Type of meat"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.size || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, size: e.target.value })}
+                            placeholder="Size"
+                        />
 
                         {/* Mantener la sección de imagen */}
                         <div className="flex-1">
                             <input
-                                {...register("image")}
                                 type="file"
                                 className="hidden"
                                 accept="image/*"
@@ -450,11 +449,11 @@ const AddProductPage = () => {
                                     />
                                 </div>
                             ) : (
-                                <div 
-                                    className=" border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                <div
+                                    className="border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
                                     onClick={() => document.getElementById('imageInputUpdate')?.click()}
                                 >
-                                    <span className="text-gray-400 p-4">Add new Image</span>
+                                    <span className="text-gray-400 p-4">Agregar nueva imagen</span>
                                 </div>
                             )}
                         </div>
@@ -483,19 +482,19 @@ const AddProductPage = () => {
     return (
         <div className="flex p-2 bg-[#121212] h-screen">
             {showModal && addProduct && (
-                <ProductAddedModal product={addProduct[addProduct.length - 1]} onClose={()=>setShowModal(false)} categories={categories}/>
+                <ProductAddedModal product={addProduct[addProduct.length - 1]} onClose={() => setShowModal(false)} categories={categories} />
             )}
 
-            <form 
-                ref={formRef} 
-                onSubmit={handleSubmit(onSubmit)} 
+            <form
+                ref={formRef}
+                onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-6xl mx-auto"
             >
                 {/* Información básica del producto */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Basic Information</h2>
                     <div className="grid grid-cols-2 gap-4">
-                    <div>
+                        <div>
                             <select
                                 {...register("id_category", { required: true })}
                                 className="w-full bg-gray-500 text-white p-2 rounded-md mb-2"
@@ -535,12 +534,12 @@ const AddProductPage = () => {
                         </div>
                         <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" />
                         {errors.upc && <span className="text-red-500">This field is required</span>}
-                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md" />
 
-                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md" />
                         {errors.brand && <span className="text-red-500">This field is required</span>}
 
-                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md"/>
+                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md" />
                         {errors.desc && <span className="text-red-500">This field is required </span>}
 
                     </div>
@@ -550,21 +549,21 @@ const AddProductPage = () => {
                 <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Details</h2>
                     <div className="space-y-4">
-                    {(String(selectedCategory) === "5" || String(selectedCategory) === "16")
+                        {(String(selectedCategory) === "5" || String(selectedCategory) === "16")
                             ? categoryFields[selectedCategory]?.map((field) => (
-                                  <input
-                                      key={field.name}
-                                      {...register(field.name as keyof ProductTypes)}
-                                      placeholder={field.placeholder}
-                                      className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                  />
-                              ))
+                                <input
+                                    key={field.name}
+                                    {...register(field.name as keyof ProductTypes)}
+                                    placeholder={field.placeholder}
+                                    className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                />
+                            ))
                             : <>
-                              <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                              <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
-                              
-                              </>
-                    }
+                                <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md" />
+
+                            </>
+                        }
                     </div>
                 </div>
 
@@ -578,8 +577,8 @@ const AddProductPage = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="p-2 border rounded text-black flex-1"
                         />
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             onClick={handleSearch}
                             disabled={isSearching}
                             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
@@ -611,7 +610,7 @@ const AddProductPage = () => {
                                         />
                                     </div>
                                 ) : (
-                                    <div 
+                                    <div
                                         className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
                                         onClick={() => document.getElementById('imageInput')?.click()}
                                     >
@@ -619,7 +618,7 @@ const AddProductPage = () => {
                                     </div>
                                 )}
                             </div>
-                            <ToastContainer 
+                            <ToastContainer
                                 position="top-right"
                                 autoClose={3000}
                                 hideProgressBar={false}
@@ -651,16 +650,16 @@ const AddProductPage = () => {
             {openSearch && (
                 <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4">
                     <h2 className="text-white text-xl mb-4">Resultados de Búsqueda</h2>
-                    
+
                     {searchResults.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                             {searchResults.map((product) => (
                                 <div key={product.id_product} className="bg-gray-700 p-4 rounded-lg">
                                     <div className="relative">
                                         {product.url_image && (
-                                            <img 
-                                                src={product.url_image} 
-                                                alt={product.desc || ""} 
+                                            <img
+                                                src={product.url_image}
+                                                alt={product.desc || ""}
                                                 className="w-full h-48 object-contain rounded"
                                             />
                                         )}
@@ -683,7 +682,7 @@ const AddProductPage = () => {
             )}
 
             {isEditModalOpen && selectedProduct && (
-                <EditProductModal 
+                <EditProductModal
                     product={selectedProduct}
                     onClose={() => {
                         setIsEditModalOpen(false);

@@ -1,8 +1,6 @@
 "use client"
 import { CardShow, CardShowSide } from "./components/card";
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
 import { motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
