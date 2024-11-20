@@ -14,6 +14,8 @@ interface ProductContextType {
   setProductArray: (product: ProductTypes[]) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;  
+  idCircular: number | null;
+  setIdCircular: (id: number | null) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -23,10 +25,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
   const [currentPage, setCurrentPage] = useState(2);
-  
+  const [idCircular, setIdCircular] = useState<number | null>(null);
 
   return (
-        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray }}>
+        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, idCircular, setIdCircular }}>
       {children}
     </ProductContext.Provider>
   );
