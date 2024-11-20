@@ -195,7 +195,6 @@ export const ImageGrid2 = ({
     copiedProduct,
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { setSelectedProducts } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
 
 
@@ -279,7 +278,7 @@ export const ImageGrid2 = ({
 
     ];
 
-    const { productArray,  productsData, setProductsData, selectedProducts} = useProductContext();
+    const { productArray,  productsData, setProductsData, selectedProducts, setSelectedProducts } = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;
@@ -377,6 +376,7 @@ export const ImageGrid2 = ({
 
         return filledGrid;
     };
+    
     useEffect(() => {
 
         const handleClickOutside = () => setContextMenu(null);

@@ -36,7 +36,7 @@ const ProductContainer: React.FC<{ category: categoriesInterface | null, setCate
 
         console.log(onProductSelect, "onProductSelect")
     return (
-        <div className="absolute flex h-[80vh] w-96 bg-white rounded-lg shadow-md overflow-hidden z-50 left-28 top-24 ">
+        <div className="absolute flex h-[80vh] w-96 bg-white rounded-lg shadow-md overflow-hidden z-50 left-[170px] top-24 ">
             {/* Sección de Productos */}
             <div className="flex-grow p-3 mt-4">
                 <div className='flex justify-between items-center'>

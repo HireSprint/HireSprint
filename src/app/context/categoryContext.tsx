@@ -7,11 +7,10 @@ interface CategoryContextType {
     categoriesData: categoriesInterface[];
     isLoadingCategories: boolean;
     getCategoryByName: (categoryName: string) => categoriesInterface | undefined
+    getCategoryById: (categoryId: number) => categoriesInterface | undefined
 }
 
-const categoryContext = createContext<CategoryContextType | undefined>(
-    undefined
-);
+const categoryContext = createContext<CategoryContextType | undefined>( undefined );
 
 export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
                                                                               children,
@@ -44,8 +43,13 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
         return categoriesData.find((category) => category.name_category == categoryName)
     }
 
+    const getCategoryById = (categoryId: Number): categoriesInterface | undefined => {
+        if (categoriesData.length == 0) return;
+        return categoriesData.find((category) => category.id_category == categoryId)
+    }
+
     return (
-        <categoryContext.Provider value={{categoriesData, isLoadingCategories, getCategoryByName}}>
+        <categoryContext.Provider value={{categoriesData, isLoadingCategories, getCategoryByName, getCategoryById}}>
             {children}
         </categoryContext.Provider>
     );
