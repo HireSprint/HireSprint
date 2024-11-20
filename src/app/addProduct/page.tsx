@@ -29,23 +29,44 @@ const AddProductPage = () => {
     const [addProduct, setAddProduct] = useState<ProductTypes[]>([]);
     const [newCategory, setNewCategory] = useState<string>("");
     const [isCreatingCategory, setIsCreatingCategory] = useState<boolean>(false);
+    const [productsData, setProductsData] = useState<ProductTypes[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchResults, setSearchResults] = useState<ProductTypes[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [openSearch, setOpenSearch] = useState(false);
+    const [editableProduct, setEditableProduct] = useState<ProductTypes | null>(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const categoryFields: Record<string, {name: string, placeholder: string}[]> = {
+        "5": [
+            {name: "type_of_meat", placeholder: "Type of meat"},
+            {name: "type_of_cut", placeholder: "Type OF cut"},
+            {name: "quality_cf", placeholder: "Quality CF"},
+            {name: "size", placeholder: "Size / Pack"},
+            {name: "sku", placeholder: "SKU"},
+        ],
+        "16": [
+            {name: "type_of_meat", placeholder: "Type of meat"},
+            {name: "type_of_cut", placeholder: "Type OF cut"},
+            {name: "quality_cf", placeholder: "Quality CF"},
+            {name: "size", placeholder: "Size / Pack"},
+            {name: "sku", placeholder: "SKU"},
+        ]
+    };
+    const [selectedProduct, setSelectedProduct] = useState<ProductTypes | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
- const categoryFields: Record<string, {name: string, placeholder: string}[]> = {
-    "5": [
-        {name: "type_of_meat", placeholder: "Type of meat"},
-        {name: "type_of_cut", placeholder: "Type OF cut"},
-        {name: "quality_cf", placeholder: "Quality CF"},
-        {name: "size", placeholder: "Size / Pack"},
-        {name: "sku", placeholder: "SKU"},
-    ],
-    "16": [
-        {name: "type_of_meat", placeholder: "Type of meat"},
-        {name: "type_of_cut", placeholder: "Type OF cut"},
-        {name: "quality_cf", placeholder: "Quality CF"},
-        {name: "size", placeholder: "Size / Pack"},
-        {name: "sku", placeholder: "SKU"},
-    ]
- };
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getProduct");
+                const data = await resp.json();
+                setProductsData(data.result);
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
+            }
+        };
+        getProductView();
+    }, []);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -65,7 +86,6 @@ const AddProductPage = () => {
 
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
-
             const formData = new FormData();
 
             // Campos básicos
@@ -106,7 +126,6 @@ const AddProductPage = () => {
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
 
-
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/createProduct`, {
                 method: 'POST',
                 body: formData,
@@ -125,8 +144,6 @@ const AddProductPage = () => {
                 toast.error(errorData?.message || `Error del servidor: ${response.status}`);
                 throw new Error(errorData?.message || `Error del servidor: ${response.status}`);
             }
-
-            const result = await response.json();
 
         } catch (error) {
             console.error('Error al crear producto:', error);
@@ -175,6 +192,198 @@ const AddProductPage = () => {
             console.log(error)
             setIsCreatingCategory(false);
         }
+    };
+
+
+
+    const handleUpdateProduct = async (dataUpdate: ProductTypes) => {
+        setIsUpdating(true);
+        console.log(dataUpdate,)
+        try {
+            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id_product: dataUpdate.id_product,
+                    desc: dataUpdate.desc,
+                    brand: dataUpdate.brand,
+                    variety: dataUpdate.variety,
+                    master_brand: dataUpdate.master_brand,
+                    size: dataUpdate.size,
+                    type_of_meat: dataUpdate.type_of_meat,
+                    type_of_cut: dataUpdate.type_of_cut,
+                    quality_cf: dataUpdate.quality_cf,
+                    url_image: dataUpdate.url_image,
+                })
+            });
+
+            if (response.ok) {
+                setProductsData(prevData => 
+                    prevData.map(prod => 
+                        prod.id_product === dataUpdate.id_product ? {...prod, ...dataUpdate} : prod
+                    )
+                );
+                toast.success("¡Producto actualizado exitosamente!");
+                setIsEditModalOpen(false);
+                setSelectedProduct(null);
+                reset();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al actualizar el producto');
+            }
+        } catch (error) {
+            console.error("Error en la actualización:", error);
+            toast.error("Error al actualizar el producto: " + (error as Error).message);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleSearch = () => {
+        if (!searchTerm.trim()) {
+            toast.error("Por favor ingrese un término de búsqueda");
+            return;
+        }
+
+        setIsSearching(true);
+        try {
+            // Filtra los productos que coincidan con el término de búsqueda
+            const filtered = productsData.filter((product: ProductTypes) => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                    (product.desc?.toLowerCase().includes(searchLower)) ||
+                    (product.master_brand?.toLowerCase().includes(searchLower)) ||
+                    (product.brand?.toLowerCase().includes(searchLower)) ||
+                    (String(product.upc).includes(searchTerm))
+                );
+            });
+
+            setSearchResults(filtered);
+            setOpenSearch(true);
+            
+            if (filtered.length === 0) {
+                toast.info("No se encontraron productos");
+            }
+        } catch (error) {
+            console.error('Error al buscar productos:', error);
+            toast.error("Error al buscar productos");
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleEditClick = (product: ProductTypes) => {
+        setSelectedProduct(product);
+        setIsEditModalOpen(true);
+    };
+
+    // Componente Modal de Edición
+    const EditProductModal = ({ product, onClose, onUpdate }: { 
+        product: ProductTypes, 
+        onClose: () => void,
+        onUpdate: (product: ProductTypes) => void 
+    }) => {
+        const [editedProduct, setEditedProduct] = useState(product);
+
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl text-white font-bold">Editar Producto</h2>
+                        <button 
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-white"
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Imagen del producto */}
+                        <div className="col-span-2 flex justify-center">
+                            {editedProduct.url_image && (
+                                <img 
+                                    src={editedProduct.url_image}
+                                    alt={editedProduct.desc}
+                                    className="h-48 object-contain"
+                                />
+                            )}
+                        </div>
+
+                        {/* Campos de edición */}
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.desc || ''}
+                            onChange={e => setEditedProduct({...editedProduct, desc: e.target.value})}
+                            placeholder="Description"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.brand || ''}
+                            onChange={e => setEditedProduct({...editedProduct, brand: e.target.value})}
+                            placeholder="Brand"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.variety || ''}
+                            onChange={e => setEditedProduct({...editedProduct, variety: [e.target.value]})}
+                            placeholder="Variety"
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.master_brand || ''}
+                            onChange={e => setEditedProduct({...editedProduct, master_brand: e.target.value})}
+                            placeholder="Master Brand"
+                        />
+                       <div className="flex-1">
+                                <input
+                                    {...register("image")}
+                                    className="hidden"
+                                    type="file"
+                                    accept="image/*"
+                                    id="imageInputUpdate"
+                                />
+                                {previewUrl ? (
+                                    <div className="cursor-pointer" onClick={() => document.getElementById('imageInputUpdate')?.click()}>
+                                        <img
+                                            src={previewUrl}
+                                            alt="Vista previa"
+                                            className="w-full h-64 object-contain rounded-md hover:opacity-80 transition-opacity"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div 
+                                        className=" border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                        onClick={() => document.getElementById('imageInputUpdate')?.click()}
+                                    >
+                                        <span className="text-gray-400 p-4">Add new Image</span>
+                                    </div>
+                                )}
+                            </div>
+
+                        {/* Añade más campos según necesites */}
+
+                        <div className="col-span-2 flex justify-end gap-2 mt-4">
+                            <button
+                                onClick={onClose}
+                                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => onUpdate(editedProduct)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                disabled={isUpdating}
+                            >
+                                {isUpdating ? 'Actualizando...' : 'Guardar Cambios'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -253,48 +462,73 @@ const AddProductPage = () => {
                                   />
                               ))
                             : <>
-
                               <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
                               <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md"/>
+                              
                               </>
                     }
                     </div>
+                </div>
 
+                <div className="col-span-2 bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-white text-xl mb-4">Buscar Productos</h2>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="Buscar productos..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="p-2 border rounded text-black flex-1"
+                        />
+                        <button 
+                            type="button" 
+                            onClick={handleSearch}
+                            disabled={isSearching}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
+                        >
+                            {isSearching ? "Buscando..." : "Buscar"}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Imagen y categoría */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Image </h2>
                     <div className="grid grid-cols-2 gap-4">
-
                         <div className="flex gap-4 items-start">
                             <div className="flex-1">
                                 <input
                                     {...register("image")}
-                                    className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                    className="hidden"
                                     type="file"
                                     accept="image/*"
+                                    id="imageInput"
                                 />
-                                <ToastContainer 
-                                    position="top-right"
-                                    autoClose={3000}
-                                    hideProgressBar={false}
-                                    closeOnClick
-                                    pauseOnHover
-                                    theme="light"
-                                />
-
-
+                                {previewUrl ? (
+                                    <div className="cursor-pointer" onClick={() => document.getElementById('imageInput')?.click()}>
+                                        <img
+                                            src={previewUrl}
+                                            alt="Vista previa"
+                                            className="w-full h-64 object-contain rounded-md hover:opacity-80 transition-opacity"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div 
+                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                        onClick={() => document.getElementById('imageInput')?.click()}
+                                    >
+                                        <span className="text-gray-400">Haz clic para añadir una imagen</span>
+                                    </div>
+                                )}
                             </div>
-                            {previewUrl && (
-                                <div className="flex-shrink-0">
-                                    <img
-                                        src={previewUrl}
-                                        alt="Vista previa"
-                                        className="w-24 h-24 object-cover rounded-md"
-                                    />
-                                </div>
-                            )}
+                            <ToastContainer 
+                                position="top-right"
+                                autoClose={3000}
+                                hideProgressBar={false}
+                                closeOnClick
+                                pauseOnHover
+                                theme="light"
+                            />
                         </div>
                     </div>
                 </div>
@@ -314,6 +548,52 @@ const AddProductPage = () => {
                     )}
                 </button>
             </form>
+
+            {/* Resultados de búsqueda */}
+            {openSearch && (
+                <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4">
+                    <h2 className="text-white text-xl mb-4">Resultados de Búsqueda</h2>
+                    
+                    {searchResults.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                            {searchResults.map((product) => (
+                                <div key={product.id_product} className="bg-gray-700 p-4 rounded-lg">
+                                    <div className="relative">
+                                        {product.url_image && (
+                                            <img 
+                                                src={product.url_image} 
+                                                alt={product.desc || ""} 
+                                                className="w-full h-48 object-contain rounded"
+                                            />
+                                        )}
+                                        <button
+                                            onClick={() => handleEditClick(product)}
+                                            className="mt-2 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                                        >
+                                            Editar Producto
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-gray-300 text-center">
+                            No se encontraron productos que coincidan con la búsqueda
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {isEditModalOpen && selectedProduct && (
+                <EditProductModal 
+                    product={selectedProduct}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setSelectedProduct(null);
+                    }}
+                    onUpdate={handleUpdateProduct}
+                />
+            )}
         </div>
     )
 }
