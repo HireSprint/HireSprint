@@ -369,22 +369,18 @@ const AddProductPage = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         {/* Solo mostrar campos con datos */}
-                        {hasValue('upc') && (
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
                             value={editedProduct.upc || ''}
                             onChange={e => setEditedProduct({...editedProduct, upc: e.target.value})}
                                 placeholder="UPC"
-                            />
-                        )}
-                        {hasValue('sku') && (
-                            <input
-                                className="bg-gray-700 text-white p-2 rounded"
-                                value={editedProduct.sku || ''}
+                        />
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.sku || ''}
                                 onChange={e => setEditedProduct({...editedProduct, sku: e.target.value})}
                                 placeholder="SKU"
                             />
-                        )}
                         
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
@@ -392,60 +388,48 @@ const AddProductPage = () => {
                                 onChange={e => setEditedProduct({...editedProduct, desc: e.target.value})}
                                 placeholder="Description"
                             />
-                        {hasValue('brand') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.brand || ''}
                                 onChange={e => setEditedProduct({...editedProduct, brand: e.target.value})}
                                 placeholder="Brand"
                             />
-                        )}
-                        {hasValue('variety') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.variety || ''}
                                 onChange={e => setEditedProduct({...editedProduct, variety: [e.target.value]})}
                                 placeholder="Variety"
                             />
-                        )}
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.master_brand || ''}
                                 onChange={e => setEditedProduct({...editedProduct, master_brand: e.target.value})}
                                 placeholder="Master Brand"
                             />
-                        {hasValue('type_of_cut') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.type_of_cut || ''}
                                 onChange={e => setEditedProduct({...editedProduct, type_of_cut: e.target.value})}
                                 placeholder="Type of cut"
                             />
-                        )}
-                        {hasValue('quality_cf') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.quality_cf || ''}
                                 onChange={e => setEditedProduct({...editedProduct, quality_cf: e.target.value})}
                                 placeholder="Quality CF"
                             />
-                        )}
-                        {hasValue('type_of_meat') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.type_of_meat || ''}
                                 onChange={e => setEditedProduct({...editedProduct, type_of_meat: e.target.value})}
                                 placeholder="Type of meat"
                             />
-                        )}
-                        {hasValue('size') && (
-                            <input
+                        <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.size || ''}
                                 onChange={e => setEditedProduct({...editedProduct, size: e.target.value})}
                                 placeholder="Size"
                             />
-                        )}
 
                         {/* Mantener la sección de imagen */}
                         <div className="flex-1">
