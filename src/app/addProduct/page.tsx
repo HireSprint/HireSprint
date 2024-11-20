@@ -87,6 +87,16 @@ const AddProductPage = () => {
 
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
+            const existingProduct = productsData.find(
+                product => product.upc === data.upc || product.sku === data.sku
+            );
+            console.log(existingProduct, "existingProduct");
+    
+            if (existingProduct) {
+                toast.error("Ya existe un producto con el mismo UPC o SKU");
+                return;
+            }
+    
             const formData = new FormData();
 
             // Campos básicos
@@ -277,7 +287,8 @@ const AddProductPage = () => {
                     (product.desc?.toLowerCase().includes(searchLower)) ||
                     (product.master_brand?.toLowerCase().includes(searchLower)) ||
                     (product.brand?.toLowerCase().includes(searchLower)) ||
-                    (String(product.upc).includes(searchTerm))
+                    (String(product.upc).includes(searchTerm)) || 
+                    (String(product.sku).includes(searchTerm))
                 );
             });
 
@@ -364,6 +375,14 @@ const AddProductPage = () => {
                             value={editedProduct.upc || ''}
                             onChange={e => setEditedProduct({...editedProduct, upc: e.target.value})}
                                 placeholder="UPC"
+                            />
+                        )}
+                        {hasValue('sku') && (
+                            <input
+                                className="bg-gray-700 text-white p-2 rounded"
+                                value={editedProduct.sku || ''}
+                                onChange={e => setEditedProduct({...editedProduct, sku: e.target.value})}
+                                placeholder="SKU"
                             />
                         )}
                         {hasValue('desc') && (
