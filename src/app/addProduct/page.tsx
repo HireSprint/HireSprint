@@ -385,14 +385,13 @@ const AddProductPage = () => {
                                 placeholder="SKU"
                             />
                         )}
-                        {hasValue('desc') && (
+                        
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
                                 value={editedProduct.desc || ''}
                                 onChange={e => setEditedProduct({...editedProduct, desc: e.target.value})}
                                 placeholder="Description"
                             />
-                        )}
                         {hasValue('brand') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
