@@ -92,7 +92,7 @@ const AddProductPage = () => {
             // Campos básicos
             formData.append('name', data.name || "");
             formData.append('brand', data.brand || "");
-            formData.append('upc', String(data.upc));
+            formData.append('upc', data.upc);
             formData.append('sku', data.sku || "");
             formData.append('price', '0');
             formData.append('sale_price', "0");
@@ -211,6 +211,7 @@ const AddProductPage = () => {
             
             // Campos básicos con validación estricta
             formData.append('id_product', String(dataUpdate?.id_product || ''));
+            formData.append('upc', dataUpdate?.upc || '');
             formData.append('desc', dataUpdate?.desc || '');
             formData.append('brand', dataUpdate?.brand || '');
             formData.append('variety', Array.isArray(dataUpdate?.variety) ? dataUpdate?.variety[0] : '');
@@ -357,6 +358,14 @@ const AddProductPage = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         {/* Solo mostrar campos con datos */}
+                        {hasValue('upc') && (
+                            <input
+                                className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.upc || ''}
+                            onChange={e => setEditedProduct({...editedProduct, upc: e.target.value})}
+                                placeholder="UPC"
+                            />
+                        )}
                         {hasValue('desc') && (
                             <input
                                 className="bg-gray-700 text-white p-2 rounded"
