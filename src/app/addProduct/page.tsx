@@ -198,51 +198,65 @@ const AddProductPage = () => {
 
 
     const handleUpdateProduct = async (dataUpdate: ProductTypes) => {
-        const formData = new FormData();
-        
-        if (dataUpdate.image && dataUpdate.image.length > 0) {
-            formData.append('image', dataUpdate.image[0]);
-        }
-        
-        // Campos básicos
-        formData.append('id_product', String(dataUpdate?.id_product));
-        formData.append('desc', dataUpdate?.desc || "");
-        formData.append('brand', dataUpdate?.brand || "");
-        formData.append('variety', Array.isArray(dataUpdate?.variety) ? dataUpdate?.variety[0] : '');
-        formData.append('master_brand', dataUpdate?.master_brand || "");
-        formData.append('size', String(dataUpdate?.size) || "");
-        formData.append('type_of_meat', dataUpdate?.type_of_meat || "");
-        formData.append('type_of_cut', dataUpdate?.type_of_cut || "");
-        formData.append('quality_cf', dataUpdate?.quality_cf || "");
+        setIsUpdating(true);
+        try {
+            const formData = new FormData();
+            
+            // Verificar y agregar la imagen solo si existe
+            if (dataUpdate?.image && dataUpdate.image.length > 0) {
+                formData.append('image', dataUpdate.image[0]);
+            } else {
+                console.log(dataUpdate?.image, "no image", );
+            }
+            
+            // Campos básicos con validación estricta
+            formData.append('id_product', String(dataUpdate?.id_product || ''));
+            formData.append('desc', dataUpdate?.desc || '');
+            formData.append('brand', dataUpdate?.brand || '');
+            formData.append('variety', Array.isArray(dataUpdate?.variety) ? dataUpdate?.variety[0] : '');
+            formData.append('master_brand', dataUpdate?.master_brand || '');
+            formData.append('size', String(dataUpdate?.size || ''));
+            formData.append('type_of_meat', dataUpdate?.type_of_meat || '');
+            formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
+            formData.append('quality_cf', dataUpdate?.quality_cf || '');
 
-        console.log(Object.fromEntries(formData.entries()), "formData")
+            // Agregar logs para depuración
+            console.log('FormData a enviar:', Object.fromEntries(formData.entries()));
 
-        const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
-            method: "POST",
-            body: formData
-        });
+            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
+                method: "POST",
+                body: formData
+            });
 
-        const data = await response.json();
-        console.log(data.result, "response of Update Product")
+            // Verificar la respuesta del servidor
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error('Error del servidor:', errorData);
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
 
-        if (response.ok) {
+            const data = await response.json();
+            
+            // Actualizar UI solo si la respuesta es exitosa
             setProductsData(prevData => 
                 prevData.map(prod => 
-                    prod.id_product === dataUpdate.id_product ? {...prod, ...dataUpdate} : prod,
-
+                    prod.id_product === dataUpdate.id_product ? {...prod, ...dataUpdate} : prod
                 )
             );
             
-            toast.success("¡Product updated successfully!");
+            toast.success("¡Producto actualizado exitosamente!");
             setIsEditModalOpen(false);
             setSelectedProduct(null);
             setOpenSearch(false);
             formRef.current?.reset();
             setPreviewUrl(null);
             setEditPreviewUrl(null);
-        } else {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error in update');
+
+        } catch (error) {
+            console.error('Error al actualizar producto:', error);
+            toast.error("Error al actualizar el producto");
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -318,6 +332,7 @@ const AddProductPage = () => {
                 reader.onload = (e) => {
                     setEditPreviewUrl(e.target?.result as string);
                     setEditedProduct({...editedProduct, image: [file]});
+                    
                 };
                 reader.readAsDataURL(file);
             }
