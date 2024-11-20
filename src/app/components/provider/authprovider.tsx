@@ -1,5 +1,5 @@
 "use client"
-import React, { createContext, useContext, useState, useLayoutEffect } from 'react';
+import React, { createContext, useContext, useState, useLayoutEffect, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface AuthContextProps {
@@ -9,6 +9,7 @@ interface AuthContextProps {
     loading: boolean;
     update: any;
     setUpdate: (update: any) => void;
+    circulars: any[];
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -19,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [update, setUpdate] = useState (null);
     const router = useRouter();
     const pathname = usePathname();
-
+    const [circulars, setCirculars] = useState<any[]>([]);
     useLayoutEffect(() => {
         const checkAuth = async () => {
             const storedUser = localStorage.getItem('user');
@@ -79,8 +80,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    useEffect(() => {
+        const getProductView = async () => {
+            try {
+                const resp = await fetch("/api/apiMongo/getCirculars");
+                const data = await resp.json();
+                if (resp.status === 200) {
+                    setCirculars(data.result);
+                }
+            } catch (error) {
+                console.error("Error al obtener las categorías:", error);
+            }
+        };
+
+        getProductView();
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, update, setUpdate }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, update, setUpdate, circulars }}>
             {children}
         </AuthContext.Provider>
     );
