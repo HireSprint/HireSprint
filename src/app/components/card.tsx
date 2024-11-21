@@ -301,7 +301,10 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                     </div>
                 )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.desc ? product.desc.toString().substring(0, 20) : product.name?.toString().substring(0, 20)}</p>
+            <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
+            <p className="text-center text-gray-950 font-medium">{product.brand}</p>
+            <p className="text-center text-gray-950 font-medium">{product.desc}</p>
+            <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
         </div>
     )
 }
