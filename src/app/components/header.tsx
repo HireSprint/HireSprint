@@ -3,8 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Calendar } from 'primereact/calendar';
-import { Nullable } from "primereact/ts-helpers";
 import { useProductContext } from '../context/productContext';
 import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
@@ -14,20 +12,14 @@ import { useAuth } from './provider/authprovider';
 
 export default function Header() {
     const { user, logout } = useAuth();
+    const { currentPage, setCurrentPage, setProductsData, selectedProducts } = useProductContext();
+    const { categoriesData } = useCategoryContext()
     const pathname = usePathname();
-
-    if (!user || pathname === '/login') {
-        return null;
-    }
-
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
-    const { currentPage, setCurrentPage, setProductsData } = useProductContext();
     const [direction, setDirection] = useState(0);
-    const { categoriesData } = useCategoryContext()
-    const { selectedProducts } = useProductContext();
     const [showDropdown, setShowDropdown] = useState(false);
+
 
     useEffect(() => {
         const getProductView = async () => {
@@ -54,6 +46,10 @@ export default function Header() {
 
     const enviarGoogle = () => {
         addGoogleSheet3('hojaPrueba2', categoriesData, selectedProducts);
+    }
+
+    if (!user || pathname === '/login') {
+        return null;
     }
 
     if (pathname === '/addProduct') {

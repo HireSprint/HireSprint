@@ -315,7 +315,7 @@ export default function HomePage() {
                             className="absolute"
                             style={{
                                 top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                                left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
+                                left: Math.min(mousePosition.x, window.innerWidth - 800),
                             }}
                         >
                             <GridProduct

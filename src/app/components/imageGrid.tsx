@@ -197,8 +197,9 @@ export const ImageGrid2 = ({
     
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
+    const { circulars, idCircular } = useAuth();
+    const { productArray, productsData, selectedProducts, setSelectedProducts,  } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-    const { circulars } = useAuth();
 
     const initialGridCells: cellTypes[] = [
         // Grocery
@@ -278,7 +279,6 @@ export const ImageGrid2 = ({
         { id: 2071, top: "top-[95%]", left: "left-[59.7%]", width: "20.2%", height: "4.8%", category: "Snack" },
     ];
 
-    const { productArray, productsData, selectedProducts, setSelectedProducts, idCircular } = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;

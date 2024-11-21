@@ -9,8 +9,7 @@ import { useProductContext } from "../context/productContext";
 const OnboardingPage = () => {
     const router = useRouter();
     const { register, handleSubmit } = useForm();
-    const {user, circulars} = useAuth();
-    const { setIdCircular } = useProductContext();
+    const {user, circulars, setIdCircular } = useAuth();
     const [showOptions, setShowOptions] = useState(false);
     const [selectedCircular, setSelectedCircular] = useState<any>(null);
 
@@ -18,12 +17,14 @@ const OnboardingPage = () => {
         const selectedCircular = circulars.find((circular: any) => 
             circular.date_circular === data.date
         );
-        const id_circular = selectedCircular?.id_circular;
-        console.log("id_circular:", id_circular);
-        setIdCircular(id_circular);
-        router.push(`/`);
         
-        console.log("Circular seleccionada:", selectedCircular, id_circular, "id_circular");
+        if (selectedCircular?.id_circular) {
+            setIdCircular(selectedCircular.id_circular);
+            router.push('/');
+        } else {
+            console.error("No se encontró un ID de circular válido");
+            // Aquí podrías mostrar un mensaje de error al usuario
+        }
     };
 
     const circularOptions = circulars.filter((cic: any) => cic.user_id === user?.id);

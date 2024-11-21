@@ -9,7 +9,14 @@ interface AuthContextProps {
     loading: boolean;
     update: any;
     setUpdate: (update: any) => void;
-    circulars: any[];
+    circulars: Array<{
+        id_circular: number;
+        date_circular: string;
+        user_id: number;
+        circular_products_upc: string[];
+    }>;
+    idCircular: number | null;
+    setIdCircular: (id: number | null) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -21,14 +28,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter();
     const pathname = usePathname();
     const [circulars, setCirculars] = useState<any[]>([]);
+    const [idCircular, setIdCircular] = useState<number | null>(null);
     useLayoutEffect(() => {
         const checkAuth = async () => {
             const storedUser = localStorage.getItem('user');
+            const storedIdCircular = localStorage.getItem('id_circular');
+            
             if (storedUser) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 setUser(JSON.parse(storedUser));
+                
+                if (storedIdCircular && storedIdCircular !== 'null') {
+                    const parsedId = JSON.parse(storedIdCircular);
+                    setIdCircular(parsedId);
+                    
+                    if (pathname === '/onboarding') {
+                        router.push('/');
+                    }
+                }
+                
                 if (pathname === '/login') {
-                    router.push('/');
+                    router.push('/onboarding');
                 }
             } else if (pathname !== '/login') {
                 router.push('/login');
@@ -55,8 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (res.ok) {
                 setUser(data.result);
                 localStorage.setItem('user', JSON.stringify(data.result));
-
-                router.push('/');
+                router.push('/onboarding');
             } else {
                 throw new Error(data.message || 'Error al iniciar sesión');
             }
@@ -72,6 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             setUser(null);
             localStorage.removeItem('user');
+            localStorage.removeItem('id_circular');
             router.push('/login');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
@@ -96,8 +116,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getProductView();
     }, []);
 
+    const setCircularId = (id: number | null) => {
+        setIdCircular(id);
+        if (id) {
+            localStorage.setItem('id_circular', JSON.stringify(id));
+        } else {
+            localStorage.removeItem('id_circular');
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, update, setUpdate, circulars }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            login, 
+            logout, 
+            loading, 
+            update, 
+            setUpdate, 
+            circulars, 
+            idCircular, 
+            setIdCircular: setCircularId 
+        }}>
             {children}
         </AuthContext.Provider>
     );
