@@ -1,11 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon,
-  MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, MesasgeIcon,
-  ProduceIcon, BeverageIcon,
-  SnackIcon,
-} from "./icons";
+import React, { useEffect, useRef, useState } from "react";
+import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, } from "./icons";
 import { categoriesInterface } from "@/types/category";
 import { useCategoryContext } from "../context/categoryContext";
 import { useProductContext } from "../context/productContext";
@@ -118,7 +113,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
   if (!categoriesData.length || !productsData.length) {
     return (
-      <div className="absolute h-full flex flex-col items-center left-0 bg-white shadow-lg z-50 overflow-y-auto no-scrollbar overflow-x-hidden space-y-2 px-1 pt-[75px] pb-8 w-[158px]">
+      <div className="h-full flex flex-col items-center bg-white shadow-lg overflow-y-auto no-scrollbar overflow-x-hidden space-y-2 px-1 pt-[75px] pb-8 w-[158px]">
         {
           Array(10).fill(null).map((_, index) => (
             <div key={index} className="flex flex-col items-center">
@@ -146,7 +141,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
   const categoryList = searchTerm ? filteredButtons : sidebarButtons.main
   return (
-    <div ref={sidebarRef} className="absolute h-full flex flex-col items-center left-0 bg-white shadow-lg z-50 overflow-y-auto no-scrollbar overflow-x-hidden space-y-4 px-1 pb-8 w-[158px]">
+    <div ref={sidebarRef} className="h-full flex flex-col items-center bg-white shadow-lg overflow-y-auto no-scrollbar overflow-x-hidden space-y-4 px-1 pb-8 w-[158px]">
       <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 mt-2 mb-3 border border-gray-300 rounded w-[130px]" />
 
       {

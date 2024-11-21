@@ -231,121 +231,118 @@ export default function HomePage() {
 
 
     return (
-        <CategoryProvider>
-            <div className="flex flex-col">
-                <div>
-                    <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                    <AnimatePresence>
-                        { category && (
+        <div className="grid grid-cols-[min-content_1fr] overflow-hidden">
+            <aside className="overflow-auto">
+                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
+            </aside>
+
+            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto">
+                <AnimatePresence>
+                    { category && (
+                        <motion.div
+                            initial={{ x: -300, top: 0 }}
+                            animate={{ x: 0, zIndex: 1, top: 0}}
+                            exit={{ x: -500 }}
+                            transition={{ duration: 0.5 }}
+                            className="absolute"
+                        >
+                            <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                    {/* @ts-ignore */}
+                    <ImageGrid {...commonGridProps} />
+                    <p className="text-black text-md">Pagina 1</p>
+                </div>
+                <div className="scroll-container flex flex-col h-fit items-center w-full">
+                    {/* Contenedor de la cuadrícula centrado */}
+                    <div className="flex justify-center items-center w-full">
+                        {/* Contenedor para botones y cuadrícula */}
+                        <div className="flex flex-col items-center w-full relative">
                             <motion.div
-                                initial={{ x: -300 }}
-                                animate={{ x: 0, zIndex: 1 }}
-                                exit={{ x: -500 }}
+                                key={currentPage}
+                                initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
                                 transition={{ duration: 0.5 }}
                                 className="w-full relative"
                             >
-                                <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
+                                {currentPage === 2 && (
+                                    <div className=" flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
+
+                                        <ImageGrid2 {...commonGridProps} />
+
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
+                                    </div>
+                                )}
+                                {currentPage === 3 && (
+                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
+
+                                        <ImageGrid3 {...commonGridProps} />
+
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
+                                    </div>
+                                )}
+                                {currentPage === 4 && (
+                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        {/* @ts-ignore */}
+
+                                        <ImageGrid4 {...commonGridProps} />
+
+                                        <p className="text-black text-md">Pagina {currentPage} </p>
+                                    </div>
+                                )}
+
                             </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-                <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
-                    <div
-                        className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
-                        {/* @ts-ignore */}
-
-                        <ImageGrid {...commonGridProps} />
-                        <p className="text-black text-md">Pagina 1</p>
-                    </div>
-                    <div className="scroll-container flex flex-col h-fit items-center w-full">
-                        {/* Contenedor de la cuadrícula centrado */}
-                        <div className=" flex justify-center items-center w-full">
-                            {/* Contenedor para botones y cuadrícula */}
-                            <div className="flex flex-col items-center w-full relative">
-                                <motion.div
-                                    key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="w-full relative"
-                                >
-                                    {currentPage === 2 && (
-                                        <div className=" flex flex-col justify-center items-center w-full border-r-2">
-                                            {/* @ts-ignore */}
-
-                                            <ImageGrid2 {...commonGridProps} />
-
-                                            <p className="text-black text-md">Pagina {currentPage} </p>
-                                        </div>
-                                    )}
-                                    {currentPage === 3 && (
-                                        <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                            {/* @ts-ignore */}
-
-                                            <ImageGrid3 {...commonGridProps} />
-
-                                            <p className="text-black text-md">Pagina {currentPage} </p>
-                                        </div>
-                                    )}
-                                    {currentPage === 4 && (
-                                        <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                            {/* @ts-ignore */}
-
-                                            <ImageGrid4 {...commonGridProps} />
-
-                                            <p className="text-black text-md">Pagina {currentPage} </p>
-                                        </div>
-                                    )}
-
-                                </motion.div>
-                            </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Mostrar / Ocultar productos */}
-                <div className="flex ">
-                    {isModalOpen && productSelected && !showProducts && (
-                        <ModalEditProduct
-                            setIsOpen={setIsModalOpen}
-                            product={productSelected as ProductTypes}
-                            GridID={selectedGridId || 0}
-                            SaveFC={handleSaveChangeProduct}
-                            ChangeFC={() => {
-                                handleChangeProductForOther(selectedGridId || 0);
-                            }}
-                            DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
-                        />
-                    )}
-
-                    {/* Mostrar el panel de selección de productos (GridProduct) */}
-                    <AnimatePresence>
-                        {showProducts && mousePosition && (
-                            <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="absolute"
-                            style={{
-                                top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                                left: Math.min(mousePosition.x, window.innerWidth - 800),
-                            }}
-                            >
-                                <GridProduct
-                                    productsData={productsData}
-                                    loading={loading}
-                                    onProductSelect={handleProductSelect}
-                                    onHideProducts={ClosetPanels}
-                                    />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-
             </div>
-        </CategoryProvider>
+
+            {/* Mostrar / Ocultar productos */}
+            <div className="flex ">
+                {isModalOpen && productSelected && !showProducts && (
+                    <ModalEditProduct
+                        setIsOpen={setIsModalOpen}
+                        product={productSelected as ProductTypes}
+                        GridID={selectedGridId || 0}
+                        SaveFC={handleSaveChangeProduct}
+                        ChangeFC={() => {
+                            handleChangeProductForOther(selectedGridId || 0);
+                        }}
+                        DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
+                    />
+                )}
+
+                {/* Mostrar el panel de selección de productos (GridProduct) */}
+                <AnimatePresence>
+                    {showProducts && mousePosition && (
+                        <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute"
+                        style={{
+                            top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                            left: Math.min(mousePosition.x, window.innerWidth - 800),
+                        }}
+                        >
+                            <GridProduct
+                                productsData={productsData}
+                                loading={loading}
+                                onProductSelect={handleProductSelect}
+                                onHideProducts={ClosetPanels}
+                                />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </div>
     );
 }
 

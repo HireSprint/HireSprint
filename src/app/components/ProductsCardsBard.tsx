@@ -10,7 +10,7 @@ const ProductContainer: React.FC<{ category: categoriesInterface | null, setCate
     const [loading, setLoading] = useState(true); 
     const { productsData } = useProductContext();
     
-  useEffect(() => {
+    useEffect(() => {
         if (productsData.length) setLoading(false);
     }, [productsData]);
     
@@ -31,7 +31,7 @@ const ProductContainer: React.FC<{ category: categoriesInterface | null, setCate
     );
 
     return (
-        <div className="absolute flex h-[80vh] w-96 bg-white rounded-lg shadow-md overflow-hidden left-[170px] top-5 ">
+        <div className="absolute flex h-[80vh] w-96 bg-white bg-opacity-[.96] rounded-lg shadow-md overflow-hidden left-[10px] top-5 z-1">
             {/* Sección de Productos */}
             <div className="grid grid-rows-[min-content_auto] p-3">
                 
