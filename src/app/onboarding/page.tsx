@@ -14,10 +14,10 @@ const OnboardingPage = () => {
     const [selectedCircular, setSelectedCircular] = useState<any>(null);
 
     const onSubmit = (data: any) => {
-        const selectedCircular = circulars.find((circular: any) => 
+        const selectedCircular = circulars.find((circular: any) =>
             circular.date_circular === data.date
         );
-        
+
         if (selectedCircular?.id_circular) {
             setIdCircular(selectedCircular.id_circular);
             router.push('/');
@@ -31,16 +31,21 @@ const OnboardingPage = () => {
 
     const handleDateSelect = (e: any) => {
         const selectedDate = e.target.value;
-        const circular = circulars.find((circular: any) => 
+        const circular = circulars.find((circular: any) =>
             circular.date_circular === selectedDate
         );
         setSelectedCircular(circular);
-        setShowOptions(false); 
+        setShowOptions(false);
     };
 
     const handleContinue = () => {
         if (selectedCircular) {
             setShowOptions(true);
+        }
+    };
+    const handleWatchProduct = () => {
+        if (selectedCircular) {
+            router.push(`/onboarding/${selectedCircular.id_circular}`);
         }
     };
 
@@ -59,9 +64,9 @@ const OnboardingPage = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 items-center w-full">
                 <div className="flex flex-col w-64">
                     <label htmlFor="date" className="block text-lg font-medium text-gray-700">Fecha</label>
-                    <select 
-                        id="date" 
-                        {...register("date")} 
+                    <select
+                        id="date"
+                        {...register("date")}
                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         onChange={handleDateSelect}
                     >
@@ -75,23 +80,32 @@ const OnboardingPage = () => {
                 </div>
 
                 {selectedCircular && !showOptions && (
-                    <button 
-                        type="button"
-                        onClick={handleContinue}
-                        className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
-                    >
-                        Continue
-                    </button>
-                )}
+                    <div className={"flex flex-row h-12  w-full justify-center gap-5"}>
+                        <button
+                            type="button"
+                            onClick={handleContinue}
+                            className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
+                        >
+                            Continue
+                        </button>
+                        <button
+                            type="button"
+                            onClick={()=>handleWatchProduct()}
+                            className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
+                        >
+                        Ver Productos
+                        </button>
+                    </div>
+            )}
 
                 {showOptions && selectedCircular && (
                     <div className="flex flex-col w-64">
                         <label htmlFor="shape" className="block text-lg font-medium text-gray-700">
                             Circular Options
                         </label>
-                        <select 
-                            id="shape" 
-                            {...register("shape")} 
+                        <select
+                            id="shape"
+                            {...register("shape")}
                             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         >
                             {selectedCircular.circular_options.map((option: string, index: number) => (
@@ -104,8 +118,8 @@ const OnboardingPage = () => {
                 )}
 
                 {showOptions && (
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
                     >
                         Send

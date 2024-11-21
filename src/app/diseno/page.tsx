@@ -28,12 +28,12 @@ interface Grid {
     const [showProducts, setShowProducts] = useState(false);
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
     const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
-    const [products, setProducts] = useState<ProductTypes[]>([]);
+    const [[id_circular], setProducts] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
     const [sideBarVisible, setSideBarVisible] = useState(false);
     const [grids, setGrids] = useState<Grid[]>([]);
     const { currentPage } = useProductContext();
-    const [direction, setDirection] = useState(0); 
+    const [direction, setDirection] = useState(0);
     const [moveMode, setMoveMode] = useState<{
         active: boolean;
         productId: string;
@@ -42,7 +42,7 @@ interface Grid {
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
     useEffect(() => {
-        if (products.length === 0) {
+        if ([id_circular].length === 0) {
             const fetchProducts = async () => {
                 try {
                     const productsData = await getProductsRF();
@@ -58,7 +58,7 @@ interface Grid {
             };
             fetchProducts();
         }
-    }, [products.length]);
+    }, [[id_circular].length]);
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
@@ -92,7 +92,7 @@ interface Grid {
 
     const handleEditProduct = (productId: string) => {
         // Implementa la lógica para editar el producto
-        
+
     };
 
     const handleChangeProduct = (productId: string) => {
@@ -134,7 +134,7 @@ interface Grid {
 
         // Resetear el modo de movimiento
         setMoveMode(null);
-        
+
         console.log({
             title: "Producto movido",
             description: "El producto ha sido movido exitosamente",
@@ -175,14 +175,14 @@ interface Grid {
             <div className="grid grid-cols-2 items-center justify-center h-[80vh] transform scale-90">
                 <div className="flex flex-col justify-center w-full border-r-2 border-black items-center">
                     {/* @ts-ignore */}
-                    {/* <ImageGrid {...commonGridProps}/> 
+                    {/* <ImageGrid {...commonGridProps}/>
                     <Image src="/-1.png" alt="grid1" width={300} height={300} />
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
                 <div className="scroll-container flex flex-col h-fit items-center w-full">
-                    {/* Contenedor de la cuadrícula centrado 
+                    {/* Contenedor de la cuadrícula centrado
                     <div className=" flex justify-center items-center w-full">
-                        {/* Contenedor para botones y cuadrícula 
+                        {/* Contenedor para botones y cuadrícula
                         <div className="flex flex-col items-center w-full relative">
                             <motion.div
                                 key={currentPage}
@@ -194,21 +194,21 @@ interface Grid {
                             >
                                 {currentPage === 2 && (
                                     <div className=" flex flex-col justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore 
+                                        {/* @ts-ignore
                                         <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                                 {currentPage === 3 && (
                                     <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore 
+                                        {/* @ts-ignore
                                         <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
                                 )}
                                 {currentPage === 4 && (
                                     <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore 
+                                        {/* @ts-ignore
                                         <Image src="/file/demo-1.png" alt="grid1" width={300} height={300} />
                                         <p className="text-black text-md">Pagina {currentPage} </p>
                                     </div>
@@ -219,7 +219,7 @@ interface Grid {
                 </div>
             </div>
 
-            {/* Mostrar / Ocultar productos 
+            {/* Mostrar / Ocultar productos
             <div className="flex ">
                 {showProducts && mousePosition ? (
                     <motion.div
@@ -231,7 +231,7 @@ interface Grid {
                         style={{ top: mousePosition.y, left: mousePosition.x + 20 }}
                     >
                         <GridProduct
-                            products={products}
+                            [id_circular]={[id_circular]}
                             loading={loading}
                             onProductSelect={handleProductSelect}
                             onHideProducts={() => setShowProducts(false)}
@@ -244,21 +244,21 @@ interface Grid {
 };
 
 interface GridProductProps {
-    products: ProductTypes[];
+    [id_circular]: ProductTypes[];
     loading: boolean;
     onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
-    products,
+    [id_circular],
     loading,
     onProductSelect,
     onHideProducts,
-}) => { 
+}) => {
     const [searchTerm, setSearchTerm] = useState("");
 
-    const filteredProducts = products.filter((product) =>
+    const filteredProducts = [id_circular].filter((product) =>
         product.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

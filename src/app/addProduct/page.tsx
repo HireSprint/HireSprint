@@ -63,7 +63,7 @@ const AddProductPage = () => {
                 const data = await resp.json();
                 setProductsData(data.result);
             } catch (error) {
-                console.error("Error in get products:", error);
+                console.error("Error in get [id_circular]:", error);
             }
         };
         getProductView();
