@@ -279,7 +279,6 @@ export const ImageGrid2 = ({
         { id: 2071, top: "top-[95%]", left: "left-[59.7%]", width: "20.2%", height: "4.8%", category: "Snack" },
     ];
 
-    const { productArray,  productsData, setProductsData, selectedProducts, setSelectedProducts } = useProductContext();
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [contextMenu, setContextMenu] = useState<{
         visible: boolean;

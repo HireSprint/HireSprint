@@ -31,7 +31,8 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
   const [sidebarButtons, setSidebarButtons] = useState<{ main: SidebarButton[]; more: SidebarButton[]; all: SidebarButton[] }>({ main: [], more: [], all: [] });
   const [searchTerm, setSearchTerm] = useState("");
   const [showMore, setShowMore] = useState(false);
-  
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const scrollPosition = useRef(0);
 
   const sidebarIcons = [
     { label: "Bakery", Icon: BakeryIcon },
@@ -85,15 +86,33 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
     };
   };
 
+  // Captura la posición del scroll
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+
+    if (sidebar) {
+      const handleScroll = () => scrollPosition.current = sidebar.scrollTop
+      sidebar.addEventListener("scroll", handleScroll);
+
+      return () => {
+        sidebar.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, [sidebarButtons]);
+  
+
+  // Restaura la posición del scroll después del renderizado
+  useEffect(() => {
+    sidebarRef.current?.scrollTo({ top: scrollPosition.current, behavior: "auto", });
+  }, [categorySelected]);
+
   useEffect(() => {
     setSidebarButtons(generateSidebarButtons());
   }, [categoriesData, productsData]);
 
-  const filteredButtons = useMemo(() => { 
-    return sidebarButtons.all.filter(({ label }) =>
-      label.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, sidebarButtons.all]);
+  const filteredButtons = sidebarButtons.all.filter(({ label }) =>
+    label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const isActive = (categoryId: number) => categorySelected?.id_category === categoryId;
 
@@ -114,8 +133,8 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
 
   const CategoryButton = ({ category, label, Icon }: { category: categoriesInterface; label:string; Icon: any }) => (
-    <div className="flex flex-col items-center w-[145px] text-center group cursor-pointer hover:scale-[1.05]">
-      <button className={`w-20 h-20 border-2 ${ isActive(category.id_category) ? "border-[#7cc304]" : "border-[#606060]" } rounded-lg flex items-center justify-center group-hover:border-[#7cc304]`} onClick={() => onCategorySelect(category)} >
+    <div className="flex flex-col items-center w-[145px] text-center group cursor-pointer hover:scale-[1.05]" onClick={() => onCategorySelect(category)} >
+      <button className={`w-20 h-20 border-2 ${ isActive(category.id_category) ? "border-[#7cc304]" : "border-[#606060]" } rounded-lg flex items-center justify-center group-hover:border-[#7cc304]`} >
         {Icon && <Icon isActive={isActive(category.id_category)} />}
       </button>
 
@@ -127,7 +146,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
   const categoryList = searchTerm ? filteredButtons : sidebarButtons.main
   return (
-    <div className="absolute h-full flex flex-col items-center left-0 bg-white shadow-lg z-50 overflow-y-auto no-scrollbar overflow-x-hidden space-y-4 px-1 pb-8 w-[158px]">
+    <div ref={sidebarRef} className="absolute h-full flex flex-col items-center left-0 bg-white shadow-lg z-50 overflow-y-auto no-scrollbar overflow-x-hidden space-y-4 px-1 pb-8 w-[158px]">
       <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 mt-2 mb-3 border border-gray-300 rounded w-[130px]" />
 
       {
