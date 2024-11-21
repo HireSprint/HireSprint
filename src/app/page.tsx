@@ -22,6 +22,9 @@ export default function HomePage() {
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
     const [moveMode, setMoveMode] = useState<{ active: boolean; sourceCellId: number; } | null>(null);
 
+   const updateLocalStorage = (products: ProductTypes[]) => {
+    localStorage.setItem('selectedProducts', JSON.stringify(products));
+    };
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
@@ -68,6 +71,7 @@ export default function HomePage() {
     const handleRemoveProduct = (idGrid: number) => {
         setSelectedProducts((prevProducts) => {
             const updatedProducts = prevProducts.filter((product) => product.id_grid !== idGrid);
+            updateLocalStorage(updatedProducts);
             return updatedProducts;
         });
 
@@ -134,35 +138,36 @@ export default function HomePage() {
     };
 
     const handleGridClick = (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => {
-
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-
+    
         setMousePosition({ x: event.clientX, y: event.clientY });
-
-        // Verificar si el grid ya tiene un producto
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
-
+    
         if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
             const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
-
-            setSelectedProducts(prev => [...prev, productWithNewGrid]);
-            handlePasteProduct()
+            
+            setSelectedProducts(prev => {
+                const newProducts = [...prev, productWithNewGrid];
+                // Guardar en localStorage
+                localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
+                return newProducts;
+            });
+            
+            handlePasteProduct();
             return;
         }
-
+    
         if (moveMode?.active) {
             handleProductMove(gridId);
         } else if (gridHasProduct && productoShowForce) {
-            // Si el grid tiene un producto, mostrar el modal de edición
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
             setSelectedGridId(gridId);
-            setIsModalOpen(true)
+            setIsModalOpen(true);
         } else {
-            // Si el grid está vacío, mostrar el selector de productos
             setSelectedGridId(gridId);
             setIsModalOpen(true);
             setShowProducts(true);
@@ -189,7 +194,6 @@ export default function HomePage() {
         if (gridId === undefined)
             return;
         productoShowForce = false;
-        console.log(productoShowForce, 'valor del bool', showProducts, gridId)
         setIsModalOpen(false);
         setSelectedGridId(gridId);
         setShowProducts(true);
@@ -214,10 +218,10 @@ export default function HomePage() {
 
         // Llama a setProductsData para que React reconozca el cambio
         setProductsData([...selectedProducts]);  // El operador de propagación crea una nueva referencia para que React detecte cambios
-
-        console.log(selectedProducts);
+        updateLocalStorage(selectedProducts);
         ClosetPanels();
     };
+
     const handleCategorySelect = (category: categoriesInterface) => {
         setCategory(category);
     };
