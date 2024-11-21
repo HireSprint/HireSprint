@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon,
   MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, MesasgeIcon,
@@ -31,6 +31,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
   const [sidebarButtons, setSidebarButtons] = useState<{ main: SidebarButton[]; more: SidebarButton[]; all: SidebarButton[] }>({ main: [], more: [], all: [] });
   const [searchTerm, setSearchTerm] = useState("");
   const [showMore, setShowMore] = useState(false);
+  
 
   const sidebarIcons = [
     { label: "Bakery", Icon: BakeryIcon },
@@ -88,9 +89,11 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
     setSidebarButtons(generateSidebarButtons());
   }, [categoriesData, productsData]);
 
-  const filteredButtons = sidebarButtons.all.filter(({ label }) =>
-    label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredButtons = useMemo(() => { 
+    return sidebarButtons.all.filter(({ label }) =>
+      label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, sidebarButtons.all]);
 
   const isActive = (categoryId: number) => categorySelected?.id_category === categoryId;
 
@@ -111,7 +114,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
 
   const CategoryButton = ({ category, label, Icon }: { category: categoriesInterface; label:string; Icon: any }) => (
-    <div  className="flex flex-col items-center w-[145px] text-center group cursor-pointer hover:scale-[1.05]">
+    <div className="flex flex-col items-center w-[145px] text-center group cursor-pointer hover:scale-[1.05]">
       <button className={`w-20 h-20 border-2 ${ isActive(category.id_category) ? "border-[#7cc304]" : "border-[#606060]" } rounded-lg flex items-center justify-center group-hover:border-[#7cc304]`} onClick={() => onCategorySelect(category)} >
         {Icon && <Icon isActive={isActive(category.id_category)} />}
       </button>

@@ -1,10 +1,8 @@
-"use client"
-import { CardShow, CardShowSide } from "./components/card";
+"use client";
+import { CardShowSide } from "./components/card";
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
-import { motion } from "framer-motion"; // Para animaciones
+import { AnimatePresence, motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
@@ -12,13 +10,11 @@ import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
 import { CategoryProvider, useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
-import { useAuth } from "./components/provider/authprovider";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const { selectedProducts, setSelectedProducts, productsData, setProductsData } = useProductContext();
+    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage } = useProductContext();
     const [loading, setLoading] = useState(true);
-    const { currentPage } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
@@ -238,15 +234,19 @@ export default function HomePage() {
             <div className="flex flex-col">
                 <div>
                     <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                    <motion.div
-                        initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="w-full relative"
-                    >
-                        <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
-                    </motion.div>
+                    <AnimatePresence>
+                        { category && (
+                            <motion.div
+                                initial={{ x: -300 }}
+                                animate={{ x: 0, zIndex: 1 }}
+                                exit={{ x: -500 }}
+                                transition={{ duration: 0.5 }}
+                                className="w-full relative"
+                            >
+                                <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
                 <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
                     <div
@@ -319,8 +319,9 @@ export default function HomePage() {
                     )}
 
                     {/* Mostrar el panel de selección de productos (GridProduct) */}
-                    {showProducts && mousePosition && (
-                        <motion.div
+                    <AnimatePresence>
+                        {showProducts && mousePosition && (
+                            <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             exit={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -330,21 +331,22 @@ export default function HomePage() {
                                 top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
                                 left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
                             }}
-                        >
-                            <GridProduct
-                                productsData={productsData}
-                                loading={loading}
-                                onProductSelect={handleProductSelect}
-                                onHideProducts={ClosetPanels}
-                            />
-                        </motion.div>
-                    )}
+                            >
+                                <GridProduct
+                                    productsData={productsData}
+                                    loading={loading}
+                                    onProductSelect={handleProductSelect}
+                                    onHideProducts={ClosetPanels}
+                                    />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
             </div>
         </CategoryProvider>
     );
-};
+}
 
 interface GridProductProps {
     productsData: ProductTypes[];
