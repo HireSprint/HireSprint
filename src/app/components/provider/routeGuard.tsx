@@ -14,13 +14,13 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
                 router.push('/login');
             }
             if (user && pathname === '/login') {
-                router.push('/');
+                router.push('/onboarding');
             }
         }
     }, [user, loading, pathname]);
 
     if (loading) {
-        return <div>Cargando...</div>;
+        return <div className='text-black text-2xl pt-10 flex h-[calc(100vh-100px)]'>Cargando...</div>;
     }
 
     return <>{children}</>;

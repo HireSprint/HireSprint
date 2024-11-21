@@ -1,33 +1,25 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import {Calendar} from 'primereact/calendar';
-import {Nullable} from "primereact/ts-helpers";
-import {useProductContext} from '../context/productContext';
-import {MessageIcon, ProfileIcon, VideoIcon} from './icons';
-import {usePathname} from 'next/navigation';
-import {addGoogleSheet3} from "@/app/api/productos/prductosRF";
-import {useCategoryContext} from "@/app/context/categoryContext";
+import { useProductContext } from '../context/productContext';
+import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
+import { usePathname } from 'next/navigation';
+import { addGoogleSheet3 } from "@/app/api/productos/prductosRF";
+import { useCategoryContext } from "@/app/context/categoryContext";
 import { useAuth } from './provider/authprovider';
 
 export default function Header() {
     const { user, logout } = useAuth();
+    const { currentPage, setCurrentPage, setProductsData, selectedProducts } = useProductContext();
+    const { categoriesData } = useCategoryContext()
     const pathname = usePathname();
-
-    if (!user || pathname === '/login') {
-        return null;
-    }
-
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
-    const {currentPage, setCurrentPage, setProductsData} = useProductContext();
     const [direction, setDirection] = useState(0);
-    const {categoriesData} = useCategoryContext()
-    const {selectedProducts} = useProductContext();
     const [showDropdown, setShowDropdown] = useState(false);
+
 
     useEffect(() => {
         const getProductView = async () => {
@@ -51,18 +43,57 @@ export default function Header() {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
     };
-   
-    const enviarGoogle = () =>{
+
+    const enviarGoogle = () => {
         addGoogleSheet3('hojaPrueba2', categoriesData, selectedProducts);
     }
-  
+
+    if (!user || pathname === '/login') {
+        return null;
+    }
+
+    if (pathname === '/addProduct') {
+        return (
+            <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between ">
+                <div className='flex items-center justify-center '>
+                    <button className="flex items-center justify-center" onClick={() => router.push('/')}>
+                        <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} />
+                        <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' />
+
+                    </button>
+                </div>
+                <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
+                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Add Product</p>
+                </div>
+                <div className="relative">
+                    <button onClick={() => setShowDropdown(!showDropdown)}>
+                        <ProfileIcon />
+                    </button>
+                    {showDropdown && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <button
+                                onClick={() => {
+                                    logout();
+                                    setShowDropdown(false);
+                                }}
+                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
-        
+
         <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between ">
             <div className='flex items-center justify-center '>
                 <button className="flex items-center justify-center" onClick={() => router.push('/')}>
-                    <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70}/>
-                    <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3'/>
+                    <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} />
+                    <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' />
 
                 </button>
             </div>
@@ -74,7 +105,7 @@ export default function Header() {
                 <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
             </div>
             <div className='flex items-center justify-center space-x-2 pl-8'>
-            {
+                {
                     pathname === '/' && (
                         <div className='flex items-center justify-center space-x-2 '>
                             <h1 className='text-white text-xl font-bold'>Page:</h1>
@@ -94,11 +125,11 @@ export default function Header() {
                     )
                 }
                 <button>
-                    <VideoIcon/>
+                    <VideoIcon />
                 </button>
                 <div className="relative">
                     <button onClick={() => setShowDropdown(!showDropdown)}>
-                        <ProfileIcon/>
+                        <ProfileIcon />
                     </button>
                     {showDropdown && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
@@ -114,9 +145,14 @@ export default function Header() {
                         </div>
                     )}
                 </div>
-                <button onClick={() => enviarGoogle()}>
-                    <MessageIcon/>
-                </button>
+                {
+                    pathname === '/' && (
+                        <button onClick={() => enviarGoogle()}>
+                            <MessageIcon/>
+                        </button>
+                    )
+                }
+
             </div>
         </div>
     );
