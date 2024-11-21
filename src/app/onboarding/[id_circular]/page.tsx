@@ -5,6 +5,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import { useAuth } from "../../components/provider/authprovider"
 import { useProductContext } from "../../context/productContext";
 
+
 import {
     createColumnHelper,
     flexRender,
@@ -13,6 +14,7 @@ import {
 } from '@tanstack/react-table'
 import {ProductTypes} from "@/types/product";
 import {getProductsByCircular} from "@/pages/api/apiMongo/getProductsByCircular";
+import Link from "next/link";
 
 const columnHelper = createColumnHelper<ProductTypes>();
 
@@ -130,6 +132,7 @@ const Products = () => {
     const {user, circulars, setIdCircular } = useAuth();
 
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([])
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getProductByCircular = async () => {
@@ -141,6 +144,7 @@ const Products = () => {
                 const resp = await getProductsByCircular(reqBody)
                 console.log(resp)
                 setCircularProducts(resp.result)
+                setLoading(false)
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
             }
@@ -156,66 +160,83 @@ const Products = () => {
     });
 
     return (
-        <div className="text-black text-2xl p-10 flex flex-col h-[calc(100vh-100px)] border-2 border-red-500  ">
-            <h2 className={"font-bold mb-2"}>Products table</h2>
-            <div className="flex flex-col w-full bg-green-200 h-full overflow-x-auto overflow-y-auto">
-                {circularProducts.length > 0 && <table className="min-w-full border border-gray-300">
-                    <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th
-                                    key={header.id}
-                                    className="border-b border-gray-300 p-2 text-left bg-lime-600"
-                                >
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
+        <div className="text-black text-2xl p-8 flex flex-col h-[calc(100vh-100px)] border-2 border-red-500">
+            <div className={"flex flex-row items-center justify-between mb-4"}>
+                <h2 className="font-bold mb-2">Products table</h2>
+                <Link href={"/onboarding"}>
+                    <button className="bg-lime-600 p-2 rounded-lg" >
+                        Go back
+                    </button>
+                </Link>
+            </div>
+            <div className="flex flex-col w-full h-full overflow-x-auto overflow-y-auto">
+                {loading ? (
+                    // Skeleton Loader
+                    <div className="animate-pulse space-y-4">
+                        <div className="bg-gray-300 h-8 w-full rounded-md"></div>
+                        <div className="bg-gray-300 h-16 w-full rounded-md"></div>
+                        <div className="bg-gray-300 h-16 w-full rounded-md"></div>
+                        <div className="bg-gray-300 h-16 w-full rounded-md"></div>
+                    </div>
+                ) : (
+                    <table className="min-w-full border border-gray-300">
+                        <thead>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        className="border-b border-gray-300 p-2 text-left bg-lime-600"
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                        </thead>
+                        <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                            <tr key={row.id} className="bg-gray-100">
+                                {row.getVisibleCells().map((cell) => (
+                                    <td
+                                        key={cell.id}
+                                        className="border-2 border-gray-300 p-2"
+                                    >
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
                                         )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                    </thead>
-                    <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id} className="bg-gray-100">
-                            {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    className="border-2 border-gray-300 p-2"
-                                >
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                    )}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                    </tbody>
-                    <tfoot>
-                    {table.getFooterGroups().map((footerGroup) => (
-                        <tr key={footerGroup.id}>
-                            {footerGroup.headers.map((header) => (
-                                <th
-                                    key={header.id}
-                                    className="border-t border-gray-300 p-2 text-left bg-lime-600"
-                                >
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.footer,
-                                            header.getContext()
-                                        )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                    </tfoot>
-                </table>}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                        </tbody>
+                        <tfoot>
+                        {table.getFooterGroups().map((footerGroup) => (
+                            <tr key={footerGroup.id}>
+                                {footerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        className="border-t border-gray-300 p-2 text-left bg-lime-600"
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.footer,
+                                                header.getContext()
+                                            )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                        </tfoot>
+                    </table>
+                )}
             </div>
         </div>
     );
