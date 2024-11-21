@@ -96,7 +96,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
   if (!categoriesData.length || !productsData.length) {
     return (
-      <div className="absolute h-full flex flex-col items-center left-0 bg-white shadow-lg z-50 overflow-y-auto overflow-x-hidden space-y-2 px-1 pt-[75px] pb-8 w-[158px]">
+      <div className="absolute h-full flex flex-col items-center left-0 bg-white shadow-lg z-50 overflow-y-auto no-scrollbar overflow-x-hidden space-y-2 px-1 pt-[75px] pb-8 w-[158px]">
         {
           Array(10).fill(null).map((_, index) => (
             <div key={index} className="flex flex-col items-center">
@@ -111,7 +111,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
 
 
   const CategoryButton = ({ category, label, Icon }: { category: categoriesInterface; label:string; Icon: any }) => (
-    <div key={category.id_category} className="flex flex-col items-center w-[145px] text-center group cursor-pointer hover:scale-[1.05]">
+    <div  className="flex flex-col items-center w-[145px] text-center group cursor-pointer hover:scale-[1.05]">
       <button className={`w-20 h-20 border-2 ${ isActive(category.id_category) ? "border-[#7cc304]" : "border-[#606060]" } rounded-lg flex items-center justify-center group-hover:border-[#7cc304]`} onClick={() => onCategorySelect(category)} >
         {Icon && <Icon isActive={isActive(category.id_category)} />}
       </button>
@@ -139,7 +139,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
         ) 
         : 
         categoryList.map(({ category, label, Icon }) => (
-          <CategoryButton category={category} label={label} Icon={Icon} />
+          <CategoryButton key={category.id_category} category={category} label={label} Icon={Icon} />
         ))
       }
 
@@ -153,7 +153,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
             {
               showMore &&
               sidebarButtons.more.map(({ category, label, Icon }) => (
-                <CategoryButton category={category} label={label} Icon={Icon} />
+                <CategoryButton  key={category.id_category} category={category} label={label} Icon={Icon} />
               ))
             }
           </div>

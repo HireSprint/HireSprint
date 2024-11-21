@@ -33,8 +33,6 @@ const ProductContainer: React.FC<{ category: categoriesInterface | null, setCate
         product.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-
-        console.log(onProductSelect, "onProductSelect")
     return (
         <div className="absolute flex h-[80vh] w-96 bg-white rounded-lg shadow-md overflow-hidden z-50 left-[170px] top-24 ">
             {/* Sección de Productos */}

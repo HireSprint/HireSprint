@@ -238,7 +238,15 @@ export default function HomePage() {
             <div className="flex flex-col">
                 <div>
                     <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-                    {category && <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />}
+                    <motion.div
+                        initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full relative"
+                    >
+                        <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
+                    </motion.div>
                 </div>
                 <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
                     <div
@@ -372,11 +380,6 @@ const GridProduct: React.FC<GridProductProps> = ({
         return product.id_category === category?.id_category;
     });
 
-    useEffect(() => {
-        if (categoriesData.length > 0 && !category) {
-            setCategory(categoriesData[0]);
-        }
-    }, [categoriesData]);
 
     return (
         <div className="bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
