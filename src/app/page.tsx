@@ -1,8 +1,6 @@
 "use client"
 import { CardShow, CardShowSide } from "./components/card";
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import LoadingLottie from "./components/lottie/loading-Lottie.json";
 import Sidebar from "./components/sideBar";
 import { motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
@@ -24,6 +22,9 @@ export default function HomePage() {
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
     const [moveMode, setMoveMode] = useState<{ active: boolean; sourceCellId: number; } | null>(null);
 
+   const updateLocalStorage = (products: ProductTypes[]) => {
+    localStorage.setItem('selectedProducts', JSON.stringify(products));
+    };
     //states modal for grids with products selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
@@ -70,6 +71,7 @@ export default function HomePage() {
     const handleRemoveProduct = (idGrid: number) => {
         setSelectedProducts((prevProducts) => {
             const updatedProducts = prevProducts.filter((product) => product.id_grid !== idGrid);
+            updateLocalStorage(updatedProducts);
             return updatedProducts;
         });
 
@@ -179,31 +181,33 @@ export default function HomePage() {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-
+    
         setMousePosition({ x: event.clientX, y: event.clientY });
-
-        // Verificar si el grid ya tiene un producto
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
-
+    
         if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
             const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
-
-            setSelectedProducts(prev => [...prev, productWithNewGrid]);
-            handlePasteProduct()
+            
+            setSelectedProducts(prev => {
+                const newProducts = [...prev, productWithNewGrid];
+                // Guardar en localStorage
+                localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
+                return newProducts;
+            });
+            
+            handlePasteProduct();
             return;
         }
-
+    
         if (moveMode?.active) {
             
             handleProductMove(gridId);
         } else if (gridHasProduct && productoShowForce) {
-            // Si el grid tiene un producto, mostrar el modal de edición
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
             setSelectedGridId(gridId);
-            setIsModalOpen(true)
+            setIsModalOpen(true);
         } else {
-            // Si el grid está vacío, mostrar el selector de productos
             setSelectedGridId(gridId);
             setIsModalOpen(true);
             setShowProducts(true);
@@ -231,38 +235,34 @@ export default function HomePage() {
         if (gridId === undefined)
             return;
         productoShowForce = false;
-        console.log(productoShowForce, 'valor del bool', showProducts, gridId)
         setIsModalOpen(false);
         setSelectedGridId(gridId);
         setShowProducts(true);
 
     }
 
-    const handleSaveChangeProduct = (gridID: number | undefined, price: number) => {
+    const handleSaveChangeProduct = (gridID: number | undefined, price: number, note : string, brust : string) => {
         if (gridID === undefined) {
             return;
-        }
-
-        console.log(gridID, 'valor', price, 'precio');
-
+        }        
         // Encuentra el índice del producto que deseas actualizar
         const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
         if (productIndex === -1) {
-            console.log('Producto no encontrado');
+         
             return;
         }
 
         // Actualiza directamente el producto
         selectedProducts[productIndex].price = price;
-
-        console.log(selectedProducts[productIndex], 'precio cambiado');
+        selectedProducts[productIndex].notes = note;     
+        selectedProducts[productIndex].burst = brust;
 
         // Llama a setProductsData para que React reconozca el cambio
         setProductsData([...selectedProducts]);  // El operador de propagación crea una nueva referencia para que React detecte cambios
-
-        console.log(selectedProducts);
+        updateLocalStorage(selectedProducts);
         ClosetPanels();
     };
+
     const handleCategorySelect = (category: categoriesInterface) => {
         setCategory(category);
     };
@@ -360,7 +360,7 @@ export default function HomePage() {
                             className="absolute"
                             style={{
                                 top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                                left: Math.min(mousePosition.x + 40, window.innerWidth - 600),
+                                left: Math.min(mousePosition.x, window.innerWidth - 800),
                             }}
                         >
                             <GridProduct
