@@ -30,6 +30,7 @@ export default function HomePage() {
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+    const [draggingGridId, setDraggingGridId] = useState<number | null>(null);
     //
     const [showProducts, setShowProducts] = useState(false);
     useEffect(() => {
@@ -214,6 +215,14 @@ export default function HomePage() {
         }
     };
 
+    const handleDragStart = (gridId: number) => {
+        setDraggingGridId(gridId);
+    };
+
+    const handleDragStop = () => {
+        setDraggingGridId(null);
+    };
+
 
     const commonGridProps = {
         onGridCellClick: handleGridClick,
@@ -224,7 +233,10 @@ export default function HomePage() {
         onCopyProduct: handleCopyProduct,
         copiedProduct: copiedProduct,
         onPasteProduct: handlePasteProduct,
-        onDragAndDropCell: handleDragAndDropGridCell
+        onDragAndDropCell: handleDragAndDropGridCell,
+        draggingGridId: draggingGridId,
+        onDragStart: handleDragStart,
+        onDragStop: handleDragStop
 
     };
 
@@ -282,7 +294,7 @@ export default function HomePage() {
                 </div>
                 <div className="grid grid-cols-2 items-center justify-center h-[80vh] ">
                     <div
-                        className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                        className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90  ">
                         {/* @ts-ignore */}
 
                         <ImageGrid {...commonGridProps} />
@@ -302,7 +314,7 @@ export default function HomePage() {
                                     className="w-full relative"
                                 >
                                     {currentPage === 2 && (
-                                        <div className=" flex flex-col justify-center items-center w-full border-r-2">
+                                        <div className=" flex flex-col justify-center items-center w-full border-r-2 ">
                                             {/* @ts-ignore */}
 
                                             <ImageGrid2 {...commonGridProps} />
@@ -311,7 +323,7 @@ export default function HomePage() {
                                         </div>
                                     )}
                                     {currentPage === 3 && (
-                                        <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        <div className="flex flex-col justify-center items-center w-full border-r-2 ">
                                             {/* @ts-ignore */}
 
                                             <ImageGrid3 {...commonGridProps} />
@@ -320,7 +332,7 @@ export default function HomePage() {
                                         </div>
                                     )}
                                     {currentPage === 4 && (
-                                        <div className="flex flex-col justify-center items-center w-full border-r-2">
+                                        <div className="flex flex-col justify-center items-center w-full border-r-2 ">
                                             {/* @ts-ignore */}
 
                                             <ImageGrid4 {...commonGridProps} />
@@ -357,7 +369,7 @@ export default function HomePage() {
                             exit={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="absolute"
+                            className="absolute z-[100] "
                             style={{
                                 top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
                                 left: Math.min(mousePosition.x, window.innerWidth - 800),

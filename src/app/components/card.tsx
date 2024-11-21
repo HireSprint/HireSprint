@@ -159,14 +159,16 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
+    const [isThisCardDragging, setIsThisCardDragging] = useState(false);
 
     
     const startDragging = (e: any , data: any) => {
         setPosition({ x: data.x, y: data.y })
+        setIsThisCardDragging(true);
 
         if (elementRef.current){
             setTimeout(() => {
-                (elementRef.current as any).style.pointerEvents = 'none';
+                (elementRef.current as any).style.pointerEvents = 'none' ;
             }, 250);
         }
         setIsDragging && setIsDragging(true);
@@ -174,6 +176,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
+        setIsThisCardDragging(false);
 
         if (elementRef.current){
             setTimeout(() => {
@@ -207,16 +210,25 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
         'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
     }
 
+    const getZIndexClass = () => {
+        if (isDragging && isThisCardDragging) {
+            return 'z-[100]'; // El más alto cuando se está arrastrando
+        } 
+        return 'z-[1]'; // Valor base
+    };
+
+
+    console.log(isDragging, "isDragging", getZIndexClass(), "z-index")
     
         return (
-            <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
+            <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className={getZIndexClass()}>
                 <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
                 <Draggable disabled={!readyToDrag} onStart={startDragging} onStop={stopDragging} position={position}>
                     <div
                         ref={elementRef}
                         id={ 'grid-card-product-' + cell?.id }
                         key={cell?.id}
-                        className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer hover:bg-black hover:bg-opacity-20 ${!isDragging && readyToDrag ? 'shake' : ''}`}
+                        className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${!isDragging && readyToDrag ? 'shake z-[100]' : ''}`}
                         style={{width: cell?.width, height: cell?.height}}
                         onClick={(e) => {
                             if (!readyToDrag && !isDragging) {

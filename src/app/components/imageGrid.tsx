@@ -147,8 +147,9 @@ export const ImageGrid = ({
         }
     };
 
+    
     return (
-        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
+        <div className={`relative overflow-auto no-scrollbar z-[1] ${ isDragging ? 'overflow-visible ' : '' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -420,7 +421,7 @@ export const ImageGrid2 = ({
     }, []);
 
     return (
-        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible ' : '' } `} >
             <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
             {gridCells.map((cell) => {
 
@@ -721,7 +722,7 @@ export const ImageGrid3 = ({
 
 
     return (
-        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
+        <div className={`relative overflow-auto no-scrollbar z-[3] ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image 
                 src="/pages/page03.jpg" 
                 alt="PDF" 
@@ -981,8 +982,9 @@ export const ImageGrid4 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+
     return (
-        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible' : '' }`} >
+        <div className={`relative overflow-auto no-scrollbar z-[4] ${ isDragging ? 'overflow-visible' : '' }`} >
             <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority sizes="(max-width: 768px) 100vw, 470px" />
             {gridCells.map((cell) => {
 
