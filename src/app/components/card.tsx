@@ -38,7 +38,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
                         src={product.url_image}
                         alt={product.name}
                         layout="fill"
-                        objectFit="cover"
+                        style={{ objectFit: 'cover' }}
                         className="rounded-lg"
                     />
                 ) : (
@@ -276,7 +276,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                         alt={product.name}
                         width={100}
                         height={100}
-                        objectFit="cover"
+                        style={{ objectFit: 'cover' }}
                         className="rounded-lg"
                         onError={() => setImageError(true)}
                         loading="lazy"
