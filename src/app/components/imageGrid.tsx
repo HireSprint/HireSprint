@@ -341,38 +341,25 @@ export const ImageGrid2 = ({
     
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            // Obtener productos guardados del localStorage
-            const savedProducts = localStorage.getItem('selectedProducts');
+            const numericIdCircular = idCircular;
+            const currentCircular = circulars.find(circular => 
+                circular.id_circular === numericIdCircular
+            );
             
-            const parsedSavedProducts = savedProducts ? JSON.parse(savedProducts) : [];
-            
-            if (parsedSavedProducts.length > 0) {
-                // Si hay productos guardados, usarlos
-                setSelectedProducts(parsedSavedProducts);
-                setHasFilledGrid(true);
-            } else {
-                // Si no hay productos guardados, proceder con la lógica actual
-                const numericIdCircular = idCircular;
-                const currentCircular = circulars.find(circular => 
-                    circular.id_circular === numericIdCircular
+            if (currentCircular) {
+                const circularUPCs = currentCircular.circular_products_upc || [];
+                const circularProducts = productsData.filter(product => 
+                    circularUPCs.includes(product.upc)
                 );
+    
+                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
+                setSelectedProducts(prev => {
+                    const newProducts = [...prev, ...gridFilled];
+                    return newProducts;
+                });
                 
-                if (currentCircular) {
-                    const circularUPCs = currentCircular.circular_products_upc || [];
-                    const circularProducts = productsData.filter(product => 
-                        circularUPCs.includes(product.upc)
-                    );
-                    const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                    setSelectedProducts(prev => {
-                        const newProducts = [...prev, ...gridFilled];
-                        // Guardar en localStorage
-                        localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
-                        return newProducts;
-                    });
-                    
-                    if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                        setHasFilledGrid(true);
-                    }
+                if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
+                    setHasFilledGrid(true);
                 }
             }
         }

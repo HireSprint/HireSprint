@@ -333,30 +333,31 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: Card
                     }} 
                 >
                     <div className=" flex w-28 h-28 items-center justify-center">
-                    {
-                        product.url_image && !imageError ? (
-                            <Image
-                                src={product.url_image}
-                                alt={product.name}
-                                width={100}
-                                height={100}
-                                draggable="false"
-                                style={{ objectFit: 'cover' }}
-                                className="rounded-lg"
-                                onError={() => setImageError(true)}
-                                loading="lazy"
-                                placeholder="blur"
-                                blurDataURL={product.url_image}
-                            />
-                        ) 
-                        :
-                        (
-                            <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                                <span className="text-gray-500">No Image</span>
-                            </div>
-                        )
-                    }
+                        {
+                            product.url_image && !imageError ? (
+                                <Image
+                                    src={product.url_image}
+                                    alt={product.name}
+                                    width={100}
+                                    height={100}
+                                    draggable="false"
+                                    style={{ objectFit: 'cover' }}
+                                    className="rounded-lg"
+                                    onError={() => setImageError(true)}
+                                    loading="lazy"
+                                    placeholder="blur"
+                                    blurDataURL={product.url_image}
+                                />
+                            ) 
+                            :
+                            (
+                                <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <span className="text-gray-500">No Image</span>
+                                </div>
+                            )
+                        }
                     </div>
+                    
                     { enableDragAndDrop && <p className="text-center text-gray-950 font-medium ">{readyToDrag? 'listo':' espera'}</p>}
                     <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
                     <p className="text-center text-gray-950 font-medium">{product.brand}</p>
