@@ -7,6 +7,7 @@ import { categoriesInterface } from "@/types/category";
 import { Skeleton } from 'primereact/skeleton';
 import Draggable from 'react-draggable';
 import { Tooltip } from 'primereact/tooltip';
+import { useProductContext } from "../context/productContext";
 
 
 interface CardProductProps {
@@ -19,7 +20,8 @@ interface CardProductProps {
   isLoading?: boolean;
   onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
   setIsDragging?: (boolean: boolean) => void;
-  isDragging?: boolean;
+  isThisCardDragging?: number | null;
+  setIsThisCardDragging?: (id: number | null) => void;
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -154,17 +156,17 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick, setIsDragging, onDragAndDropCell, isDragging, isLoading}: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick, setIsDragging, onDragAndDropCell, isLoading, isThisCardDragging, setIsThisCardDragging}: CardProductProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
-    const [isThisCardDragging, setIsThisCardDragging] = useState(false);
+    const { isDragging } = useProductContext();
 
     
     const startDragging = (e: any , data: any) => {
         setPosition({ x: data.x, y: data.y })
-        setIsThisCardDragging(true);
+        setIsThisCardDragging && setIsThisCardDragging(cell?.id || null);
 
         if (elementRef.current){
             setTimeout(() => {
@@ -176,7 +178,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
-        setIsThisCardDragging(false);
+        setIsThisCardDragging && setIsThisCardDragging(null);
 
         if (elementRef.current){
             setTimeout(() => {
@@ -210,18 +212,13 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
         'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
     }
 
-    const getZIndexClass = () => {
-        if (isDragging && isThisCardDragging) {
-            return 'z-[100]'; // El más alto cuando se está arrastrando
-        } 
-        return 'z-[1]'; // Valor base
-    };
+
+    console.log(isDragging, "isDragging", isThisCardDragging, "isThisCardDragging")
 
 
-    console.log(isDragging, "isDragging", getZIndexClass(), "z-index")
     
         return (
-            <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className={getZIndexClass()}>
+            <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className={`${isDragging && isThisCardDragging ? 'z-[100]' : ''}`}>
                 <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
                 <Draggable disabled={!readyToDrag} onStart={startDragging} onStop={stopDragging} position={position}>
                     <div

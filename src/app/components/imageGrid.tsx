@@ -19,6 +19,7 @@ interface ImageGridProps {
     onCopyProduct: (product: ProductTypes) => void;
     copiedProduct: ProductTypes | null;
     onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
+    
 }
 
 export const ImageGrid = ({
@@ -29,9 +30,9 @@ export const ImageGrid = ({
     onCopyProduct,
     copiedProduct,
     onDragAndDropCell
+
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const [isDragging, setIsDragging] = useState(false);
 
     const initialGridCells: cellTypes[] = [
         //meats
@@ -103,8 +104,8 @@ export const ImageGrid = ({
     
     const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-
-    const { selectedProducts } = useProductContext();
+    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
+    const { selectedProducts, isDragging, setIsDragging } = useProductContext();
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -149,7 +150,7 @@ export const ImageGrid = ({
 
     
     return (
-        <div className={`relative overflow-auto no-scrollbar z-[1] ${ isDragging ? 'overflow-visible ' : '' }`} >
+        <div className={`relative overflow-auto no-scrollbar z-[1] ${ isDragging ? 'overflow-visible z-10' : '' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -164,7 +165,8 @@ export const ImageGrid = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
-                        isDragging={isDragging}
+                        isThisCardDragging={isThisCardDragging}
+                        setIsThisCardDragging={setIsThisCardDragging}
                     />
                 );
             })}
@@ -204,11 +206,10 @@ export const ImageGrid2 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { circulars, idCircular } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts,  } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
+    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
 
-
-    const [isDragging, setIsDragging] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -421,8 +422,8 @@ export const ImageGrid2 = ({
     }, []);
 
     return (
-        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible ' : '' } `} >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
+        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible !z-0' : '' } `} >
+            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${isDragging ? '!z-0' : ''}`}/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -438,7 +439,8 @@ export const ImageGrid2 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
-                        isDragging={isDragging}
+                        isThisCardDragging={isThisCardDragging}
+                        setIsThisCardDragging={setIsThisCardDragging}
                     />
                 );
             })}
@@ -476,9 +478,8 @@ export const ImageGrid3 = ({
     onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productArray, productsData, selectedProducts, setSelectedProducts } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
     const { circulars, idCircular } = useAuth();
 
     const initialGridCells: cellTypes[] = [
@@ -746,7 +747,6 @@ export const ImageGrid3 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
-                        isDragging={isDragging}
                     />
                 );
             })}
@@ -785,9 +785,8 @@ export const ImageGrid4 = ({
     onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const [isDragging, setIsDragging] = useState(false);
     const { idCircular, circulars } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -1001,7 +1000,6 @@ export const ImageGrid4 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setIsDragging={setIsDragging}
-                        isDragging={isDragging}
                     />
                 );
             })}

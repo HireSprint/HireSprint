@@ -13,7 +13,7 @@ import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage } = useProductContext();
+    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, isDragging } = useProductContext();
     const [loading, setLoading] = useState(true);
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -305,7 +305,7 @@ export default function HomePage() {
                     )}
                 </AnimatePresence>
 
-                <div className="flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90">
+                <div className={`bg-red-500 flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90 ${isDragging ? ' z-1' : ''}`}>
                     {/* @ts-ignore */}
                     <ImageGrid {...commonGridProps} />
                     <p className="text-black text-md">Pagina 1</p>
@@ -324,7 +324,7 @@ export default function HomePage() {
                                 className="w-full relative"
                             >
                                 {currentPage === 2 && (
-                                    <div className=" flex flex-col justify-center items-center w-full border-r-2">
+                                    <div className={`flex flex-col justify-center items-center w-full border-r-2 ${isDragging ? '!z-0' : ''} `}>
                                         {/* @ts-ignore */}
 
                                         <ImageGrid2 {...commonGridProps} />
