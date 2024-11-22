@@ -18,11 +18,9 @@ interface CardProductProps {
   onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
   onPriceChange?: (id: string, price: number) => void;
   isLoading?: boolean;
+  enableDragAndDrop?: boolean;
+  page?: number;
   onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
-  setIsDragging?: (boolean: boolean) => void;
-  isThisCardDragging?: number | null;
-  setIsThisCardDragging?: (id: number | null) => void;
-  draggedItemId?: number | null;
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -157,25 +155,17 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick, setIsDragging, onDragAndDropCell, isLoading, isThisCardDragging, setIsThisCardDragging, draggedItemId}: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick,  onDragAndDropCell, isLoading, page}: CardProductProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
-    const { isDragging } = useProductContext();
-
-    const currentCellId = Number(cell?.id);
-    const draggingId = Number(isThisCardDragging);
-    const isBeingDragged = currentCellId === draggingId;
+    const { productDragging, setProductDragging } = useProductContext();
 
     
     const startDragging = (e: any , data: any) => {
-        setPosition({ x: data.x, y: data.y })
-        if (cell?.id) {
-            setIsThisCardDragging && setIsThisCardDragging(Number(cell.id));
-        }
-        setIsDragging && setIsDragging(true);
-
+        setProductDragging && setProductDragging({ from: 'grid', id_product: product?.id_product, id_grid: cell && cell.id, page: page });
+        
         if (elementRef.current){
             setTimeout(() => {
                 (elementRef.current as any).style.pointerEvents = 'none' ;
@@ -185,8 +175,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
-        setIsThisCardDragging && setIsThisCardDragging(null);
-
+        
         if (elementRef.current){
             setTimeout(() => {
                 (elementRef.current as any).style.pointerEvents = 'auto';
@@ -194,12 +183,11 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
         }
         
         onDragAndDropCell && onDragAndDropCell(data, e)
-        setIsDragging && setIsDragging(false);
+        setProductDragging && setProductDragging(null);
         setTimeout(() => (setReadyToDrag(false)), 250);
     }
-
+    
     const handleMouseDown = (e:any) => {
-        
         if (e.button == 0) {
             timeoutRef.current = setTimeout(() => {
                 setReadyToDrag(readyToDrag ? false : product != undefined && product != null);
@@ -210,111 +198,172 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     const handleMouseUp = (e:any) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-    
-    useEffect(() => {
-        if (isBeingDragged) {
-            console.log('Esta tarjeta está siendo arrastrada:', {
-                currentCellId,
-                draggingId,
-                isBeingDragged
-            });
-        }
-    }, [isBeingDragged, currentCellId, draggingId]);
-    
 
     if ( typeof isLoading !== "boolean" ) isLoading = false;
 
     const textShadowWhite = {
         'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
     }
-
-
     
-        return (
-            <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
-                <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
-                <Draggable disabled={!readyToDrag} onStart={startDragging} onStop={stopDragging} position={position}>
-                    <div
-                        ref={elementRef}
-                        id={ 'grid-card-product-' + cell?.id }
-                        key={cell?.id}
-                        className={`absolute ${isDragging && draggingId  && isBeingDragged ? 'z-50' : ''}  z-10 border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${readyToDrag ? 'shake' : ''}  `}
-                        style={{width: cell?.width, height: cell?.height}}
-                        onClick={(e) => {
-                            if (!readyToDrag && !isDragging) {
-                                cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
-                            }
-                        }}
-                        onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
-                        >
-                            { isLoading ?
-                                <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
-                            :
-                                <div className="@container h-full w-full relative grid overflow-hidden">
-                                    {
-                                        product?.url_image && (
-                                            <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
-                                                <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
-                                                    <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
-                                                </div>
+    return (
+        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
+            <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
+            <Draggable disabled={!readyToDrag} onStart={startDragging} onStop={stopDragging} position={position}>
+                <div
+                    ref={elementRef}
+                    id={ 'grid-card-product-' + cell?.id }
+                    key={cell?.id}
+                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${readyToDrag && !productDragging ? 'shake' : ''} `}
+                    style={{width: cell?.width, height: cell?.height}}
+                    onClick={(e) => {
+                        if (!readyToDrag && (!productDragging || (productDragging && productDragging.id_grid == cell?.id))) {
+                            cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
+                        }
+                    }}
+                    onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
+                    >
+                        { isLoading ?
+                            <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
+                        :
+                            <div className="@container h-full w-full relative grid overflow-hidden">
+                                {
+                                    product?.url_image && (
+                                        <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
+                                            <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
+                                                <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
                                             </div>
-                                        )
-                                    }
-            
-                                    {
-                                        product && (
-                                            <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
-                                                ${product.price?.toFixed(2) || "0.00"}
-                                            </div>
-                                        )
-                                    }
-            
-                                    <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                                        { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
-                                    </div>
-
-                                    <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                                        { cell?.id }
-                                    </div>
+                                        </div>
+                                    )
+                                }
+        
+                                {
+                                    product && (
+                                        <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
+                                            ${product.price?.toFixed(2) || "0.00"}
+                                        </div>
+                                    )
+                                }
+        
+                                <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                    { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
+                                    {/* { readyToDrag ? 'true':'false' } */}
                                 </div>
-                            }
-                    </div>
-                </Draggable>
-            </div>
-        )
+
+                                <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                    { cell?.id }
+                                </div>
+                            </div>
+                        }
+                </div>
+            </Draggable>
+        </div>
+    )
+}
+
+export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: CardProductProps) => {
+    const [imageError, setImageError] = useState(false);
+
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [readyToDrag, setReadyToDrag] = useState(false);
+    const elementRef = useRef<HTMLDivElement>(null);
+    const timeoutRef = useRef<any>(null);
+    const { productDragging, setProductDragging } = useProductContext();
+
+    if ( typeof enableDragAndDrop !== "boolean" ) enableDragAndDrop = false;
+
+    const startDragging = (e: any , data: any) => {
+        // console.log("moviendo");
+        setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
+        const rect = elementRef.current?.getBoundingClientRect();
+        // console.log("rect ", rect);
+
+        setTimeout(() => {
+            if (elementRef.current) elementRef.current.style.pointerEvents = 'none' ;
+        }, 250);
+    }
+    
+    const stopDragging = (e: any , data: any) => {
+        // console.log("paro");
+        setPosition({ x: 0, y: 0 });
+        
+
+        setTimeout(() => {
+            if (elementRef.current) elementRef.current.style.pointerEvents = 'auto';
+        }, 250);
+        
+        // onDragAndDropCell && onDragAndDropCell(data, e)
+        setProductDragging && setProductDragging(null);
+        setTimeout(() => (setReadyToDrag(false)), 250);
     }
 
-export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
-    const [imageError, setImageError] = useState(false);
+    const handleMouseDown = (e:any ) => {
+        if (enableDragAndDrop && e.button == 0) {
+            timeoutRef.current = setTimeout(() => {
+                setReadyToDrag(true);
+            }, 1000);
+        }
+        
+    };
+    
+    
+    const handleMouseUp = (e:any) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        
+    };
+
+    useEffect(() => {
+        console.log("readyToDrag ", readyToDrag);
+    },[readyToDrag])
+
+    const productDraggindClass= 'border-dashed border-2 border-[#dddddd] bg-gray-100'
+
     return (
-        // dragable aqii
-        <div className="flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 "
-             onClick={(e) => onProductSelect && onProductSelect(product, e)}
-        >
-            <div className=" flex w-28 h-28 items-center justify-center">
-            {product.url_image && !imageError ? (
-                    <Image
-                        src={product.url_image}
-                        alt={product.name}
-                        width={100}
-                        height={100}
-                        style={{ objectFit: 'cover' }}
-                        className="rounded-lg"
-                        onError={() => setImageError(true)}
-                        loading="lazy"
-                        placeholder="blur"
-                        blurDataURL={product.url_image}
-                    />
-                ) : (
-                    <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">No Image</span>
+        
+        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} > 
+            <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
+            <Draggable disabled={!enableDragAndDrop && !readyToDrag} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
+                <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${readyToDrag && !productDragging ? `shake ` : ''} ${productDragging && productDragging.id_product == product.id_product ? `fixed ${productDraggindClass}` : ''}`} 
+                    onClick={(e) => {
+                        console.log("ANDO AQUIII");
+                        
+                        console.log("productDragging ", productDragging);
+                        if (!enableDragAndDrop || !productDragging || (productDragging && productDragging.id_product != product.id_product)) {
+                            // onProductSelect && onProductSelect(product, e)
+                        }
+                    }} 
+                >
+                    <div className=" flex w-28 h-28 items-center justify-center">
+                    {
+                        product.url_image && !imageError ? (
+                            <Image
+                                src={product.url_image}
+                                alt={product.name}
+                                width={100}
+                                height={100}
+                                draggable="false"
+                                style={{ objectFit: 'cover' }}
+                                className="rounded-lg"
+                                onError={() => setImageError(true)}
+                                loading="lazy"
+                                placeholder="blur"
+                                blurDataURL={product.url_image}
+                            />
+                        ) 
+                        :
+                        (
+                            <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                                <span className="text-gray-500">No Image</span>
+                            </div>
+                        )
+                    }
                     </div>
-                )}
-            </div>
-            <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
-            <p className="text-center text-gray-950 font-medium">{product.brand}</p>
-            <p className="text-center text-gray-950 font-medium">{product.desc}</p>
-            <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
+                    { enableDragAndDrop && <p className="text-center text-gray-950 font-medium ">{readyToDrag? 'listo':' espera'}</p>}
+                    <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
+                    <p className="text-center text-gray-950 font-medium">{product.brand}</p>
+                    <p className="text-center text-gray-950 font-medium">{product.desc}</p>
+                    <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
+                </div>
+            </Draggable>
         </div>
     )
 }

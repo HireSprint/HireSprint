@@ -13,7 +13,7 @@ import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, isDragging } = useProductContext();
+    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, productDragging } = useProductContext();
     const [loading, setLoading] = useState(true);
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -299,62 +299,59 @@ export default function HomePage() {
                     { category && (
                         <motion.div
                             initial={{ x: -300, top: 0 }}
-                            animate={{ x: 0, zIndex: 1, top: 0}}
+                            animate={{ x: 0, zIndex: 51, top: 0}}
                             exit={{ x: -500 }}
                             transition={{ duration: 0.5 }}
-                            className="absolute"
+                            className="absolute "
                         >
                             <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                <div className={` flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90 z-50`}>
+                <div className={` flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90 ${ productDragging && productDragging.page && productDragging.page  > 1 ? 'z-0' : 'z-50' }`}>
                     {/* @ts-ignore */}
                     <ImageGrid {...commonGridProps} />
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
-                <div className={`scroll-container flex flex-col h-fit items-center w-full `}>
-                    <motion.div
-                        key={currentPage}
-                        initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className={`w-full relative ${isDragging ? '!z-0' : 'z-10'}`}
-                            >
-                                {currentPage === 2 && (
-                                    <div className={`flex flex-col justify-center items-center w-full border-r-2 z-50 `}>
-                                        {/* @ts-ignore */}
+                
+                <motion.div
+                    key={currentPage}
+                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
+                >
+                    {currentPage === 2 && (
+                        <div className={`flex flex-col justify-center items-center w-full border-r-2`}>
+                            {/* @ts-ignore */}
 
-                                        <ImageGrid2 {...commonGridProps} />
-
-                                        <p className="text-black text-md">Pagina {currentPage} </p>
-                                    </div>
-                                )}
-                                {currentPage === 3 && (
-                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore */}
-
-                                        <ImageGrid3 {...commonGridProps} />
-
-                                        <p className="text-black text-md">Pagina {currentPage} </p>
-                                    </div>
-                                )}
-                                {currentPage === 4 && (
-                                    <div className="flex flex-col justify-center items-center w-full border-r-2">
-                                        {/* @ts-ignore */}
-
-                                        <ImageGrid4 {...commonGridProps} />
-
-                                        <p className="text-black text-md">Pagina {currentPage} </p>
-                                    </div>
-                                )}
-
-                            </motion.div>
-
+                            <ImageGrid2 {...commonGridProps} />
+                            <p className="text-black text-md">Pagina {currentPage} </p>
                         </div>
-                </div>
+                    )}
+
+                    {currentPage === 3 && (
+                        <div className="flex flex-col justify-center items-center w-full border-r-2">
+                            {/* @ts-ignore */}
+
+                            <ImageGrid3 {...commonGridProps} />
+                            <p className="text-black text-md">Pagina {currentPage} </p>
+                        </div>
+                    )}
+
+                    {currentPage === 4 && (
+                        <div className="flex flex-col justify-center items-center w-full border-r-2">
+                            {/* @ts-ignore */}
+
+                            <ImageGrid4 {...commonGridProps} />
+                            <p className="text-black text-md">Pagina {currentPage} </p>
+                        </div>
+                    )}
+
+                </motion.div>
+            </div>
 
                 {/* Mostrar / Ocultar productos */}
                 <div className="flex ">

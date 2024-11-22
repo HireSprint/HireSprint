@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react';
-import { ProductTypes } from '@/types/product';
+import { ProductDraggingType, ProductTypes } from '@/types/product';
 import {categoriesInterface} from "@/types/category";
 
 
@@ -14,8 +14,8 @@ interface ProductContextType {
   setProductArray: (product: ProductTypes[]) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;  
-  isDragging: boolean;
-  setIsDragging: (isDragging: boolean) => void;
+  productDragging: ProductDraggingType | null;
+  setProductDragging: (product: ProductDraggingType | null ) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -25,11 +25,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedProducts, setSelectedProducts] = useState<ProductTypes[]>([]);
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
   const [currentPage, setCurrentPage] = useState(2);
-  const [isDragging, setIsDragging] = useState(false);
+  const [productDragging, setProductDragging] = useState<ProductDraggingType | null>(null);
 
 
   return (
-        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, isDragging, setIsDragging }}>
+        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging }}>
       {children}
     </ProductContext.Provider>
   );
