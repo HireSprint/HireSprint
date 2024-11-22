@@ -147,7 +147,7 @@ const ProductContainer: React.FC<{ category: categoriesInterface | null, setCate
                                 ))
                             ) : (
                                 filteredProducts.map((product) => (
-                                    <CardShowSide key={product.id_product} product={product}  enableDragAndDrop={true} />
+                                    <CardShowSide key={product.id_product} product={product}  enableDragAndDrop={false} />
                                 ))
                             )}
                         </div>
