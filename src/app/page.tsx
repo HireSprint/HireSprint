@@ -29,6 +29,7 @@ export default function HomePage() {
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
     const [draggingGridId, setDraggingGridId] = useState<number | null>(null);
+    const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
     //
     const [showProducts, setShowProducts] = useState(false);
     useEffect(() => {
@@ -215,10 +216,12 @@ export default function HomePage() {
 
     const handleDragStart = (gridId: number) => {
         setDraggingGridId(gridId);
+        setDraggedItemId(gridId);
     };
 
     const handleDragStop = () => {
         setDraggingGridId(null);
+        setDraggedItemId(null);
     };
 
 
@@ -233,6 +236,7 @@ export default function HomePage() {
         onPasteProduct: handlePasteProduct,
         onDragAndDropCell: handleDragAndDropGridCell,
         draggingGridId: draggingGridId,
+        draggedItemId: draggedItemId,
         onDragStart: handleDragStart,
         onDragStop: handleDragStop
 
@@ -305,26 +309,22 @@ export default function HomePage() {
                     )}
                 </AnimatePresence>
 
-                <div className={`bg-red-500 flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90 ${isDragging ? ' z-1' : ''}`}>
+                <div className={` flex flex-col justify-center w-full border-r-2 border-black items-center transform scale-90 z-50`}>
                     {/* @ts-ignore */}
                     <ImageGrid {...commonGridProps} />
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
-                <div className="scroll-container flex flex-col h-fit items-center w-full">
-                    {/* Contenedor de la cuadrícula centrado */}
-                    <div className="flex justify-center items-center w-full">
-                        {/* Contenedor para botones y cuadrícula */}
-                        <div className="flex flex-col items-center w-full relative">
-                            <motion.div
-                                key={currentPage}
-                                initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                transition={{ duration: 0.5 }}
-                                className="w-full relative"
+                <div className={`scroll-container flex flex-col h-fit items-center w-full `}>
+                    <motion.div
+                        key={currentPage}
+                        initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={`w-full relative ${isDragging ? '!z-0' : 'z-10'}`}
                             >
                                 {currentPage === 2 && (
-                                    <div className={`flex flex-col justify-center items-center w-full border-r-2 ${isDragging ? '!z-0' : ''} `}>
+                                    <div className={`flex flex-col justify-center items-center w-full border-r-2 z-50 `}>
                                         {/* @ts-ignore */}
 
                                         <ImageGrid2 {...commonGridProps} />
@@ -354,12 +354,10 @@ export default function HomePage() {
                             </motion.div>
 
                         </div>
-                    </div>
                 </div>
-            </div>
 
-            {/* Mostrar / Ocultar productos */}
-            <div className="flex ">
+                {/* Mostrar / Ocultar productos */}
+                <div className="flex ">
                 {isModalOpen && productSelected && !showProducts && (
                     <ModalEditProduct
                         setIsOpen={setIsModalOpen}
@@ -383,7 +381,7 @@ export default function HomePage() {
                         exit={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="absolute"
+                        className="absolute z-[100] "
                         style={{
                             top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
                             left: Math.min(mousePosition.x, window.innerWidth - 800),

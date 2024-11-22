@@ -209,7 +209,7 @@ export const ImageGrid2 = ({
     const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
-
+    const [ draggedItemId, setDraggedItemId ] = useState<number | null>(null);
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -421,8 +421,9 @@ export const ImageGrid2 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+
     return (
-        <div className={`relative overflow-auto no-scrollbar ${ isDragging ? 'overflow-visible !z-0' : '' } `} >
+        <div className={`relative overflow-visible no-scrollbar ${ isDragging && !isThisCardDragging ? ' z-50 ' : '' }  `} >
             <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${isDragging ? '!z-0' : ''}`}/>
             {gridCells.map((cell) => {
 
@@ -441,6 +442,7 @@ export const ImageGrid2 = ({
                         setIsDragging={setIsDragging}
                         isThisCardDragging={isThisCardDragging}
                         setIsThisCardDragging={setIsThisCardDragging}
+                        draggedItemId={draggedItemId}
                     />
                 );
             })}
@@ -481,7 +483,8 @@ export const ImageGrid3 = ({
     const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const { circulars, idCircular } = useAuth();
-
+    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
+    const [ draggedItemId, setDraggedItemId ] = useState<number | null>(null);
     const initialGridCells: cellTypes[] = [
         // Dairy
         { id: 3001, top: "top-[1.6%]", left: "left-[0%]", width: "16.1%", height: "5.5%", category: "Dairy" },
@@ -739,14 +742,17 @@ export const ImageGrid3 = ({
 
                 return (
                     <GridCardProduct
-                        key={cell?.id}
-                        product={selectedProduct!}
-                        cell={cell}
-                        onGridCellClick={onGridCellClick}
-                        onContextMenu={handleContextMenu}
-                        isLoading={isLoadingCategories}
-                        onDragAndDropCell={onDragAndDropCell}
-                        setIsDragging={setIsDragging}
+                    key={cell?.id}
+                    product={selectedProduct!}
+                    cell={cell}
+                    onGridCellClick={onGridCellClick}
+                    onContextMenu={handleContextMenu}
+                    isLoading={isLoadingCategories}
+                    onDragAndDropCell={onDragAndDropCell}
+                    setIsDragging={setIsDragging}
+                    isThisCardDragging={isThisCardDragging}
+                    setIsThisCardDragging={setIsThisCardDragging}
+                    draggedItemId={draggedItemId}
                     />
                 );
             })}
@@ -788,6 +794,8 @@ export const ImageGrid4 = ({
     const { idCircular, circulars } = useAuth();
     const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
+    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
+    const [ draggedItemId, setDraggedItemId ] = useState<number | null>(null);
     const initialGridCells: cellTypes[] = [
         // Meat
         { id: 4001, top: "top-[1.5%]", left: "left-[21.6%]", width: "26.3%", height: "8.2%", category: "Meat" },
@@ -992,14 +1000,16 @@ export const ImageGrid4 = ({
 
                 return (
                     <GridCardProduct
-                        key={cell?.id}
-                        product={selectedProduct!}
-                        cell={cell}
-                        onGridCellClick={onGridCellClick}
-                        onContextMenu={handleContextMenu}
-                        isLoading={isLoadingCategories}
-                        onDragAndDropCell={onDragAndDropCell}
-                        setIsDragging={setIsDragging}
+                    key={cell?.id}
+                    product={selectedProduct!}
+                    cell={cell}
+                    onGridCellClick={onGridCellClick}
+                    onContextMenu={handleContextMenu}
+                    isLoading={isLoadingCategories}
+                    onDragAndDropCell={onDragAndDropCell}
+                    setIsDragging={setIsDragging}
+                    isThisCardDragging={isThisCardDragging}
+                    setIsThisCardDragging={setIsThisCardDragging}
                     />
                 );
             })}
