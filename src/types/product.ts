@@ -38,3 +38,10 @@ export interface ProductTypes {
     quality_cf?: string
     
 }
+
+export interface ProductDraggingType {
+    from: string;
+    id_product: number | undefined;
+    id_grid?: number;
+    page?: number;
+}

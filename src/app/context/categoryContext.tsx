@@ -18,21 +18,24 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
     const [categoriesData, setCategories] = useState<categoriesInterface[]>([]);
     const [isLoadingCategories, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getCategories");
-                const data = await resp.json();
-                if (resp.status === 200) {
-                    setCategories(data.result);
-
-                }
-                setIsLoading(false);
-
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
+  useEffect(() => {
+    const getProductView = async () => {
+      try {
+        const resp = await fetch("/api/apiMongo/getCategories");
+        const data = await resp.json();
+        
+        if(resp.status === 200){
+          setCategories(data.result);
+          setIsLoading(false);
+        }else{
+          console.error("Error al obtener los productos:", resp);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      }
+    };
+    
 
         getProductView();
     }, []);
