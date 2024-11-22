@@ -63,14 +63,14 @@ const OnboardingPage = () => {
         <div className="text-black text-2xl pt-10 flex flex-col h-[calc(100vh-100px)]">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 items-center w-full">
                 <div className="flex flex-col w-64">
-                    <label htmlFor="date" className="block text-lg font-medium text-gray-700">Fecha</label>
+                    <label htmlFor="date" className="block text-lg font-medium text-gray-700">Date of circulars</label>
                     <select
                         id="date"
                         {...register("date")}
                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         onChange={handleDateSelect}
                     >
-                        <option value="">Selecciona una fecha</option>
+                        <option value="">select a date</option>
                         {circularOptions.map((circular: any) => (
                             <option key={circular.date_circular} value={circular.date_circular}>
                                 {formatDate(circular.date_circular)}
@@ -93,7 +93,7 @@ const OnboardingPage = () => {
                             onClick={()=>handleWatchProduct()}
                             className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
                         >
-                        Ver Productos
+                            View products
                         </button>
                     </div>
             )}

@@ -116,11 +116,11 @@ const columns = [
         header: () => 'Additional',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('url_image', {
-        cell: (info) => info.getValue()?"True":"False",
-        header: () => 'url_image',
-        footer: (info) => info.column.id,
-    }),
+    // columnHelper.accessor('url_image', {
+    //     cell: (info) => info.getValue()?"True":"False",
+    //     header: () => 'url_image',
+    //     footer: (info) => info.column.id,
+    // }),
 ];
 
 
@@ -160,11 +160,11 @@ const Products = () => {
     });
 
     return (
-        <div className="text-black text-2xl p-8 flex flex-col h-[calc(100vh-100px)] border-2 border-red-500">
+        <div className="text-black text-2xl p-8 flex flex-col h-[calc(100vh-100px)]">
             <div className={"flex flex-row items-center justify-between mb-4"}>
                 <h2 className="font-bold mb-2">Products table</h2>
                 <Link href={"/onboarding"}>
-                    <button className="bg-lime-600 p-2 rounded-lg" >
+                    <button className="bg-lime-600 p-2 rounded-lg font-bold text-amber-50" >
                         Go back
                     </button>
                 </Link>
@@ -186,7 +186,7 @@ const Products = () => {
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="border-b border-gray-300 p-2 text-left bg-lime-600"
+                                        className="border-b border-gray-300 p-2 text-left bg-lime-600 text-gray-700"
                                     >
                                         {header.isPlaceholder
                                             ? null
@@ -222,7 +222,7 @@ const Products = () => {
                                 {footerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="border-t border-gray-300 p-2 text-left bg-lime-600"
+                                        className="border-t border-gray-300 p-2 text-left bg-lime-600 text-gray-700"
                                     >
                                         {header.isPlaceholder
                                             ? null
