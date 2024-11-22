@@ -263,7 +263,7 @@ const GridProduct: React.FC<GridProductProps> = ({
     );
 
     return (
-        <div className=" bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+        <div className=" bg-[#f5f5f5] p-4 h-[35vh] w-[35vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar snap-start">
             <div className="flex justify-between bg-white sticky top-0 z-10 ">
                 <input
                     type="text"
