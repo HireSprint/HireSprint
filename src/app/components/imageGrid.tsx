@@ -102,7 +102,6 @@ export const ImageGrid = ({
     ];
 
     
-    const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
     const { selectedProducts, isDragging, setIsDragging } = useProductContext();
@@ -148,9 +147,14 @@ export const ImageGrid = ({
         }
     };
 
+    console.log({
+        isDragging,
+        isThisCardDragging
+    })
+
     
     return (
-        <div className={`relative overflow-auto no-scrollbar z-[1] ${ isDragging ? 'overflow-visible z-10' : '' }`} >
+        <div className={`relative overflow-auto no-scrollbar z-[1] ${ isDragging && isThisCardDragging ? 'overflow-visible z-50 border-2 border-green-500' : 'z-10' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -423,8 +427,8 @@ export const ImageGrid2 = ({
 
 
     return (
-        <div className={`relative overflow-visible no-scrollbar ${ isDragging && !isThisCardDragging ? ' z-50 ' : '' }  `} >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${isDragging ? '!z-0' : ''}`}/>
+        <div className={`relative overflow-visible no-scrollbar `} >
+            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);

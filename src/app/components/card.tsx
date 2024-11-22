@@ -238,7 +238,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                         ref={elementRef}
                         id={ 'grid-card-product-' + cell?.id }
                         key={cell?.id}
-                        className={`absolute ${isDragging && draggingId  && isBeingDragged ? 'z-50' : ''}  z-10 border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${readyToDrag ? 'shake' : ''}  `}
+                        className={`absolute !z-0 border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${readyToDrag && !isDragging ? 'shake' : ''} ${currentCellId && draggingId && isBeingDragged ? 'z-[100] bg-red-500' : ''} `}
                         style={{width: cell?.width, height: cell?.height}}
                         onClick={(e) => {
                             if (!readyToDrag && !isDragging) {
