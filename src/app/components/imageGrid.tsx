@@ -146,11 +146,6 @@ export const ImageGrid = ({
         }
     };
 
-    console.log({
-        isDragging,
-        isThisCardDragging
-    })
-
     
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >

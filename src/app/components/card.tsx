@@ -312,7 +312,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: Card
     };
 
     useEffect(() => {
-        console.log("readyToDrag ", readyToDrag);
+        // console.log("readyToDrag ", readyToDrag);
     },[readyToDrag])
 
     const productDraggindClass= 'border-dashed border-2 border-[#dddddd] bg-gray-100'
@@ -324,11 +324,11 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: Card
             <Draggable disabled={!enableDragAndDrop && !readyToDrag} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
                 <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${readyToDrag && !productDragging ? `shake ` : ''} ${productDragging && productDragging.id_product == product.id_product ? `fixed ${productDraggindClass}` : ''}`} 
                     onClick={(e) => {
-                        console.log("ANDO AQUIII");
+                        // console.log("ANDO AQUIII");
                         
-                        console.log("productDragging ", productDragging);
+                        // console.log("productDragging ", productDragging);
                         if (!enableDragAndDrop || !productDragging || (productDragging && productDragging.id_product != product.id_product)) {
-                            // onProductSelect && onProductSelect(product, e)
+                            onProductSelect && onProductSelect(product, e)
                         }
                     }} 
                 >
