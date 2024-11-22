@@ -488,7 +488,7 @@ const AddProductPage = () => {
             <form
                 ref={formRef}
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-6xl mx-auto"
+                className="grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-6xl mx-auto"
             >
                 {/* Información básica del producto */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
@@ -629,12 +629,12 @@ const AddProductPage = () => {
                         </div>
                     </div>
                 </div>
-
-                <button
+                <div className="h-24 my-8">
+                    <button
                     type="submit"
                     disabled={isSubmitting}
                     className="h-10 col-span-2 md:col-span-3 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center"
-                >
+                    >
                     {isSubmitting ? (
                         <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -643,7 +643,8 @@ const AddProductPage = () => {
                     ) : (
                         'Submit'
                     )}
-                </button>
+                    </button>
+                </div>
             </form>
 
             {/* Resultados de búsqueda */}
