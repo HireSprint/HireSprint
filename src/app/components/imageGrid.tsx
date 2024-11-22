@@ -18,6 +18,8 @@ interface ImageGridProps {
     isMoveModeActive: boolean;
     onCopyProduct: (product: ProductTypes) => void;
     copiedProduct: ProductTypes | null;
+    onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
+    
 }
 
 export const ImageGrid = ({
@@ -27,9 +29,12 @@ export const ImageGrid = ({
     isMoveModeActive,
     onCopyProduct,
     copiedProduct,
+    onDragAndDropCell
+
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-
+    const { selectedProducts, productDragging, setProductDragging } = useProductContext();
+    
     const initialGridCells: cellTypes[] = [
         //meats
         { id: 1001, top: "top-[20.8%]", left: "left-[0%]", width: "24.2%", height: "6.9%", category: "Meat"},
@@ -98,10 +103,7 @@ export const ImageGrid = ({
     ];
 
     
-    const [productsData, setProductsData] = useState<ProductTypes[]>([]);
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-
-    const { selectedProducts } = useProductContext();
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -144,12 +146,13 @@ export const ImageGrid = ({
         }
     };
 
+    
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
-                const selectedProduct = productsData?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
+
                 return (
                     <GridCardProduct
                         key={cell?.id}
@@ -157,8 +160,9 @@ export const ImageGrid = ({
                         cell={cell}
                         onGridCellClick={onGridCellClick}
                         onContextMenu={handleContextMenu}
-                        categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        onDragAndDropCell={onDragAndDropCell}
+                        page={1}
                     />
                 );
             })}
@@ -194,13 +198,12 @@ export const ImageGrid2 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
-    
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { circulars, idCircular } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts,  } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -399,12 +402,14 @@ export const ImageGrid2 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+
     return (
-        <div className="relative overflow-auto no-scrollbar" >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
+        <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
+            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${productDragging ? '!z-0' : ''}`}/>
             {gridCells.map((cell) => {
-                const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
+
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
+
 
                 return (
                     <GridCardProduct
@@ -413,8 +418,10 @@ export const ImageGrid2 = ({
                         cell={cell}
                         onGridCellClick={onGridCellClick}
                         onContextMenu={handleContextMenu}
-                        categoryCard={categoryItem}
                         isLoading={isLoadingCategories}
+                        onDragAndDropCell={onDragAndDropCell}
+                        page={2}
+                        
                     />
                 );
             })}
@@ -449,14 +456,12 @@ export const ImageGrid3 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
-    
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productArray, productsData, selectedProducts, setSelectedProducts } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const { circulars, idCircular } = useAuth();
-    // + 5.7 top
-
     const initialGridCells: cellTypes[] = [
         // Dairy
         { id: 3001, top: "top-[1.6%]", left: "left-[0%]", width: "16.1%", height: "5.5%", category: "Dairy" },
@@ -698,7 +703,7 @@ export const ImageGrid3 = ({
 
 
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image 
                 src="/pages/page03.jpg" 
                 alt="PDF" 
@@ -709,18 +714,19 @@ export const ImageGrid3 = ({
             />
             {gridCells.map((cell) => {
 
-                const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
+
 
                 return (
                     <GridCardProduct
-                        key={cell?.id}
-                        product={selectedProduct!}
-                        cell={cell}
-                        onGridCellClick={onGridCellClick}
-                        onContextMenu={handleContextMenu}
-                        categoryCard={categoryItem}
-                        isLoading={isLoadingCategories}
+                    key={cell?.id}
+                    product={selectedProduct!}
+                    cell={cell}
+                    onGridCellClick={onGridCellClick}
+                    onContextMenu={handleContextMenu}
+                    isLoading={isLoadingCategories}
+                    onDragAndDropCell={onDragAndDropCell}
+                    page={3}
                     />
                 );
             })}
@@ -756,10 +762,11 @@ export const ImageGrid4 = ({
     onChangeProduct,
     onCopyProduct,
     copiedProduct,
+    onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, circulars } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -954,23 +961,25 @@ export const ImageGrid4 = ({
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+
     return (
-        <div className="relative overflow-auto no-scrollbar" >
+        <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority sizes="(max-width: 768px) 100vw, 470px" />
             {gridCells.map((cell) => {
 
-                const selectedProduct = productArray?.find((p) => p.id_grid === cell.id) || selectedProducts?.find((p) => p.id_grid === cell.id);
-                const categoryItem = { name_category: cell.category } as categoriesInterface;
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
+
 
                 return (
                     <GridCardProduct
-                        key={cell?.id}
-                        product={selectedProduct!}
-                        cell={cell}
-                        onGridCellClick={onGridCellClick}
-                        onContextMenu={handleContextMenu}
-                        categoryCard={categoryItem}
-                        isLoading={isLoadingCategories}
+                    key={cell?.id}
+                    product={selectedProduct!}
+                    cell={cell}
+                    onGridCellClick={onGridCellClick}
+                    onContextMenu={handleContextMenu}
+                    isLoading={isLoadingCategories}
+                    onDragAndDropCell={onDragAndDropCell}
+                    page={4}
                     />
                 );
             })}
