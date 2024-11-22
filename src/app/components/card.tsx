@@ -34,7 +34,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
                         src={product.url_image}
                         alt={product.name}
                         layout="fill"
-                        objectFit="cover"
+                        style={{ objectFit: 'cover' }}
                         className="rounded-lg"
                     />
                 ) : (
@@ -214,7 +214,7 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                         alt={product.name}
                         width={100}
                         height={100}
-                        objectFit="cover"
+                        style={{ objectFit: 'cover' }}
                         className="rounded-lg"
                         onError={() => setImageError(true)}
                         loading="lazy"
@@ -227,7 +227,10 @@ export const CardShowSide = ({product, onProductSelect}: CardProductProps) => {
                     </div>
                 )}
             </div>
-            <p className="mt-2 text-center text-gray-950 font-medium">{product.desc ? product.desc.toString().substring(0, 20) : product.name?.toString().substring(0, 20)}</p>
+            <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
+            <p className="text-center text-gray-950 font-medium">{product.brand}</p>
+            <p className="text-center text-gray-950 font-medium">{product.desc}</p>
+            <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
         </div>
     )
 }
