@@ -480,7 +480,7 @@ const AddProductPage = () => {
     };
 
     return (
-        <div className="flex p-2 bg-[#121212] h-screen">
+        <div className="flex p-2 bg-[#121212] h-screen overflow-y-auto no-scrollbar ">
             {showModal && addProduct && (
                 <ProductAddedModal product={addProduct[addProduct.length - 1]} onClose={() => setShowModal(false)} categories={categories} />
             )}
@@ -629,7 +629,7 @@ const AddProductPage = () => {
                         </div>
                     </div>
                 </div>
-                <div className="h-24 my-8">
+                <div className="h-32 mb-10">
                     <button
                     type="submit"
                     disabled={isSubmitting}
