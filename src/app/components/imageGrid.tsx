@@ -33,7 +33,8 @@ export const ImageGrid = ({
 
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-
+    const { selectedProducts, productDragging, setProductDragging } = useProductContext();
+    
     const initialGridCells: cellTypes[] = [
         //meats
         { id: 1001, top: "top-[20.8%]", left: "left-[0%]", width: "24.2%", height: "6.9%", category: "Meat"},
@@ -103,8 +104,6 @@ export const ImageGrid = ({
 
     
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
-    const { selectedProducts, isDragging, setIsDragging } = useProductContext();
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -154,7 +153,7 @@ export const ImageGrid = ({
 
     
     return (
-        <div className={`relative overflow-auto no-scrollbar z-[1] ${ isDragging && isThisCardDragging ? 'overflow-visible z-50 border-2 border-green-500' : 'z-10' }`} >
+        <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -168,9 +167,7 @@ export const ImageGrid = ({
                         onContextMenu={handleContextMenu}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
-                        setIsDragging={setIsDragging}
-                        isThisCardDragging={isThisCardDragging}
-                        setIsThisCardDragging={setIsThisCardDragging}
+                        page={1}
                     />
                 );
             })}
@@ -210,10 +207,8 @@ export const ImageGrid2 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { circulars, idCircular } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
-    const [ draggedItemId, setDraggedItemId ] = useState<number | null>(null);
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -350,38 +345,25 @@ export const ImageGrid2 = ({
     
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            // Obtener productos guardados del localStorage
-            const savedProducts = localStorage.getItem('selectedProducts');
+            const numericIdCircular = idCircular;
+            const currentCircular = circulars.find(circular => 
+                circular.id_circular === numericIdCircular
+            );
             
-            const parsedSavedProducts = savedProducts ? JSON.parse(savedProducts) : [];
-            
-            if (parsedSavedProducts.length > 0) {
-                // Si hay productos guardados, usarlos
-                setSelectedProducts(parsedSavedProducts);
-                setHasFilledGrid(true);
-            } else {
-                // Si no hay productos guardados, proceder con la lógica actual
-                const numericIdCircular = idCircular;
-                const currentCircular = circulars.find(circular => 
-                    circular.id_circular === numericIdCircular
+            if (currentCircular) {
+                const circularUPCs = currentCircular.circular_products_upc || [];
+                const circularProducts = productsData.filter(product => 
+                    circularUPCs.includes(product.upc)
                 );
+    
+                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
+                setSelectedProducts(prev => {
+                    const newProducts = [...prev, ...gridFilled];
+                    return newProducts;
+                });
                 
-                if (currentCircular) {
-                    const circularUPCs = currentCircular.circular_products_upc || [];
-                    const circularProducts = productsData.filter(product => 
-                        circularUPCs.includes(product.upc)
-                    );
-                    const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                    setSelectedProducts(prev => {
-                        const newProducts = [...prev, ...gridFilled];
-                        // Guardar en localStorage
-                        localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
-                        return newProducts;
-                    });
-                    
-                    if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                        setHasFilledGrid(true);
-                    }
+                if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
+                    setHasFilledGrid(true);
                 }
             }
         }
@@ -427,8 +409,8 @@ export const ImageGrid2 = ({
 
 
     return (
-        <div className={`relative overflow-visible no-scrollbar `} >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
+        <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
+            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${productDragging ? '!z-0' : ''}`}/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -443,10 +425,8 @@ export const ImageGrid2 = ({
                         onContextMenu={handleContextMenu}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
-                        setIsDragging={setIsDragging}
-                        isThisCardDragging={isThisCardDragging}
-                        setIsThisCardDragging={setIsThisCardDragging}
-                        draggedItemId={draggedItemId}
+                        page={2}
+                        
                     />
                 );
             })}
@@ -484,11 +464,9 @@ export const ImageGrid3 = ({
     onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const { circulars, idCircular } = useAuth();
-    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
-    const [ draggedItemId, setDraggedItemId ] = useState<number | null>(null);
     const initialGridCells: cellTypes[] = [
         // Dairy
         { id: 3001, top: "top-[1.6%]", left: "left-[0%]", width: "16.1%", height: "5.5%", category: "Dairy" },
@@ -730,7 +708,7 @@ export const ImageGrid3 = ({
 
 
     return (
-        <div className={`relative overflow-auto no-scrollbar z-[3] ${ isDragging ? 'overflow-visible' : '' }`} >
+        <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image 
                 src="/pages/page03.jpg" 
                 alt="PDF" 
@@ -753,10 +731,7 @@ export const ImageGrid3 = ({
                     onContextMenu={handleContextMenu}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
-                    setIsDragging={setIsDragging}
-                    isThisCardDragging={isThisCardDragging}
-                    setIsThisCardDragging={setIsThisCardDragging}
-                    draggedItemId={draggedItemId}
+                    page={3}
                     />
                 );
             })}
@@ -796,10 +771,8 @@ export const ImageGrid4 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, circulars } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts, isDragging, setIsDragging } = useProductContext();
+    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
-    const [isThisCardDragging, setIsThisCardDragging] = useState<number | null>(null);
-    const [ draggedItemId, setDraggedItemId ] = useState<number | null>(null);
     const initialGridCells: cellTypes[] = [
         // Meat
         { id: 4001, top: "top-[1.5%]", left: "left-[21.6%]", width: "26.3%", height: "8.2%", category: "Meat" },
@@ -995,7 +968,7 @@ export const ImageGrid4 = ({
 
 
     return (
-        <div className={`relative overflow-auto no-scrollbar z-[4] ${ isDragging ? 'overflow-visible' : '' }`} >
+        <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority sizes="(max-width: 768px) 100vw, 470px" />
             {gridCells.map((cell) => {
 
@@ -1011,9 +984,7 @@ export const ImageGrid4 = ({
                     onContextMenu={handleContextMenu}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
-                    setIsDragging={setIsDragging}
-                    isThisCardDragging={isThisCardDragging}
-                    setIsThisCardDragging={setIsThisCardDragging}
+                    page={4}
                     />
                 );
             })}
