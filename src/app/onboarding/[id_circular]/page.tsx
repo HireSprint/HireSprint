@@ -27,6 +27,11 @@ const columns = [
         cell: info => `#${info.row.index + 1}`, // El índice de la fila empieza en 0, se suma 1 para numerar desde 1.
         footer: () => '#',
     }),
+    columnHelper.accessor('id_grid', {
+        cell: info => info.getValue(),
+        header: () => 'id_grid',
+        footer: info => info.column.id,
+    }),
     columnHelper.accessor('id_category', {
         cell: info => info.getValue(),
         header: () => 'Category ID',
@@ -148,7 +153,7 @@ const Products = () => {
         const getProductByCircular = async () => {
             try {
                 const reqBody = {
-                    "id_circular":id_circular,
+                    "id_circular":Number(id_circular),
                     "id_client":user.userData.id_client
                 }
                 const resp = await getProductsByCircular(reqBody)
@@ -164,7 +169,7 @@ const Products = () => {
     }, [id_circular, user]);
 
     const table = useReactTable({
-        data: circularProducts,
+        data: circularProducts.sort((a:ProductTypes,b:ProductTypes) => a.id_grid - b.id_grid),
         columns,
         getCoreRowModel: getCoreRowModel(),
     });

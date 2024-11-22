@@ -39,6 +39,11 @@ export default function HomePage() {
                 const data = await resp.json();
                 setProductsData(data.result);
                 setLoading(false);
+
+                // let list: string[] = [];
+                // const listaupc = data.result.map((item: ProductTypes) => item.upc);
+                // console.log("productos", Object.values(listaupc.slice(99,300)));
+
                 if (resp.status === 200) {
                     setProductByApi(data.result);
                     setProductSelected(data.result[1]);
