@@ -15,6 +15,7 @@ import {
 import {ProductTypes} from "@/types/product";
 import {getProductsByCircular} from "@/pages/api/apiMongo/getProductsByCircular";
 import Link from "next/link";
+import {STRING} from "postcss-selector-parser";
 
 const columnHelper = createColumnHelper<ProductTypes>();
 
@@ -123,16 +124,25 @@ const columns = [
     // }),
 ];
 
+type ParamsType = {
+    id_circular: string; // Cambia el tipo según corresponda
+};
+
 
 
 const Products = () => {
     const router = useRouter();
     const params = useParams();
-    const {id_circular} = params;
     const {user, circulars, setIdCircular } = useAuth();
 
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([])
     const [loading, setLoading] = useState(true);
+
+    if (!params) {
+        throw new Error("Params cannot be null");
+    }
+
+    const { id_circular }: ParamsType = params as ParamsType;
 
     useEffect(() => {
         const getProductByCircular = async () => {

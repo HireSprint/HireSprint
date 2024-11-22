@@ -1,4 +1,4 @@
-export const getProductsByCircular = async (reqBody) => {
+export const getProductsByCircular = async (reqBody:object) => {
     try {
         const resp = await fetch(`https://hiresprintcanvas.dreamhosters.com/getProductsByCircular`, {
             method: "POST",
@@ -11,11 +11,12 @@ export const getProductsByCircular = async (reqBody) => {
         if (data.status === 200) {
             return data;
         }
-    }catch (e){
+    }catch (e: unknown) {
         console.error(e);
+
         return {
             status: 500,
-            message: e.message,
-        }
+            message: e instanceof Error ? e.message : 'An unknown error occurred',
+        };
     }
 }
