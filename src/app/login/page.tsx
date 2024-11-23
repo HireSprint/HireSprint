@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
   const {
     register,
@@ -76,6 +76,7 @@ const Login = () => {
     }
 };
 
+console.log(user?.id, "user");
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
       <ToastContainer
