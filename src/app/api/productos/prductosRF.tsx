@@ -107,7 +107,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 for (let id = hoja.startId; id <= hoja.endId; id++) {
                     allProducts.push({
                         id_grid: id,
-                        upc: 0,
+                        upc: '',
                         master_brand: '',
                         brand: '',
                         desc: '',
