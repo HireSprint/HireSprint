@@ -363,6 +363,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: Card
                     <p className="text-center text-gray-950 font-medium">{product.brand}</p>
                     <p className="text-center text-gray-950 font-medium">{product.desc}</p>
                     <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
+                    <p className="text-center text-gray-950 font-medium">{product.size}</p>
                 </div>
             </Draggable>
         </div>

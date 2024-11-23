@@ -286,15 +286,26 @@ export default function HomePage() {
         setIsModalOpen(false)
     }
 
+    const handleClickOutside = (e: React.MouseEvent) => {
+        // Verificar si el click fue en el sidebar o en algún elemento del panel de productos
+        const isClickInSidebar = (e.target as HTMLElement).closest('aside');
+        const isClickInProductPanel = (e.target as HTMLElement).closest('.absolute');
+        
+        // Si el click no fue en ninguno de estos elementos, cerrar el panel
+        if (!isClickInSidebar && !isClickInProductPanel) {
+            setShowProducts(false);
+            setIsModalOpen(false);
+        }
+    };
+
 
     return (
 
-        <div className="grid grid-cols-[min-content_1fr] overflow-hidden">
-            <aside className="overflow-auto">
+    <div className="grid grid-cols-[min-content_1fr] overflow-hidden" onClick={handleClickOutside}>
+            <aside className="overflow-auto" >
                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
             </aside>
-
-            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto">
+            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
                 <AnimatePresence>
                     { category && (
                         <motion.div
@@ -435,7 +446,7 @@ const GridProduct: React.FC<GridProductProps> = ({
 
 
     return (
-        <div className="bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
+        <div className="bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar" onClick={(e) => e.stopPropagation()}>
 
             <div className="flex bg-white sticky -top-4 z-10 items-center justify-between relative">
                 <div>
@@ -498,7 +509,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                     ))
                 )}
             </div>
-            <button className="fixed -top-3 left-[39vw] bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+            <button className="absolute top-0 right-0 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
                 X
             </button>
         </div>

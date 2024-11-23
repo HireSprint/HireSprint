@@ -348,8 +348,10 @@ export const ImageGrid2 = ({
             if (currentCircular) {
                 const circularUPCs = currentCircular.circular_products_upc || [];
                 const circularProducts = productsData.filter(product => 
-                    circularUPCs.includes(product.upc)
+                    product.upc && circularUPCs.includes(product.upc)
                 );
+                console.log(circularUPCs, 'circularUPCs')
+                console.log(circularProducts, 'circularProducts')
     
                 const gridFilled = fillGridWithProducts(gridCells, circularProducts);
                 setSelectedProducts(prev => {
