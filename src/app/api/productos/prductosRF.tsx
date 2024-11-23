@@ -140,7 +140,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
 
             allProducts.sort((a, b) => a.id_grid! - b.id_grid!);
             const formattedData = allProducts.map(product => ({           
-            upc: product.upc.toString(),
+            upc: product.upc,
             idCell: product.id_grid,
             masterBrand: product.master_brand,
             brand: product.brand,
