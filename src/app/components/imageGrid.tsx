@@ -146,6 +146,7 @@ export const ImageGrid = ({
         }
     };
 
+
     
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
@@ -155,8 +156,8 @@ export const ImageGrid = ({
 
                 return (
                     <GridCardProduct
-                        key={cell?.id}
                         product={selectedProduct!}
+                        key={cell?.id}
                         cell={cell}
                         onGridCellClick={onGridCellClick}
                         onContextMenu={handleContextMenu}
@@ -346,16 +347,29 @@ export const ImageGrid2 = ({
             );
             
             if (currentCircular) {
-                const circularUPCs = currentCircular.circular_products_upc || [];
-                const circularProducts = productsData.filter(product => 
-                    product.upc && circularUPCs.includes(product.upc)
-                );
-                console.log(circularUPCs, 'circularUPCs')
-                console.log(circularProducts, 'circularProducts')
+                // Obtener el array de objetos UPC con grid_id
+                const circularUPCsWithGrid = currentCircular.circular_products_upc || [];
+                
+                // Crear un mapa de productos por UPC
+                const productsByUPC = productsData.reduce((acc, product) => {
+                    if (product.upc) {
+                        acc[product.upc] = product;
+                    }
+                    return acc;
+                }, {} as Record<string, ProductTypes>);
     
-                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
+                // Mapear los productos con sus grid_id correspondientes
+                const gridProducts = circularUPCsWithGrid
+                    .filter(item => item.upc && item.grid_id)
+                    .map(item => ({
+                        ...productsByUPC[item.upc],
+                        id_grid: item.grid_id
+                    }))
+                    .filter(product => product.id_category); // Asegurarse que el producto existe
+    
+                // Actualizar los productos seleccionados
                 setSelectedProducts(prev => {
-                    const newProducts = [...prev, ...gridFilled];
+                    const newProducts = [...prev, ...gridProducts];
                     return newProducts;
                 });
                 
@@ -363,6 +377,8 @@ export const ImageGrid2 = ({
                     setHasFilledGrid(true);
                 }
             }
+    console.log(selectedProducts, 'selectedProducts')
+
         }
     }, [productsData, gridCells, circulars, idCircular]);
 
@@ -372,31 +388,7 @@ export const ImageGrid2 = ({
         }
     }, [selectedProducts]);
 
-    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
-        // 1. Crear un mapa para agrupar productos por categoría
-        const productsByCategory = products.reduce((acc, product) => {
-            if (!acc[product.id_category]) {
-                acc[product.id_category] = [];
-            }
-            acc[product.id_category].push(product);
-            return acc;
-        }, {} as Record<number, ProductTypes[]>);
-    
-        // 2. Asignar productos a las celdas de la grilla
-        const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
-            const { idCategory } = cell;
-            if (idCategory) {
-                const productsForCategory = productsByCategory[idCategory] || [];
-                if (productsForCategory.length > 0) {
-                    const product = productsForCategory.shift()!;
-                    acc.push({ ...product, id_grid: cell.id });
-                }
-            }
-            return acc;
-        }, []);
 
-        return filledGrid;
-    };
 
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
@@ -640,62 +632,64 @@ export const ImageGrid3 = ({
         }
     }, [categoriesData])
     
-    useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            // Convertir idCircular a número para asegurar una comparación correcta
-            const numericIdCircular = idCircular;
+// ... existing code ...
 
-            // Buscar el circular correcto usando el id_circular
-            const currentCircular = circulars.find(circular => 
-                circular.id_circular === numericIdCircular
-            );
+// ... existing code ...
+
+useEffect(() => {
+    if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
+        const numericIdCircular = idCircular;
+        const currentCircular = circulars.find(circular => 
+            circular.id_circular === numericIdCircular
+        );
+        
+        if (currentCircular) {
+            // Obtener los UPCs del circular actual
+            const circularUPCsWithGrid = currentCircular.circular_products_upc || [];
+            const circularGrid = circularUPCsWithGrid.filter(item => Number(item.grid_id) === gridCells.find(cell => cell.id === item.grid_id)?.id)
             
-            if (currentCircular) {
-                // Obtener los UPCs del circular actual
-                const circularUPCs = currentCircular.circular_products_upc || [];
-                
-                // Filtrar productos que coincidan con los UPCs del circular
-                const circularProducts = productsData.filter(product => 
-                    circularUPCs.includes(product.upc)
-                );
+            
+            // Crear un mapa de productos seleccionados por UPC
+            const selectedProductsByUPC = selectedProducts.reduce((acc, product) => {
+                if (product.upc) {
+                    acc[product.upc] = product;
+                }
+                return acc;
+            }, {} as Record<string, ProductTypes>);
 
-                // Llenar la grilla con los productos filtrados
-                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                setSelectedProducts(prev => [...prev, ...gridFilled]);
+            console.log(selectedProductsByUPC, 'selectedProductsByUPC')
+            
+            // Filtrar y mapear solo los productos que coinciden con los UPCs del circular
+            const matchingProducts = circularUPCsWithGrid
+                .filter(item => {
+                    return selectedProductsByUPC[item.upc];
+                })
+                .map(item => ({
+                    ...selectedProductsByUPC[item.upc],
+                    id_grid: item.grid_id
+                }));
+
+            if (matchingProducts.length > 0) {
+                // Reemplazar completamente los productos seleccionados con matchingProducts
+                setSelectedProducts(matchingProducts);
                 
                 if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
                     setHasFilledGrid(true);
                 }
-            } else {
             }
         }
-    }, [productsData, gridCells, circulars, idCircular]);
+    }
+    console.log(selectedProducts, 'selectedProducts')
+}, [productsData, gridCells, circulars, idCircular, selectedProducts]);
 
-    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
-        // 1. Crear un mapa para agrupar productos por categoría
-        const productsByCategory = products.reduce((acc, product) => {
-            if (!acc[product.id_category]) {
-                acc[product.id_category] = [];
-            }
-            acc[product.id_category].push(product);
-            return acc;
-        }, {} as Record<number, ProductTypes[]>);
-    
-        // 2. Asignar productos a las celdas de la grilla
-        const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
-            const { idCategory } = cell;
-            if (idCategory) {
-                const productsForCategory = productsByCategory[idCategory] || [];
-                if (productsForCategory.length > 0) {
-                    const product = productsForCategory.shift()!;
-                    acc.push({ ...product, id_grid: cell.id });
-                }
-            }
-            return acc;
-        }, []);
 
-        return filledGrid;
-    };
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+        }
+    }, [selectedProducts]);
+
+
 
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
@@ -704,6 +698,7 @@ export const ImageGrid3 = ({
     }, []);
 
 
+console.log(selectedProducts, 'selectedProducts fuera del componente')
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image 
@@ -715,9 +710,8 @@ export const ImageGrid3 = ({
                 sizes="(max-width: 768px) 100vw, 470px"
             />
             {gridCells.map((cell) => {
-
-                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
-
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id)
+                console.log(selectedProduct, 'selectedProduct dentro del componente')
 
                 return (
                     <GridCardProduct
@@ -902,34 +896,50 @@ export const ImageGrid4 = ({
     
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            // Convertir idCircular a número para asegurar una comparación correcta
             const numericIdCircular = idCircular;
-
-            // Buscar el circular correcto usando el id_circular
             const currentCircular = circulars.find(circular => 
                 circular.id_circular === numericIdCircular
             );
             
             if (currentCircular) {
-                // Obtener los UPCs del circular actual
-                const circularUPCs = currentCircular.circular_products_upc || [];
+                // Obtener el array de objetos UPC con grid_id
+                const circularUPCsWithGrid = currentCircular.circular_products_upc || [];
                 
-                // Filtrar productos que coincidan con los UPCs del circular
-                const circularProducts = productsData.filter(product => 
-                    circularUPCs.includes(product.upc)
-                );
-
-                // Llenar la grilla con los productos filtrados
-                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                setSelectedProducts(prev => [...prev, ...gridFilled]);
+                // Crear un mapa de productos por UPC
+                const productsByUPC = productsData.reduce((acc, product) => {
+                    if (product.upc) {
+                        acc[product.upc] = product;
+                    }
+                    return acc;
+                }, {} as Record<string, ProductTypes>);
+    
+                // Mapear los productos con sus grid_id correspondientes
+                const gridProducts = circularUPCsWithGrid
+                    .filter(item => item.upc && item.grid_id)
+                    .map(item => ({
+                        ...productsByUPC[item.upc],
+                        id_grid: item.grid_id
+                    }))
+                    .filter(product => product.id_category); // Asegurarse que el producto existe
+    
+                // Actualizar los productos seleccionados
+                setSelectedProducts(prev => {
+                    const newProducts = [...prev, ...gridProducts];
+                    return newProducts;
+                });
                 
                 if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
                     setHasFilledGrid(true);
                 }
-            } else {
             }
         }
     }, [productsData, gridCells, circulars, idCircular]);
+
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+        }
+    }, [selectedProducts]);
 
     const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
         // 1. Crear un mapa para agrupar productos por categoría
@@ -962,6 +972,7 @@ export const ImageGrid4 = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+
 
 
     return (
