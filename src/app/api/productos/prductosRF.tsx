@@ -70,22 +70,77 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
     }
 };
 
+export let InfoHojaIdInicialIdFinal = [
+    {
+        hoja: 1,
+        startId:1001,
+        endId:1051,
+    },
+    {
+        hoja: 2,
+        startId: 2001,
+        endId: 2067,
+    },
+    {
+        hoja :3,
+        startId: 3001,
+        endId: 3107,   
+    },
+    {
+        hoja :4,
+        startId: 4001,
+        endId: 4054,
+    }
+]  
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbxVve5NPN7EQWcfO_F_xlOLuom0xNtQCxyolgSOVc-Qvr1CBrZW1J6t5WrjyDbMa9Rt/exec";
+    const url = "https://script.google.com/macros/s/AKfycbyHItBs0Ty4qOGg-2uu6fWaGYkn626PN7dLGVyGy7fZLLmUMb7Z_Od_3DPyNEf1FpEp/exec";
 
-    let idGeneral = 1;
-    try {
-        // Convertir los productos al formato adecuado para la API de Google Sheets
-        const sortedProducts = selectedProducts
-            .filter((product) => product.id_grid !== undefined) // Filtra productos sin id_grid
-            .sort((a, b) => a.id_grid! - b.id_grid!) // Ordena los productos
-            .filter((product, index, self) =>
-                index === self.findIndex((p) => p.id_grid === product.id_grid) // Elimina duplicados
-            );
-        const formattedData = sortedProducts.map(product => ({
-            idGeneral: idGeneral++,
-            upc: product.upc,
+    
+
+        try {
+            // Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
+            let allProducts: ProductTypes[] = [];
+
+// Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
+            InfoHojaIdInicialIdFinal.forEach((hoja) => {
+                for (let id = hoja.startId; id <= hoja.endId; id++) {
+                    allProducts.push({
+                        id_grid: id,
+                        upc: 0,
+                        master_brand: '',
+                        brand: '',
+                        desc: '',
+                        name: '',
+                        id_category: 0,
+                        variety: undefined,
+                        size: '',
+                        quality_cf: '',
+                        type_of_meat: '',
+                        type_of_cut: '',
+                        price: 0,
+                    });
+                }
+            });
+
+
+            selectedProducts.forEach((product: ProductTypes) => {
+                const index = allProducts.findIndex((p) => p.id_grid === product.id_grid);
+                if (index !== -1) {
+                    // Reemplaza el placeholder con el producto real, manteniendo propiedades existentes cuando no estén presentes
+                    allProducts[index] = {
+                        ...allProducts[index], // Mantén los valores del placeholder que no se hayan sobreescrito
+                        ...product // Inserta los valores reales del producto
+                    };
+                }
+            });
+
+// Ordena el array allProducts de menor a mayor según el campo id_grid
+            allProducts = allProducts.filter(product => product.id_grid !== undefined);
+
+            allProducts.sort((a, b) => a.id_grid! - b.id_grid!);
+            const formattedData = allProducts.map(product => ({           
+            upc: product.upc.toString(),
             idCell: product.id_grid,
             masterBrand: product.master_brand,
             brand: product.brand,
