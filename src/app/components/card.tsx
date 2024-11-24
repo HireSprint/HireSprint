@@ -239,7 +239,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                 {
                                     product && (
                                         <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
-                                            ${product.price?.toFixed(2) || "0.00"}
+                                            {product.price !== undefined && product.price > 0 ? `$${product.price.toFixed(2)}` : ""}
                                         </div>
                                     )
                                 }
