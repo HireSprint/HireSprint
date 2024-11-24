@@ -357,6 +357,7 @@ export const ImageGrid2 = ({
                     list.includes(product.upc)
                 );
 
+
                 const gridFilled = fillGridWithProducts(gridCells, circularProducts);
                 setSelectedProducts(prev => {
                     const newProducts = [...prev, ...gridFilled];

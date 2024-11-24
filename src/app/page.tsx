@@ -291,15 +291,13 @@ export default function HomePage() {
         setIsModalOpen(false)
     }
 
-
     return (
 
-        <div className="grid grid-cols-[min-content_1fr] overflow-hidden">
-            <aside className="overflow-auto">
+    <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
+            <aside className="overflow-auto" >
                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
             </aside>
-
-            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto">
+            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
                 <AnimatePresence>
                     { category && (
                         <motion.div
@@ -503,7 +501,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                     ))
                 )}
             </div>
-            <button className="fixed -top-3 left-[39vw] bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+            <button className="absolute top-0 right-0 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
                 X
             </button>
         </div>
