@@ -44,11 +44,6 @@ const OnboardingPage = () => {
             setShowOptions(true);
         }
     };
-    const handleWatchProduct = () => {
-        if (selectedCircular) {
-            router.push(`/onboarding/${selectedCircular.id_circular}`);
-        }
-    };
 
     // Función para formatear la fecha
     const formatDate = (dateString: string) => {
@@ -88,13 +83,6 @@ const OnboardingPage = () => {
                             className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
                         >
                             Continue
-                        </button>
-                        <button
-                            type="button"
-                            onClick={()=>handleWatchProduct()}
-                            className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
-                        >
-                            View products
                         </button>
                     </div>
             )}

@@ -160,8 +160,11 @@ const ProductsTable = ({id_circular}:ParamsType) => {
         getProductByCircular();
     }, [id_circular, user]);
 
+
     const table = useReactTable({
-        data: circularProducts.sort((a:ProductTypes,b:ProductTypes) => a.id_grid - b.id_grid),
+        data: circularProducts
+                 .filter((product: ProductTypes) => product.id_grid !== undefined)
+                 .sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)),
         columns,
         getCoreRowModel: getCoreRowModel(),
     });
