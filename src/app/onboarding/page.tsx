@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../components/provider/authprovider";
 import { useProductContext } from "../context/productContext";
+import ProductsTable from "@/app/components/ProductsTable";
 
 const OnboardingPage = () => {
     const router = useRouter();
@@ -98,24 +99,24 @@ const OnboardingPage = () => {
                     </div>
             )}
 
-                {showOptions && selectedCircular && (
-                    <div className="flex flex-col w-64">
-                        <label htmlFor="shape" className="block text-lg font-medium text-gray-700">
-                            Circular Options
-                        </label>
-                        <select
-                            id="shape"
-                            {...register("shape")}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                        >
-                            {selectedCircular.circular_options.map((option: string, index: number) => (
-                                <option key={`${selectedCircular.id}-${index}`} value={`${selectedCircular.id}-${index}`}>
-                                    {option}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
+                {/*{showOptions && selectedCircular && (*/}
+                {/*    <div className="flex flex-col w-64">*/}
+                {/*        <label htmlFor="shape" className="block text-lg font-medium text-gray-700">*/}
+                {/*            Circular Options*/}
+                {/*        </label>*/}
+                {/*        <select*/}
+                {/*            id="shape"*/}
+                {/*            {...register("shape")}*/}
+                {/*            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"*/}
+                {/*        >*/}
+                {/*            {selectedCircular.circular_options.map((option: string, index: number) => (*/}
+                {/*                <option key={`${selectedCircular.id}-${index}`} value={`${selectedCircular.id}-${index}`}>*/}
+                {/*                    {option}*/}
+                {/*                </option>*/}
+                {/*            ))}*/}
+                {/*        </select>*/}
+                {/*    </div>*/}
+                {/*)}*/}
 
                 {showOptions && (
                     <button
@@ -125,6 +126,11 @@ const OnboardingPage = () => {
                         Send
                     </button>
                 )}
+                {
+                    selectedCircular && <>
+                        <ProductsTable id_circular={selectedCircular.id_circular}/>
+                    </>
+                }
             </form>
         </div>
     );

@@ -130,24 +130,16 @@ const columns = [
 ];
 
 type ParamsType = {
-    id_circular: string; // Cambia el tipo según corresponda
+    id_circular: number; // Cambia el tipo según corresponda
 };
 
 
-
-const Products = () => {
-    const router = useRouter();
-    const params = useParams();
+const ProductsTable = ({id_circular}:ParamsType) => {
     const {user, circulars, setIdCircular } = useAuth();
 
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([])
     const [loading, setLoading] = useState(true);
 
-    if (!params) {
-        throw new Error("Params cannot be null");
-    }
-
-    const { id_circular }: ParamsType = params as ParamsType;
 
     useEffect(() => {
         const getProductByCircular = async () => {
@@ -175,16 +167,11 @@ const Products = () => {
     });
 
     return (
-        <div className="text-black text-2xl p-8 flex flex-col h-[calc(100vh-100px)]">
+        <div className="text-black text-2xl p-8 flex flex-col h-[calc(80vh-100px)] w-screen">
             <div className={"flex flex-row items-center justify-between mb-4"}>
                 <h2 className="font-bold mb-2">Products table</h2>
-                <Link href={"/onboarding"}>
-                    <button className="bg-lime-600 p-2 rounded-lg font-bold text-amber-50" >
-                        Go back
-                    </button>
-                </Link>
             </div>
-            <div className="flex flex-col w-full h-full overflow-x-auto overflow-y-auto">
+            <div className="flex flex-col w-full h-full  overflow-x-auto overflow-y-auto">
                 {loading ? (
                     // Skeleton Loader
                     <div className="animate-pulse space-y-4">
@@ -194,14 +181,15 @@ const Products = () => {
                         <div className="bg-gray-300 h-16 w-full rounded-md"></div>
                     </div>
                 ) : (
-                    <table className="min-w-full border border-gray-300">
+                    <table className="border border-gray-300">
                         <thead>
-                        {table.getHeaderGroups().map((headerGroup) => (
+                        {table.getHeaderGroups().map((headerGroup,index) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="border-b border-gray-300 p-2 text-left bg-lime-600 text-gray-700"
+                                        className="border-b border-gray-300 p-2 text-left bg-lime-600 text-gray-700 "
+
                                     >
                                         {header.isPlaceholder
                                             ? null
@@ -254,7 +242,7 @@ const Products = () => {
                 )}
             </div>
         </div>
-    );
+    )
 };
 
-export default Products;
+export default ProductsTable;

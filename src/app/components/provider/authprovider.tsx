@@ -14,7 +14,7 @@ interface AuthContextProps {
         id_circular: number;
         date_circular: string;
         user_id: number;
-        circular_products_upc: string[];
+        circular_products_upc: object;
     }>;
     idCircular: number | null;
     setIdCircular: (id: number | null) => void;
