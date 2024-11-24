@@ -115,9 +115,9 @@ const OnboardingPage = () => {
                     </button>
                 )}
                 {
-                    selectedCircular && <>
+                    selectedCircular && <div className={"flex flex-col w-screen"}>
                         <ProductsTable id_circular={selectedCircular.id_circular}/>
-                    </>
+                    </div>
                 }
             </form>
         </div>

@@ -173,7 +173,7 @@ export const ImageGrid = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick
@@ -438,7 +438,7 @@ export const ImageGrid2 = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick
@@ -746,7 +746,7 @@ export const ImageGrid3 = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick
@@ -1003,7 +1003,7 @@ export const ImageGrid4 = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick

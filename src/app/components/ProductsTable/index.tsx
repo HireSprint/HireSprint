@@ -170,7 +170,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
     });
 
     return (
-        <div className="text-black text-2xl p-8 flex flex-col h-[calc(80vh-100px)] w-screen">
+        <div className="text-black text-2xl p-8 flex flex-col h-[calc(80vh-100px)] w-full">
             <div className={"flex flex-row items-center justify-between mb-4"}>
                 <h2 className="font-bold mb-2">Products table</h2>
             </div>
@@ -191,7 +191,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="border-b border-gray-300 p-2 text-left bg-lime-600 text-gray-700 "
+                                        className="border-b border-gray-300 p-2 text-left bg-[#393939] text-lime-400"
 
                                     >
                                         {header.isPlaceholder
@@ -228,7 +228,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                                 {footerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="border-t border-gray-300 p-2 text-left bg-lime-600 text-gray-700"
+                                        className="border-t border-gray-300 p-2 text-left bg-[#393939] text-lime-400"
                                     >
                                         {header.isPlaceholder
                                             ? null
