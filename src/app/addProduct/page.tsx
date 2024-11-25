@@ -1,11 +1,12 @@
 'use client'
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, use } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { ProductTypes } from "@/types/product"
 import { categoriesInterface } from "@/types/category"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { ProductAddedModal } from "../components/card"
+import { useAuth } from "../components/provider/authprovider"
 
 const AddProductPage = () => {
     const {
@@ -35,6 +36,10 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const { user } = useAuth();
+
+
+
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
             { name: "type_of_meat", placeholder: "Type of meat" },
@@ -63,7 +68,7 @@ const AddProductPage = () => {
                 const data = await resp.json();
                 setProductsData(data.result);
             } catch (error) {
-                console.error("Error in get products:", error);
+                console.error("Error in get [id_circular]:", error);
             }
         };
         getProductView();
@@ -84,6 +89,7 @@ const AddProductPage = () => {
 
         getProductView();
     }, []);
+    
 
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
@@ -96,6 +102,7 @@ const AddProductPage = () => {
                 toast.error("Ya existe un producto con el mismo UPC o SKU");
                 return;
             }
+            
 
             const formData = new FormData();
 
@@ -134,6 +141,7 @@ const AddProductPage = () => {
             formData.append('master_brand', data.master_brand || "");
             formData.append('type_of_cut', data.type_of_cut || "");
             formData.append('quality_cf', data.quality_cf || "");
+            formData.append('createdById', user?.userData?.id_client || 0);
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
 
@@ -232,7 +240,6 @@ const AddProductPage = () => {
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
 
             // Agregar logs para depuración
-            console.log('FormData a enviar:', Object.fromEntries(formData.entries()));
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
                 method: "POST",
@@ -334,7 +341,6 @@ const AddProductPage = () => {
             }
         }, [imageFileEdit]);
 
-        console.log(imageFileEdit, "imageFileEdit");
 
         const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.files && e.target.files[0]) {

@@ -18,6 +18,7 @@ interface SidebarButton {
   label: string;
   category: categoriesInterface;
   Icon: React.FC<{ isActive: boolean }> | null;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {

@@ -8,7 +8,7 @@ import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
-import { CategoryProvider, useCategoryContext } from "./context/categoryContext";
+import { useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {
@@ -23,7 +23,7 @@ export default function HomePage() {
    const updateLocalStorage = (products: ProductTypes[]) => {
     localStorage.setItem('selectedProducts', JSON.stringify(products));
     };
-    //states modal for grids with products selected AlexSM
+    //states modal for grids with [id_circular] selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
@@ -39,6 +39,11 @@ export default function HomePage() {
                 const data = await resp.json();
                 setProductsData(data.result);
                 setLoading(false);
+
+                // let list: string[] = [];
+                // const listaupc = data.result.map((item: ProductTypes) => item.upc);
+                // console.log("productos", Object.values(listaupc.slice(99,300)));
+
                 if (resp.status === 200) {
                     setProductByApi(data.result);
                     setProductSelected(data.result[1]);
@@ -181,24 +186,24 @@ export default function HomePage() {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
         }
-    
+
         setMousePosition({ x: event.clientX, y: event.clientY });
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
-    
+
         if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
             const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
-            
+
             setSelectedProducts(prev => {
                 const newProducts = [...prev, productWithNewGrid];
                 // Guardar en localStorage
                 localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
                 return newProducts;
             });
-            
+
             handlePasteProduct();
             return;
         }
-    
+
         if (moveMode?.active) {
             
             handleProductMove(gridId);
@@ -258,17 +263,17 @@ export default function HomePage() {
     const handleSaveChangeProduct = (gridID: number | undefined, price: number, note : string, brust : string) => {
         if (gridID === undefined) {
             return;
-        }        
+        }
         // Encuentra el índice del producto que deseas actualizar
         const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
         if (productIndex === -1) {
-         
+
             return;
         }
 
         // Actualiza directamente el producto
         selectedProducts[productIndex].price = price;
-        selectedProducts[productIndex].notes = note;     
+        selectedProducts[productIndex].notes = note;
         selectedProducts[productIndex].burst = brust;
 
         // Llama a setProductsData para que React reconozca el cambio
@@ -286,15 +291,13 @@ export default function HomePage() {
         setIsModalOpen(false)
     }
 
-
     return (
 
-        <div className="grid grid-cols-[min-content_1fr] overflow-hidden">
-            <aside className="overflow-auto">
+    <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
+            <aside className="overflow-auto" >
                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
             </aside>
-
-            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto">
+            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
                 <AnimatePresence>
                     { category && (
                         <motion.div
@@ -498,7 +501,7 @@ const GridProduct: React.FC<GridProductProps> = ({
                     ))
                 )}
             </div>
-            <button className="fixed -top-3 left-[39vw] bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+            <button className="absolute top-0 right-0 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
                 X
             </button>
         </div>
