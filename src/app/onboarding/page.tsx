@@ -5,12 +5,16 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../components/provider/authprovider";
 import ProductsTable from "@/app/components/ProductsTable";
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const OnboardingPage = () => {
     const router = useRouter();
     const { register, handleSubmit } = useForm();
-    const {user, circulars, setIdCircular } = useAuth();
+    const { user, circulars, setIdCircular } = useAuth();
     const [selectedCircular, setSelectedCircular] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const onSubmit = (data: any) => {
         const selectedCircular = circulars.find((circular: any) =>
@@ -30,16 +34,21 @@ const OnboardingPage = () => {
 
     const handleDateSelect = (e: any) => {
         const selectedDate = e.target.value;
+        setIsLoading(true);
+
+        // Encontrar el circular correspondiente
         const circular = circulars?.find((circular: any) =>
             circular.date_circular === selectedDate
         );
-        setSelectedCircular(circular || null);
-    };
 
-    const handleContinue = () => {
-        if (selectedCircular) {
-            router.push('/');
-        }
+        // Limpiar el circular seleccionado primero
+        setSelectedCircular(null);
+
+        // Simular loading
+        setTimeout(() => {
+            setSelectedCircular(circular || null);
+            setIsLoading(false);
+        }, 2000);
     };
 
     // Función para formatear la fecha
@@ -51,9 +60,33 @@ const OnboardingPage = () => {
         return `${month} ${day}, ${year}`;
     };
 
+    const handleContinue = async () => {
+        try {
+            setIsRedirecting(true);
+            if (selectedCircular?.id_circular) {
+                setIdCircular(selectedCircular.id_circular);
+                await router.push('/');
+            } else {
+                toast.error("No se ha seleccionado un circular válido");
+            }
+        } catch (error) {
+            console.error("Error al redireccionar:", error);
+            toast.error("Error al redireccionar");
+        } finally {
+            setIsRedirecting(false);
+        }
+    };
 
     return (
         <div className="text-black text-2xl pt-10 flex flex-col h-[calc(100vh-100px)]">
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                closeOnClick
+                pauseOnHover
+                theme="light"
+            />
             {user ? (
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 items-center w-full">
                     <div className="flex flex-col w-64">
@@ -67,28 +100,45 @@ const OnboardingPage = () => {
                             <option value="">select a date</option>
                             {circularOptions.map((circular: any) => (
                                 <option key={circular.date_circular} value={circular.date_circular}>
-                                    {formatDate(circular.date_circular)}
+                                    {circular.date_circular ? formatDate(circular.date_circular) : "No date"}
                                 </option>
                             ))}
                         </select>
                     </div>
 
                     {selectedCircular && (
-                        <div className={"flex flex-row h-12  w-full justify-center gap-5"}>
+                        <div className={"flex flex-row h-12 w-full justify-center gap-5"}>
                             <button
                                 type="button"
                                 onClick={handleContinue}
-                                className="bg-[#7cc304] text-white p-2 rounded-md text-center w-fit"
+                                disabled={isRedirecting}
+                                className={`bg-[#7cc304] text-white p-2 rounded-md text-center w-fit ${isRedirecting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#6bb003]'
+                                    }`}
                             >
-                                Continue
+                                {isRedirecting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                                        Redirigiendo...
+                                    </div>
+                                ) : (
+                                    'Continue'
+                                )}
                             </button>
                         </div>
                     )}
-                    {
-                        selectedCircular && <div className={"flex flex-col w-screen"}>
-                            <ProductsTable id_circular={selectedCircular.id_circular}/>
+                    {(isLoading || isRedirecting) ? (
+                        <div className={"flex flex-col w-screen items-center justify-center p-10"}>
+                            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#7cc304]"></div>
+                            <p className="text-gray-600 mt-4">
+                                {isRedirecting ? "Redirigiendo..." : "Cargando productos..."}
+                            </p>
                         </div>
-                    }
+                    ) : (
+                        selectedCircular &&
+                        <div className={"flex flex-col w-screen"}>
+                            <ProductsTable id_circular={selectedCircular.id_circular} />
+                        </div>
+                    )}
                 </form>
             ) : (
                 <div>Cargando...</div>
