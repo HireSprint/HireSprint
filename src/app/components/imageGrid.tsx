@@ -131,6 +131,7 @@ export const ImageGrid = ({
                         product={selectedProduct!}
                         cell={cell}
                         onGridCellClick={(gridId, idCategory, event) => 
+                            //@ts-ignore
                         onGridCellClick(gridId, idCategory, cell.category, event)}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
@@ -320,6 +321,7 @@ export const ImageGrid2 = ({
                     product={selectedProduct!}
                     cell={cell}
                     onGridCellClick={(gridId, idCategory, event) => 
+                        //@ts-ignore
                     onGridCellClick(gridId, idCategory, cell.category, event)}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
@@ -553,6 +555,7 @@ export const ImageGrid3 = ({
                     product={selectedProduct!}
                     cell={cell}
                     onGridCellClick={(gridId, idCategory, event) => 
+                         //@ts-ignore
                     onGridCellClick(gridId, idCategory, cell.category, event)}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
@@ -734,6 +737,7 @@ export const ImageGrid4 = ({
                     product={selectedProduct!}
                     cell={cell}
                     onGridCellClick={(gridId, idCategory, event) => 
+                         //@ts-ignore
                     onGridCellClick(gridId, idCategory, cell.category, event)}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
