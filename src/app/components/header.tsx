@@ -47,7 +47,7 @@ export default function Header() {
     };
 
     const enviarGoogle = () => {
-        addGoogleSheet3('hojaPrueba2', categoriesData, selectedProducts);
+        addGoogleSheet3(user?.userData.name, categoriesData, selectedProducts);
     }
 
     if (!user || pathname === '/login') {
