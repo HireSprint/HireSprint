@@ -13,10 +13,11 @@ import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, productDragging } = useProductContext();
+    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, productDragging, setProductReadyDrag } = useProductContext();
     const [loading, setLoading] = useState(true);
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
+    const [showProductCardBrand, setShowProductCardBrand] = useState<boolean>(true);
     const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
     const [moveMode, setMoveMode] = useState<{ active: boolean; sourceCellId: number; } | null>(null);
 
@@ -141,6 +142,45 @@ export default function HomePage() {
         }
 
     };
+
+    const handleDragAndDropSidebar = (gridCellToMove: any, stopDragEvent: MouseEvent) => {
+        const getCellId = (htmlElement:HTMLElement, prefix='grid-card-product-') => {
+            const htmlElementId = htmlElement && htmlElement.id
+            const cellId = htmlElementId && Number(htmlElementId.replace(prefix,''))
+            return cellId
+        }
+        
+        const findGridCellTarget = ( parentElement: any, count= 0 ) => {
+            if ( !parentElement ) return;
+            if ( parentElement.id && parentElement.id.includes('grid-card-product-') ) return parentElement
+            
+            if ( count <= 7 ) return findGridCellTarget( parentElement.parentNode, count += 1 )
+            else return 
+        }
+
+        // id del producto que se quiere seleccionar
+        const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
+
+        if (productIdToSelect) {
+            const productSelected = productsData.find((prod) => prod.id_product === productIdToSelect)
+            
+            if (productSelected) {
+                // id del grid en el que se quiere seleccionar el producto
+                const gridCellTarget = findGridCellTarget(stopDragEvent.target);
+                const cellIdTarget = getCellId(gridCellTarget);
+
+                const productWithGrid = { ...productSelected, id_grid: cellIdTarget } as ProductTypes;
+
+                if (cellIdTarget) {
+                    setSelectedProducts((prev) => {
+                        const newProducts = prev.filter((p) => p.id_grid !== cellIdTarget);
+                        const updatedProducts = [...newProducts, productWithGrid];
+                        return updatedProducts;
+                    });
+                }
+            }
+        }
+    };
     
 
     const handleProductMove = (targetGridId: number) => {
@@ -243,8 +283,8 @@ export default function HomePage() {
         draggingGridId: draggingGridId,
         draggedItemId: draggedItemId,
         onDragStart: handleDragStart,
-        onDragStop: handleDragStop
-
+        onDragStop: handleDragStop,
+        setShowProductCardBrand: setShowProductCardBrand
     };
 
 
@@ -294,20 +334,20 @@ export default function HomePage() {
     return (
 
     <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
-            <aside className="overflow-auto" >
+            <aside className="overflow-auto z-[52]" >
                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
             </aside>
-            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
+            <div className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${ productDragging ? 'overflow-x-hidden' : '' } `} >
                 <AnimatePresence>
                     { category && (
                         <motion.div
-                            initial={{ x: -300, top: 0 }}
-                            animate={{ x: 0, zIndex: 51, top: 0}}
+                            initial={{ x: -300 }}
+                            animate={{ x: showProductCardBrand ? 0 : -500, zIndex: 51}}
                             exit={{ x: -500 }}
                             transition={{ duration: 0.5 }}
-                            className="absolute "
+                            className="fixed left-[168px] top-[95px]"
                         >
-                            <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
+                            <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} onDragAndDropCell={handleDragAndDropSidebar} setShowProductCardBrand={setShowProductCardBrand}/>
                         </motion.div>
                     )}
                 </AnimatePresence>
