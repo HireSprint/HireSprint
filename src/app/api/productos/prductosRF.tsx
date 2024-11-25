@@ -94,7 +94,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbyHItBs0Ty4qOGg-2uu6fWaGYkn626PN7dLGVyGy7fZLLmUMb7Z_Od_3DPyNEf1FpEp/exec";
+    const url = "https://script.google.com/macros/s/AKfycbzjzJtD9AUUy7hhbJNh4uTu3ccRqqb3pkk7unDAong-LUsSFBqA1ysnXobD1WUuuSkT/exec";
 
 
     try {
