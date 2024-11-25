@@ -104,6 +104,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const getProductView = async () => {
+            if (!user?.userData?.id_client) return;
+            
             try {
                 const body = {
                     "id_cliente": user.userData.id_client,
@@ -128,7 +130,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    console.log(user?.userData?.id_client, "user?.id_client");
 
     return (
         <AuthContext.Provider value={{

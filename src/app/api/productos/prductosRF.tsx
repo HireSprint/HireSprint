@@ -153,7 +153,6 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             price: product.price,
 
         }));
-        console.log(formattedData);
         // Hacer la solicitud HTTP POST al script de Google Apps con `sheetId`
         await fetch(url, {
             method: 'POST',

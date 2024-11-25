@@ -45,7 +45,6 @@ const Login = () => {
           })
       });
 
-        console.log('Respuesta del servidor:', response.status);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -76,7 +75,6 @@ const Login = () => {
     }
 };
 
-console.log(user?.id, "user");
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
       <ToastContainer

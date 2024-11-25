@@ -23,7 +23,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const respCirculars = await resp.json();
-        console.log(respCirculars, "respCirculars");
 
         if (respCirculars.status === 200) {
             return res.status(200).json(respCirculars);

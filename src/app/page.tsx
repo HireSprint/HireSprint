@@ -8,7 +8,7 @@ import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
-import { CategoryProvider, useCategoryContext } from "./context/categoryContext";
+import { useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {

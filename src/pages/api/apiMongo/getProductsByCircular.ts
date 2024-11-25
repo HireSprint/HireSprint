@@ -8,7 +8,6 @@ export const getProductsByCircular = async (reqBody:object) => {
             body: JSON.stringify(reqBody),
         });
         const data = await resp.json();
-        console.log("enviado",reqBody,'response',data);
         if (data.status === 200) {
             return data;
         }

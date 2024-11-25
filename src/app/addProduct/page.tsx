@@ -39,7 +39,6 @@ const AddProductPage = () => {
     const { user } = useAuth();
 
 
-    console.log(user?.userData?.id_client, "user?.id_client");
 
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
@@ -241,7 +240,6 @@ const AddProductPage = () => {
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
 
             // Agregar logs para depuración
-            console.log('FormData a enviar:', Object.fromEntries(formData.entries()));
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
                 method: "POST",
@@ -343,7 +341,6 @@ const AddProductPage = () => {
             }
         }, [imageFileEdit]);
 
-        console.log(imageFileEdit, "imageFileEdit");
 
         const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.files && e.target.files[0]) {

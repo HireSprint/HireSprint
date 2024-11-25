@@ -149,7 +149,6 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                     "id_client":user.userData.id_client
                 }
                 const resp = await getProductsByCircular(reqBody)
-                console.log(resp)
                 setCircularProducts(resp.result)
                 setLoading(false)
             } catch (error) {
