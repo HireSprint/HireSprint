@@ -1,11 +1,7 @@
 "use client"
 
-import { useRouter, useParams} from "next/navigation";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import { useAuth } from "../../components/provider/authprovider"
-import { useProductContext } from "../../context/productContext";
-
-
 import {
     createColumnHelper,
     flexRender,
@@ -14,8 +10,6 @@ import {
 } from '@tanstack/react-table'
 import {ProductTypes} from "@/types/product";
 import {getProductsByCircular} from "@/pages/api/apiMongo/getProductsByCircular";
-import Link from "next/link";
-import {STRING} from "postcss-selector-parser";
 
 const columnHelper = createColumnHelper<ProductTypes>();
 
@@ -135,7 +129,7 @@ type ParamsType = {
 
 
 const ProductsTable = ({id_circular}:ParamsType) => {
-    const {user, circulars, setIdCircular } = useAuth();
+    const {user } = useAuth();
 
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([])
     const [loading, setLoading] = useState(true);

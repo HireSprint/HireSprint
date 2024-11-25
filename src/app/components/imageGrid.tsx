@@ -4,14 +4,14 @@ import RightClick from "./rightClick";
 import { GridCardProduct } from "./card";
 import { useProductContext } from "../context/productContext";
 import { ProductTypes } from "@/types/product";
-import { categoriesInterface } from "@/types/category";
 import { cellTypes } from "@/types/cell";
 import { useCategoryContext } from "../context/categoryContext";
 import { useAuth } from "./provider/authprovider";
+import { getProductsByCircular } from "@/pages/api/apiMongo/getProductsByCircular";
 
 
 interface ImageGridProps {
-    onGridCellClick: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
+    onGridCellClick: (gridId: number, idCategory: number | undefined, category: string, event: React.MouseEvent) => void;
     onRemoveProduct: (gridId: number) => void;
     onEditProduct: (gridId: number) => void;
     onChangeProduct: (gridId: number) => void;
@@ -117,34 +117,6 @@ export const ImageGrid = ({
         }
     }, [categoriesData]);
 
-    const [contextMenu, setContextMenu] = useState<{
-        visible: boolean;
-        x: number;
-        y: number;
-        gridId: number;
-    } | null>(null);
-
-
-    useEffect(() => {
-        const handleClickOutside = () => setContextMenu(null);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
-
-
-    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
-        e.preventDefault();
-        if (isMoveModeActive) return;
-        const selectedProduct = selectedProducts.find(p => p.id_grid === gridId);
-        if (selectedProduct) {
-            setContextMenu({
-                visible: true,
-                x: e.clientX,
-                y: e.clientY,
-                gridId: gridId
-            });
-        }
-    };
 
 
     return (
@@ -158,34 +130,14 @@ export const ImageGrid = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
-                        onContextMenu={handleContextMenu}
+                        onGridCellClick={(gridId, idCategory, event) => 
+                        onGridCellClick(gridId, idCategory, cell.category, event)}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         page={1}
                     />
                 );
             })}
-
-            {contextMenu?.visible && !isMoveModeActive && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: contextMenu.y,
-                        left: contextMenu.x,
-                        zIndex: 800
-                    }}
-                >
-                    <RightClick
-                        gridId={contextMenu.gridId}
-                        handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
-                        onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
-                        copiedProduct={copiedProduct}
-                    />
-                </div>
-            )}
         </div>
     );
 };
@@ -193,17 +145,14 @@ export const ImageGrid = ({
 
 export const ImageGrid2 = ({
     onGridCellClick,
-    isMoveModeActive,
-    onRemoveProduct,
-    onChangeProduct,
-    onCopyProduct,
-    copiedProduct,
     onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { circulars, idCircular } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const { idCircular, user } = useAuth();
+    const {  productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
+    const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
+    const [loading, setLoading] = useState(true);
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -283,48 +232,9 @@ export const ImageGrid2 = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const [contextMenu, setContextMenu] = useState<{
-        visible: boolean;
-        x: number;
-        y: number;
-        gridId: number;
-    } | null>(null);
 
-    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
-        e.preventDefault();
-        if (isMoveModeActive) return;
 
-        // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
-        const containerRect = container?.getBoundingClientRect();
 
-        let posX = e.clientX;
-        let posY = e.clientY;
-
-        if (containerRect) {
-            posX = e.clientX - containerRect.left + container.scrollLeft;
-            posY = e.clientY - containerRect.top + container.scrollTop;
-        }
-
-        // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
-        const menuWidth = 150; // Ancho estimado del menú contextual
-        const menuHeight = 200; // Alto estimado del menú contextual
-
-        if (posX + menuWidth > window.innerWidth) {
-            posX -= menuWidth;
-        }
-        if (posY + menuHeight > window.innerHeight) {
-            posY -= menuHeight;
-        }
-
-        // Establecer el estado del menú contextual con las coordenadas ajustadas
-        setContextMenu({
-            visible: true,
-            x: posX - 125,
-            y: posY,
-            gridId: gridId
-        });
-    };
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -339,37 +249,52 @@ export const ImageGrid2 = ({
     }, [categoriesData])
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            const numericIdCircular = idCircular;
-            const currentCircular = circulars.find(circular =>
-                circular.id_circular === numericIdCircular
-            );
-
-            if (currentCircular) {
-                const circularUPCs = currentCircular.circular_products_upc || [];
-
-                let list:string[] = []
-
-                Object.values(circularUPCs).map((item: { upc:string,id_grid:number })=>(
-                    list.push(item.upc)
-                ))
-                const circularProducts = productsData.filter((product:ProductTypes) =>
-                    list.includes(product.upc)
-                );
-
-
-                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                setSelectedProducts(prev => {
-                    const newProducts = [...prev, ...gridFilled];
-                    return newProducts;
-                });
-
-                if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                    setHasFilledGrid(true);
+        const getProductByCircular = async () => {
+            try {
+                const reqBody = {
+                    "id_circular":Number(idCircular),
+                    "id_client":user.userData.id_client
                 }
+                const resp = await getProductsByCircular(reqBody)
+                setCircularProducts(resp.result)
+                setLoading(false)
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
+            }
+        };
+
+        getProductByCircular();
+    }, [idCircular, user]);
+
+    useEffect(() => {
+        if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
+            // Crear un mapa de productos por UPC para búsqueda rápida
+            const productsMap = new Map(
+                productsData.map(product => [product.upc, product])
+            );
+    
+            // Mapear los productos del circular a sus posiciones específicas
+            const gridFilled = circularProducts
+                .filter(circularProduct => circularProduct.id_grid && productsMap.has(circularProduct.upc))
+                .map(circularProduct => {
+                    const product = productsMap.get(circularProduct.upc)!;
+                    return {
+                        ...product,
+                        id_grid: circularProduct.id_grid
+                    };
+                });
+    
+            // Actualizar los productos seleccionados
+            setSelectedProducts(prev => {
+                const newProducts = [...prev, ...gridFilled];
+                return newProducts;
+            });
+    
+            if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
+                setHasFilledGrid(true);
             }
         }
-    }, [productsData, gridCells, circulars, idCircular]);
+    }, [productsData, gridCells, circularProducts]);
 
     useEffect(() => {
         if (selectedProducts.length > 0) {
@@ -377,42 +302,13 @@ export const ImageGrid2 = ({
         }
     }, [selectedProducts]);
 
-    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
-        // 1. Crear un mapa para agrupar productos por categoría
-        const productsByCategory = products.reduce((acc, product) => {
-            if (!acc[product.id_category]) {
-                acc[product.id_category] = [];
-            }
-            acc[product.id_category].push(product);
-            return acc;
-        }, {} as Record<number, ProductTypes[]>);
 
-        // 2. Asignar productos a las celdas de la grilla
-        const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
-            const { idCategory } = cell;
-            if (idCategory) {
-                const productsForCategory = productsByCategory[idCategory] || [];
-                if (productsForCategory.length > 0) {
-                    const product = productsForCategory.shift()!;
-                    acc.push({ ...product, id_grid: cell.id });
-                }
-            }
-            return acc;
-        }, []);
 
-        return filledGrid;
-    };
-
-    useEffect(() => {
-        const handleClickOutside = () => setContextMenu(null);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
 
 
     return (
-        <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${productDragging ? '!z-0' : ''}`}/>
+        <div className={`relative no-scrollbar z-50 ${ productDragging ? '' : 'overflow-auto' } ` } >
+            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px"/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -420,55 +316,29 @@ export const ImageGrid2 = ({
 
                 return (
                     <GridCardProduct
-                        key={cell?.id}
-                        product={selectedProduct!}
-                        cell={cell}
-                        onGridCellClick={onGridCellClick}
-                        onContextMenu={handleContextMenu}
-                        isLoading={isLoadingCategories}
-                        onDragAndDropCell={onDragAndDropCell}
-                        page={2}
-
-                    />
+                    key={cell?.id}
+                    product={selectedProduct!}
+                    cell={cell}
+                    onGridCellClick={(gridId, idCategory, event) => 
+                    onGridCellClick(gridId, idCategory, cell.category, event)}
+                    isLoading={isLoadingCategories}
+                    onDragAndDropCell={onDragAndDropCell}
+                    page={2}
+                />
                 );
             })}
-
-            {contextMenu?.visible && !isMoveModeActive && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: contextMenu.y,
-                        left: contextMenu.x,
-                        zIndex: 800
-                    }}
-                >
-                    <RightClick
-                        gridId={contextMenu.gridId}
-                        handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
-                        onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
-                        copiedProduct={copiedProduct}
-                    />
-                </div>
-            )}
         </div>
     );
 };
 
 export const ImageGrid3 = ({
     onGridCellClick,
-    isMoveModeActive,
-    onRemoveProduct,
-    onChangeProduct,
-    onCopyProduct,
-    copiedProduct,
     onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const { productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
-    const { circulars, idCircular } = useAuth();
+    const { idCircular, user } = useAuth();
     const initialGridCells: cellTypes[] = [
         // Dairy
         { id: 3001, top: "top-[1.6%]", left: "left-[0%]", width: "16.1%", height: "5.5%", category: "Dairy" },
@@ -590,48 +460,9 @@ export const ImageGrid3 = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const [contextMenu, setContextMenu] = useState<{
-        visible: boolean;
-        x: number;
-        y: number;
-        gridId: number;
-    } | null>(null);
+    const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
-        e.preventDefault();
-        if (isMoveModeActive) return;
-
-        // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
-        const containerRect = container?.getBoundingClientRect();
-
-        let posX = e.clientX;
-        let posY = e.clientY;
-
-        if (containerRect) {
-            posX = e.clientX - containerRect.left + container.scrollLeft;
-            posY = e.clientY - containerRect.top + container.scrollTop;
-        }
-
-        // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
-        const menuWidth = 150; // Ancho estimado del menú contextual
-        const menuHeight = 200; // Alto estimado del menú contextual
-
-        if (posX + menuWidth > window.innerWidth) {
-            posX -= menuWidth;
-        }
-        if (posY + menuHeight > window.innerHeight) {
-            posY -= menuHeight;
-        }
-
-        // Establecer el estado del menú contextual con las coordenadas ajustadas
-        setContextMenu({
-            visible: true,
-            x: posX - 125,
-            y: posY,
-            gridId: gridId
-        });
-    };
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -646,70 +477,59 @@ export const ImageGrid3 = ({
     }, [categoriesData])
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            // Convertir idCircular a número para asegurar una comparación correcta
-            const numericIdCircular = idCircular;
-
-            // Buscar el circular correcto usando el id_circular
-            const currentCircular = circulars.find(circular =>
-                circular.id_circular === numericIdCircular
-            );
-
-            if (currentCircular) {
-                // Obtener los UPCs del circular actual
-                const circularUPCs = currentCircular.circular_products_upc || [];
-                let list:string[] = []
-
-                Object.values(circularUPCs).map((item: { upc:string,id_grid:number })=>(
-                    list.push(item.upc)
-                ))
-                const circularProducts = productsData.filter((product:ProductTypes) =>
-                    list.includes(product.upc)
-                );
-
-                // Llenar la grilla con los productos filtrados
-                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                setSelectedProducts(prev => [...prev, ...gridFilled]);
-
-                if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                    setHasFilledGrid(true);
+        const getProductByCircular = async () => {
+            try {
+                const reqBody = {
+                    "id_circular":Number(idCircular),
+                    "id_client":user.userData.id_client
                 }
-            } else {
+                const resp = await getProductsByCircular(reqBody)
+                setCircularProducts(resp.result)
+                setLoading(false)
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
-        }
-    }, [productsData, gridCells, circulars, idCircular]);
+        };
 
-    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
-        // 1. Crear un mapa para agrupar productos por categoría
-        const productsByCategory = products.reduce((acc, product) => {
-            if (!acc[product.id_category]) {
-                acc[product.id_category] = [];
-            }
-            acc[product.id_category].push(product);
-            return acc;
-        }, {} as Record<number, ProductTypes[]>);
-
-        // 2. Asignar productos a las celdas de la grilla
-        const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
-            const { idCategory } = cell;
-            if (idCategory) {
-                const productsForCategory = productsByCategory[idCategory] || [];
-                if (productsForCategory.length > 0) {
-                    const product = productsForCategory.shift()!;
-                    acc.push({ ...product, id_grid: cell.id });
-                }
-            }
-            return acc;
-        }, []);
-
-        return filledGrid;
-    };
+        getProductByCircular();
+    }, [idCircular, user]);
 
     useEffect(() => {
-        const handleClickOutside = () => setContextMenu(null);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+        if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
+            // Crear un mapa de productos por UPC para búsqueda rápida
+            const productsMap = new Map(
+                productsData.map(product => [product.upc, product])
+            );
+    
+            // Mapear los productos del circular a sus posiciones específicas
+            const gridFilled = circularProducts
+                .filter(circularProduct => circularProduct.id_grid && productsMap.has(circularProduct.upc))
+                .map(circularProduct => {
+                    const product = productsMap.get(circularProduct.upc)!;
+                    return {
+                        ...product,
+                        id_grid: circularProduct.id_grid
+                    };
+                });
+    
+            // Actualizar los productos seleccionados
+            setSelectedProducts(prev => {
+                const newProducts = [...prev, ...gridFilled];
+                return newProducts;
+            });
+    
+            if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
+                setHasFilledGrid(true);
+            }
+        }
+    }, [productsData, gridCells, circularProducts]);
+
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+        }
+    }, [selectedProducts]);
+
 
 
     return (
@@ -732,34 +552,14 @@ export const ImageGrid3 = ({
                     key={cell?.id}
                     product={selectedProduct!}
                     cell={cell}
-                    onGridCellClick={onGridCellClick}
-                    onContextMenu={handleContextMenu}
+                    onGridCellClick={(gridId, idCategory, event) => 
+                    onGridCellClick(gridId, idCategory, cell.category, event)}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
                     page={3}
-                    />
+                />
                 );
             })}
-
-            {contextMenu?.visible && !isMoveModeActive && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: contextMenu.y,
-                        left: contextMenu.x,
-                        zIndex: 800
-                    }}
-                >
-                    <RightClick
-                        gridId={contextMenu.gridId}
-                        handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
-                        onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
-                        copiedProduct={copiedProduct}
-                    />
-                </div>
-            )}
 
         </div>
     );
@@ -768,15 +568,11 @@ export const ImageGrid3 = ({
 export const ImageGrid4 = ({
     onGridCellClick,
     isMoveModeActive,
-    onRemoveProduct,
-    onChangeProduct,
-    onCopyProduct,
-    copiedProduct,
     onDragAndDropCell
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { idCircular, circulars } = useAuth();
-    const { productArray, productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const { idCircular, user } = useAuth();
+    const { productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -853,48 +649,8 @@ export const ImageGrid4 = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const [contextMenu, setContextMenu] = useState<{
-        visible: boolean;
-        x: number;
-        y: number;
-        gridId: number;
-    } | null>(null);
-
-    const handleContextMenu = (e: React.MouseEvent, gridId: number) => {
-        e.preventDefault();
-        if (isMoveModeActive) return;
-
-        // Obtener las coordenadas del clic derecho
-        const container = e.currentTarget.closest('.scroll-container') as HTMLElement;
-        const containerRect = container?.getBoundingClientRect();
-
-        let posX = e.clientX;
-        let posY = e.clientY;
-
-        if (containerRect) {
-            posX = e.clientX - containerRect.left + container.scrollLeft;
-            posY = e.clientY - containerRect.top + container.scrollTop;
-        }
-
-        // Ajustar las coordenadas para evitar que el menú se salga de la pantalla
-        const menuWidth = 150; // Ancho estimado del menú contextual
-        const menuHeight = 200; // Alto estimado del menú contextual
-
-        if (posX + menuWidth > window.innerWidth) {
-            posX -= menuWidth;
-        }
-        if (posY + menuHeight > window.innerHeight) {
-            posY -= menuHeight;
-        }
-
-        // Establecer el estado del menú contextual con las coordenadas ajustadas
-        setContextMenu({
-            visible: true,
-            x: posX - 125,
-            y: posY,
-            gridId: gridId
-        });
-    };
+    const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -909,71 +665,59 @@ export const ImageGrid4 = ({
     }, [categoriesData])
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
-            // Convertir idCircular a número para asegurar una comparación correcta
-            const numericIdCircular = idCircular;
-
-            // Buscar el circular correcto usando el id_circular
-            const currentCircular = circulars.find(circular =>
-                circular.id_circular === numericIdCircular
-            );
-
-            if (currentCircular) {
-                // Obtener los UPCs del circular actual
-                const circularUPCs = currentCircular.circular_products_upc || [];
-
-                let list:string[] = []
-
-                Object.values(circularUPCs).map((item: { upc:string,id_grid:number })=>(
-                    list.push(item.upc)
-                ))
-                const circularProducts = productsData.filter((product:ProductTypes) =>
-                    list.includes(product.upc)
-                );
-
-                // Llenar la grilla con los productos filtrados
-                const gridFilled = fillGridWithProducts(gridCells, circularProducts);
-                setSelectedProducts(prev => [...prev, ...gridFilled]);
-
-                if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                    setHasFilledGrid(true);
+        const getProductByCircular = async () => {
+            try {
+                const reqBody = {
+                    "id_circular":Number(idCircular),
+                    "id_client":user.userData.id_client
                 }
-            } else {
+                const resp = await getProductsByCircular(reqBody)
+                setCircularProducts(resp.result)
+                setLoading(false)
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
             }
-        }
-    }, [productsData, gridCells, circulars, idCircular]);
+        };
 
-    const fillGridWithProducts = (gridCells: cellTypes[], products: ProductTypes[]) => {
-        // 1. Crear un mapa para agrupar productos por categoría
-        const productsByCategory = products.reduce((acc, product) => {
-            if (!acc[product.id_category]) {
-                acc[product.id_category] = [];
-            }
-            acc[product.id_category].push(product);
-            return acc;
-        }, {} as Record<number, ProductTypes[]>);
-
-        // 2. Asignar productos a las celdas de la grilla
-        const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
-            const { idCategory } = cell;
-            if (idCategory) {
-                const productsForCategory = productsByCategory[idCategory] || [];
-                if (productsForCategory.length > 0) {
-                    const product = productsForCategory.shift()!;
-                    acc.push({ ...product, id_grid: cell.id });
-                }
-            }
-            return acc;
-        }, []);
-
-        return filledGrid;
-    };
+        getProductByCircular();
+    }, [idCircular, user]);
 
     useEffect(() => {
-        const handleClickOutside = () => setContextMenu(null);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+        if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
+            // Crear un mapa de productos por UPC para búsqueda rápida
+            const productsMap = new Map(
+                productsData.map(product => [product.upc, product])
+            );
+    
+            // Mapear los productos del circular a sus posiciones específicas
+            const gridFilled = circularProducts
+                .filter(circularProduct => circularProduct.id_grid && productsMap.has(circularProduct.upc))
+                .map(circularProduct => {
+                    const product = productsMap.get(circularProduct.upc)!;
+                    return {
+                        ...product,
+                        id_grid: circularProduct.id_grid
+                    };
+                });
+    
+            // Actualizar los productos seleccionados
+            setSelectedProducts(prev => {
+                const newProducts = [...prev, ...gridFilled];
+                return newProducts;
+            });
+    
+            if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
+                setHasFilledGrid(true);
+            }
+        }
+    }, [productsData, gridCells, circularProducts]);
+
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+        }
+    }, [selectedProducts]);
+
 
 
     return (
@@ -989,35 +733,14 @@ export const ImageGrid4 = ({
                     key={cell?.id}
                     product={selectedProduct!}
                     cell={cell}
-                    onGridCellClick={onGridCellClick}
-                    onContextMenu={handleContextMenu}
+                    onGridCellClick={(gridId, idCategory, event) => 
+                    onGridCellClick(gridId, idCategory, cell.category, event)}
                     isLoading={isLoadingCategories}
                     onDragAndDropCell={onDragAndDropCell}
                     page={4}
-                    />
+                />
                 );
             })}
-
-            {contextMenu?.visible && !isMoveModeActive && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: contextMenu.y,
-                        left: contextMenu.x,
-                        zIndex: 800
-                    }}
-                >
-                    <RightClick
-                        gridId={contextMenu.gridId}
-                        handleRemoveProduct={onRemoveProduct}
-                        handleChangeProduct={onChangeProduct}
-                        onCopyProduct={onCopyProduct}
-                        selectedProduct={selectedProducts.find(p => p.id_grid === contextMenu.gridId) as ProductTypes}
-                        copiedProduct={copiedProduct}
-                    />
-                </div>
-            )}
-
         </div>
     );
 };

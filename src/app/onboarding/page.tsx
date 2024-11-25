@@ -54,7 +54,7 @@ const OnboardingPage = () => {
     // Función para formatear la fecha
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        const month = date.toLocaleString('es-ES', { month: 'long' });
+        const month = date.toLocaleString('en-US', { month: 'long' });
         const day = date.getDate();
         const year = date.getFullYear();
         return `${month} ${day}, ${year}`;
@@ -97,10 +97,10 @@ const OnboardingPage = () => {
                             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                             onChange={handleDateSelect}
                         >
-                            <option value="">select a date</option>
+                            <option value="">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
                             {circularOptions.map((circular: any) => (
                                 <option key={circular.date_circular} value={circular.date_circular}>
-                                    {circular.date_circular ? formatDate(circular.date_circular) : "No date"}
+                                    {formatDate(circular.date_circular)}
                                 </option>
                             ))}
                         </select>

@@ -12,7 +12,7 @@ import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
 
 export default function Header() {
-    const { user, logout } = useAuth();
+    const { user, logout, idCircular } = useAuth();
     const { currentPage, setCurrentPage, setProductsData, selectedProducts } = useProductContext();
     const { categoriesData } = useCategoryContext()
     const pathname = usePathname();
@@ -166,7 +166,7 @@ export default function Header() {
                 </div>
             </div>
             {
-                productTableOpen && <ModalProductsTable  id_circular={6} setProductTableOpen={setProductTableOpen} />
+                productTableOpen && <ModalProductsTable  id_circular={idCircular} setProductTableOpen={setProductTableOpen} />
             }
         </>
     );
