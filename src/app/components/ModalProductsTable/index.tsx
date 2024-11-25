@@ -1,13 +1,9 @@
-import React, {useEffect, useState} from "react";
-import {ProductTypes} from "@/types/product";
-import {categoriesInterface} from "@/types/category";
-import Image from "next/image";
-import {useProductContext} from "@/app/context/productContext";
+import React from "react";
 import ProductsTable from "@/app/components/ProductsTable";
 
 interface ModalProductsTableInterface {
     setProductTableOpen:(open: boolean) => void;
-    id_circular:number
+    id_circular:number | null;
 }
 
 const ModalProductTable = ({id_circular,setProductTableOpen}: ModalProductsTableInterface) => {
@@ -31,7 +27,7 @@ const ModalProductTable = ({id_circular,setProductTableOpen}: ModalProductsTable
                             </button>
                         </div>
 
-                        <ProductsTable id_circular={id_circular}/>
+                        <ProductsTable id_circular={id_circular || 0}/>
                     </div>
 
                 </div>

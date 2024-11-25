@@ -8,7 +8,7 @@ import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
-import { useCategoryContext } from "./context/categoryContext";
+import { CategoryProvider, useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {
@@ -30,6 +30,10 @@ export default function HomePage() {
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
     const [draggingGridId, setDraggingGridId] = useState<number | null>(null);
     const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
+    const [sidebarCategory, setSidebarCategory] = useState<categoriesInterface | null>(null);
+    const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
+ 
+    const { categoriesData } = useCategoryContext();
     //
     const [showProducts, setShowProducts] = useState(false);
     useEffect(() => {
@@ -39,11 +43,6 @@ export default function HomePage() {
                 const data = await resp.json();
                 setProductsData(data.result);
                 setLoading(false);
-
-                // let list: string[] = [];
-                // const listaupc = data.result.map((item: ProductTypes) => item.upc);
-                // console.log("productos", Object.values(listaupc.slice(99,300)));
-
                 if (resp.status === 200) {
                     setProductByApi(data.result);
                     setProductSelected(data.result[1]);
@@ -181,7 +180,7 @@ export default function HomePage() {
         
     }
 
-    const handleGridClick = (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => {
+    const handleGridClick = (gridId: number, idCategory: number | undefined, category: string, event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
@@ -192,20 +191,16 @@ export default function HomePage() {
 
         if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
             const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
-
             setSelectedProducts(prev => {
                 const newProducts = [...prev, productWithNewGrid];
-                // Guardar en localStorage
                 localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
                 return newProducts;
             });
-
             handlePasteProduct();
             return;
         }
 
         if (moveMode?.active) {
-            
             handleProductMove(gridId);
         } else if (gridHasProduct && productoShowForce) {
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
@@ -214,6 +209,8 @@ export default function HomePage() {
             setIsModalOpen(true);
         } else {
             setSelectedGridId(gridId);
+            const selectedCategory = categoriesData.find(cat => cat.name_category === category);
+            setGridCategory(selectedCategory || categoriesData[0]);
             setIsModalOpen(true);
             setShowProducts(true);
         }
@@ -291,11 +288,12 @@ export default function HomePage() {
         setIsModalOpen(false)
     }
 
+
     return (
 
     <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
             <aside className="overflow-auto" >
-                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
+                <Sidebar onCategorySelect={setSidebarCategory} categorySelected={sidebarCategory} />
             </aside>
             <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
                 <AnimatePresence>
@@ -393,6 +391,7 @@ export default function HomePage() {
                                 loading={loading}
                                 onProductSelect={handleProductSelect}
                                 onHideProducts={ClosetPanels}
+                                initialCategory={gridCategory}
                                 />
                         </motion.div>
                     )}
@@ -407,18 +406,26 @@ interface GridProductProps {
     loading: boolean;
     onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
+    initialCategory: categoriesInterface | null;
 }
 
 const GridProduct: React.FC<GridProductProps> = ({
     loading,
     onProductSelect,
     onHideProducts,
-    productsData
+    productsData,
+    initialCategory
 }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const {categoriesData} = useCategoryContext();
-    const [category, setCategory] = useState<categoriesInterface>(categoriesData[0]);
+    const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
+
+    useEffect(() => {
+        if (initialCategory) {
+            setCategory(initialCategory);
+        }
+    }, [initialCategory]);
 
     const filteredProducts = productsData?.filter((product) => {
         // Si hay un término de búsqueda, buscar en todos los productos sin importar la categoría
