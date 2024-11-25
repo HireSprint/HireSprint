@@ -235,20 +235,9 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-        
-                                {
-                                    product && (
-                                        <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
-                                            ${product.price?.toFixed(2) || "0.00"}
-                                        </div>
-                                    )
-                                }
-        
                                 <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
-                                    {/* { readyToDrag ? 'true':'false' } */}
                                 </div>
-
                                 <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     { cell?.id }
                                 </div>
