@@ -19,7 +19,7 @@ interface ImageGridProps {
     onCopyProduct: (product: ProductTypes) => void;
     copiedProduct: ProductTypes | null;
     onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
-    
+
 }
 
 export const ImageGrid = ({
@@ -34,7 +34,7 @@ export const ImageGrid = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { selectedProducts, productDragging, setProductDragging } = useProductContext();
-    
+
     const initialGridCells: cellTypes[] = [
         //meats
         { id: 1001, top: "top-[20.8%]", left: "left-[0%]", width: "24.2%", height: "6.9%", category: "Meat"},
@@ -102,7 +102,7 @@ export const ImageGrid = ({
         { id: 1051, top: "top-[91.2%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
     ];
 
-    
+
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
 
     useEffect(() => {
@@ -146,7 +146,7 @@ export const ImageGrid = ({
         }
     };
 
-    
+
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority />
@@ -173,7 +173,7 @@ export const ImageGrid = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick
@@ -337,28 +337,33 @@ export const ImageGrid2 = ({
             );
         }
     }, [categoriesData])
-    
+
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
             const numericIdCircular = idCircular;
-            const currentCircular = circulars.find(circular => 
+            const currentCircular = circulars.find(circular =>
                 circular.id_circular === numericIdCircular
             );
-            
+
             if (currentCircular) {
                 const circularUPCs = currentCircular.circular_products_upc || [];
-                const circularProducts = productsData.filter(product => 
-                    product.upc && circularUPCs.includes(product.upc)
+
+                let list:string[] = []
+
+                Object.values(circularUPCs).map((item: { upc:string,id_grid:number })=>(
+                    list.push(item.upc)
+                ))
+                const circularProducts = productsData.filter((product:ProductTypes) =>
+                    list.includes(product.upc)
                 );
-                console.log(circularUPCs, 'circularUPCs')
-                console.log(circularProducts, 'circularProducts')
-    
+
+
                 const gridFilled = fillGridWithProducts(gridCells, circularProducts);
                 setSelectedProducts(prev => {
                     const newProducts = [...prev, ...gridFilled];
                     return newProducts;
                 });
-                
+
                 if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
                     setHasFilledGrid(true);
                 }
@@ -381,7 +386,7 @@ export const ImageGrid2 = ({
             acc[product.id_category].push(product);
             return acc;
         }, {} as Record<number, ProductTypes[]>);
-    
+
         // 2. Asignar productos a las celdas de la grilla
         const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
             const { idCategory } = cell;
@@ -423,7 +428,7 @@ export const ImageGrid2 = ({
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         page={2}
-                        
+
                     />
                 );
             })}
@@ -434,7 +439,7 @@ export const ImageGrid2 = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick
@@ -639,30 +644,33 @@ export const ImageGrid3 = ({
             );
         }
     }, [categoriesData])
-    
+
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
             // Convertir idCircular a número para asegurar una comparación correcta
             const numericIdCircular = idCircular;
 
             // Buscar el circular correcto usando el id_circular
-            const currentCircular = circulars.find(circular => 
+            const currentCircular = circulars.find(circular =>
                 circular.id_circular === numericIdCircular
             );
-            
+
             if (currentCircular) {
                 // Obtener los UPCs del circular actual
                 const circularUPCs = currentCircular.circular_products_upc || [];
-                
-                // Filtrar productos que coincidan con los UPCs del circular
-                const circularProducts = productsData.filter(product => 
-                    circularUPCs.includes(product.upc)
+                let list:string[] = []
+
+                Object.values(circularUPCs).map((item: { upc:string,id_grid:number })=>(
+                    list.push(item.upc)
+                ))
+                const circularProducts = productsData.filter((product:ProductTypes) =>
+                    list.includes(product.upc)
                 );
 
                 // Llenar la grilla con los productos filtrados
                 const gridFilled = fillGridWithProducts(gridCells, circularProducts);
                 setSelectedProducts(prev => [...prev, ...gridFilled]);
-                
+
                 if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
                     setHasFilledGrid(true);
                 }
@@ -680,7 +688,7 @@ export const ImageGrid3 = ({
             acc[product.id_category].push(product);
             return acc;
         }, {} as Record<number, ProductTypes[]>);
-    
+
         // 2. Asignar productos a las celdas de la grilla
         const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
             const { idCategory } = cell;
@@ -706,12 +714,12 @@ export const ImageGrid3 = ({
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
-            <Image 
-                src="/pages/page03.jpg" 
-                alt="PDF" 
-                width={470} 
-                height={460} 
-                priority 
+            <Image
+                src="/pages/page03.jpg"
+                alt="PDF"
+                width={470}
+                height={460}
+                priority
                 sizes="(max-width: 768px) 100vw, 470px"
             />
             {gridCells.map((cell) => {
@@ -739,7 +747,7 @@ export const ImageGrid3 = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick
@@ -899,30 +907,34 @@ export const ImageGrid4 = ({
             );
         }
     }, [categoriesData])
-    
+
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circulars?.length > 0) {
             // Convertir idCircular a número para asegurar una comparación correcta
             const numericIdCircular = idCircular;
 
             // Buscar el circular correcto usando el id_circular
-            const currentCircular = circulars.find(circular => 
+            const currentCircular = circulars.find(circular =>
                 circular.id_circular === numericIdCircular
             );
-            
+
             if (currentCircular) {
                 // Obtener los UPCs del circular actual
                 const circularUPCs = currentCircular.circular_products_upc || [];
-                
-                // Filtrar productos que coincidan con los UPCs del circular
-                const circularProducts = productsData.filter(product => 
-                    circularUPCs.includes(product.upc)
+
+                let list:string[] = []
+
+                Object.values(circularUPCs).map((item: { upc:string,id_grid:number })=>(
+                    list.push(item.upc)
+                ))
+                const circularProducts = productsData.filter((product:ProductTypes) =>
+                    list.includes(product.upc)
                 );
 
                 // Llenar la grilla con los productos filtrados
                 const gridFilled = fillGridWithProducts(gridCells, circularProducts);
                 setSelectedProducts(prev => [...prev, ...gridFilled]);
-                
+
                 if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
                     setHasFilledGrid(true);
                 }
@@ -940,7 +952,7 @@ export const ImageGrid4 = ({
             acc[product.id_category].push(product);
             return acc;
         }, {} as Record<number, ProductTypes[]>);
-    
+
         // 2. Asignar productos a las celdas de la grilla
         const filledGrid = gridCells.reduce((acc: ProductTypes[], cell: cellTypes) => {
             const { idCategory } = cell;
@@ -992,7 +1004,7 @@ export const ImageGrid4 = ({
                         position: 'fixed',
                         top: contextMenu.y,
                         left: contextMenu.x,
-                        zIndex: 1000
+                        zIndex: 800
                     }}
                 >
                     <RightClick

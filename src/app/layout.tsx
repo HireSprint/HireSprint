@@ -8,6 +8,8 @@ import { CategoryProvider } from "@/app/context/categoryContext";
 import { AuthProvider } from "./components/provider/authprovider";
 import { RouteGuard } from "./components/provider/routeGuard";
 
+
+
 export const metadata: Metadata = {
   title: "Hire Sprint",
   description: "",
