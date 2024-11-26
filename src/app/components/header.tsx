@@ -8,12 +8,10 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
-import { useCategoryContext } from '../context/categoryContext';
 
 export default function Header() {
-    const { user, logout, idCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, selectedProducts, setIsSendModalOpen } = useProductContext();
-    const { categoriesData } = useCategoryContext()
+    const { user, logout, idCircular, setIdCircular } = useAuth();
+    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen } = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,14 +96,11 @@ export default function Header() {
 
                     </button>
                 </div>
-                <div className="flex space-x-4 md:hidden">
-                    <button onClick={handleMenu} className="bg-green-200 text-black p-2">Menu</button>
-                </div>
                 <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
                     {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/}
                     <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
                 </div>
-                <div className='flex items-center justify-center space-x-2 pl-8'>
+                <div className='flex items-center justify-center space-x-4 '>
                     {
                         pathname === '/' && (
                             <div className='flex items-center justify-center space-x-2 '>
@@ -125,10 +120,7 @@ export default function Header() {
                             </div>
                         )
                     }
-                    <button>
-                        <VideoIcon />
-                    </button>
-                    <div className="relative">
+                    <div className="relative ">
                         <button onClick={() => setShowDropdown(!showDropdown)}>
                             <ProfileIcon />
                         </button>
@@ -150,6 +142,17 @@ export default function Header() {
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     view products
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setIdCircular(null);
+                                        localStorage.removeItem('id_circular');
+                                        router.push('/onboarding');
+                                        setShowDropdown(false);
+                                    }}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    Select Date
                                 </button>
                             </div>
                         )}

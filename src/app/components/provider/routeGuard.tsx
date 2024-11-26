@@ -20,7 +20,7 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     }, [user, loading, pathname]);
 
     if (loading) {
-        return <div className='text-black text-2xl pt-10 flex h-[calc(100vh-100px)]'>Cargando...</div>;
+        return <div className='flex items-center justify-center text-black text-2xl pt-10 h-[calc(100vh-100px)]'>Loading...</div>;
     }
 
     return <>{children}</>;
