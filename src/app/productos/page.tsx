@@ -1,4 +1,4 @@
-"use client.ts";
+"use client";
 import { useState } from 'react';
 import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
