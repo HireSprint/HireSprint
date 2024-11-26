@@ -21,6 +21,8 @@ interface CardProductProps {
   enableDragAndDrop?: boolean;
   page?: number;
   onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
+  setCategory?:  (category: categoriesInterface | null) => void;
+  setShowProductCardBrand?: (arg:boolean) => void;
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -155,12 +157,11 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick,  onDragAndDropCell, isLoading, page}: CardProductProps) => {
+export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick,  onDragAndDropCell, isLoading, page, setShowProductCardBrand}: CardProductProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
-    const { productDragging, setProductDragging } = useProductContext();
+    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
 
 
     const startDragging = (e: any , data: any) => {
@@ -171,6 +172,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                 (elementRef.current as any).style.pointerEvents = 'none' ;
             }, 250);
         }
+        setShowProductCardBrand && setShowProductCardBrand(false)
     }
 
     const stopDragging = (e: any , data: any) => {
@@ -183,15 +185,21 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
         }
 
         onDragAndDropCell && onDragAndDropCell(data, e)
-        setProductDragging && setProductDragging(null);
-        setTimeout(() => (setReadyToDrag(false)), 250);
+        setShowProductCardBrand && setShowProductCardBrand(true)
+        setTimeout(() => {
+            setProductDragging && setProductDragging(null);
+            setProductReadyDrag(null)
+        }, 250);
     }
 
     const handleMouseDown = (e:any) => {
         if (e.button == 0) {
             timeoutRef.current = setTimeout(() => {
-                setReadyToDrag(readyToDrag ? false : product != undefined && product != null);
+                if ((product != undefined && product != null) && !productReadyDrag ) {
+                    setProductReadyDrag({ from: 'grid', id_product: product.id_product, id_grid: cell && cell.id, page: page });
+                }
             }, 1000);
+
         }
     };
 
@@ -208,15 +216,15 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     return (
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
             <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
-            <Draggable disabled={!readyToDrag} onStart={startDragging} onStop={stopDragging} position={position}>
+            <Draggable disabled={!productReadyDrag || (productReadyDrag && productReadyDrag.id_grid != cell?.id)} onStart={startDragging} onStop={stopDragging} position={position}>
                 <div
                     ref={elementRef}
                     id={ 'grid-card-product-' + cell?.id }
                     key={cell?.id}
-                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${readyToDrag && !productDragging ? 'shake' : ''} `}
+                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
                     style={{width: cell?.width, height: cell?.height}}
                     onClick={(e) => {
-                        if (!readyToDrag && (!productDragging || (productDragging && productDragging.id_grid == cell?.id))) {
+                        if (!productReadyDrag) {
                             cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
                         }
                     }}
@@ -235,7 +243,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-                                <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                <div className="absolute text-blue-950 font-bold uppercase @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
                                 </div>
                                 <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={{...textShadowWhite, zIndex:10}}>
@@ -249,43 +257,56 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     )
 }
 
-export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: CardProductProps) => {
+export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDragAndDropCell, setShowProductCardBrand, isLoading}: CardProductProps) => {
     const [imageError, setImageError] = useState(false);
 
     const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [readyToDrag, setReadyToDrag] = useState(false);
     const elementRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<any>(null);
-    const { productDragging, setProductDragging } = useProductContext();
+    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
 
     if ( typeof enableDragAndDrop !== "boolean" ) enableDragAndDrop = false;
 
     const startDragging = (e: any , data: any) => {
+        
+        setPosition({ x: e.clientX, y: e.clientY });
+        
         setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
-        const rect = elementRef.current?.getBoundingClientRect();
-
+        
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'none' ;
         }, 250);
+
+        setShowProductCardBrand && setShowProductCardBrand(false)
+
     }
 
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
 
-
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'auto';
         }, 250);
 
-        // onDragAndDropCell && onDragAndDropCell(data, e)
+
+        onDragAndDropCell && onDragAndDropCell(data, e)
+        setShowProductCardBrand && setShowProductCardBrand(true)
+
         setProductDragging && setProductDragging(null);
-        setTimeout(() => (setReadyToDrag(false)), 250);
+
+        setTimeout(() => {
+            setProductReadyDrag(null)
+        }, 250);
     }
 
     const handleMouseDown = (e:any ) => {
+
         if (enableDragAndDrop && e.button == 0) {
             timeoutRef.current = setTimeout(() => {
-                setReadyToDrag(true);
+                
+                if (!productReadyDrag) {
+                    setProductReadyDrag({from: 'sidebar', id_product: product.id_product});
+                }
             }, 1000);
         }
 
@@ -297,56 +318,65 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: Card
 
     };
 
-    useEffect(() => {
-    },[readyToDrag])
-
     const productDraggindClass= 'border-dashed border-2 border-[#dddddd] bg-gray-100'
 
     return (
 
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
             <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
-            <Draggable disabled={!enableDragAndDrop && !readyToDrag} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
-                <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${readyToDrag && !productDragging ? `shake ` : ''} ${productDragging && productDragging.id_product == product.id_product ? `fixed ${productDraggindClass}` : ''}`}
-                    onClick={(e) => {
-                        if (!enableDragAndDrop || !productDragging || (productDragging && productDragging.id_product != product.id_product)) {
-                            onProductSelect && onProductSelect(product, e)
-                        }
-                    }}
-                >
-                    <div className=" flex w-28 h-28 items-center justify-center">
-                        {
-                            product.url_image && !imageError ? (
-                                <Image
-                                    src={product.url_image}
-                                    alt={product.name}
-                                    width={100}
-                                    height={100}
-                                    draggable="false"
-                                    style={{ objectFit: 'cover' }}
-                                    className="rounded-lg"
-                                    onError={() => setImageError(true)}
-                                    loading="lazy"
-                                    placeholder="blur"
-                                    blurDataURL={product.url_image}
-                                />
-                            )
-                            :
-                            (
-                                <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <span className="text-gray-500">No Image</span>
-                                </div>
-                            )
-                        }
-                    </div>
 
-                    { enableDragAndDrop && <p className="text-center text-gray-950 font-medium ">{readyToDrag? 'listo':' espera'}</p>}
-                    <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.brand}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.desc}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.size}</p>
-                </div>
+            <Draggable disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar') )} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
+                {    isLoading ? 
+                    (
+                        <div className="bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
+                            <div className="w-28 h-28 bg-gray-300 rounded flex items-center justify-center "></div>
+                            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                        </div>
+                    )
+                    :
+                    (
+                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] -top-[100px] -left-[200px] max-h-[200px] max-w-[154px]` : ''}`} 
+                            onClick={(e) => {
+                                if (!enableDragAndDrop || !productReadyDrag) {
+                                    onProductSelect && onProductSelect(product, e)
+                                }
+                            }} 
+                        >
+                            <div className=" flex w-28 h-28 items-center justify-center">
+                                {
+                                    product.url_image && !imageError ? (
+                                        <Image
+                                            src={product.url_image}
+                                            alt={product.name}
+                                            width={100}
+                                            height={100}
+                                            draggable="false"
+                                            style={{ objectFit: 'cover' }}
+                                            className="rounded-lg"
+                                            onError={() => setImageError(true)}
+                                            loading="lazy"
+                                            placeholder="blur"
+                                            blurDataURL={product.url_image}
+                                        />
+                                    ) 
+                                    :
+                                    (
+                                        <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <span className="text-gray-500">No Image</span>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                            <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.brand}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.desc}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.size}</p>
+                        </div>
+                    )
+                }
+
             </Draggable>
         </div>
     )
@@ -406,8 +436,8 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                     {/* Detalles del producto */}
                     <div className="space-y-2">
                         <p className="text-sm">
-                            <span className="font-semibold text-gray-800">Categoría: </span>
-                            <span className="text-gray-600">{categoryName}</span>
+                            <span className="font-semibold text-gray-800">Category: </span>
+                            <span className="text-gray-600 uppercase">{categoryName}</span>
                         </p>
 
                         {Object.entries(product).map(([key, value]) => {
@@ -421,7 +451,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                                         <span className="font-semibold capitalize text-gray-800">
                                             {key.replace(/_/g, ' ')}:
                                         </span>
-                                        <span className="text-gray-600"> {value.toString()}</span>
+                                        <span className="text-gray-600 uppercase"> {value.toString()}</span>
                                     </p>
                                 );
                             }
