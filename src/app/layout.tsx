@@ -7,6 +7,7 @@ import Tailwind from "primereact/passthrough/tailwind";
 import { CategoryProvider } from "@/app/context/categoryContext";
 import { AuthProvider } from "./components/provider/authprovider";
 import { RouteGuard } from "./components/provider/routeGuard";
+import SendModal from "./components/sendModal";
 
 
 
@@ -23,20 +24,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
           <AuthProvider>
             <RouteGuard>
               <CategoryProvider>
                 <ProductProvider>
                   <div className="grid grid-rows-[min-content_1fr] h-screen">
                     <Header />
+                    <SendModal />
                     {children}
                   </div>
                 </ProductProvider>
               </CategoryProvider>
             </RouteGuard>
           </AuthProvider>
-        </PrimeReactProvider>
       </body>
     </html>
   );
