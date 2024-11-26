@@ -238,7 +238,7 @@ const AddProductPage = () => {
             formData.append('type_of_meat', dataUpdate?.type_of_meat || '');
             formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
-
+            formData.append('condition', dataUpdate?.conditions || '');
             // Agregar logs para depuración
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
@@ -436,6 +436,12 @@ const AddProductPage = () => {
                             onChange={e => setEditedProduct({ ...editedProduct, size: e.target.value })}
                             placeholder="Size"
                         />
+                          <input
+                            className="bg-gray-700 text-white p-2 rounded"
+                            value={editedProduct.conditions || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, conditions: e.target.value })}
+                            placeholder="Condition"
+                        />
 
                         {/* Mantener la sección de imagen */}
                         <div className="flex-1">
@@ -567,6 +573,7 @@ const AddProductPage = () => {
                             : <>
                                 <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                 <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                <input {...register("conditions")} placeholder="Condition" className="w-full bg-gray-500 text-white p-2 rounded-md" />
 
                             </>
                         }
