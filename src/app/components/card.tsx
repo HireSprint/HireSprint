@@ -1,4 +1,4 @@
-"use client";
+"use client.ts";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ProductTypes } from "@/types/product";
@@ -163,10 +163,10 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     const timeoutRef = useRef<any>(null);
     const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
 
-    
+
     const startDragging = (e: any , data: any) => {
         setProductDragging && setProductDragging({ from: 'grid', id_product: product?.id_product, id_grid: cell && cell.id, page: page });
-        
+
         if (elementRef.current){
             setTimeout(() => {
                 (elementRef.current as any).style.pointerEvents = 'none' ;
@@ -174,15 +174,16 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
         }
         setShowProductCardBrand && setShowProductCardBrand(false)
     }
-    
+
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
+
         if (elementRef.current){
             setTimeout(() => {
                 (elementRef.current as any).style.pointerEvents = 'auto';
             }, 250);
         }
-        
+
         onDragAndDropCell && onDragAndDropCell(data, e)
         setShowProductCardBrand && setShowProductCardBrand(true)
         setTimeout(() => {
@@ -190,7 +191,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
             setProductReadyDrag(null)
         }, 250);
     }
-    
+
     const handleMouseDown = (e:any) => {
         if (e.button == 0) {
             timeoutRef.current = setTimeout(() => {
@@ -201,7 +202,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
 
         }
     };
-    
+
     const handleMouseUp = (e:any) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
@@ -211,7 +212,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     const textShadowWhite = {
         'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
     }
-    
+
     return (
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
             <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product} showDelay={1000}/>
@@ -279,16 +280,18 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
         setShowProductCardBrand && setShowProductCardBrand(false)
 
     }
-    
+
     const stopDragging = (e: any , data: any) => {
         setPosition({ x: 0, y: 0 });
-        
+
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'auto';
         }, 250);
 
+
         onDragAndDropCell && onDragAndDropCell(data, e)
         setShowProductCardBrand && setShowProductCardBrand(true)
+
         setProductDragging && setProductDragging(null);
 
         setTimeout(() => {
@@ -306,19 +309,22 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                 }
             }, 1000);
         }
+
     };
-    
-    
+
+
     const handleMouseUp = (e:any) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
     };
 
     const productDraggindClass= 'border-dashed border-2 border-[#dddddd] bg-gray-100'
 
     return (
-        
-        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} > 
+
+        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
             <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
+
             <Draggable disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar') )} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
                 {    isLoading ? 
                     (
@@ -370,6 +376,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                         </div>
                     )
                 }
+
             </Draggable>
         </div>
     )
@@ -405,7 +412,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold text-gray-800">¡Producto Añadido!</h2>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700"
                     >
@@ -417,7 +424,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                     {/* Imagen del producto */}
                     {imageUrl && (
                         <div className="relative h-48 w-full">
-                            <Image 
+                            <Image
                                 src={imageUrl}
                                 alt={product.desc || 'Producto'}
                                 fill
@@ -432,17 +439,17 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                             <span className="font-semibold text-gray-800">Category: </span>
                             <span className="text-gray-600 uppercase">{categoryName}</span>
                         </p>
-                        
+
                         {Object.entries(product).map(([key, value]) => {
-                            if (value && 
-                                key !== 'image' && 
+                            if (value &&
+                                key !== 'image' &&
                                 key !== 'url_image' &&
-                                key !== 'id_category' && 
+                                key !== 'id_category' &&
                                 typeof value !== 'object') {
                                 return (
                                     <p key={key} className="text-sm">
                                         <span className="font-semibold capitalize text-gray-800">
-                                            {key.replace(/_/g, ' ')}: 
+                                            {key.replace(/_/g, ' ')}:
                                         </span>
                                         <span className="text-gray-600 uppercase"> {value.toString()}</span>
                                     </p>
@@ -456,4 +463,3 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
         </div>
     );
 };
-  
