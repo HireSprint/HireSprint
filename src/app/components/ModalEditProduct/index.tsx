@@ -80,8 +80,8 @@ const ModalEditProduct = ({product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpe
                                         src={product?.url_image}
                                         className="h-full w-full object-contain self-center justify-self-center"
                                         alt={product?.name}
-                                        width={100}
-                                        height={100}
+                                        width={150}
+                                        height={150}
                                     />
                                 ) : (
                                     <div className="h-full w-full bg-gray-200 flex items-center justify-center">

@@ -1,6 +1,6 @@
 "use client";
 import { CardShowSide } from "./components/card";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Sidebar from "./components/sideBar";
 import { AnimatePresence, motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
@@ -337,7 +337,7 @@ export default function HomePage() {
                         className="absolute z-[100] "
                         style={{
                             top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                            left: Math.min(mousePosition.x, window.innerWidth - 800),
+                            left: Math.min(mousePosition.x, window.innerWidth - 900),
                         }}
 
                         >
@@ -361,12 +361,13 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
-    const { productsData , isLoadingProducts } = useProductContext();
+    const { productsData  } = useProductContext();
     const [searchTerm, setSearchTerm] = useState("");
     const {categoriesData} = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
 
 
@@ -379,21 +380,31 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
         if (initialCategory) setCategory(initialCategory);
     }, [initialCategory]);
 
-    const filteredProducts = productsData?.filter((product) => {
-        // Si hay un término de búsqueda, buscar en todos los productos sin importar la categoría
-        if (searchTerm) {
-            return (
-                product.desc?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.master_brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.upc?.toString().includes(searchTerm) ||
-                product.variety?.includes(searchTerm)
-            );
-        }
-        // Si no hay término de búsqueda, filtrar solo por categoría
-        return product.id_category === category?.id_category;
-    });
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+
+    const filteredProducts = useMemo(() => {
+        return productsData?.filter((product) => {
+            if (debouncedSearchTerm) {
+                const searchLower = debouncedSearchTerm.toLowerCase();
+                return (
+                    product.desc?.toLowerCase().includes(searchLower) ||
+                    product.master_brand?.toLowerCase().includes(searchLower) ||
+                    product.brand?.toLowerCase().includes(searchLower) ||
+                    product.name?.toLowerCase().includes(searchLower) ||
+                    product.upc?.toString().includes(debouncedSearchTerm) ||
+                    product.variety?.includes(debouncedSearchTerm)
+                );
+            }
+            return product.id_category === category?.id_category;
+        });
+    }, [debouncedSearchTerm, productsData, category?.id_category]);
 
     return (
         <div className="relative bg-[#f5f5f5] p-4 h-[40vh] w-[45vw]  rounded-lg shadow-xl overflow-visible">
