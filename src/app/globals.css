@@ -19,10 +19,26 @@ html, body {
   overflow: hidden;
 }
 
+@font-face {
+  font-family: 'Myriad Pro';
+  src: url('/fonts/MyriadPro-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Myriad Pro';
+  src: url('/fonts/MyriadPro-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+  
 body {
   color: var(--foreground);
   background: var(--foreground);
-  font-family: Poppins;
+  font-family: 'Myriad Pro', sans-serif;
 }
 
 @layer utilities {

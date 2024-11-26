@@ -235,7 +235,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-                                <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                <div className="absolute text-blue-950 font-bold uppercase @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
                                 </div>
                                 <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={{...textShadowWhite, zIndex:10}}>
@@ -340,12 +340,12 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop}: Card
                         }
                     </div>
                     
-                    { enableDragAndDrop && <p className="text-center text-gray-950 font-medium ">{readyToDrag? 'listo':' espera'}</p>}
-                    <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.brand}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.desc}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.size}</p>
+                    { enableDragAndDrop && <p className="text-center text-gray-950 font-medium uppercase">{readyToDrag? 'listo':' espera'}</p>}
+                    <p className="text-center text-gray-950 font-medium uppercase">{product.master_brand}</p>
+                    <p className="text-center text-gray-950 font-medium uppercase">{product.brand}</p>
+                    <p className="text-center text-gray-950 font-medium uppercase">{product.desc}</p>
+                    <p className="text-center text-gray-950 font-medium uppercase">{product.variety?.[0]}</p>
+                    <p className="text-center text-gray-950 font-medium uppercase">{product.size}</p>
                 </div>
             </Draggable>
         </div>
@@ -406,8 +406,8 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                     {/* Detalles del producto */}
                     <div className="space-y-2">
                         <p className="text-sm">
-                            <span className="font-semibold text-gray-800">Categoría: </span>
-                            <span className="text-gray-600">{categoryName}</span>
+                            <span className="font-semibold text-gray-800">Category: </span>
+                            <span className="text-gray-600 uppercase">{categoryName}</span>
                         </p>
                         
                         {Object.entries(product).map(([key, value]) => {
@@ -421,7 +421,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                                         <span className="font-semibold capitalize text-gray-800">
                                             {key.replace(/_/g, ' ')}: 
                                         </span>
-                                        <span className="text-gray-600"> {value.toString()}</span>
+                                        <span className="text-gray-600 uppercase"> {value.toString()}</span>
                                     </p>
                                 );
                             }
