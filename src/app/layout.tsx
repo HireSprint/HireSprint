@@ -24,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+      <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
           <AuthProvider>
             <RouteGuard>
               <CategoryProvider>
@@ -37,6 +38,7 @@ export default function RootLayout({
               </CategoryProvider>
             </RouteGuard>
           </AuthProvider>
+        </PrimeReactProvider>
       </body>
     </html>
   );

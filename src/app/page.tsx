@@ -170,7 +170,7 @@ export default function HomePage() {
         
     }
 
-    const handleGridClick = (gridId: number, idCategory: number | undefined, category: string, event: React.MouseEvent) => {
+    const handleGridClick = (gridId: number, idCategory: number | undefined,  event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;

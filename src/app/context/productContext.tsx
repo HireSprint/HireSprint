@@ -40,7 +40,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
 
   return (
-    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts }}>
+    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen }}>
       {children}
     </ProductContext.Provider>
   );
