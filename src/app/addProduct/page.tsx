@@ -89,7 +89,7 @@ const AddProductPage = () => {
 
         getProductView();
     }, []);
-    
+
 
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
@@ -102,7 +102,7 @@ const AddProductPage = () => {
                 toast.error("Ya existe un producto con el mismo UPC o SKU");
                 return;
             }
-            
+
 
             const formData = new FormData();
 

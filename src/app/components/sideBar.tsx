@@ -1,4 +1,4 @@
-"use client";
+"use client.ts";
 import React, { useEffect, useRef, useState } from "react";
 import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, } from "./icons";
 import { categoriesInterface } from "@/types/category";
@@ -95,7 +95,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
       };
     }
   }, [sidebarButtons]);
-  
+
 
   // Restaura la posición del scroll después del renderizado
   useEffect(() => {
@@ -146,7 +146,7 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
       <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 mt-2 mb-3 border border-gray-300 rounded w-[130px]" />
 
       {
-        searchTerm && filteredButtons.length === 0 ? 
+        searchTerm && filteredButtons.length === 0 ?
         (
           <Message
             style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
@@ -154,14 +154,14 @@ const Sidebar = ({ onCategorySelect, categorySelected }: SidebarProps) => {
             severity="error"
             text="Category not found"
           />
-        ) 
-        : 
+        )
+        :
         categoryList.map(({ category, label, Icon }) => (
           <CategoryButton key={category.id_category} category={category} label={label} Icon={Icon} />
         ))
       }
 
-      {!searchTerm && 
+      {!searchTerm &&
         (
           <div className="flex flex-col items-center space-y-4">
             <button type="button" className="w-[120px] bg-[#7cc304] text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors" onClick={() => setShowMore(!showMore)} >

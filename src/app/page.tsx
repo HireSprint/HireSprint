@@ -28,7 +28,7 @@ export default function HomePage() {
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
- 
+
     const { categoriesData } = useCategoryContext();
     //
     const [showProducts, setShowProducts] = useState(false);
@@ -86,22 +86,22 @@ export default function HomePage() {
             const cellId = htmlElementId && Number(htmlElementId.replace('grid-card-product-',''))
             return cellId
         }
-        
+
         const findGridCellTarget = ( parentElement: any, count= 0 ) => {
             if ( !parentElement ) return;
             if ( parentElement.id && parentElement.id.includes('grid-card-product-') ) return parentElement
-            
+
             if ( count <= 7 ) return findGridCellTarget( parentElement.parentNode, count += 1 )
-            else return 
+            else return
         }
 
         // id del grid que se quiere mover su contenido
         const cellIdToMove = getCellId(gridCellToMove.node)
-        
+
         // id del grid que al que se quiere mover el producto
         const gridCellTarget = findGridCellTarget(stopDragEvent.target)
         const cellIdTarget = getCellId(gridCellTarget);
-        
+
         if (cellIdTarget && cellIdToMove && (cellIdTarget != cellIdToMove)) {
             moveProduct(cellIdToMove, cellIdTarget);
             setShowProducts(false); // Ocultar el panel de productos si está visible
@@ -155,7 +155,7 @@ export default function HomePage() {
                     // Actualizar el gridId del producto que se está moviendo
                     return { ...product, id_grid: targetGridId };
                 }
-                
+
                 if ( product.id_grid === targetGridId) {
                     // Si hay un producto en el grid destino, moverlo al grid origen
                     return { ...product, id_grid: sourceGridId };
@@ -163,11 +163,11 @@ export default function HomePage() {
 
                 return product;
             });
-            
+
             return updatedProducts;
         });
 
-        
+
     }
 
     const handleGridClick = (gridId: number, idCategory: number | undefined,  event: React.MouseEvent) => {
@@ -270,7 +270,7 @@ export default function HomePage() {
                     <ImageGrid {...commonGridProps} />
                     <p className="text-black text-md">Pagina 1</p>
                 </div>
-                
+
                 <motion.div
                     key={currentPage}
                     initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}

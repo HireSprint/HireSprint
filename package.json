@@ -15,6 +15,7 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@tanstack/react-table": "^8.20.5",
     "airtable": "^0.12.2",
+    "csv": "^6.3.11",
     "file-saver": "^2.0.5",
     "formidable": "v3",
     "framer-motion": "^11.11.9",
