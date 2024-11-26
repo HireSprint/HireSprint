@@ -45,3 +45,10 @@ export interface ProductDraggingType {
     id_grid?: number;
     page?: number;
 }
+
+export interface ProductReadyToDrag {
+    from: string;
+    id_product: number | undefined;
+    id_grid?: number;
+    page?: number;
+}

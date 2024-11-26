@@ -156,7 +156,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
         // Hacer la solicitud HTTP POST al script de Google Apps con `sheetId`
         await fetch(url, {
             method: 'POST',
-            mode: 'no-cors', // Habilitar no-cors
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },

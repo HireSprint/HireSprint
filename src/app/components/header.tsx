@@ -6,14 +6,13 @@ import Image from 'next/image';
 import { useProductContext } from '../context/productContext';
 import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
-import { addGoogleSheet3 } from "@/app/api/productos/prductosRF";
-import { useCategoryContext } from "@/app/context/categoryContext";
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
+import { useCategoryContext } from '../context/categoryContext';
 
 export default function Header() {
     const { user, logout, idCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, selectedProducts } = useProductContext();
+    const { currentPage, setCurrentPage, setProductsData, selectedProducts, setIsSendModalOpen } = useProductContext();
     const { categoriesData } = useCategoryContext()
     const pathname = usePathname();
     const router = useRouter();
@@ -21,7 +20,6 @@ export default function Header() {
     const [direction, setDirection] = useState(0);
     const [showDropdown, setShowDropdown] = useState(false);
     const [productTableOpen, setProductTableOpen] = useState(false)
-
 
     useEffect(() => {
         const getProductView = async () => {
@@ -41,13 +39,14 @@ export default function Header() {
     const handleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+    
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
     };
 
-    const enviarGoogle = () => {
-        addGoogleSheet3(user?.userData.name, categoriesData, selectedProducts);
+    const handleOpenSendModal = () => {
+        setIsSendModalOpen(true)
     }
 
     if (!user || pathname === '/login') {
@@ -157,7 +156,7 @@ export default function Header() {
                     </div>
                     {
                         pathname === '/' && (
-                            <button onClick={() => enviarGoogle()}>
+                            <button onClick={handleOpenSendModal}>
                                 <MessageIcon/>
                             </button>
                         )
