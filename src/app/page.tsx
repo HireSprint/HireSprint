@@ -8,7 +8,7 @@ import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
-import { CategoryProvider, useCategoryContext } from "./context/categoryContext";
+import { useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
 
 export default function HomePage() {
@@ -30,7 +30,6 @@ export default function HomePage() {
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
     const [draggingGridId, setDraggingGridId] = useState<number | null>(null);
     const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
-    const [sidebarCategory, setSidebarCategory] = useState<categoriesInterface | null>(null);
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
  
     const { categoriesData } = useCategoryContext();
@@ -293,7 +292,7 @@ export default function HomePage() {
 
     <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
             <aside className="overflow-auto" >
-                <Sidebar onCategorySelect={setSidebarCategory} categorySelected={sidebarCategory} />
+                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
             </aside>
             <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
                 <AnimatePresence>
