@@ -1,17 +1,17 @@
-"use client";
+"use client.ts";
 import { useState } from 'react';
 import {CardProduct} from '../components/card';
 import Lottie from "lottie-react";
 import LoadingLottie from "../components/lottie/loading-Lottie.json";
 import { ProductTypes } from '@/types/product';
-import {useProductContext} from "@/app/context/productContext"; 
+import {useProductContext} from "@/app/context/productContext";
 
 
 const ProductosBase = () => {
-  const [products, setProducts] = useState<ProductTypes[]>([]); 
-  const [loading, setLoading] = useState(true); 
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const [currentPage, setCurrentPage] = useState(1); 
+  const [products, setProducts] = useState<ProductTypes[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
 
 
@@ -24,7 +24,7 @@ const ProductosBase = () => {
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct); 
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
@@ -34,7 +34,7 @@ const ProductosBase = () => {
 
   const getPageNumbers = () => {
     const pageNumbers: number[] = [];
-    const maxVisiblePages = 5; 
+    const maxVisiblePages = 5;
 
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
@@ -43,7 +43,7 @@ const ProductosBase = () => {
     } else {
       const startPage = Math.max(1, currentPage - 2);
       const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
@@ -75,14 +75,14 @@ const ProductosBase = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentProducts.map(product => (
-            <CardProduct 
-              key={product.id_product} 
+            <CardProduct
+              key={product.id_product}
               product={{
                 ...product,
               }}
             />
           ))}
-        </div>  
+        </div>
       )}
 
       <div className="flex justify-center mt-4">
@@ -110,7 +110,7 @@ const ProductosBase = () => {
             onClick={() => handlePageChange(currentPage + 1)}
             className="mx-1 px-3 py-1 border rounded bg-white text-black"
           >
-            &gt; 
+            &gt;
           </button>
         )}
       </div>

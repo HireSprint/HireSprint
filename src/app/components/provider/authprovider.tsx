@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const getProductView = async () => {
             if (!user?.userData?.id_client) return;
-            
+
             try {
                 const body = {
                     "id_cliente": user.userData.id_client,

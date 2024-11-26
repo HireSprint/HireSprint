@@ -49,17 +49,17 @@ const Login = () => {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Error response:', errorText);
-            
+
             if (response.status === 403) {
                 toast.error("No tienes permisos para realizar esta acción");
                 return;
             }
-            
+
             throw new Error(errorText || `Error del servidor: ${response.status}`);
         }
 
         const result = await response.json();
-        
+
         if (result.error) {
             toast.error(result.error);
             return;
@@ -68,7 +68,7 @@ const Login = () => {
         toast.success("¡Usuario creado exitosamente!");
         setIsRegistering(false);
         reset();
-        
+
     } catch (error: any) {
         console.error('Error al crear usuario:', error);
         toast.error(error.message || "Error al crear usuario");

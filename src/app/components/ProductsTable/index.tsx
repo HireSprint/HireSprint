@@ -1,4 +1,4 @@
-"use client"
+"use client.ts"
 
 import React, {useEffect, useState} from "react";
 import { useAuth } from "../../components/provider/authprovider"

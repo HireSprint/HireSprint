@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { ProductDraggingType, ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
-  
+
 
 interface ProductContextType {
   productsData: ProductTypes[];
@@ -13,7 +13,7 @@ interface ProductContextType {
   productArray: ProductTypes[];
   setProductArray: (product: ProductTypes[]) => void;
   currentPage: number;
-  setCurrentPage: (page: number) => void;  
+  setCurrentPage: (page: number) => void;
   productDragging: ProductDraggingType | null;
   setProductDragging: (product: ProductDraggingType | null ) => void;
   category: categoriesInterface | null;
