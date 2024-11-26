@@ -54,6 +54,7 @@ const ModalEditProduct = ({product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpe
     }, [categories, product]);
 
 
+
     return (
         <React.Fragment>
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100  ">

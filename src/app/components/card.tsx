@@ -242,21 +242,10 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-        
-                                {
-                                    product && (
-                                        <div className="absolute text-blue-950 rounded px-1 font-bold bottom-[0.5px] left-[1px]    @[27px]:text-[10px]    @[47px]:text-[11px]    @[77px]:text-[13px]" style={textShadowWhite}>
-                                            ${product.price?.toFixed(2) || "0.00"}
-                                        </div>
-                                    )
-                                }
-        
                                 <div className="absolute text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
-                                    {/* { readyToDrag ? 'true':'false' } */}
                                 </div>
-
-                                <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={{...textShadowWhite, zIndex:10}}>
                                     { cell?.id }
                                 </div>
                             </div>
@@ -267,7 +256,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     )
 }
 
-export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDragAndDropCell, setShowProductCardBrand}: CardProductProps) => {
+export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDragAndDropCell, setShowProductCardBrand, isLoading}: CardProductProps) => {
     const [imageError, setImageError] = useState(false);
 
     const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -331,45 +320,56 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} > 
             <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
             <Draggable disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar') )} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
-            
-                <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] -top-[100px] -left-[200px] max-h-[200px] max-w-[154px]` : ''}`} 
-                    onClick={(e) => {
-                        if (!enableDragAndDrop || !productReadyDrag) {
-                            onProductSelect && onProductSelect(product, e)
-                        }
-                    }} 
-                >
-                    <div className=" flex w-28 h-28 items-center justify-center">
-                        {
-                            product.url_image && !imageError ? (
-                                <Image
-                                    src={product.url_image}
-                                    alt={product.name}
-                                    width={100}
-                                    height={100}
-                                    draggable="false"
-                                    style={{ objectFit: 'cover' }}
-                                    className="rounded-lg"
-                                    onError={() => setImageError(true)}
-                                    loading="lazy"
-                                    placeholder="blur"
-                                    blurDataURL={product.url_image}
-                                />
-                            ) 
-                            :
-                            (
-                                <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <span className="text-gray-500">No Image</span>
-                                </div>
-                            )
-                        }
-                    </div>
-                    <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.brand}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.desc}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
-                    <p className="text-center text-gray-950 font-medium">{product.size}</p>
-                </div>
+                {    isLoading ? 
+                    (
+                        <div className="bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
+                            <div className="w-28 h-28 bg-gray-300 rounded flex items-center justify-center "></div>
+                            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                        </div>
+                    )
+                    :
+                    (
+                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] -top-[100px] -left-[200px] max-h-[200px] max-w-[154px]` : ''}`} 
+                            onClick={(e) => {
+                                if (!enableDragAndDrop || !productReadyDrag) {
+                                    onProductSelect && onProductSelect(product, e)
+                                }
+                            }} 
+                        >
+                            <div className=" flex w-28 h-28 items-center justify-center">
+                                {
+                                    product.url_image && !imageError ? (
+                                        <Image
+                                            src={product.url_image}
+                                            alt={product.name}
+                                            width={100}
+                                            height={100}
+                                            draggable="false"
+                                            style={{ objectFit: 'cover' }}
+                                            className="rounded-lg"
+                                            onError={() => setImageError(true)}
+                                            loading="lazy"
+                                            placeholder="blur"
+                                            blurDataURL={product.url_image}
+                                        />
+                                    ) 
+                                    :
+                                    (
+                                        <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <span className="text-gray-500">No Image</span>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                            <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.brand}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.desc}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
+                            <p className="text-center text-gray-950 font-medium">{product.size}</p>
+                        </div>
+                    )
+                }
             </Draggable>
         </div>
     )

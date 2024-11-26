@@ -3,6 +3,7 @@ import { CardShowSide } from './card';
 import { ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
 import { useProductContext } from '../context/productContext';
+import { Message } from "primereact/message";
 
 interface ProductContainerProps { 
     category: categoriesInterface | null, 
@@ -100,21 +101,28 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                 Categoría 4
                             </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            {loading ? (
-                                Array.from({length: 8}).map((_, index) => (
-                                    <div key={index} className=" bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
-                                        <div className="w-28 h-28  flex items-center justify-center "></div>
-                                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                        
+                            {
+                                filteredProducts.length === 0 ? 
+                                (
+                                    <div className='py-4'>
+                                        <Message
+                                            style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
+                                            className="w-full"
+                                            severity="error"
+                                            text={searchTerm ? "Products not found" : "There are no products of this category"}
+                                        />
                                     </div>
-                                ))
-                            ) : (
-                                filteredProducts.map((product) => (
-                                    <CardShowSide key={product.id_product} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory}/>
-                                ))
-                            )}
-                        </div>
+                                ) 
+                                : 
+                                <div className="grid grid-cols-2 gap-3">
+                                    {
+                                        (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
+                                            <CardShowSide key={product.id_product || index} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory} isLoading={loading}/>
+                                        ))
+                                    }
+                                </div>
+                            }
                     </div>
                 )}
 
@@ -145,21 +153,28 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            {loading ? (
-                                Array.from({length: 8}).map((_, index) => (
-                                    <div key={index} className=" bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
-                                        <div className="w-28 h-28  flex items-center justify-center "></div>
-                                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                        
+                            {
+                                filteredProducts.length === 0 ? 
+                                (
+                                    <div className='py-4'>
+                                        <Message
+                                            style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
+                                            className="w-full"
+                                            severity="error"
+                                            text={searchTerm ? "Products not found" : "There are no products of this category"}
+                                        />
                                     </div>
-                                ))
-                            ) : (
-                                filteredProducts.map((product) => (
-                                    <CardShowSide key={product.id_product} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory}/>
-                                ))
-                            )}
-                        </div>
+                                ) 
+                                : 
+                                <div className="grid grid-cols-2 gap-3">
+                                    {
+                                        (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
+                                            <CardShowSide key={product.id_product || index} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory} isLoading={loading}/>
+                                        ))
+                                    }
+                                </div>
+                            }
                     </div>
                 )}
             </div>
