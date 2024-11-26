@@ -662,8 +662,9 @@ const AddProductPage = () => {
 
             {/* Resultados de búsqueda */}
             {openSearch && (
-                <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4">
-                    <h2 className="text-white text-xl mb-4">Resultados de Búsqueda</h2>
+                <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar pb-24">
+                    <h2 className=" text-white text-xl mb-4">Search Results</h2>
+                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[12vh] z-50 bg-red-500 text-white p-2 rounded-md">Close</button>
 
                     {searchResults.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
@@ -689,7 +690,7 @@ const AddProductPage = () => {
                         </div>
                     ) : (
                         <p className="text-gray-300 text-center">
-                            No se encontraron productos que coincidan con la búsqueda
+                            No products found that match the search
                         </p>
                     )}
                 </div>
