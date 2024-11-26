@@ -8,10 +8,12 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
+import { useCategoryContext } from '../context/categoryContext';
 
 export default function Header() {
     const { user, logout, idCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen } = useProductContext();
+    const { currentPage, setCurrentPage, setProductsData, selectedProducts, setIsSendModalOpen } = useProductContext();
+    const { categoriesData } = useCategoryContext()
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,6 +39,7 @@ export default function Header() {
     const handleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+    
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);

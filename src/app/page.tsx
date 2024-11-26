@@ -10,15 +10,14 @@ import ModalEditProduct from "@/app/components/ModalEditProduct";
 import { ProductTypes } from "@/types/product";
 import { useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
+import { Message } from "primereact/message";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
-    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, productDragging } = useProductContext();
-    const [loading, setLoading] = useState(true);
+    const { selectedProducts, setSelectedProducts, productsData, setProductsData, currentPage, productDragging, setIsLoadingProducts, isLoadingProducts } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
-    const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
-    const [moveMode, setMoveMode] = useState<{ active: boolean; sourceCellId: number; } | null>(null);
+    const [showProductCardBrand, setShowProductCardBrand] = useState<boolean>(true);
 
    const updateLocalStorage = (products: ProductTypes[]) => {
     localStorage.setItem('selectedProducts', JSON.stringify(products));
@@ -28,8 +27,6 @@ export default function HomePage() {
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-    const [draggingGridId, setDraggingGridId] = useState<number | null>(null);
-    const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
  
     const { categoriesData } = useCategoryContext();
@@ -41,7 +38,7 @@ export default function HomePage() {
                 const resp = await fetch("/api/apiMongo/getProduct");
                 const data = await resp.json();
                 setProductsData(data.result);
-                setLoading(false);
+                setIsLoadingProducts(false);
                 if (resp.status === 200) {
                     setProductByApi(data.result);
                     setProductSelected(data.result[1]);
@@ -82,34 +79,6 @@ export default function HomePage() {
         setShowProducts(false);
     };
 
-    const handleCopyProduct = (product: ProductTypes) => {
-        setCopiedProduct(product);
-    };
-
-    const handlePasteProduct = () => {
-        setCopiedProduct(null); // Limpiar el producto copiado después de pegar
-    };
-
-    const handleChangeProduct = (idGrid: number) => {
-        // Encontrar el producto y su grid actual
-        const productToMove = selectedProducts.find(p => p.id_grid === idGrid);
-        if (productToMove && productToMove.id_grid) {
-            setMoveMode({
-                active: true,
-                sourceCellId: productToMove.id_grid
-            });
-            // Mostrar mensaje al usuario
-            console.log({
-                title: "Modo de movimiento activado",
-                description: "Selecciona el grid destino para mover el producto",
-                status: "info",
-                duration: 3000,
-            });
-            setIsModalOpen(false); // Ocultar el panel de productos si está visible
-            setShowProducts(false);
-        }
-    };
-
     const handleDragAndDropGridCell = (gridCellToMove: any, stopDragEvent: MouseEvent) => {
 
         const getCellId = (htmlElement:HTMLElement) => {
@@ -139,22 +108,44 @@ export default function HomePage() {
         }
 
     };
-    
 
-    const handleProductMove = (targetGridId: number) => {
-        if (!moveMode) return;
+    const handleDragAndDropSidebar = (gridCellToMove: any, stopDragEvent: MouseEvent) => {
+        const getCellId = (htmlElement:HTMLElement, prefix='grid-card-product-') => {
+            const htmlElementId = htmlElement && htmlElement.id
+            const cellId = htmlElementId && Number(htmlElementId.replace(prefix,''))
+            return cellId
+        }
+        
+        const findGridCellTarget = ( parentElement: any, count= 0 ) => {
+            if ( !parentElement ) return;
+            if ( parentElement.id && parentElement.id.includes('grid-card-product-') ) return parentElement
+            
+            if ( count <= 7 ) return findGridCellTarget( parentElement.parentNode, count += 1 )
+            else return 
+        }
 
-        moveProduct(moveMode.sourceCellId, targetGridId);
+        // id del producto que se quiere seleccionar
+        const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
 
-        // Resetear el modo de movimiento
-        setMoveMode(null);
+        if (productIdToSelect) {
+            const productSelected = productsData.find((prod) => prod.id_product === productIdToSelect)
+            
+            if (productSelected) {
+                // id del grid en el que se quiere seleccionar el producto
+                const gridCellTarget = findGridCellTarget(stopDragEvent.target);
+                const cellIdTarget = getCellId(gridCellTarget);
 
-        console.log({
-            title: "Producto movido",
-            description: "El producto ha sido movido exitosamente",
-            status: "success",
-            duration: 2000,
-        });
+                const productWithGrid = { ...productSelected, id_grid: cellIdTarget } as ProductTypes;
+
+                if (cellIdTarget) {
+                    setSelectedProducts((prev) => {
+                        const newProducts = prev.filter((p) => p.id_grid !== cellIdTarget);
+                        const updatedProducts = [...newProducts, productWithGrid];
+                        return updatedProducts;
+                    });
+                }
+            }
+        }
     };
 
     const moveProduct = (sourceGridId: number, targetGridId: number) => {
@@ -179,7 +170,7 @@ export default function HomePage() {
         
     }
 
-    const handleGridClick = (gridId: number, idCategory: number | undefined, category: string, event: React.MouseEvent) => {
+    const handleGridClick = (gridId: number, idCategory: number | undefined,  event: React.MouseEvent) => {
         if (!event) {
             console.error("El evento de ratón no se pasó correctamente.");
             return;
@@ -188,59 +179,24 @@ export default function HomePage() {
         setMousePosition({ x: event.clientX, y: event.clientY });
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
 
-        if (copiedProduct && !selectedProducts.some(product => product.id_grid === gridId)) {
-            const productWithNewGrid = { ...copiedProduct, id_grid: gridId };
-            setSelectedProducts(prev => {
-                const newProducts = [...prev, productWithNewGrid];
-                localStorage.setItem('selectedProducts', JSON.stringify(newProducts));
-                return newProducts;
-            });
-            handlePasteProduct();
-            return;
-        }
-
-        if (moveMode?.active) {
-            handleProductMove(gridId);
-        } else if (gridHasProduct && productoShowForce) {
+        if (gridHasProduct && productoShowForce) {
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
             setSelectedGridId(gridId);
             setIsModalOpen(true);
         } else {
             setSelectedGridId(gridId);
-            const selectedCategory = categoriesData.find(cat => cat.name_category === category);
+            const selectedCategory = categoriesData.find(cat => cat.id_category === idCategory);
             setGridCategory(selectedCategory || categoriesData[0]);
             setIsModalOpen(true);
             setShowProducts(true);
         }
     };
 
-    const handleDragStart = (gridId: number) => {
-        setDraggingGridId(gridId);
-        setDraggedItemId(gridId);
-    };
-
-    const handleDragStop = () => {
-        setDraggingGridId(null);
-        setDraggedItemId(null);
-    };
-
-
     const commonGridProps = {
         onGridCellClick: handleGridClick,
-        onRemoveProduct: handleRemoveProduct,
-        onChangeProduct: handleChangeProduct,
-        isMoveModeActive: moveMode?.active || false,
-        products: productsData,
-        onCopyProduct: handleCopyProduct,
-        copiedProduct: copiedProduct,
-        onPasteProduct: handlePasteProduct,
         onDragAndDropCell: handleDragAndDropGridCell,
-        draggingGridId: draggingGridId,
-        draggedItemId: draggedItemId,
-        onDragStart: handleDragStart,
-        onDragStop: handleDragStop
-
+        setShowProductCardBrand: setShowProductCardBrand
     };
 
 
@@ -291,20 +247,20 @@ export default function HomePage() {
     return (
 
     <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
-            <aside className="overflow-auto" >
+            <aside className="overflow-auto z-[52]" >
                 <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
             </aside>
-            <div className="relative grid grid-cols-2 items-center justify-center overflow-auto" >
+            <div className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${ productDragging ? 'overflow-x-hidden' : '' } `} >
                 <AnimatePresence>
                     { category && (
                         <motion.div
-                            initial={{ x: -300, top: 0 }}
-                            animate={{ x: 0, zIndex: 51, top: 0}}
+                            initial={{ x: -300 }}
+                            animate={{ x: showProductCardBrand ? 0 : -500, zIndex: 51}}
                             exit={{ x: -500 }}
                             transition={{ duration: 0.5 }}
-                            className="absolute "
+                            className="fixed left-[168px] top-[95px]"
                         >
-                            <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} />
+                            <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} onDragAndDropCell={handleDragAndDropSidebar} setShowProductCardBrand={setShowProductCardBrand}/>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -386,12 +342,10 @@ export default function HomePage() {
 
                         >
                             <GridProduct
-                                productsData={productsData}
-                                loading={loading}
                                 onProductSelect={handleProductSelect}
                                 onHideProducts={ClosetPanels}
                                 initialCategory={gridCategory}
-                                />
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -401,29 +355,28 @@ export default function HomePage() {
 }
 
 interface GridProductProps {
-    productsData: ProductTypes[];
-    loading: boolean;
     onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
     initialCategory: categoriesInterface | null;
 }
 
-const GridProduct: React.FC<GridProductProps> = ({
-    loading,
-    onProductSelect,
-    onHideProducts,
-    productsData,
-    initialCategory
-}) => {
+const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
+    const { productsData , isLoadingProducts } = useProductContext();
     const [searchTerm, setSearchTerm] = useState("");
     const {categoriesData} = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
+    const [loading, setLoading] = useState(true);
+
+
 
     useEffect(() => {
-        if (initialCategory) {
-            setCategory(initialCategory);
-        }
+        setLoading(true)
+        setTimeout(() => setLoading(false) , 500);
+    }, [initialCategory]);
+
+    useEffect(() => {
+        if (initialCategory) setCategory(initialCategory);
     }, [initialCategory]);
 
     const filteredProducts = productsData?.filter((product) => {
@@ -442,74 +395,83 @@ const GridProduct: React.FC<GridProductProps> = ({
         return product.id_category === category?.id_category;
     });
 
-
     return (
-        <div className="bg-[#f5f5f5] p-4 h-[45vh] w-[40vw] absolute top-0 left-0 rounded-lg shadow-lg hover:shadow-xl overflow-y-auto no-scrollbar">
-
-            <div className="flex bg-white sticky -top-4 z-10 items-center justify-between relative">
-                <div>
-                    <select
-                        className="text-black w-36 font-bold"
-                        value={category?.name_category || ''}
-                        onChange={(e) => {
-                            const selectedCategory = categoriesData.find(
-                                cat => cat.name_category === e.target.value
-                            );
-                            if (selectedCategory) {
-                                setCategory(selectedCategory);
-                            }
-                        }}
-                    >
-                        {categoriesData.map((cat) => (
-                            <option key={cat.id_category} value={cat.name_category}>
-                                {cat.name_category}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <input
-                    type="text"
-                    placeholder="Search Products"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className=" p-2 border rounded text-black m-4 sm:text-sm"
-                />
-                <div className="flex gap-2 mb-1">
-                    <button
-                        className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                            }`}
-                        onClick={() => setActiveTab('all')}
-                    >
-                        All Products
-                    </button>
-                    <button
-                        className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                            }`}
-                        onClick={() => setActiveTab('circular')}
-                    >
-                        In Circular
-                    </button>
-                </div>
-
-            </div>
-            <div className="flex flex-wrap gap-4">
-                {loading ? (
-                    Array.from({ length: 8 }).map((_, index) => (
-                        <div key={index} className=" bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
-                            <div className="w-28 h-28  flex items-center justify-center "></div>
-                            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-                        </div>
-                    ))
-                ) : (
-                    filteredProducts.map((product) => (
-                        <CardShowSide key={product.id_product} product={product} onProductSelect={onProductSelect} />
-                    ))
-                )}
-            </div>
-            <button className="absolute top-0 right-0 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+        <div className="relative bg-[#f5f5f5] p-4 h-[40vh] w-[45vw]  rounded-lg shadow-xl overflow-visible">
+            <button className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
                 X
             </button>
+            <div className="grid grid-rows-[min-content_1fr] h-full">
+                <div className="flex bg-white items-center justify-between relative rounded-md px-2">
+                    <div>
+                        <select
+                            className="text-black w-36 font-bold"
+                            value={category?.name_category || ''}
+                            onChange={(e) => {
+                                const selectedCategory = categoriesData.find(
+                                    cat => cat.name_category === e.target.value
+                                );
+                                if (selectedCategory) {
+                                    setCategory(selectedCategory);
+                                }
+                            }}
+                        >
+                            {categoriesData.map((cat) => (
+                                <option key={cat.id_category} value={cat.name_category}>
+                                    {cat.name_category}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search Products"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className=" p-2 border rounded text-black m-4 sm:text-sm"
+                    />
+                    <div className="flex gap-2 mb-1">
+                        <button
+                            className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
+                                }`}
+                            onClick={() => setActiveTab('all')}
+                        >
+                            All Products
+                        </button>
+                        <button
+                            className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
+                                }`}
+                            onClick={() => setActiveTab('circular')}
+                        >
+                            In Circular
+                        </button>
+                    </div>
+
+                </div>
+                <div className="overflow-y-auto no-scrollbar h-full">
+                    
+                        {
+                            filteredProducts.length === 0 ? 
+                            (
+                                <div className='py-3'>
+                                    <Message
+                                        style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
+                                        className="w-full"
+                                        severity="error"
+                                        text={searchTerm ? "Products not found" : "There are no products of this category"}
+                                        />
+                                </div>
+                            ) 
+                            : 
+                            <div className="grid grid-cols-4 pt-2 gap-2">
+                                {
+                                    ( loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
+                                        <CardShowSide key={product?.id_product || index} product={product} onProductSelect={onProductSelect} isLoading={loading}/>
+                                    ))
+                                }
+                            </div>
+                        }
+                </div>
+            </div>
         </div>
     );
 }

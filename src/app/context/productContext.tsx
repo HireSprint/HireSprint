@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react';
-import { ProductDraggingType, ProductTypes } from '@/types/product';
+import { ProductDraggingType, ProductReadyToDrag, ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
   
 
@@ -16,8 +16,12 @@ interface ProductContextType {
   setCurrentPage: (page: number) => void;  
   productDragging: ProductDraggingType | null;
   setProductDragging: (product: ProductDraggingType | null ) => void;
+  productReadyDrag: ProductReadyToDrag | null;
+  setProductReadyDrag: (product: ProductReadyToDrag | null ) => void;
   category: categoriesInterface | null;
   setCategory: (category: categoriesInterface | null) => void;
+  isLoadingProducts: boolean;
+  setIsLoadingProducts: ( arg: boolean ) => void;
   isSendModalOpen: boolean;
   setIsSendModalOpen: (value: boolean) => void;
 }
@@ -30,12 +34,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [productArray, setProductArray] = useState<ProductTypes[]>([]);
   const [currentPage, setCurrentPage] = useState(2);
   const [productDragging, setProductDragging] = useState<ProductDraggingType | null>(null);
+  const [productReadyDrag, setProductReadyDrag] = useState<ProductDraggingType | null>(null);
   const [category, setCategory] = useState<categoriesInterface | null>(null);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
 
-
   return (
-        <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, isSendModalOpen, setIsSendModalOpen  }}>
+    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen }}>
       {children}
     </ProductContext.Provider>
   );
