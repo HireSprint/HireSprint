@@ -22,6 +22,8 @@ interface ProductContextType {
   setCategory: (category: categoriesInterface | null) => void;
   isLoadingProducts: boolean;
   setIsLoadingProducts: ( arg: boolean ) => void;
+  isSendModalOpen: boolean;
+  setIsSendModalOpen: (value: boolean) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -35,6 +37,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [productReadyDrag, setProductReadyDrag] = useState<ProductDraggingType | null>(null);
   const [category, setCategory] = useState<categoriesInterface | null>(null);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false)
 
   return (
     <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts }}>

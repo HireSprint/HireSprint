@@ -96,7 +96,7 @@ const ModalEditProduct = ({product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpe
                                             {/* Columna izquierda: Información principal del producto */}
                                             <div className="flex flex-row">
                                                 <h1 className="text-black font-bold text-lg mr-1 ">Description: </h1>
-                                                <h1 className="text-black text-lg">
+                                                <h1 className="text-black text-lg uppercase">
                                                     {product?.desc ? product.desc : product?.name}
                                                 </h1>
                                             </div>
@@ -112,28 +112,28 @@ const ModalEditProduct = ({product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpe
                                         <div className="flex w-full justify-between">
                                             <div className="flex flex-row">
                                                 <h1 className="text-black font-bold text-lg mr-1">Brand : </h1>
-                                                <h1 className={"text-black   text-lg"}>{product?.brand}</h1>
+                                                <h1 className={"text-black   text-lg uppercase"}>{product?.brand}</h1>
                                             </div>
                                             <div className={"flex flex-row "}>
                                                 <h1 className={"text-black font-bold text-lg self-center mr-0.5"}>Cat:</h1>
-                                                <h1 className={"text-black text-md self-center"}>{categoria?.name_category}</h1>
+                                                <h1 className={"text-black text-md self-center uppercase"}>{categoria?.name_category}</h1>
                                             </div>
                                         </div>
                                         <div className="flex justify-between">
                                             <div className="flex flex-row">
                                                 <h1 className={"text-black font-bold text-lg self-center mr-0.5"}>Master Brand:</h1>
-                                                <h1 className={"text-black text-md self-center"}>{product?.master_brand || 'No master brand'}</h1>
+                                                <h1 className={"text-black text-md self-center uppercase"}>{product?.master_brand || 'No master brand'}</h1>
                                             </div>
                                             <div className={"flex flex-row "}>
                                                 <h1 className={"text-black font-bold text-lg self-center mr-0.5"}>GridId:</h1>
-                                                <h1 className={"text-black text-md self-center"}>{GridID}</h1>
+                                                <h1 className={"text-black text-md self-center uppercase"}>{GridID}</h1>
                                             </div>
                                         </div>
 
                                         <div className={"flex w-full flex-row  justify-between"}>
                                             <div className="flex flex-row">
                                                 <h1 className={"text-black font-bold text-lg self-center mr-1"}>variety:</h1>
-                                                <h1 className={"text-black  text-lg"}>{product?.variety}</h1>
+                                                <h1 className={"text-black  text-lg uppercase"}>{product?.variety}</h1>
                                             </div>
                                             <div className={"flex flex-row "}>
                                                 <button onClick={() => console.log('add Variety')}
@@ -145,14 +145,14 @@ const ModalEditProduct = ({product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpe
                                         <div className={"flex w-full   justify-between "}>
                                             <div className="flex flex-row">
                                                 <h1 className="text-black font-bold text-lg mr-1">Size : </h1>
-                                                <h1 className={"text-black text-lg"}>{product?.size || 'No size'}</h1>
+                                                <h1 className={"text-black text-lg uppercase"}>{product?.size || 'No size'}</h1>
                                             </div>
                                         </div>
 
                                         <div className={"flex w-full flex-row  justify-between"}>
                                             <div className="flex flex-row">
                                                 <h1 className="text-black font-bold text-lg mr-1">Conditions :</h1>
-                                                <h1 className={"text-black font-bold text-lg"}>{product?.conditions}</h1>
+                                                <h1 className={"text-black font-bold text-lg uppercase"}>{product?.conditions}</h1>
                                             </div>
                                         </div>
                                     </div>
