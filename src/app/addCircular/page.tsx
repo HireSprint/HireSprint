@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 const AddCircular = () => {
 
-    const [csvFile, setCsvFile] = useState<[] | null>(null)
+    const [csvFile, setCsvFile] = useState<[] |object | null>(null)
     const [clientes, setClientes] = useState<clientType[] | []>([])
     const [clientSelected, setClientSelected] = useState<clientType|null>(null)
     const [inputValue, setInputValue] = useState<string>("");
