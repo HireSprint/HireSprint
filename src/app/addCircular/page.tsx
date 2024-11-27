@@ -151,7 +151,7 @@ const AddCircular = () => {
                                 id="circularName"
                                 type="text"
                                 onChange={(e) => setCircularName(e.target.value)}
-                                className="border-2 border-green-400 bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                className="border-2 border-[#7cc304] bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-[#7cc304]"
                             />
                         </div>
 

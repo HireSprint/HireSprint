@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { ProductAddedModal } from "../components/card"
 import { useAuth } from "../components/provider/authprovider"
+import Image from "next/image"
 
 const AddProductPage = () => {
     const {
@@ -239,6 +240,7 @@ const AddProductPage = () => {
             formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
             formData.append('condition', dataUpdate?.conditions || '');
+            formData.append('id_category', String(dataUpdate?.id_category || ''));      
             // Agregar logs para depuración
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
@@ -328,6 +330,14 @@ const AddProductPage = () => {
         const [editedProduct, setEditedProduct] = useState(product);
         const [imageFileEdit, setImageFileEdit] = useState<File | null>(null);
         const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
+        const matchCategory = (listCategory: categoriesInterface[], id: number) => {
+            const categoryMatch = listCategory.find((item: categoriesInterface) => item.id_category === id);
+            if(categoryMatch){
+                return categoryMatch;
+            }else {
+                return null;
+            }
+        }
 
 
         useEffect(() => {
@@ -358,137 +368,218 @@ const AddProductPage = () => {
 
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl text-white font-bold">Edit Product</h2>
-                        <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+                <div className="bg-gray-800 rounded-lg p-6 w-full max-w-7xl max-h-[90vh] overflow-y-auto">
+                    <div className="sticky -top-6 bg-gray-800 z-10 pb-4 border-b border-gray-700 h-16 ">
+                        <div className="flex items-center justify-between py-4">
+                            <h2 className="text-xl text-white font-bold text-center">Edit Product</h2>
+                            <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+                        </div>
                     </div>
-                    <div className="col-span-2 flex justify-center">
-                        {editedProduct.url_image && (
-                            <img
-                                src={editedProduct.url_image}
-                                alt={editedProduct.desc}
-                                className="h-48 object-contain"
-                            />
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* Solo mostrar campos con datos */}
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.upc || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, upc: e.target.value })}
-                            placeholder="UPC"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.sku || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
-                            placeholder="SKU"
-                        />
-
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.desc || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, desc: e.target.value })}
-                            placeholder="Description"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.brand || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, brand: e.target.value })}
-                            placeholder="Brand"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.variety || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, variety: [e.target.value] })}
-                            placeholder="Variety"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.master_brand || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, master_brand: e.target.value })}
-                            placeholder="Master Brand"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.type_of_cut || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, type_of_cut: e.target.value })}
-                            placeholder="Type of cut"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.quality_cf || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, quality_cf: e.target.value })}
-                            placeholder="Quality CF"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.type_of_meat || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, type_of_meat: e.target.value })}
-                            placeholder="Type of meat"
-                        />
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.size || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, size: e.target.value })}
-                            placeholder="Size"
-                        />
-                          <input
-                            className="bg-gray-700 text-white p-2 rounded"
-                            value={editedProduct.conditions || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, conditions: e.target.value })}
-                            placeholder="Condition"
-                        />
-
-                        {/* Mantener la sección de imagen */}
-                        <div className="flex-1">
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                id="imageInputUpdate"
-                                onChange={handleImageChange}
-                            />
-                            {editPreviewUrl ? (
-                                <div className="cursor-pointer" onClick={() => document.getElementById('imageInputUpdate')?.click()}>
-                                    <img
-                                        src={editPreviewUrl}
-                                        alt="Vista previa"
-                                        className="w-full h-64 object-contain rounded-md hover:opacity-80 transition-opacity"
+                    
+                    {/* Nueva estructura con grid */}
+                    <div className="grid grid-cols-[1fr,1fr] gap-6 mt-4">
+                        {/* Columna izquierda para la imagen */}
+                        <div className="relative group">
+                            {editedProduct.url_image && (
+                                <div className="sticky top-32">
+                                    <Image
+                                        src={editedProduct.url_image}
+                                        alt={editedProduct.desc || ''}
+                                        className=" object-contain cursor-zoom-in transition-transform hover:scale-105 flex justify-center items-center"
+                                        width={600}
+                                        height={600}
+                                        onClick={() => window.open(editedProduct.url_image, '_blank')}
                                     />
-                                </div>
-                            ) : (
-                                <div
-                                    className="border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
-                                    onClick={() => document.getElementById('imageInputUpdate')?.click()}
-                                >
-                                    <span className="text-gray-400 p-4">Agregar nueva imagen</span>
+                               
                                 </div>
                             )}
                         </div>
 
-                        <div className="col-span-2 flex justify-end gap-2 mt-4">
-                            <button
-                                onClick={onClose}
-                                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => onUpdate(editedProduct)}
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                disabled={isUpdating}
-                            >
-                                {isUpdating ? 'Updating...' : 'Save Changes'}
-                            </button>
+                        {/* Columna derecha para los campos */}
+                        <div className="flex flex-col gap-1 content-start">
+                            {/* Campos existentes */}
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="upc" style={labelStyle}>UPC</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.upc || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, upc: e.target.value })}
+                                    placeholder="UPC"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="sku" style={labelStyle}>SKU</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.sku || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
+                                    placeholder="SKU"
+                                />
+                            </div>
+                           { /*<div style={inputContainerStyle}>
+                                <label htmlFor="plu" style={labelStyle}>PLU</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.plu || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, plu: e.target.value })}
+                                    placeholder="PLU"
+                                />
+                            </div> */}
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.master_brand || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, master_brand: e.target.value })}
+                                    placeholder="Master Brand"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="brand" style={labelStyle}>Brand</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.brand || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, brand: e.target.value })}
+                                    placeholder="Brand"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="desc" style={labelStyle}>Description</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.desc || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, desc: e.target.value })}
+                                    placeholder="Description"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="variety" style={labelStyle}>Variety</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.variety || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, variety: [e.target.value] })}
+                                    placeholder="Variety"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="size" style={labelStyle}>Size</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.size || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, size: e.target.value })}
+                                    placeholder="Size"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="id_category" style={labelStyle}>Category</label>
+                            <select
+                            name="selectCategory"
+                            id="selectCategory"
+                            className=" bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                            onChange={e => setEditedProduct({ ...editedProduct, id_category: Number(e.target.value) })}
+                        >
+                            <option value="" disabled selected>
+                                {matchCategory(categories,editedProduct.id_category)?.name_category}
+                            </option>
+                            {categories.map((cat: categoriesInterface) => (
+                                <option key={cat.id_category} value={cat.id_category}>
+                                    {cat.name_category}
+                                </option>
+                                ))}
+                            </select>   
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="type_of_meat" style={labelStyle}>Type of meat</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.type_of_meat || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, type_of_meat: e.target.value })}
+                                    placeholder="Type of meat"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="type_of_cut" style={labelStyle}>Type of cut</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.type_of_cut || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, type_of_cut: e.target.value })}
+                                    placeholder="Type of cut"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="quality_cf" style={labelStyle}>Quality CF</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.quality_cf || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, quality_cf: e.target.value })}
+                                    placeholder="Quality CF"
+                                />
+                            </div>
+
+                            
+                            {/* ... resto de los campos ... */}
+
+                            {/* Sección de carga de nueva imagen */}
+                            <div className="col-span-2">
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    id="imageInputUpdate"
+                                    onChange={handleImageChange}
+                                />
+                                {editPreviewUrl ? (
+                                    <div className="cursor-pointer" onClick={() => document.getElementById('imageInputUpdate')?.click()}>
+                                        <img
+                                            src={editPreviewUrl}
+                                            alt="Vista previa"
+                                            className="w-full h-32 object-contain rounded-md hover:opacity-80 transition-opacity"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors h-32"
+                                        onClick={() => document.getElementById('imageInputUpdate')?.click()}
+                                    >
+                                        <span className="text-gray-400 p-4">Agregar nueva imagen</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Botones */}
+                            <div className="col-span-2 flex justify-end gap-2 mt-4">
+                                <button
+                                    onClick={onClose}
+                                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={() => onUpdate(editedProduct)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                    disabled={isUpdating}
+                                >
+                                    {isUpdating ? 'Actualizando...' : 'Guardar Cambios'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         );
+    };
+
+    // Agregar estos estilos CSS en línea o en un archivo CSS separado
+    const inputContainerStyle = {
+        display: 'flex',
+        flexDirection: 'column' as 'column',
+        gap: '0.5rem',
+        marginBottom: '1rem'
+    };
+
+    const labelStyle = {
+        color: 'white',
+        fontSize: '0.875rem'
     };
 
     return (
@@ -507,18 +598,21 @@ const AddProductPage = () => {
                     <h2 className="text-white text-xl mb-4">Basic Information</h2>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <select
-                                {...register("id_category", { required: true })}
-                                className="w-full bg-gray-500 text-white p-2 rounded-md mb-2"
-                            >
-                                <option value=""> Select category</option>
-                                {categories?.length > 0 && categories?.map((category: categoriesInterface) => (
-                                    <option key={category?.id_category} value={category?.id_category}>
-                                        {category?.name_category}
-                                    </option>
-                                ))}
-                                <option value="create">+ Add new category</option>
-                            </select>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="id_category" style={labelStyle}>Category</label>
+                                <select
+                                    {...register("id_category", { required: true })}
+                                    className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                >
+                                    <option value=""> Select category</option>
+                                    {categories?.length > 0 && categories?.map((category: categoriesInterface) => (
+                                        <option key={category?.id_category} value={category?.id_category}>
+                                            {category?.name_category}
+                                        </option>
+                                    ))}
+                                    <option value="create">+ Add new category</option>
+                                </select>
+                            </div>
                             {String(watch("id_category")) === "create" && (
                                 <div className="flex gap-2">
                                     <input
@@ -544,16 +638,30 @@ const AddProductPage = () => {
                             )}
                             {errors.id_category && <span className="text-red-500">This field is required</span>}
                         </div>
-                        <input {...register("upc", { required: true })} placeholder="UPC" className="bg-gray-500 text-white p-2 rounded-md" />
-                        {errors.upc && <span className="text-red-500">This field is required</span>}
-                        <input {...register("master_brand")} placeholder="Master Brand" className="bg-gray-500 text-white p-2 rounded-md" />
+                        
+                        <div style={inputContainerStyle}>
+                            <label htmlFor="upc" style={labelStyle}>UPC</label>
+                            <input {...register("upc", { required: true })} 
+                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                        </div>
 
-                        <input {...register("brand")} placeholder="Brand" className="bg-gray-500 text-white p-2 rounded-md" />
-                        {errors.brand && <span className="text-red-500">This field is required</span>}
+                        <div style={inputContainerStyle}>
+                            <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
+                            <input {...register("master_brand")} 
+                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                        </div>
 
-                        <input {...register("desc", { required: true })} placeholder="Description" className="bg-gray-500 text-white p-2 rounded-md" />
-                        {errors.desc && <span className="text-red-500">This field is required </span>}
+                        <div style={inputContainerStyle}>
+                            <label htmlFor="brand" style={labelStyle}>Brand</label>
+                            <input {...register("brand")} 
+                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                        </div>
 
+                        <div style={inputContainerStyle}>
+                            <label htmlFor="desc" style={labelStyle}>Description</label>
+                            <input {...register("desc", { required: true })} 
+                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                        </div>
                     </div>
                 </div>
 
@@ -571,9 +679,18 @@ const AddProductPage = () => {
                                 />
                             ))
                             : <>
-                                <input {...register("size")} placeholder="Size" className="w-full bg-gray-500 text-white p-2 rounded-md" />
-                                <input {...register("variety")} placeholder="Variety" className="w-full bg-gray-500 text-white p-2 rounded-md" />
-                                <input {...register("conditions")} placeholder="Condition" className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="size" style={labelStyle}>Size</label>
+                                <input {...register("size")}  className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="variety" style={labelStyle}>Variety</label>
+                                <input {...register("variety")}  className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="conditions" style={labelStyle}>Condition</label>
+                                <input {...register("conditions")}  className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                            </div>
 
                             </>
                         }
