@@ -361,7 +361,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                     )
                     :
                     (
-                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[10rem] max-w-[200px]` : ''}`} 
+                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`} 
                             onClick={(e) => {
                                 if (!enableDragAndDrop || !productReadyDrag) {
                                     onProductSelect && onProductSelect(product, e)
@@ -393,11 +393,11 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                                     )
                                 }
                             </div>
-                            <p className="text-center text-gray-950 font-medium ">{product.master_brand}</p>
-                            <p className="text-center text-gray-950 font-medium">{product.brand}</p>
-                            <p className="text-center text-gray-950 font-medium">{product.desc}</p>
-                            <p className="text-center text-gray-950 font-medium">{product.variety?.[0]}</p>
-                            <p className="text-center text-gray-950 font-medium">{product.size}</p>
+                            <p className="text-center text-gray-950 font-bold">{product.master_brand}</p>
+                            <p className={`text-center text-gray-950 ${product.master_brand ? 'font-medium' : 'font-bold'}`}>{product.brand}</p>
+                            <p className="text-center text-gray-900 font-medium leading-tight">{product.desc}</p>
+                            <p className="text-center text-gray-500 text-xs">{product.variety?.[0].trim().replaceAll('"','')}</p>
+                            <p className="text-center text-gray-500 text-xs">{product.size}</p>
                         </div>
                     )
                 }
