@@ -74,7 +74,7 @@ const ModalEditProduct = ({product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpe
                         <h2 className="text-2xl font-extrabold mb-4 text-black text-center">Edit Product</h2>
 
                         <div className="bg-gray-300 p-8 my-6 rounded-lg shadow-lg w-full gap-5 flex justify-between">
-                            <div className="w-1/3 py-1 px-1 border-2 border-gray-950 bg-white">
+                            <div className="w-1/3 py-1 px-1 bg-white">
                                 {product?.url_image ? (
                                     <Image
                                         src={product?.url_image}

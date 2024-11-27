@@ -157,6 +157,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
     )
 }
 
+
 export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick,  onDragAndDropCell, isLoading, page, setShowProductCardBrand}: CardProductProps) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const elementRef = useRef(null);
@@ -221,7 +222,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                     ref={elementRef}
                     id={ 'grid-card-product-' + cell?.id }
                     key={cell?.id}
-                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-black hover:bg-opacity-20 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
+                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
                     style={{width: cell?.width, height: cell?.height}}
                     onClick={(e) => {
                         if (!productReadyDrag) {
@@ -236,18 +237,41 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                             <div className="@container h-full w-full relative grid overflow-hidden">
                                 {
                                     product?.url_image && (
-                                        <div className="absolute @[27px]:justify-self-center @[27px]:self-end    @[77px]:justify-self-end @[77px]:self-end">
+                                        <div className="absolute justify-self-end self-center">
                                             <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
                                                 <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
                                             </div>
                                         </div>
                                     )
                                 }
-                                <div className="absolute text-blue-950 font-bold uppercase @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={textShadowWhite}>
-                                    { product?.desc ? product?.desc?.toString().substring(0, 20) : product?.name?.toString().substring(0, 20) }
+                                <div className="absolute flex flex-col text-blue-950 font-bold @[27px]:text-[5.6px] @[27px]:inset-[1px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:inset-[1px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                    {product && (
+                                        <>
+                                            <span className="text-blue-600 uppercase">
+                                                { product.brand }
+                                            </span>
+                                            <span className="uppercase">
+                                                { product.desc ? product.desc.toString().substring(0, 20) : product.name?.toString().substring(0, 20) }
+                                            </span>
+                                            <span className="text-purple-600 uppercase @[27px]:text-[4.8px] @[47px]:text-[5.6px] @[77px]:text-[7.2px]">
+                                                { product.size }
+                                            </span>
+                                            <span className="text-red-500">
+                                                <span className="@[27px]:text-[5.6px] @[47px]:text-[7.2px] @[77px]:text-[8.8px]">$</span>
+                                                { product.price?.toFixed(2) || '0.00' }
+                                            </span>
+                                        </>
+                                    )}
                                 </div>
-                                <div className="flex items-end justify-end text-blue-950 font-bold @[27px]:text-[7px] @[27px]:inset-[1px] @[27px]:leading-[6px]    @[47px]:text-[9px] @[47px]:inset-[1px] @[47px]:leading-[8px]    @[77px]:leading-[10px] @[77px]:text-[11px] @[77px]:inset-[2px]" style={{...textShadowWhite, zIndex:10}}>
-                                    { cell?.id }
+                                <div className="absolute bottom-0 w-full flex flex-col items-end">
+                                    {product?.conditions && product.conditions !== 'undefined' && (
+                                        <span className="absolute left-0 bottom-0 text-orange-600 font-bold uppercase @[27px]:text-[5.6px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px]">
+                                            {product.conditions}
+                                        </span>
+                                    )}
+                                    <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[27px]:text-[4px] @[27px]:leading-[4px] @[47px]:text-[4.8px] @[47px]:leading-[4.8px] @[77px]:leading-[5.6px] @[77px]:text-[5.6px]">
+                                        { cell?.id }
+                                    </span>
                                 </div>
                             </div>
                         }
@@ -256,6 +280,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
         </div>
     )
 }
+
 
 export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDragAndDropCell, setShowProductCardBrand, isLoading}: CardProductProps) => {
     const [imageError, setImageError] = useState(false);
