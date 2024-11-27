@@ -377,7 +377,7 @@ const AddProductPage = () => {
                     </div>
                     
                     {/* Nueva estructura con grid */}
-                    <div className="grid grid-cols-[1fr,1fr] gap-6 mt-4">
+                    <div className="grid grid-cols-[1fr,1fr] ">
                         {/* Columna izquierda para la imagen */}
                         <div className="relative group">
                             {editedProduct.url_image && (
@@ -396,7 +396,7 @@ const AddProductPage = () => {
                         </div>
 
                         {/* Columna derecha para los campos */}
-                        <div className="flex flex-col gap-1 content-start">
+                        <div className="grid grid-cols-2 gap-1 content-start mt-4 space-x-2">
                             {/* Campos existentes */}
                             <div style={inputContainerStyle}>
                                 <label htmlFor="upc" style={labelStyle}>UPC</label>
@@ -489,25 +489,25 @@ const AddProductPage = () => {
                             </select>   
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="type_of_meat" style={labelStyle}>Type of meat</label>
+                                <label htmlFor="type_of_meat" style={labelStyle}>Type of Meat</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.type_of_meat || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, type_of_meat: e.target.value })}
-                                    placeholder="Type of meat"
+                                    placeholder="Type of Meat"
                                 />
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="type_of_cut" style={labelStyle}>Type of cut</label>
+                                <label htmlFor="type_of_cut" style={labelStyle}>Type of Cut</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.type_of_cut || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, type_of_cut: e.target.value })}
-                                    placeholder="Type of cut"
+                                    placeholder="Type of Cut"
                                 />
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="quality_cf" style={labelStyle}>Quality CF</label>
+                                <label htmlFor="quality_cf" style={labelStyle}>Quality Certified</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.quality_cf || ''}
