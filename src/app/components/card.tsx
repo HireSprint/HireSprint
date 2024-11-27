@@ -244,16 +244,16 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-                                <div className="absolute flex flex-col text-blue-950 font-bold @[27px]:text-[5.6px] @[27px]:inset-[1px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:inset-[1px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                <div className="absolute flex flex-col  text-blue-950 font-bold @[27px]:text-[5.6px] @[27px]:inset-[1px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:inset-[1px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     {product && (
                                         <>
                                             <span className="text-blue-600 uppercase">
                                                 { product.brand }
                                             </span>
-                                            <span className="uppercase">
-                                                { product.desc ? product.desc.toString().substring(0, 20) : product.name?.toString().substring(0, 20) }
+                                            <span className="uppercase ">
+                                                { product.desc }
                                             </span>
-                                            <span className="text-purple-600 uppercase @[27px]:text-[4.8px] @[47px]:text-[5.6px] @[77px]:text-[7.2px]">
+                                            <span className="text-purple-600 uppercase">
                                                 { product.size }
                                             </span>
                                             <span className="text-red-500">
