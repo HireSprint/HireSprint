@@ -294,7 +294,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
 
     const startDragging = (e: any , data: any) => {
         
-        setPosition({ x: e.clientX, y: e.clientY });
+        setPosition({ x: 0, y: 0 });
         
         setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
         
@@ -361,7 +361,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                     )
                     :
                     (
-                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 min-w-[154px] ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] -top-[100px] -left-[200px] max-h-[200px] max-w-[154px]` : ''}`} 
+                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col items-center rounded-lg p-2 cursor-pointer hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[10rem] max-w-[200px]` : ''}`} 
                             onClick={(e) => {
                                 if (!enableDragAndDrop || !productReadyDrag) {
                                     onProductSelect && onProductSelect(product, e)

@@ -41,9 +41,9 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
     );
 
     return (
-        <div className="flex h-[80vh] w-96 bg-white bg-opacity-[.96] rounded-lg shadow-md overflow-hidden">
+        <div className="@container flex h-[74vh] w-[28vw] bg-white bg-opacity-[.96] rounded-lg shadow-md overflow-hidden">
             {/* Sección de Productos */}
-            <div className="grid grid-rows-[min-content_auto] p-3">
+            <div className="grid grid-rows-[min-content_auto] gap-3 p-3 w-full">
                 
                 <div className='flex flex-col w-full'>
                     <div className='flex justify-between items-center'>
@@ -81,8 +81,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
                 {/* Subcategorías */}
                 {activeTab === 'all' && (
-                    <div
-                        className="flex-grow p-3 mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">Sub
@@ -115,9 +114,9 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                     </div>
                                 ) 
                                 : 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-3 gap-2">
                                     {
-                                        (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
+                                        (loading ? Array.from({length: 9}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
                                             <CardShowSide key={product.id_product || index} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory} isLoading={loading}/>
                                         ))
                                     }
@@ -128,8 +127,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
                 {/* Subcategorías */}
                 {activeTab === 'circular' && (
-                    <div
-                        className="flex-grow p-3 mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">

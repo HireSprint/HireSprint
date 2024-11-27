@@ -77,3 +77,7 @@ div{
 .shake {
   animation: shake 0.9s ease-in-out infinite;
 }
+
+.skeleton-none-mb {
+  margin-bottom: 0 !important;
+}
