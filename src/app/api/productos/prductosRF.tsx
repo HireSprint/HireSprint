@@ -153,7 +153,6 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             price: product.price,
 
         }));
-        // Hacer la solicitud HTTP POST al script de Google Apps con `sheetId`
         await fetch(url, {
             method: 'POST',
             mode: 'no-cors',
@@ -166,16 +165,10 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             }),
         });
 
-        // Solo un mensaje de confirmación en consola (sin datos de la respuesta)
         console.log("Solicitud enviada a Google Sheets.");
 
     } catch (error) {
         console.error('Error al interactuar con Google Sheet:', error);
         throw error;
     }
-};
-{/*  AIzaSyDRdER7z-xWfILxTUO-nhuo96uULVp02Rw*/
 }
-{/*479944829804-u47ce5ne0n2f7c0qbccsirr1be0nu110.apps.googleusercontent.com */
-}
-

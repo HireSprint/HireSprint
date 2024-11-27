@@ -1,4 +1,4 @@
-"use client.ts"
+"use client"
 
 import React, {useEffect, useState} from "react";
 import { useAuth } from "../../components/provider/authprovider"
@@ -10,8 +10,13 @@ import {
 } from '@tanstack/react-table'
 import {ProductTypes} from "@/types/product";
 import {getProductsByCircular} from "@/pages/api/apiMongo/getProductsByCircular";
+import { useCategoryContext } from "../../context/categoryContext"; 
+
 
 const columnHelper = createColumnHelper<ProductTypes>();
+
+
+
 
 //@ts-ignore
 const columns = [
@@ -28,7 +33,7 @@ const columns = [
     }),
     columnHelper.accessor('id_category', {
         cell: info => info.getValue(),
-        header: () => 'Category ID',
+        header: () => 'Category',
         footer: info => info.column.id,
     }),
     columnHelper.accessor('name', {
@@ -133,6 +138,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
 
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([])
     const [loading, setLoading] = useState(true);
+    const {getCategoryByName} = useCategoryContext();
 
 
     useEffect(() => {
@@ -184,7 +190,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="border-b border-gray-300 p-2 text-left bg-[#393939] text-lime-400"
+                                        className="border-b border-gray-300 p-2 text-left bg-[#393939] text-[#7cc304] sticky top-0"
 
                                     >
                                         {header.isPlaceholder
