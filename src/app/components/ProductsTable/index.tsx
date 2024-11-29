@@ -33,9 +33,9 @@ declare module '@tanstack/react-table' {
 const columns = [
     columnHelper.display({
         id: 'row_number',
-        header: () => '#',
-        cell: info => `#${info.row.index + 1}`, // El índice de la fila empieza en 0, se suma 1 para numerar desde 1.
-        footer: () => '#',
+        header: () => 'Amount',
+        cell: info => `${info.row.index + 1}`, // El índice de la fila empieza en 0, se suma 1 para numerar desde 1.
+        footer: () => 'Amount',
     }),
     columnHelper.accessor('id_grid', {
         cell: info => info.getValue(),
@@ -47,9 +47,14 @@ const columns = [
         header: () => 'Category',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('name', {
-        cell: info => info.getValue() || 'No Name',
-        header: () => 'Name',
+    columnHelper.accessor('desc', {
+        cell: info => info.getValue() || 'No Description',
+        header: () => 'Description',
+        footer: info => info.column.id,
+    }),
+    columnHelper.accessor('master_brand', {
+        cell: info => info.getValue() || 'N/A',
+        header: () => 'Master Brand',
         footer: info => info.column.id,
     }),
     columnHelper.accessor('brand', {
@@ -72,29 +77,9 @@ const columns = [
         header: () => 'Price',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('sale_price', {
-        cell: info => `$${info.getValue() || '0.00'}`,
-        header: () => 'Sale Price',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('id_product', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Product ID',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('quantity', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Quantity',
-        footer: info => info.column.id,
-    }),
     columnHelper.accessor('type_of_meat', {
         cell: info => info.getValue() || 'N/A',
         header: () => 'Type of Meat',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('master_brand', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Master Brand',
         footer: info => info.column.id,
     }),
     columnHelper.accessor('type_of_cut', {
@@ -107,29 +92,9 @@ const columns = [
         header: () => 'Quality CF',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('conditions', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Conditions',
-        footer: info => info.column.id,
-    }),
     columnHelper.accessor('sku', {
         cell: info => info.getValue() || 'N/A',
         header: () => 'SKU',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('desc', {
-        cell: info => info.getValue() || 'No Description',
-        header: () => 'Description',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('main', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Main',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('addl', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Additional',
         footer: info => info.column.id,
     }),
     // columnHelper.accessor('url_image', {
@@ -241,7 +206,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
             setFilteredProduct(newProduct)
         }
     }, [filters]);
-    // 53000006367
+
 
 
     const table = useReactTable({
@@ -256,8 +221,8 @@ const ProductsTable = ({id_circular}:ParamsType) => {
             <div className={"flex flex-row items-center justify-between mb-4"}>
                 <h2 className="font-bold mb-0">Products table</h2>
             </div>
-            <div className="flex flex-row gap-4 mb-4">
-                <select name="" id="" onChange={(e)=> setFilters({...filters, id_category: e.target.value})}>
+            <div className="flex flex-row gap-5 mb-4 ">
+                <select name="" id="" onChange={(e)=> setFilters({...filters, id_category: e.target.value})} className={"rounded-lg text-lg pl-2 "}>
                     <option value="" disabled selected>
                         Select a Category
                     </option>
@@ -267,7 +232,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                         </option>
                     ))}
                 </select>
-                <select name="" id="" onChange={(e)=> setFilters({...filters, page: e.target.value})} className={"px-4"}>
+                <select name="" id="" onChange={(e)=> setFilters({...filters, page: e.target.value})} className={"px-4 rounded-lg text-lg"}>
                     <option value="" disabled selected>
                         Select a Page
                     </option>
@@ -280,7 +245,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 <input
                     type="text"
                     placeholder="Filter by UPC"
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 p-2  rounded-lg text-lg"
                     onChange={(e)=> setFilters({...filters, upc: e.target.value})}
                 />
             </div>
@@ -302,7 +267,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                                     {headerGroup.headers.map((header) => (
                                         <th
                                             key={header.id}
-                                            className="border-b border-t border-gray-300 p-2 text-left sticky top-0 z-10 bg-[#393939]"
+                                            className="border-b border-t border-gray-300 p-2 text-left text-lg sticky top-0 z-10 bg-[#393939]"
                                         >
                                             {header.isPlaceholder
                                                 ? null
@@ -321,7 +286,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                                     {row.getVisibleCells().map((cell) => (
                                         <td
                                             key={cell.id}
-                                            className="border-2 border-gray-300 p-2"
+                                            className="border-2 border-gray-300 p-2 text-lg"
                                         >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
