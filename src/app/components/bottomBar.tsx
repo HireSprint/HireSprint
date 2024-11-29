@@ -82,8 +82,8 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
     });
 
     return {
-      main: buttons.slice(0, 10),
-      more: buttons.slice(10),
+      main: buttons.slice(0, 14),
+      more: buttons.slice(14),
       all: buttons
     };
   };
