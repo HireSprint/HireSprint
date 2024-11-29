@@ -59,8 +59,7 @@ export default function HomePage() {
 
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
-            const updatedProducts = [...newProducts, productWithGrid];
-            return updatedProducts;
+            return [...newProducts, productWithGrid];
         });
 
         setIsModalOpen(false)

@@ -11,10 +11,9 @@ import ModalProductsTable from "@/app/components/ModalProductsTable";
 
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen } = useProductContext();
+    const { currentPage, setCurrentPage, setProductsData, setSelectedProducts, setIsSendModalOpen } = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [direction, setDirection] = useState(0);
     const [showDropdown, setShowDropdown] = useState(false);
     const [productTableOpen, setProductTableOpen] = useState(false)
@@ -32,15 +31,11 @@ export default function Header() {
 
         getProductView();
     }, []);
-
-
-    const handleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
     
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
+        setSelectedProducts([]); // Limpiar productos al cambiar de página
     };
 
     const handleOpenSendModal = () => {
@@ -147,6 +142,7 @@ export default function Header() {
                                     onClick={() => {
                                         setIdCircular(null);
                                         localStorage.removeItem('id_circular');
+                                        localStorage.removeItem('circularProducts');
                                         router.push('/onboarding');
                                         setShowDropdown(false);
                                     }}
