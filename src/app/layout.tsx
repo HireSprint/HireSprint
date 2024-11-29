@@ -8,6 +8,8 @@ import { CategoryProvider } from "@/app/context/categoryContext";
 import { AuthProvider } from "./components/provider/authprovider";
 import { RouteGuard } from "./components/provider/routeGuard";
 import SendModal from "./components/sendModal";
+import "./styles/fonts.css";
+import { myriadPro } from "./fonts";
 
 
 
@@ -22,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
       <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
           <AuthProvider>
             <RouteGuard>

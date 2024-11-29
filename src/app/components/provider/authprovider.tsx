@@ -122,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getProductView();
     }, [user]);
 
+
     const setCircularId = (id: number | null) => {
         setIdCircular(id);
         if (id) {

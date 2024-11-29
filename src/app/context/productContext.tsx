@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ProductDraggingType, ProductReadyToDrag, ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
 import { useAuth } from '../components/provider/authprovider';
+import { safeLocalStorage } from '../utils/localStore';
 
 
 interface ProductContextType {
@@ -47,14 +48,15 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const productsMap = JSON.parse(storedProducts);
             const circularProducts = productsMap[idCircular] || {};
             
-            // Combinar todos los productos de todas las páginas
-            const allProducts = Object.values(circularProducts).flat();
-            if (allProducts.every(product => isProductType(product))) {
-                setSelectedProducts(allProducts);
-            }
+            // Obtener todos los productos de todas las páginas y combinarlos
+            const allProducts = Object.values(circularProducts).reduce((acc: ProductTypes[], products: any) => {
+                return acc.concat(products);
+            }, []);
+            
+            setSelectedProducts(allProducts as ProductTypes[]);
         }
     }
-  }, [idCircular]);
+}, [idCircular]);
 
   // Función para actualizar productos
   const updateSelectedProducts: React.Dispatch<React.SetStateAction<ProductTypes[]>> = (newProductsOrFn) => {
@@ -70,7 +72,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
             productsMap[idCircular] = {};
         }
 
-        // Agrupar productos por página según su id_grid
+        // Mantener los productos existentes en otras páginas
+        const existingPages = productsMap[idCircular];
+        
+        // Agrupar los nuevos productos por página
         const productsByPage = newProducts.reduce((acc: {[key: number]: ProductTypes[]}, product) => {
             if (product.id_grid) {
                 let pageNumber;
@@ -85,14 +90,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 }
             }
             return acc;
-        }, {});
+        }, {...existingPages}); // Mantener productos existentes
 
-        // Actualizar el localStorage con los productos agrupados por página
-        Object.entries(productsByPage).forEach(([page, products]) => {
-            productsMap[idCircular][page] = products;
-        });
-        
-        localStorage.setItem('circularProducts', JSON.stringify(productsMap));
+        productsMap[idCircular] = productsByPage;
+        safeLocalStorage.setItem('circularProducts', productsMap);  
         setSelectedProducts(newProducts);
     }
   };

@@ -35,7 +35,6 @@ export default function Header() {
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
-        setSelectedProducts([]); // Limpiar productos al cambiar de página
     };
 
     const handleOpenSendModal = () => {
