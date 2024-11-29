@@ -24,6 +24,11 @@ interface ProductContextType {
   setIsLoadingProducts: ( arg: boolean ) => void;
   isSendModalOpen: boolean;
   setIsSendModalOpen: (value: boolean) => void;
+  scale: number;
+  setScale(scale: number): void;
+  scaleSubPagines: number;
+  setScaleSubPagines: (scaleSubPagines: number) => void;
+
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -38,9 +43,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [category, setCategory] = useState<categoriesInterface | null>(null);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
-
+  const [scale, setScale] = useState(0);
+  const [scaleSubPagines, setScaleSubPagines] = useState(0);
   return (
-    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen }}>
+    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen, scale, setScale, scaleSubPagines, setScaleSubPagines }}>
       {children}
     </ProductContext.Provider>
   );
