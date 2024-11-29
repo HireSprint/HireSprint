@@ -89,35 +89,35 @@ const OnboardingPage = () => {
             />
             {user ? (
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 items-center w-full">
-                    <div className="flex flex-col w-64">
-                        <label htmlFor="date" className="block text-lg font-medium text-gray-700">Date of circulars</label>
-                        <select
-                            id="date"
-                            {...register("date")}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            onChange={handleDateSelect}
-                        >
-                            <option value="">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
-                            {circularOptions.map((circular: any) => (
-                                <option key={circular.date_circular} value={circular.date_circular}>
-                                    {formatDate(circular.date_circular)}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {selectedCircular && (
-                        <div className={"flex flex-row h-12 w-full justify-center gap-5"}>
+                    <div className="flex flex-row w-2/3 justify-center items-center">
+                        <div className="flex flex-row w-2/3 justify-center items-center gap-5">
+                            <label htmlFor="date" className="block text-lg font-medium text-gray-700">Date of
+                                circulars</label>
+                            <select
+                                id="date"
+                                {...register("date")}
+                                className="mt-1 block w-1/3 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                onChange={handleDateSelect}
+                            >
+                                <option
+                                    value="">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
+                                {circularOptions.map((circular: any) => (
+                                    <option key={circular.date_circular} value={circular.date_circular}>
+                                        {formatDate(circular.date_circular)}
+                                    </option>
+                                ))}
+                            </select>
                             <button
                                 type="button"
                                 onClick={handleContinue}
                                 disabled={isRedirecting}
-                                className={`bg-[#7cc304] text-white p-2 rounded-md text-center w-fit ${isRedirecting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#6bb003]'
-                                    }`}
+                                className={`bg-[#7cc304] text-white p-1 rounded-md text-center text-lg ${isRedirecting ? 'opacity-50 cursor-not-allowed' : `hover:bg-[#6bb003] ${selectedCircular?'none':'hidden'}`
+                                }`}
                             >
                                 {isRedirecting ? (
                                     <div className="flex items-center gap-2">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                                        <div
+                                            className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
                                         Redirigiendo...
                                     </div>
                                 ) : (
@@ -125,10 +125,14 @@ const OnboardingPage = () => {
                                 )}
                             </button>
                         </div>
-                    )}
+
+
+                    </div>
+
                     {(isLoading || isRedirecting) ? (
                         <div className={"flex flex-col w-screen items-center justify-center p-10"}>
-                            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#7cc304]"></div>
+                            <div
+                                className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#7cc304]"></div>
                             <p className="text-gray-600 mt-4">
                                 {isRedirecting ? "Redirecting..." : "Products loading..."}
                             </p>
@@ -136,7 +140,7 @@ const OnboardingPage = () => {
                     ) : (
                         selectedCircular &&
                         <div className={"flex flex-col w-screen"}>
-                            <ProductsTable id_circular={selectedCircular.id_circular} />
+                            <ProductsTable id_circular={selectedCircular.id_circular}/>
                         </div>
                     )}
                 </form>
