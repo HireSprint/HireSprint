@@ -1,6 +1,6 @@
 "use client.ts";
 import React, { useEffect, useRef, useState } from "react";
-import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, CircleArrowIcon, } from "./icons";
+import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, CircleArrowIcon, ArrowIcon, } from "./icons";
 import { categoriesInterface } from "@/types/category";
 import { useCategoryContext } from "../context/categoryContext";
 import { useProductContext } from "../context/productContext";
@@ -15,7 +15,7 @@ interface BottomBarProps {
   categorySelected: categoriesInterface | null;
 }
 
-interface SidebarButton {
+interface BottomBarButton {
   label: string;
   category: categoriesInterface;
   Icon: React.FC<{ isActive: boolean }> | null;
@@ -25,9 +25,12 @@ interface SidebarButton {
 const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
   const { categoriesData } = useCategoryContext();
   const { productsData } = useProductContext();
-  const [sidebarButtons, setSidebarButtons] = useState<{ main: SidebarButton[]; more: SidebarButton[]; all: SidebarButton[] }>({ main: [], more: [], all: [] });
+  const [bottomBarButtons, setBottomBarButtons] = useState<{ main: BottomBarButton[]; more: BottomBarButton[]; all: BottomBarButton[] }>({ main: [], more: [], all: [] });
   const [searchTerm, setSearchTerm] = useState("");
   const [showCategories, setShowCategories] = useState(false);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const bottomBarRef = useRef<HTMLDivElement>(null);
   const scrollPosition = useRef(0);
@@ -64,7 +67,7 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
   };
 
   // division de los botones para mostrar los productos default y los que se muestran al presionar ver mas categorias
-  const generateSidebarButtons = (): { main: SidebarButton[]; more: SidebarButton[]; all: SidebarButton[] } => {
+  const generateBottomBarButtons = (): { main: BottomBarButton[]; more: BottomBarButton[]; all: BottomBarButton[] } => {
     if (!categoriesData.length || !productsData.length) return { main: [], more: [], all: [] };
 
     const orderedCategories = orderCategoriesByProductCount(productsData);
@@ -76,7 +79,7 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
       return orderA - orderB;
     });
 
-    const buttons: SidebarButton[] = sortedCategories.map((category) => {
+    const buttons: BottomBarButton[] = sortedCategories.map((category) => {
       const icon = sidebarIcons.find((btn) => btn.label === category.name_category)?.Icon || null;
       return { label: category.name_category, category, Icon: icon };
     });
@@ -96,40 +99,83 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
     }
   };
 
+  
+  // movescroll dynamically
+  const handleManualScroll = ({direction}: { direction: "left" | "right" }) => {
+    if (bottomBarRef.current) {
+      const move = direction === "left" ? -400 : 400;
+      bottomBarRef.current.scrollBy({ left: move, behavior: 'smooth' });
+    }
+  };
+
+  // verifica si se debe mostar los botones de scroll
+  const checkScroll = () => {
+    if (bottomBarRef.current) {
+      const hasHorizontalScroll = bottomBarRef.current.scrollWidth > bottomBarRef.current.clientWidth;
+      setShowScrollButtons(hasHorizontalScroll);
+      checkScrollButtons();
+    }
+  };
+
+  // verificar si se puede hacer scroll hacia la izquierda o derecha
+  const checkScrollButtons = () => {
+    if (bottomBarRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = bottomBarRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
+    }
+  };
+
   // Captura la posición del scroll
   useEffect(() => {
     const bottomBar = bottomBarRef.current;
 
     if (bottomBar) {
-      const handleScroll = () => scrollPosition.current = bottomBar.scrollLeft
+      const handleScroll = () => {
+        scrollPosition.current = bottomBar.scrollLeft
+        checkScrollButtons();
+      }
+
       bottomBar.addEventListener("scroll", handleScroll);
 
       return () => {
         bottomBar.removeEventListener("scroll", handleScroll);
       };
     }
-  }, [sidebarButtons]);
+  }, [bottomBarButtons]);
 
 
   // ocultar las categorias extras cuando se ocultan las categorias
-  useEffect(() => (setShowMore(false)), [showCategories]);
+  useEffect(() => {
+    setShowMore(false);
+    checkScroll();
+  }, [showCategories]);
   
   // Restaura la posición del scroll después del renderizado
-  useEffect(() => {
-    bottomBarRef.current?.scrollTo({ left: scrollPosition.current, behavior: "auto", });
-  }, [categorySelected]);
+  useEffect(() => (bottomBarRef.current?.scrollTo({ left: scrollPosition.current, behavior: "auto", })), [categorySelected]);
 
-  // seteo de los botones del sidebar
+  // seteo de los botones del bottomBar
+  useEffect(() => (setBottomBarButtons(generateBottomBarButtons())), [categoriesData, productsData]);
+
+  // verificar si necesita mostrar los botones de scroll
+  useEffect(() => (checkScroll()), [showMore]);
+
+  // view scroll of the bottomBar
   useEffect(() => {
-    setSidebarButtons(generateSidebarButtons());
-  }, [categoriesData, productsData]);
+    checkScroll();
+    // Opcional: agregar listener para cambios de tamaño de ventana
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
+  
 
   // filtrado de las categorias
-  const filteredButtons = sidebarButtons.all.filter(({ label }) =>
+  const filteredButtons = bottomBarButtons.all.filter(({ label }) =>
     label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const isActive = (categoryId: number) => categorySelected?.id_category === categoryId;
+
 
   if (!categoriesData.length || !productsData.length) {
     return (
@@ -153,31 +199,47 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
   )
 
   // listado a utilizar dependiendo si esta filtrando o si se esta mostrando todo o solo los principales
-  const categoryList = searchTerm ? filteredButtons : showMore ?  [...sidebarButtons.main, ...sidebarButtons.more ] : sidebarButtons.main
+  const categoryList = searchTerm ? filteredButtons : showMore ?  [...bottomBarButtons.main, ...bottomBarButtons.more ] : bottomBarButtons.main
 
   return (
     <div  className="grid grid-rows-[1fr_min-content] bg-white shadow-up-lg p-2">
       
       {/* barra de tareas */}
-      <div className="flex gap-4">
-        <button type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors" onClick={() => setShowCategories(!showCategories)} >
-          <span className="text-sm">{ showCategories ? "Hide Categories" : "Show Categories" }</span> 
-        </button>
+      <div className="flex justify-between gap-4">
+        <div className="flex gap-4">
+          <button type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors" onClick={() => setShowCategories(!showCategories)} >
+            <span className="text-sm">{ showCategories ? "Hide Categories" : "Show Categories" }</span> 
+          </button>
 
-        {
-          <div className={`flex gap-4 overflow-hidden transition-all duration-300 ${ showCategories ? "max-w-[210px]" : "max-w-0" }`}>
-            <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 border border-gray-300 rounded w-[150px] h-[35px]" />
+          {
+            <div className={`flex gap-4 overflow-hidden transition-all duration-300 ${ showCategories ? "max-w-[210px]" : "max-w-0" }`}>
+              <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 border border-gray-300 rounded w-[150px] h-[35px]" />
 
-            <Tooltip target="#show-more-btn" ref={tooltipRef} content={ showMore ? "Hide More Categories" : "Show More Categories" } position="right"/>
-            { !searchTerm &&
-              <button id="show-more-btn" type="button" className="bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors" onClick={() => { setShowMore(!showMore); tooltipRef && tooltipRef.current && tooltipRef.current.hide(); } }>
-                <div className={`transform transition-transform duration-500 ${ showMore ? 'rotate-90': '-rotate-90' }`}>
-                  <CircleArrowIcon color="#fff" />
-                </div>
-              </button>
-            }
-          </div>
-        }
+              <Tooltip target="#show-more-btn" ref={tooltipRef} content={ showMore ? "Hide More Categories" : "Show More Categories" } position="right"/>
+              { !searchTerm &&
+                <button id="show-more-btn" type="button" className="bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors" onClick={() => { setShowMore(!showMore); tooltipRef && tooltipRef.current && tooltipRef.current.hide()} }>
+                  <div className={`transform transition-transform duration-500 ${ showMore ? 'rotate-90': '-rotate-90' }`}>
+                    <CircleArrowIcon color="#fff" />
+                  </div>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div className={`flex items-center gap-4 overflow-hidden transition-all duration-500 ${ showCategories && showScrollButtons  ? "max-w-[210px]" : "max-w-0" }`}>
+          <button disabled={!canScrollLeft} id="scroll-start" type="button" className={`bg-[#7cc304] h-fit text-white p-[5px] rounded-md ${canScrollLeft ? 'hover:bg-green-600' : 'opacity-50 cursor-not-allowed'} transition-colors`} onClick={() => { handleManualScroll({ direction: "left" }); } }>
+              <div className="rotate-180">
+              <ArrowIcon color="#fff" />
+            </div>
+          </button>
+
+          <button disabled={!canScrollRight} id="scroll-end" type="button" className={`bg-[#7cc304] h-fit text-white p-[5px] rounded-md ${canScrollRight ? 'hover:bg-green-600' : 'opacity-50 cursor-not-allowed'} transition-colors`} onClick={() => { handleManualScroll({ direction: "right" }) } }>
+              <div >
+              <ArrowIcon color="#fff" />
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* listado de categorías */}
