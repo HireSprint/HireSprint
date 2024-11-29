@@ -94,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.removeItem('user');
             localStorage.removeItem('id_circular');
             localStorage.removeItem('selectedProducts');
+            localStorage.removeItem('circularProducts');
             router.push('/login');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
@@ -121,10 +122,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getProductView();
     }, [user]);
 
+
     const setCircularId = (id: number | null) => {
         setIdCircular(id);
         if (id) {
             localStorage.setItem('id_circular', JSON.stringify(id));
+            // Inicializar estructura para el nuevo circular si no existe
+            const storedProducts = localStorage.getItem('circularProducts');
+            const productsMap = storedProducts ? JSON.parse(storedProducts) : {};
+            if (!productsMap[id]) {
+                productsMap[id] = {
+                    1: [], // página 1
+                    2: [], // página 2
+                    3: [], // página 3
+                    4: []  // página 4
+                };
+                localStorage.setItem('circularProducts', JSON.stringify(productsMap));
+            }
         } else {
             localStorage.removeItem('id_circular');
         }

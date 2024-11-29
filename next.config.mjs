@@ -24,6 +24,16 @@ const nextConfig = {
       }
     ],
   },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(woff|woffeot|ttf|otf)$/i,
+      type: 'asset/resource',
+      generator: {
+        filename: 'static/fonts/[name][ext]'
+      }
+    });
+    return config;
+  },
   async headers() {
     return [
       {

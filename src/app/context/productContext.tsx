@@ -1,8 +1,9 @@
 "use client";
-
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ProductDraggingType, ProductReadyToDrag, ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
+import { useAuth } from '../components/provider/authprovider';
+import { safeLocalStorage } from '../utils/localStore';
 
 
 interface ProductContextType {
@@ -38,9 +39,67 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [category, setCategory] = useState<categoriesInterface | null>(null);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
+  const { idCircular } = useAuth();
 
+  useEffect(() => {
+    if (idCircular && typeof window !== 'undefined') {
+        const storedProducts = localStorage.getItem('circularProducts');
+        if (storedProducts) {
+            const productsMap = JSON.parse(storedProducts);
+            const circularProducts = productsMap[idCircular] || {};
+            
+            // Obtener todos los productos de todas las páginas y combinarlos
+            const allProducts = Object.values(circularProducts).reduce((acc: ProductTypes[], products: any) => {
+                return acc.concat(products);
+            }, []);
+            
+            setSelectedProducts(allProducts as ProductTypes[]);
+        }
+    }
+}, [idCircular]);
+
+  // Función para actualizar productos
+  const updateSelectedProducts: React.Dispatch<React.SetStateAction<ProductTypes[]>> = (newProductsOrFn) => {
+    if (idCircular && typeof window !== 'undefined') {
+        const newProducts = typeof newProductsOrFn === 'function' 
+            ? newProductsOrFn(selectedProducts) 
+            : newProductsOrFn;
+            
+        const storedProducts = localStorage.getItem('circularProducts');
+        const productsMap = storedProducts ? JSON.parse(storedProducts) : {};
+        
+        if (!productsMap[idCircular]) {
+            productsMap[idCircular] = {};
+        }
+
+        // Mantener los productos existentes en otras páginas
+        const existingPages = productsMap[idCircular];
+        
+        // Agrupar los nuevos productos por página
+        const productsByPage = newProducts.reduce((acc: {[key: number]: ProductTypes[]}, product) => {
+            if (product.id_grid) {
+                let pageNumber;
+                if (product.id_grid >= 1001 && product.id_grid <= 1999) pageNumber = 1;
+                else if (product.id_grid >= 2001 && product.id_grid <= 2999) pageNumber = 2;
+                else if (product.id_grid >= 3001 && product.id_grid <= 3999) pageNumber = 3;
+                else if (product.id_grid >= 4001 && product.id_grid <= 4999) pageNumber = 4;
+
+                if (pageNumber) {
+                    acc[pageNumber] = acc[pageNumber] || [];
+                    acc[pageNumber].push(product);
+                }
+            }
+            return acc;
+        }, {...existingPages}); // Mantener productos existentes
+
+        productsMap[idCircular] = productsByPage;
+        safeLocalStorage.setItem('circularProducts', productsMap);  
+        setSelectedProducts(newProducts);
+    }
+  };
+  
   return (
-    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen }}>
+    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts: updateSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen }}>
       {children}
     </ProductContext.Provider>
   );
@@ -53,3 +112,9 @@ export const useProductContext = () => {
   }
   return context;
 };
+
+function isProductType(product: unknown): product is ProductTypes {
+    return product !== null && 
+           typeof product === 'object' && 
+           'id_grid' in product; // agregar más propiedades necesarias
+}
