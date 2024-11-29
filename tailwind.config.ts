@@ -17,6 +17,9 @@ const config: Config = {
         '100': '100',
         '9999': '9999',
       },
+      boxShadow: {
+        'up-lg': '0 -4px 6px rgba(0, 0, 0, 0.1)',
+      },
     },
   },
   plugins: [

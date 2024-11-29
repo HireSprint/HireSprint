@@ -1,7 +1,7 @@
 "use client";
 import { CardShowSide } from "./components/card";
 import { useEffect, useMemo, useState } from "react";
-import Sidebar from "./components/sideBar";
+import BottomBar from "./components/bottomBar";
 import { AnimatePresence, motion } from "framer-motion"; // Para animaciones
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
@@ -246,19 +246,16 @@ export default function HomePage() {
 
     return (
 
-    <div className="grid grid-cols-[min-content_1fr] overflow-hidden" >
-            <aside className="overflow-auto z-[52]" >
-                <Sidebar onCategorySelect={handleCategorySelect} categorySelected={category} />
-            </aside>
+    <div className="grid grid-rows-[1fr_min-content] overflow-hidden" >
             <div className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${ productDragging ? 'overflow-x-hidden' : '' } `} >
                 <AnimatePresence>
                     { category && (
                         <motion.div
-                            initial={{ x: -300 }}
-                            animate={{ x: showProductCardBrand ? 0 : -500, zIndex: 51}}
-                            exit={{ x: -500 }}
+                            initial={{ y: 1000 }}
+                            animate={{ y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
+                            exit={{ y: 1000 }}
                             transition={{ duration: 0.5 }}
-                            className="fixed left-[168px] top-[95px]"
+                            className="fixed left-[35.5%] top-[95px]"
                         >
                             <ProductContainer category={category} setCategory={setCategory} onProductSelect={handleProductSelect} onDragAndDropCell={handleDragAndDropSidebar} setShowProductCardBrand={setShowProductCardBrand}/>
                         </motion.div>
@@ -308,6 +305,9 @@ export default function HomePage() {
 
                 </motion.div>
             </div>
+            <section className="z-[52]" >
+                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} />
+            </section>
 
                 {/* Mostrar / Ocultar productos */}
                 <div className="flex ">
