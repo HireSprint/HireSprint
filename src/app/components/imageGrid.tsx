@@ -288,24 +288,19 @@ export const ImageGrid2 = ({
 
     useEffect(() => {
         const getProductByCircular = async () => {
-            try {
-                const storedUser = localStorage.getItem('user');
-                const userData = storedUser ? JSON.parse(storedUser) : null;
-                
-                if (!userData?.userData?.id_client || !idCircular) {
-                    console.log("Usuario o circular no disponible");
-                    return;
-                }
+            if (!user?.userData?.id_client || !idCircular) {
+                console.log("Usuario o circular no disponible");
+                return;
+            }
     
+            try {
                 const reqBody = {
                     "id_circular": Number(idCircular),
-                    "id_client": userData.userData.id_client
+                    "id_client": user.userData.id_client
                 }
-                
-                const resp = await getProductsByCircular(reqBody)
+                const resp = await getProductsByCircular(reqBody);
                 
                 if (resp?.result) {
-                    // Filtrar productos por página actual
                     const pageProducts = resp.result.filter((product: ProductTypes) => {
                         const gridId = product?.id_grid;
                         if (currentPage === 2) return gridId && gridId >= 2001 && gridId <= 2999;
@@ -314,7 +309,6 @@ export const ImageGrid2 = ({
                         return gridId && gridId >= 1001 && gridId <= 1999;
                     });
     
-                    // Actualizar localStorage
                     const storedProducts = safeLocalStorage.getItem('circularProducts') || {};
                     const updatedProducts = {
                         ...storedProducts,
@@ -326,26 +320,32 @@ export const ImageGrid2 = ({
                     safeLocalStorage.setItem('circularProducts', updatedProducts);
                     setCircularProducts(pageProducts);
                 }
-                
-                setLoading(false);
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
+            } finally {
                 setLoading(false);
             }
         };
     
-        const loadStoredProducts = () => {
+        const loadStoredProducts = async () => {
+            setLoading(true);
             const storedProducts = safeLocalStorage.getItem('circularProducts');
-            if (storedProducts?.[idCircular as unknown as string]?.[currentPage]?.length > 0) {
-                setCircularProducts(storedProducts[idCircular as unknown as string][currentPage]);
+            const pageProducts = storedProducts?.[idCircular as unknown as string]?.[currentPage];
+            
+            if (pageProducts?.length > 0) {
+                setCircularProducts(pageProducts);
                 setLoading(false);
             } else {
-                getProductByCircular();
+                await getProductByCircular();
             }
         };
     
         loadStoredProducts();
-    }, [idCircular, currentPage]);
+    
+        return () => {
+            setCircularProducts([]);
+        };
+    }, [idCircular, currentPage, user]);
 
 
     // Función auxiliar para manejar localStorage de forma segura
@@ -563,9 +563,8 @@ export const ImageGrid3 = ({
                 console.log("Usuario o circular no disponible");
                 return;
             }
-
+    
             try {
-                setLoading(true);
                 const reqBody = {
                     "id_circular": Number(idCircular),
                     "id_client": user.userData.id_client
@@ -573,7 +572,6 @@ export const ImageGrid3 = ({
                 const resp = await getProductsByCircular(reqBody);
                 
                 if (resp?.result) {
-                    // Filtrar productos por página actual
                     const pageProducts = resp.result.filter((product: ProductTypes) => {
                         const gridId = product?.id_grid;
                         if (currentPage === 2) return gridId && gridId >= 2001 && gridId <= 2999;
@@ -581,8 +579,7 @@ export const ImageGrid3 = ({
                         if (currentPage === 4) return gridId && gridId >= 4001 && gridId <= 4999;
                         return gridId && gridId >= 1001 && gridId <= 1999;
                     });
-
-                    // Actualizar localStorage y estado
+    
                     const storedProducts = safeLocalStorage.getItem('circularProducts') || {};
                     const updatedProducts = {
                         ...storedProducts,
@@ -600,8 +597,9 @@ export const ImageGrid3 = ({
                 setLoading(false);
             }
         };
-
-        const loadStoredProducts = () => {
+    
+        const loadStoredProducts = async () => {
+            setLoading(true);
             const storedProducts = safeLocalStorage.getItem('circularProducts');
             const pageProducts = storedProducts?.[idCircular as unknown as string]?.[currentPage];
             
@@ -609,16 +607,14 @@ export const ImageGrid3 = ({
                 setCircularProducts(pageProducts);
                 setLoading(false);
             } else {
-                getProductByCircular();
+                await getProductByCircular();
             }
         };
-
+    
         loadStoredProducts();
-
-        // Cleanup function
+    
         return () => {
             setCircularProducts([]);
-            setLoading(true);
         };
     }, [idCircular, currentPage, user]);
 
@@ -796,24 +792,19 @@ export const ImageGrid4 = ({
 
     useEffect(() => {
         const getProductByCircular = async () => {
-            try {
-                const storedUser = localStorage.getItem('user');
-                const userData = storedUser ? JSON.parse(storedUser) : null;
-                
-                if (!userData?.userData?.id_client || !idCircular) {
-                    console.log("Usuario o circular no disponible");
-                    return;
-                }
+            if (!user?.userData?.id_client || !idCircular) {
+                console.log("Usuario o circular no disponible");
+                return;
+            }
     
+            try {
                 const reqBody = {
                     "id_circular": Number(idCircular),
-                    "id_client": userData.userData.id_client
+                    "id_client": user.userData.id_client
                 }
-                
-                const resp = await getProductsByCircular(reqBody)
+                const resp = await getProductsByCircular(reqBody);
                 
                 if (resp?.result) {
-                    // Filtrar productos por página actual
                     const pageProducts = resp.result.filter((product: ProductTypes) => {
                         const gridId = product?.id_grid;
                         if (currentPage === 2) return gridId && gridId >= 2001 && gridId <= 2999;
@@ -822,7 +813,6 @@ export const ImageGrid4 = ({
                         return gridId && gridId >= 1001 && gridId <= 1999;
                     });
     
-                    // Actualizar localStorage
                     const storedProducts = safeLocalStorage.getItem('circularProducts') || {};
                     const updatedProducts = {
                         ...storedProducts,
@@ -834,27 +824,32 @@ export const ImageGrid4 = ({
                     safeLocalStorage.setItem('circularProducts', updatedProducts);
                     setCircularProducts(pageProducts);
                 }
-                
-                setLoading(false);
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
+            } finally {
                 setLoading(false);
             }
         };
     
-        const loadStoredProducts = () => {
+        const loadStoredProducts = async () => {
+            setLoading(true);
             const storedProducts = safeLocalStorage.getItem('circularProducts');
-            if (storedProducts?.[idCircular as unknown as string]?.[currentPage]?.length > 0) {
-                setCircularProducts(storedProducts[idCircular as unknown as string][currentPage]);
+            const pageProducts = storedProducts?.[idCircular as unknown as string]?.[currentPage];
+            
+            if (pageProducts?.length > 0) {
+                setCircularProducts(pageProducts);
                 setLoading(false);
             } else {
-                getProductByCircular();
+                await getProductByCircular();
             }
         };
     
         loadStoredProducts();
-    }, [idCircular, currentPage]);
-
+    
+        return () => {
+            setCircularProducts([]);
+        };
+    }, [idCircular, currentPage, user]);
     // Función auxiliar para manejar localStorage de forma segura
     const safeLocalStorage = {
         getItem: (key: string) => {
