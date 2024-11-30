@@ -137,7 +137,7 @@ export const ImageGrid2 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, user } = useAuth();
-    const {  productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const {  productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
@@ -264,7 +264,9 @@ export const ImageGrid2 = ({
     
             // Mapear los productos del circular a sus posiciones específicas
             const gridFilled = circularProducts
-                .filter(circularProduct => circularProduct.id_grid && productsMap.has(circularProduct.upc))
+                .filter(circularProduct => {
+                    return productsMap.has(circularProduct.upc);
+                })
                 .map(circularProduct => {
                     const product = productsMap.get(circularProduct.upc)!;
                     return {
@@ -273,10 +275,20 @@ export const ImageGrid2 = ({
                     };
                 });
     
-            // Actualizar los productos seleccionados
-            setSelectedProducts(prev => {
-                const newProducts = [...prev, ...gridFilled];
-                return newProducts;
+            // Mantener los productos existentes y agregar los nuevos
+            setSelectedProducts(prevProducts => {
+                // Crear un mapa de los productos existentes por id_grid
+                const existingProductsMap = new Map(
+                    prevProducts.map(product => [product.id_grid, product])
+                );
+    
+                // Agregar o actualizar productos del gridFilled
+                gridFilled.forEach(product => {
+                    existingProductsMap.set(product.id_grid, product);
+                });
+    
+                // Convertir el mapa de vuelta a array
+                return Array.from(existingProductsMap.values());
             });
     
             if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
@@ -284,15 +296,6 @@ export const ImageGrid2 = ({
             }
         }
     }, [productsData, gridCells, circularProducts]);
-
-    useEffect(() => {
-        if (selectedProducts.length > 0) {
-            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
-        }
-    }, [selectedProducts]);
-
-
-
 
 
     return (
@@ -327,7 +330,7 @@ export const ImageGrid3 = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const { productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
     const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const { idCircular, user } = useAuth();
     const initialGridCells: cellTypes[] = [
@@ -487,40 +490,45 @@ export const ImageGrid3 = ({
 
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
-            // Crear un mapa de productos por UPC para búsqueda rápida
             const productsMap = new Map(
-                productsData.map(product => [product.upc, product])
+                productsData.map(product => [product.upc.toString(), product])
             );
     
-            // Mapear los productos del circular a sus posiciones específicas
+            // Para ImageGrid3
             const gridFilled = circularProducts
-                .filter(circularProduct => circularProduct.id_grid && productsMap.has(circularProduct.upc))
+                .filter(circularProduct => {
+                    const gridId = Number(circularProduct.id_grid) || 0;  // Asegurarnos que sea número
+                    const isInRange = gridId >= 3001 && gridId <= 3999;
+                    const hasUPC = productsMap.has(circularProduct.upc.toString());
+                    return isInRange && hasUPC;
+                })
                 .map(circularProduct => {
-                    const product = productsMap.get(circularProduct.upc)!;
+                    const product = productsMap.get(circularProduct.upc.toString())!;
                     return {
                         ...product,
                         id_grid: circularProduct.id_grid
                     };
                 });
     
-            // Actualizar los productos seleccionados
-            setSelectedProducts(prev => {
-                const newProducts = [...prev, ...gridFilled];
-                return newProducts;
-            });
+            console.log("Productos filtrados para grid 3:", gridFilled);
     
-            if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                setHasFilledGrid(true);
+            if (gridFilled.length > 0) {
+                setSelectedProducts(prevProducts => {
+                    const existingProductsMap = new Map(
+                        prevProducts.map(product => [product.id_grid, product])
+                    );
+    
+                    gridFilled.forEach(product => {
+                        existingProductsMap.set(product.id_grid, product);
+                    });
+    
+                    return Array.from(existingProductsMap.values());
+                });
             }
         }
     }, [productsData, gridCells, circularProducts]);
 
-    useEffect(() => {
-        if (selectedProducts.length > 0) {
-            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
-        }
-    }, [selectedProducts]);
-
+ 
 
 
     return (
@@ -564,7 +572,7 @@ export const ImageGrid4 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, user } = useAuth();
-    const { productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const { productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
     const [hasFilledGrid, setHasFilledGrid] = useState(false);
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -676,39 +684,44 @@ export const ImageGrid4 = ({
 
     useEffect(() => {
         if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
-            // Crear un mapa de productos por UPC para búsqueda rápida
             const productsMap = new Map(
-                productsData.map(product => [product.upc, product])
+                productsData.map(product => [product.upc.toString(), product])
             );
     
-            // Mapear los productos del circular a sus posiciones específicas
+            // Para ImageGrid3
             const gridFilled = circularProducts
-                .filter(circularProduct => circularProduct.id_grid && productsMap.has(circularProduct.upc))
+                .filter(circularProduct => {
+                    const gridId = Number(circularProduct.id_grid) || 0;  // Asegurarnos que sea número
+                    const isInRange = gridId >= 4001 && gridId <= 4999;
+                    const hasUPC = productsMap.has(circularProduct.upc.toString());
+                    return isInRange && hasUPC;
+                })
                 .map(circularProduct => {
-                    const product = productsMap.get(circularProduct.upc)!;
+                    const product = productsMap.get(circularProduct.upc.toString())!;
                     return {
                         ...product,
                         id_grid: circularProduct.id_grid
                     };
                 });
     
-            // Actualizar los productos seleccionados
-            setSelectedProducts(prev => {
-                const newProducts = [...prev, ...gridFilled];
-                return newProducts;
-            });
+            console.log("Productos filtrados para grid 3:", gridFilled);
     
-            if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                setHasFilledGrid(true);
+            if (gridFilled.length > 0) {
+                setSelectedProducts(prevProducts => {
+                    const existingProductsMap = new Map(
+                        prevProducts.map(product => [product.id_grid, product])
+                    );
+    
+                    gridFilled.forEach(product => {
+                        existingProductsMap.set(product.id_grid, product);
+                    });
+    
+                    return Array.from(existingProductsMap.values());
+                });
             }
         }
     }, [productsData, gridCells, circularProducts]);
 
-    useEffect(() => {
-        if (selectedProducts.length > 0) {
-            localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
-        }
-    }, [selectedProducts]);
 
 
 

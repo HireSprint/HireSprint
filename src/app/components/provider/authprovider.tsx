@@ -93,7 +93,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(null);
             localStorage.removeItem('user');
             localStorage.removeItem('id_circular');
-            localStorage.removeItem('selectedProducts');
             router.push('/login');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
