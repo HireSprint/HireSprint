@@ -18,7 +18,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
-    const SELECT_OPTIONS = ["Kg", "Ml", "Lb"]
+    const SELECT_OPTIONS = ["Each", "Lb"]
     const [price, setPrice] = useState(product?.price || 0);
     const [notes, setNote] = useState(product?.notes || "");
     const [brust, setBrust] = useState(product?.burst || "")
@@ -130,6 +130,25 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                 <h1 className={"text-black self-center uppercase"}>{GridID}</h1>
                                             </div>
                                         </div>
+                                        {
+                                            product.id_category === 5 && (
+                                                <>
+                                                    <div className={"flex flex-row "}>
+                                                <h1 className={"text-black font-bold self-center mr-0.5"}>Type of Cut:</h1>
+                                                <h1 className={"text-black self-center uppercase"}>{product?.type_of_cut}</h1>
+                                            </div>
+                                            <div className={"flex flex-row "}>
+                                                <h1 className={"text-black font-bold self-center mr-0.5"}>Type of Meat:</h1>
+                                                <h1 className={"text-black self-center uppercase"}>{product?.type_of_meat}</h1>
+                                            </div>
+                                            <div className={"flex flex-row "}>
+                                                <h1 className={"text-black font-bold self-center mr-0.5"}>Quality CF:</h1>
+                                                        <h1 className={"text-black self-center uppercase"}>{product?.quality_cf}</h1>
+                                                    </div>
+                                                </>
+                                            )
+                                        }
+
 
                                         <div className={"flex w-full flex-row  justify-between"}>
                                                 <div className="flex flex-row">
@@ -169,7 +188,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                             {/* Título y Select de Unidades */}
                                             <div className="flex items-center gap-1">
-                                                <h3 className="font-bold text-black">Size:</h3>
+                                                <h3 className="font-bold text-black">Per:</h3>
                                                 <select
                                                     className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
                                                 >

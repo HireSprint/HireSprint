@@ -144,6 +144,7 @@ const AddProductPage = () => {
             formData.append('type_of_cut', data.type_of_cut || "");
             formData.append('quality_cf', data.quality_cf || "");
             formData.append('createdById', user?.userData?.id_client || 0);
+            formData.append('plu', data.plu || "");
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
 
@@ -684,6 +685,11 @@ const AddProductPage = () => {
                         <div style={inputContainerStyle}>
                             <label htmlFor="desc" style={labelStyle}>Description</label>
                             <input {...register("desc", { required: true })} 
+                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                        </div>
+                        <div style={inputContainerStyle}>
+                            <label htmlFor="plu" style={labelStyle}>PLU</label>
+                            <input {...register("plu")} 
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
                     </div>
