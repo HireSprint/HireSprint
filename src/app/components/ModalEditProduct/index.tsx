@@ -296,7 +296,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => SaveFC?.(GridID, price, notes, brust)}>
+                                onClick={() => SaveFC?.(GridID, price, notes, String(selectedBurst?.value))}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save
