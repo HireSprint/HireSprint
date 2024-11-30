@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
-import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import {ChangeIcon, DeleteIcon, ProfileIcon, SaveIcon} from "../icons";
 
 interface ModalEditProductInterface {
 
@@ -14,6 +14,15 @@ interface ModalEditProductInterface {
     setIsOpen: (isOpen: boolean) => void
 }
 
+import mima from "../../../../public/Burst Mix & Match.svg";
+import half from "../../../../public/Burst 1 - 2.svg";
+import choice from "../../../../public/Burst your choice.svg";
+
+interface burstInterface{
+    value:number;
+    image:any;
+}
+
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const [categories, setCategories] = useState<[]>()
@@ -22,6 +31,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [price, setPrice] = useState(product?.price || 0);
     const [notes, setNote] = useState(product?.notes || "");
     const [brust, setBrust] = useState(product?.burst || "")
+    const [burstOption, setBurstOption] = useState<burstInterface[]|[]>([])
+    const [selectedBurst, setSelectedBurst] = useState<burstInterface|null>(null)
+    const [openDropdown, setOpenDropdown] = useState(false)
+
+    useEffect(() => {
+        setBurstOption([{value:1,image:mima},{value:2,image:half},{value:3,image:choice}])
+    }, []);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -53,7 +69,10 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     }, [categories, product]);
 
-
+    const handledSelectedBurst = (item:burstInterface) => {
+       setSelectedBurst(item);
+       setOpenDropdown(false)
+    }
 
     return (
         <React.Fragment>
@@ -217,15 +236,40 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         {/* Contenedor del campo Brust */}
                                         <div className="flex items-center gap-1">
                                             <h3 className="font-bold text-black">Burst:</h3>
-                                            <input
-                                                type="text"
-                                                value={brust}
-                                                onChange={(event) => {
-                                                    const dataBrust = event.target.value || "";
-                                                    setBrust(dataBrust);
-                                                }}
-                                                className="p-1 border border-gray-950 rounded font-bold text-black w-12"
-                                            />
+                                            <div className="flex flex-col items-center gap-1">
+                                                <button onClick={() => setOpenDropdown(!openDropdown)}  className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
+                                                    Select Burst
+                                                </button>
+                                                {openDropdown && (
+                                                    <div className="flex absolute bottom-32 right-38 bg-white rounded-md shadow-lg z-50">
+                                                        {burstOption.map((item,index) => (
+                                                            <button
+                                                                key={index}
+                                                                onClick={() => handledSelectedBurst(item)}
+                                                                className="text-left py-1 shadow hover:bg-gray-100"
+                                                            >
+                                                                <Image
+                                                                    src={item.image}
+                                                                    alt={`Burst option`}
+                                                                    width={80}
+                                                                    height={80}
+                                                                    className="object-contain"
+                                                                />
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {
+                                                selectedBurst !== null && (
+                                                <Image
+                                                    src={selectedBurst.image}
+                                                    alt={`Burst option ${selectedBurst.value}`}
+                                                    width={80}
+                                                    height={80}
+                                                    className="object-contain"
+                                                />)
+                                            }
                                         </div>
                                     </div>
 
@@ -238,7 +282,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                 className="bg-lime-500 p-2 text-black rounded-md "
                                 onClick={() => ChangeFC(GridID)}>
                                 <div className="flex gap-2">
-                                    <ChangeIcon />
+                                    <ChangeIcon/>
                                     Change Products
                                 </div>
                             </button>
