@@ -261,7 +261,7 @@ export const ImageGrid2 = ({
             const productsMap = new Map(
                 productsData.map(product => [product.upc, product])
             );
-    
+
             // Mapear los productos del circular a sus posiciones específicas
             const gridFilled = circularProducts
                 .filter(circularProduct => {
@@ -510,8 +510,6 @@ export const ImageGrid3 = ({
                     };
                 });
     
-            console.log("Productos filtrados para grid 3:", gridFilled);
-    
             if (gridFilled.length > 0) {
                 setSelectedProducts(prevProducts => {
                     const existingProductsMap = new Map(
@@ -703,8 +701,6 @@ export const ImageGrid4 = ({
                         id_grid: circularProduct.id_grid
                     };
                 });
-    
-            console.log("Productos filtrados para grid 3:", gridFilled);
     
             if (gridFilled.length > 0) {
                 setSelectedProducts(prevProducts => {

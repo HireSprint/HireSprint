@@ -41,9 +41,6 @@ const AddCircular = () => {
     }, [circularName,weekCircular,dateCircular,idClient,options]);
 
 
-    useEffect(() => {
-        console.log("file",csvFile)
-    }, [csvFile]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

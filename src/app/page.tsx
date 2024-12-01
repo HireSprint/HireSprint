@@ -92,7 +92,6 @@ export default function HomePage() {
     // Función para actualizar el servidor
 const updateCircularInServer = async (products: ProductTypes[]) => {
     if (!idCircular || !products) {
-        console.log("No hay circular o productos seleccionados");
         return;
     }
 
@@ -123,11 +122,11 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
             setUpdateCircular(data.result);
         } else {
             throw new Error(data.message || "Error al actualizar circular");
+            }
+        } catch (error) {
+            console.error("Error en updateCircular:", error);
         }
-    } catch (error) {
-        console.error("Error en updateCircular:", error);
-    }
-};
+    };
 
 
 
@@ -260,6 +259,10 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         setMousePosition({ x: event.clientX, y: event.clientY });
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
 
+        if (category) {
+            setCategory(null);
+        }
+
         if (gridHasProduct && productoShowForce) {
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
             setProductSelected(selectedProduct);
@@ -293,29 +296,32 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
 
     }
 
-    const handleSaveChangeProduct = (gridID: number | undefined, price: number, note : string, brust : string) => {
-        if (gridID === undefined) {
-            return;
-        }
-        // Encuentra el índice del producto que deseas actualizar
+    const handleSaveChangeProduct = (gridID: number | undefined, price: string, conditions: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean) => {
+        if (gridID === undefined) return;
+        
         const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
-        if (productIndex === -1) {
+        if (productIndex === -1) return;
 
-            return;
-        }
-
-        // Actualiza directamente el producto
         selectedProducts[productIndex].price = price;
-        selectedProducts[productIndex].notes = note;
-        selectedProducts[productIndex].burst = brust;
+        selectedProducts[productIndex].conditions = conditions;
+        selectedProducts[productIndex].burst = burst;
+        selectedProducts[productIndex].addl = addl;
+        selectedProducts[productIndex].limit = limit;
+        selectedProducts[productIndex].must_buy = mustBuy;
+        selectedProducts[productIndex].with_cart = withCard;
 
-        // Llama a setProductsData para que React reconozca el cambio
-        setProductsData([...selectedProducts]);  // El operador de propagación crea una nueva referencia para que React detecte cambios
+        setProductsData([...selectedProducts]);
         ClosetPanels();
     };
 
     const handleCategorySelect = (category: categoriesInterface) => {
+        if (isModalOpen || showProducts) {
+            setShowProducts(false);
+            setIsModalOpen(false);
+            console.log("Abriste el panel")
+        }
         setCategory(category);
+        console.log("Seleccionaste la categoria")
     };
 
     const ClosetPanels = () => {
@@ -334,6 +340,7 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         setZoomScaleSubPagines(0.9);
     }, [currentPage]);
 
+    console.log(isModalOpen, showProducts)
     return (
 
     <div className="grid grid-rows-[1fr_min-content] overflow-hidden" >
@@ -619,7 +626,8 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
             </motion.div>
         </div>
         <section className="z-[52]">
-            <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category}/>
+            {/* @ts-ignore */}
+            <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect} />
         </section>
 
         {/* Mostrar / Ocultar productos */}

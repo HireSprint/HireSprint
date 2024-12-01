@@ -6,12 +6,12 @@ import { useCategoryContext } from "../context/categoryContext";
 import { useProductContext } from "../context/productContext";
 import { ProductTypes } from "@/types/product";
 import { Skeleton } from "primereact/skeleton";
-import { Tooltip } from 'primereact/tooltip';
 
 
 interface BottomBarProps {
   onCategorySelect: (category: categoriesInterface) => void;
   categorySelected: categoriesInterface | null;
+  onClick?: () => void;
 }
 
 interface BottomBarButton {
@@ -21,7 +21,7 @@ interface BottomBarButton {
   onClick?: (e: React.MouseEvent) => void;
 }
 
-const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
+const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarProps) => {
   const { categoriesData } = useCategoryContext();
   const { productsData } = useProductContext();
   const [bottomBarButtons, setBottomBarButtons] = useState<{ main: BottomBarButton[]; more: BottomBarButton[]; all: BottomBarButton[] }>({ main: [], more: [], all: [] });
@@ -33,7 +33,6 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
   const [showMore, setShowMore] = useState(false);
   const bottomBarRef = useRef<HTMLDivElement>(null);
   const scrollPosition = useRef(0);
-  const tooltipRef = useRef<Tooltip>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
 
@@ -91,22 +90,6 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
     };
   };
 
-  // Función para manejar el scroll horizontal
-  const handleWheel = (event: any) => {
-    if (bottomBarRef.current) {
-      bottomBarRef.current.scrollLeft += event.deltaY;
-      event.stopPropagation();
-    }
-  };
-
-  
-  // movescroll dynamically
-  const handleManualScroll = ({direction}: { direction: "left" | "right" }) => {
-    if (bottomBarRef.current) {
-      const move = direction === "left" ? -400 : 400;
-      bottomBarRef.current.scrollBy({ left: move, behavior: 'smooth' });
-    }
-  };
 
   // verifica si se debe mostar los botones de scroll
   const checkScroll = () => {
@@ -197,24 +180,14 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
     );
   }
 
-  // html del boton
-  const CategoryButton = ({ category, label, Icon }: { category: categoriesInterface; label:string; Icon: any }) => (
-    <div className="flex flex-col items-center min-w-[125px] text-center group cursor-pointer hover:scale-[1.05]" onClick={() => onCategorySelect(category)} >
-      <button className={`w-16 h-16 border-2 ${ isActive(category.id_category) ? "border-[#7cc304]" : "border-[#606060]" } rounded-lg flex items-center justify-center group-hover:border-[#7cc304]`} >
-        {Icon && <Icon isActive={isActive(category.id_category)} />}
-      </button>
-
-      <p className={`text-sm ${ isActive(category.id_category) ? "text-[#7cc304]" : "text-[#606060]" } group-hover:text-[#7cc304]`} >
-        {label}
-      </p>
-    </div>
-  )
-
   return (
     <div ref={dropdownRef} className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
       <button 
         className="bg-white text-black px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-2"
-        onClick={() => setShowCategories(!showCategories)}
+        onClick={() => {
+          setShowCategories(!showCategories);
+          onClick?.();
+        }}
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 

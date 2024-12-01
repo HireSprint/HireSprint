@@ -41,6 +41,13 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             url_image: product.url_image,
             id_category: product.id_category,
             price: product.price || null,
+            conditions: product.conditions || null,
+            notes: product.notes || null,
+            burst: product.burst || null,
+            addl: product.addl || null,
+            limit: product.limit || null,
+            must_buy: product.must_buy || null,
+            with_cart: product.with_cart || null,
             desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
         }));
 
@@ -117,7 +124,14 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     quality_cf: '',
                     type_of_meat: '',
                     type_of_cut: '',
-                    price: 0,
+                    price: '0',
+                    conditions: '',
+                    notes: '',
+                    burst: '',
+                    addl: '',
+                    limit: '',
+                    must_buy: "",
+                    with_cart: false,
                 });
             }
         });
@@ -151,7 +165,13 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             typeOfMeat: product.type_of_meat,
             typeOfCutVariety: product.type_of_cut,
             price: product.price,
-
+            conditions: product.conditions,
+            notes: product.notes,
+            burst: product.burst,
+            addl: product.addl,
+            limit: product.limit,
+            must_buy: product.must_buy,
+            with_cart: product.with_cart,
         }));
         await fetch(url, {
             method: 'POST',
