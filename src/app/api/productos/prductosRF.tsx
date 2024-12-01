@@ -117,7 +117,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     quality_cf: '',
                     type_of_meat: '',
                     type_of_cut: '',
-                    price: 0,
+                    price: "0",
                 });
             }
         });

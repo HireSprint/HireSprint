@@ -62,14 +62,14 @@ export default function HomePage() {
 
             try {
                 const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/getCircularProducts/${idCircular}`);
-                
+
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
 
                 const data = await response.json();
                 console.log(data, "data");
-                
+
                 if (data.success) {
                     const loadedProducts = data.result.map((item: any) => ({
                         grid_id: item.grid_id,
@@ -116,7 +116,7 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
             console.log("Circular actualizado en el servidor");
             // Opcional: actualizar estado local si es necesario
@@ -139,9 +139,9 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
-            
+
             updateCircularInServer(updatedProducts);
-            
+
             return updatedProducts;
         });
 
@@ -153,9 +153,9 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
     const handleRemoveProduct = (idGrid: number) => {
         setSelectedProducts((prevProducts) => {
             const updatedProducts = prevProducts.filter((product) => product.id_grid !== idGrid);
-            
+
             updateCircularInServer(updatedProducts);
-            
+
             return updatedProducts;
         });
 
@@ -199,20 +199,20 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
             const cellId = htmlElementId && Number(htmlElementId.replace(prefix,''))
             return cellId
         }
-        
+
         const findGridCellTarget = ( parentElement: any, count= 0 ) => {
             if ( !parentElement ) return;
             if ( parentElement.id && parentElement.id.includes('grid-card-product-') ) return parentElement
-            
+
             if ( count <= 7 ) return findGridCellTarget( parentElement.parentNode, count += 1 )
-            else return 
+            else return
         }
 
         const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
 
         if (productIdToSelect) {
             const productSelected = productsData.find((prod) => prod.id_product === productIdToSelect)
-            
+
             if (productSelected) {
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
                 const cellIdTarget = getCellId(gridCellTarget);
@@ -223,9 +223,9 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
                     setSelectedProducts((prev) => {
                         const newProducts = prev.filter((p) => p.id_grid !== cellIdTarget);
                         const updatedProducts = [...newProducts, productWithGrid];
-                        
+
                         updateCircularInServer(updatedProducts);
-                        
+
                         return updatedProducts;
                     });
                 }
@@ -293,7 +293,7 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
 
     }
 
-    const handleSaveChangeProduct = (gridID: number | undefined, price: number, note : string, brust : string) => {
+    const handleSaveChangeProduct = (gridID: number | undefined, price: string, note : string, brust : string) => {
         if (gridID === undefined) {
             return;
         }
@@ -772,9 +772,9 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
 
                 </div>
                 <div className="overflow-y-auto no-scrollbar h-full">
-                    
+
                         {
-                            filteredProducts.length === 0 ? 
+                            filteredProducts.length === 0 ?
                             (
                                 <div className='py-3'>
                                     <Message
@@ -784,8 +784,8 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
                                         text={searchTerm ? "Products not found" : "There are no products of this category"}
                                         />
                                 </div>
-                            ) 
-                            : 
+                            )
+                            :
                             <div className="grid grid-cols-4 pt-2 gap-2">
                                 {
                                     ( loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (

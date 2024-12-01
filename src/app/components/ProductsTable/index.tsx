@@ -73,7 +73,7 @@ const columns = [
         footer: info => info.column.id,
     }),
     columnHelper.accessor('price', {
-        cell: info => `$${info.getValue().toFixed(2)}`,
+        cell: info => `$${info.getValue()}`,
         header: () => 'Price',
         footer: info => info.column.id,
     }),

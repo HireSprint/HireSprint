@@ -10,7 +10,7 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: (idGrid: number | undefined, priceValue: number, noteUser: string, brust: string) => void,
+    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, brust: string) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -28,7 +28,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
     const SELECT_OPTIONS = ["Each", "Lb"]
-    const [price, setPrice] = useState(product?.price || 0);
+    const [price, setPrice] = useState(product?.price || "");
     const [notes, setNote] = useState(product?.notes || "");
     const [brust, setBrust] = useState(product?.burst || "")
     const [burstOption, setBurstOption] = useState<burstInterface[]|[]>([])
@@ -195,11 +195,10 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             <div className="flex items-center gap-1">
                                                 <h3 className="font-bold text-black">Price:</h3>
                                                 <input
-                                                    type="number"
+                                                    type="text"
                                                     value={price} // El valor está controlado por el estado
                                                     onChange={(event) => {
-                                                        const newValue = parseFloat(event.target.value) || 0; // Convertir a número
-                                                        setPrice(newValue); // Actualiza el valor del estado
+                                                        setPrice(event.target.value); // Actualiza el valor del estado
                                                     }}
                                                     className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
                                                 />
@@ -211,6 +210,9 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                 <select
                                                     className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
                                                 >
+                                                    <option value="" disabled selected>
+                                                        Size
+                                                    </option>
                                                     {SELECT_OPTIONS.map((item: string, index: number) => (
                                                         <option key={index}>{item}</option>
                                                     ))}
