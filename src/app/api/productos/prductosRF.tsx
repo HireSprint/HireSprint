@@ -48,7 +48,8 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             limit: product.limit || null,
             must_buy: product.must_buy || null,
             with_cart: product.with_cart || null,
-            desc: Array.isArray(product.desc) ? product.desc.join(", ") : ""
+            desc: Array.isArray(product.desc) ? product.desc.join(", ") : "",
+       
         }));
 
         // Hacer la solicitud HTTP POST al script de Google Apps
@@ -101,7 +102,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbzjzJtD9AUUy7hhbJNh4uTu3ccRqqb3pkk7unDAong-LUsSFBqA1ysnXobD1WUuuSkT/exec";
+    const url = "https://script.google.com/macros/s/AKfycbxmQWjnSXZRzZ5CHsyQS6Bd2dlnL_ZZjQMpoYdXwCmi4c3GDGPoAUtl3F2PXpHKzLLS/exec";
 
 
     try {
@@ -172,6 +173,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             limit: product.limit,
             must_buy: product.must_buy,
             with_cart: product.with_cart,
+
+          
         }));
         await fetch(url, {
             method: 'POST',
