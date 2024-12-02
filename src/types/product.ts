@@ -5,7 +5,7 @@ export interface ProductTypes {
     upc: string,
     size?: string,
     variety?: [string],
-    price: number,
+    price: string,
     conditions?: string,
     sku?: string,
     desc?: string,
@@ -37,6 +37,9 @@ export interface ProductTypes {
     type_of_cut?: string
     quality_cf?: string
     category?: string,
+    plu?: string,
+    limit?: string
+    must_buy?: string
 
 }
 

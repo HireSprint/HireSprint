@@ -16,7 +16,7 @@ interface CardProductProps {
   onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
   onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
   onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
-  onPriceChange?: (id: string, price: number) => void;
+  onPriceChange?: (id: string, price: string) => void;
   isLoading?: boolean;
   enableDragAndDrop?: boolean;
   page?: number;
@@ -57,7 +57,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
 export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, onProductSelect}) => {
     const [isLoading, setIsLoading] = useState(true);
     const [showImage, setShowImage] = useState(false);
-    const [localPrice, setLocalPrice] = useState(product.price || 0)
+    const [localPrice, setLocalPrice] = useState(product.price)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -70,10 +70,10 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
     const handleImageLoad = () => setIsLoading(false);
 
     const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newPrice = parseFloat(e.target.value);
+        const newPrice = e.target.value;
         setLocalPrice(newPrice);
         if (onPriceChange) {
-            onPriceChange(String(product.id_product), newPrice);
+            onPriceChange(String(product.id_product), String(newPrice));
         }
     };
 
@@ -117,7 +117,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
                     )}
                 </div>
             )}
-            <p className="text-gray-600 mt-2">Precio: ${localPrice.toFixed(2)}</p>
+            <p className="text-gray-600 mt-2">Precio: ${parseFloat(localPrice).toFixed(2)}</p>
             <button
                 onClick={handleUpdate}
                 className="mt-2 bg-blue-500 text-white px-2 py-1 rounded"
@@ -136,7 +136,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
         >
             <div className="flex flex-col w-full">
                 <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product?.desc ? product?.desc : product?.name}</h2>
-                <p className="text-gray-600 text-sm mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+                <p className="text-gray-600 text-sm mb-4">${parseFloat(product.price || "0").toFixed(2)}</p>
             </div>
             <div className="relative flex items-center justify-end">
                 {product.url_image ? (
@@ -226,7 +226,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                     ref={elementRef}
                     id={ 'grid-card-product-' + cell?.id }
                     key={cell?.id}
-                    className={`absolute border-2 border-black ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
+                    className={`absolute border-2 border-gray-400 ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
                     style={{width: cell?.width, height: cell?.height}}
                     onClick={(e) => {
                         if (!productReadyDrag) {
@@ -262,14 +262,14 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                             </span>
                                             <span className="text-red-500">
                                                 <span className="@[27px]:text-[5.6px] @[47px]:text-[7.2px] @[77px]:text-[8.8px]">$</span>
-                                                { product.price?.toFixed(2) || '0.00' }
+                                                { product.price }
                                             </span>
                                         </>
                                     )}
                                 </div>
-                                <div className="absolute bottom-0 w-full flex flex-col items-end">
+                                <div className="absolute bottom-0 w-full flex flex-col items-end ">
                                     {product?.conditions && product.conditions !== 'undefined' && (
-                                        <span className="absolute left-0 bottom-0 text-orange-600 font-bold uppercase @[27px]:text-[5.6px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px]">
+                                        <span className="text-green-600 absolute left-0 bottom-0 text-orange-600 font-bold uppercase @[27px]:text-[5.6px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px]">
                                             {product.conditions}
                                         </span>
                                     )}

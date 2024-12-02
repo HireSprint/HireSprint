@@ -6,13 +6,12 @@ import { useCategoryContext } from "../context/categoryContext";
 import { useProductContext } from "../context/productContext";
 import { ProductTypes } from "@/types/product";
 import { Skeleton } from "primereact/skeleton";
-import { Message } from "primereact/message";
-import { Tooltip } from 'primereact/tooltip';
 
 
 interface BottomBarProps {
   onCategorySelect: (category: categoriesInterface) => void;
   categorySelected: categoriesInterface | null;
+  onClick?: () => void;
 }
 
 interface BottomBarButton {
@@ -22,7 +21,7 @@ interface BottomBarButton {
   onClick?: (e: React.MouseEvent) => void;
 }
 
-const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
+const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarProps) => {
   const { categoriesData } = useCategoryContext();
   const { productsData } = useProductContext();
   const [bottomBarButtons, setBottomBarButtons] = useState<{ main: BottomBarButton[]; more: BottomBarButton[]; all: BottomBarButton[] }>({ main: [], more: [], all: [] });
@@ -34,7 +33,7 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
   const [showMore, setShowMore] = useState(false);
   const bottomBarRef = useRef<HTMLDivElement>(null);
   const scrollPosition = useRef(0);
-  const tooltipRef = useRef<Tooltip>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
 
   const sidebarIcons = [
@@ -91,22 +90,6 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
     };
   };
 
-  // Función para manejar el scroll horizontal
-  const handleWheel = (event: any) => {
-    if (bottomBarRef.current) {
-      bottomBarRef.current.scrollLeft += event.deltaY;
-      event.stopPropagation();
-    }
-  };
-
-  
-  // movescroll dynamically
-  const handleManualScroll = ({direction}: { direction: "left" | "right" }) => {
-    if (bottomBarRef.current) {
-      const move = direction === "left" ? -400 : 400;
-      bottomBarRef.current.scrollBy({ left: move, behavior: 'smooth' });
-    }
-  };
 
   // verifica si se debe mostar los botones de scroll
   const checkScroll = () => {
@@ -176,6 +159,18 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
 
   const isActive = (categoryId: number) => categorySelected?.id_category === categoryId;
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowCategories(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   if (!categoriesData.length || !productsData.length) {
     return (
@@ -185,82 +180,48 @@ const BottomBar = ({ onCategorySelect, categorySelected }: BottomBarProps) => {
     );
   }
 
-  // html del boton
-  const CategoryButton = ({ category, label, Icon }: { category: categoriesInterface; label:string; Icon: any }) => (
-    <div className="flex flex-col items-center min-w-[125px] text-center group cursor-pointer hover:scale-[1.05]" onClick={() => onCategorySelect(category)} >
-      <button className={`w-16 h-16 border-2 ${ isActive(category.id_category) ? "border-[#7cc304]" : "border-[#606060]" } rounded-lg flex items-center justify-center group-hover:border-[#7cc304]`} >
-        {Icon && <Icon isActive={isActive(category.id_category)} />}
+  return (
+    <div ref={dropdownRef} className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+      <button 
+        className="bg-white text-black px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-2"
+        onClick={() => {
+          setShowCategories(!showCategories);
+          onClick?.();
+        }}
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-5 w-5" 
+          viewBox="0 0 20 20" 
+          fill="currentColor"
+        >
+          <path 
+            fillRule="evenodd" 
+            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" 
+            clipRule="evenodd" 
+          />
+        </svg>
+        Show Categories
       </button>
 
-      <p className={`text-sm ${ isActive(category.id_category) ? "text-[#7cc304]" : "text-[#606060]" } group-hover:text-[#7cc304]`} >
-        {label}
-      </p>
-    </div>
-  )
-
-  // listado a utilizar dependiendo si esta filtrando o si se esta mostrando todo o solo los principales
-  const categoryList = searchTerm ? filteredButtons : showMore ?  [...bottomBarButtons.main, ...bottomBarButtons.more ] : bottomBarButtons.main
-
-  return (
-    <div  className="grid grid-rows-[1fr_min-content] bg-white shadow-up-lg p-2">
-      
-      {/* barra de tareas */}
-      <div className="flex justify-between gap-4">
-        <div className="flex gap-4">
-          <button type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors" onClick={() => setShowCategories(!showCategories)} >
-            <span className="text-sm">{ showCategories ? "Hide Categories" : "Show Categories" }</span> 
-          </button>
-
-          {
-            <div className={`flex gap-4 overflow-hidden transition-all duration-300 ${ showCategories ? "max-w-[210px]" : "max-w-0" }`}>
-              <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 border border-gray-300 rounded w-[150px] h-[35px]" />
-
-              <Tooltip target="#show-more-btn" ref={tooltipRef} content={ showMore ? "Hide More Categories" : "Show More Categories" } position="right"/>
-              { !searchTerm &&
-                <button id="show-more-btn" type="button" className="bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors" onClick={() => { setShowMore(!showMore); tooltipRef && tooltipRef.current && tooltipRef.current.hide()} }>
-                  <div className={`transform transition-transform duration-500 ${ showMore ? 'rotate-90': '-rotate-90' }`}>
-                    <CircleArrowIcon color="#fff" />
-                  </div>
-                </button>
-              }
-            </div>
-          }
+      {showCategories && (
+        <div className="absolute bottom-16 bg-white rounded-lg shadow-xl w-64 py-2 border border-gray-200 text-black">
+          <div className="max-h-96 overflow-y-auto">
+            {categoriesData?.map((category) => (
+              <button
+                key={category.id_category}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors duration-200"
+                onClick={() => {
+                  onCategorySelect(category);
+                  setShowCategories(false);
+                }}
+              >
+                {category.name_category}
+              </button>
+            ))}
+          </div>
         </div>
-
-        <div className={`flex items-center gap-4 overflow-hidden transition-all duration-500 ${ showCategories && showScrollButtons  ? "max-w-[210px]" : "max-w-0" }`}>
-          <button disabled={!canScrollLeft} id="scroll-start" type="button" className={`bg-[#7cc304] h-fit text-white p-[5px] rounded-md ${canScrollLeft ? 'hover:bg-green-600' : 'opacity-50 cursor-not-allowed'} transition-colors`} onClick={() => { handleManualScroll({ direction: "left" }); } }>
-              <div className="rotate-180">
-              <ArrowIcon color="#fff" />
-            </div>
-          </button>
-
-          <button disabled={!canScrollRight} id="scroll-end" type="button" className={`bg-[#7cc304] h-fit text-white p-[5px] rounded-md ${canScrollRight ? 'hover:bg-green-600' : 'opacity-50 cursor-not-allowed'} transition-colors`} onClick={() => { handleManualScroll({ direction: "right" }) } }>
-              <div >
-              <ArrowIcon color="#fff" />
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* listado de categorías */}
-      <div ref={bottomBarRef} onWheel={handleWheel} className={`w-full flex no-scrollbar overflow-x-auto overflow-y-hidden gap-2 overflow-hidden transition-all duration-300 ${ showCategories ? "h-[95px] pt-2" : "h-0" }`}>
-
-        {
-          searchTerm && filteredButtons.length === 0 ?
-          (
-            <Message
-              style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
-              className="w-full max-w-[230px]"
-              severity="error"
-              text="Category not found"
-            />
-          )
-          :
-          categoryList.map(({ category, label, Icon }) => (
-            <CategoryButton key={category.id_category} category={category} label={label} Icon={Icon} />
-          ))
-        }
-      </div>
+      )}
     </div>
   );
 };

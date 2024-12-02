@@ -12,6 +12,8 @@ import { useCategoryContext } from "./context/categoryContext";
 import { categoriesInterface } from "@/types/category";
 import { Message } from "primereact/message";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
+import { useAuth } from "./components/provider/authprovider";
+
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -20,16 +22,15 @@ export default function HomePage() {
     const [category, setCategory] = useState<categoriesInterface | null>(null);
     const [showProductCardBrand, setShowProductCardBrand] = useState<boolean>(true);
 
-   const updateLocalStorage = (products: ProductTypes[]) => {
-    localStorage.setItem('selectedProducts', JSON.stringify(products));
-    };
+
     //states modal for grids with [id_circular] selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
-
+    const [updateCircular, setUpdateCircular] = useState();
+    const { idCircular, user } = useAuth();
     const { categoriesData } = useCategoryContext();
     //
     const [showProducts, setShowProducts] = useState(false);
@@ -52,6 +53,82 @@ export default function HomePage() {
         getProductView();
     }, []);
 
+    useEffect(() => {
+        const loadCircularProducts = async () => {
+            if (!idCircular) {
+                console.log("No hay circular seleccionado");
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/getCircularProducts/${idCircular}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(data, "data");
+                
+                if (data.success) {
+                    const loadedProducts = data.result.map((item: any) => ({
+                        grid_id: item.grid_id,
+                        upc: item.upc,
+                    }));
+
+                    setSelectedProducts(loadedProducts);
+                } else {
+                    throw new Error(data.message || "Error al cargar productos del circular");
+                }
+            } catch (error) {
+                console.error("Error al cargar productos del circular:", error);
+            }
+        };
+
+        loadCircularProducts();
+    }, [idCircular, user]); // Se ejecuta cuando cambia el idCircular
+
+
+    // Función para actualizar el servidor
+const updateCircularInServer = async (products: ProductTypes[]) => {
+    if (!idCircular || !products) {
+        return;
+    }
+
+    try {
+        const response = await fetch("https://hiresprintcanvas.dreamhosters.com/updateCircular", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id_circular: idCircular,
+                circular_products_upc: products.map(product => ({
+                    grid_id: product.id_grid,
+                    upc: product.upc
+                }))
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log("Circular actualizado en el servidor");
+            // Opcional: actualizar estado local si es necesario
+            setUpdateCircular(data.result);
+        } else {
+            throw new Error(data.message || "Error al actualizar circular");
+            }
+        } catch (error) {
+            console.error("Error en updateCircular:", error);
+        }
+    };
+
+
 
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
@@ -61,6 +138,9 @@ export default function HomePage() {
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
+            
+            updateCircularInServer(updatedProducts);
+            
             return updatedProducts;
         });
 
@@ -72,7 +152,9 @@ export default function HomePage() {
     const handleRemoveProduct = (idGrid: number) => {
         setSelectedProducts((prevProducts) => {
             const updatedProducts = prevProducts.filter((product) => product.id_grid !== idGrid);
-            updateLocalStorage(updatedProducts);
+            
+            updateCircularInServer(updatedProducts);
+            
             return updatedProducts;
         });
 
@@ -125,14 +207,12 @@ export default function HomePage() {
             else return 
         }
 
-        // id del producto que se quiere seleccionar
         const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
 
         if (productIdToSelect) {
             const productSelected = productsData.find((prod) => prod.id_product === productIdToSelect)
             
             if (productSelected) {
-                // id del grid en el que se quiere seleccionar el producto
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
                 const cellIdTarget = getCellId(gridCellTarget);
 
@@ -142,6 +222,9 @@ export default function HomePage() {
                     setSelectedProducts((prev) => {
                         const newProducts = prev.filter((p) => p.id_grid !== cellIdTarget);
                         const updatedProducts = [...newProducts, productWithGrid];
+                        
+                        updateCircularInServer(updatedProducts);
+                        
                         return updatedProducts;
                     });
                 }
@@ -153,23 +236,19 @@ export default function HomePage() {
         setSelectedProducts((prev) => {
             const updatedProducts = prev.map(product => {
                 if (product.id_grid === sourceGridId) {
-                    // Actualizar el gridId del producto que se está moviendo
                     return { ...product, id_grid: targetGridId };
                 }
-
-                if ( product.id_grid === targetGridId) {
-                    // Si hay un producto en el grid destino, moverlo al grid origen
+                if (product.id_grid === targetGridId) {
                     return { ...product, id_grid: sourceGridId };
                 }
-
                 return product;
             });
 
+            updateCircularInServer(updatedProducts);
+
             return updatedProducts;
         });
-
-
-    }
+    };
 
     const handleGridClick = (gridId: number, idCategory: number | undefined,  event: React.MouseEvent) => {
         if (!event) {
@@ -179,6 +258,10 @@ export default function HomePage() {
 
         setMousePosition({ x: event.clientX, y: event.clientY });
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
+
+        if (category) {
+            setCategory(null);
+        }
 
         if (gridHasProduct && productoShowForce) {
             const selectedProduct = selectedProducts.find(product => product.id_grid === gridId);
@@ -213,30 +296,32 @@ export default function HomePage() {
 
     }
 
-    const handleSaveChangeProduct = (gridID: number | undefined, price: number, note : string, brust : string) => {
-        if (gridID === undefined) {
-            return;
-        }
-        // Encuentra el índice del producto que deseas actualizar
+    const handleSaveChangeProduct = (gridID: number | undefined, price: string, conditions: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean) => {
+        if (gridID === undefined) return;
+        
         const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
-        if (productIndex === -1) {
+        if (productIndex === -1) return;
 
-            return;
-        }
-
-        // Actualiza directamente el producto
         selectedProducts[productIndex].price = price;
-        selectedProducts[productIndex].notes = note;
-        selectedProducts[productIndex].burst = brust;
+        selectedProducts[productIndex].conditions = conditions;
+        selectedProducts[productIndex].burst = burst;
+        selectedProducts[productIndex].addl = addl;
+        selectedProducts[productIndex].limit = limit;
+        selectedProducts[productIndex].must_buy = mustBuy;
+        selectedProducts[productIndex].with_cart = withCard;
 
-        // Llama a setProductsData para que React reconozca el cambio
-        setProductsData([...selectedProducts]);  // El operador de propagación crea una nueva referencia para que React detecte cambios
-        updateLocalStorage(selectedProducts);
+        setProductsData([...selectedProducts]);
         ClosetPanels();
     };
 
     const handleCategorySelect = (category: categoriesInterface) => {
+        if (isModalOpen || showProducts) {
+            setShowProducts(false);
+            setIsModalOpen(false);
+            console.log("Abriste el panel")
+        }
         setCategory(category);
+        console.log("Seleccionaste la categoria")
     };
 
     const ClosetPanels = () => {
@@ -255,6 +340,7 @@ export default function HomePage() {
         setZoomScaleSubPagines(0.9);
     }, [currentPage]);
 
+    console.log(isModalOpen, showProducts)
     return (
 
     <div className="grid grid-rows-[1fr_min-content] overflow-hidden" >
@@ -267,7 +353,7 @@ export default function HomePage() {
                         animate={{y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
                         exit={{y: 1000}}
                         transition={{duration: 0.5}}
-                        className="fixed left-[35.5%] top-[95px]"
+                        className="fixed left-[35.5%] top-[155px]"
                     >
                         <ProductContainer category={category} setCategory={setCategory}
                                           onProductSelect={handleProductSelect}
@@ -298,28 +384,15 @@ export default function HomePage() {
                         <>
                             {/* Botones para modificar el zoom */}
                             <div
-                                className="flex flex-col space-y-2 p-4 bg-white shadow-md rounded-lg fixed top-4 right-4 z-50"
-                                style={{
-                                    width: "60px",
-                                    height: "auto",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
+                                className="flex space-x-2 justify-center items-center p-4  rounded-lg  z-50">
                                 <button
                                     onClick={() => {
-                                        //   zoomIn();
                                         setScale(scale + 50);
                                         const newScale = zoomScale + 0.5;
                                         setZoomScale(newScale);
-
-                                        // Ajusta el zoom para mantener el top visible
-                                        //   const adjustedY =
-                                        //     positionY - 50 * (newScale - (scale + 50));
                                         setTransform(0, 0, newScale);
                                     }}
-                                    className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                                >
+                                    className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                     +
                                 </button>
                                 <button
@@ -331,26 +404,24 @@ export default function HomePage() {
                                             setZoomScale(newScale);
                                         }
                                     }}
-                                    className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 mt-2"
-                                >
+                                    className="w-10  bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                     −
                                 </button>
                             </div>
 
                             <TransformComponent
                                 wrapperStyle={{
-                                    //    paddingTop: `${padding}px`,
                                     overflow: scale > 0.9 ? "auto" : "visible",
                                     width: "100%",
                                     height: "100%",
                                 }}
                             >
-                                <div className={" w-full h-full"}>
+                                <div>
                                     {/* @ts-ignore */}
                                     <ImageGrid {...commonGridProps} />
                                 </div>
                             </TransformComponent>
-                            <p className=" text-black text-md mt-4">Pagina 1</p>
+                            <p className=" text-black text-md">Page 1</p>
                         </>
                     )}
                 </TransformWrapper>
@@ -380,13 +451,7 @@ export default function HomePage() {
 
                                     {/* Botones para modificar el zoom */}
                                     <div
-                                        className="flex flex-col space-y-2 p-4 bg-white shadow-md rounded-lg fixed top-24 right-4 z-50"
-                                        style={{
-                                            width: "60px",
-                                            height: "auto",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}
+                                        className="relative -top-12 flex space-x-2 justify-center items-center rounded-lg  z-50"
                                     >
                                         <button
                                             onClick={() => {
@@ -395,8 +460,7 @@ export default function HomePage() {
                                                 setZoomScaleSubPagines(newScale);
                                                 setTransform(0, 0, newScale);
                                             }}
-                                            className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                                        >
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             +
                                         </button>
                                         <button
@@ -408,8 +472,7 @@ export default function HomePage() {
                                                     setZoomScaleSubPagines(newScale);
                                                 }
                                             }}
-                                            className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 mt-2"
-                                        >
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             −
                                         </button>
                                     </div>
@@ -422,14 +485,14 @@ export default function HomePage() {
                                             height: "100%",
                                         }}
                                     >
-                                        <div className="w-full h-full">
+                                        <div >
                                             {/* @ts-ignore */}
                                             <ImageGrid2 {...commonGridProps} />
                                         </div>
                                     </TransformComponent>
 
                                     {/* Número de página */}
-                                    <p className="text-black text-md mt-4">Página {currentPage}</p>
+                                    <p className="text-black text-md ">Page {currentPage}</p>
                                 </>
                             )}
                         </TransformWrapper>
@@ -450,13 +513,7 @@ export default function HomePage() {
                                 <>
                                     {/* Botones para modificar el zoom */}
                                     <div
-                                        className="flex flex-col space-y-2 p-4 bg-white shadow-md rounded-lg fixed top-24 right-4 z-50"
-                                        style={{
-                                            width: "60px",
-                                            height: "auto",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}
+                                        className="relative -top-12 flex space-x-2 justify-center items-center rounded-lg  z-50"
                                     >
                                         <button
                                             onClick={() => {
@@ -465,8 +522,7 @@ export default function HomePage() {
                                                 setZoomScaleSubPagines(newScale);
                                                 setTransform(0, 0, newScale);
                                             }}
-                                            className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                                        >
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             +
                                         </button>
                                         <button
@@ -478,8 +534,7 @@ export default function HomePage() {
                                                     setZoomScaleSubPagines(newScale);
                                                 }
                                             }}
-                                            className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 mt-2"
-                                        >
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             −
                                         </button>
                                     </div>
@@ -520,13 +575,7 @@ export default function HomePage() {
                                 <>
                                     {/* Botones para modificar el zoom */}
                                     <div
-                                        className="flex flex-col space-y-2 p-4 bg-white shadow-md rounded-lg fixed top-24 right-4 z-50"
-                                        style={{
-                                            width: "60px",
-                                            height: "auto",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}
+                                        className="relative -top-12 flex space-x-2 justify-center items-center rounded-lg  z-50"
                                     >
                                         <button
                                             onClick={() => {
@@ -535,8 +584,7 @@ export default function HomePage() {
                                                 setZoomScaleSubPagines(newScale);
                                                 setTransform(0, 0, newScale);
                                             }}
-                                            className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                                        >
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             +
                                         </button>
                                         <button
@@ -548,8 +596,7 @@ export default function HomePage() {
                                                     setZoomScaleSubPagines(newScale);
                                                 }
                                             }}
-                                            className="px-2 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 mt-2"
-                                        >
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             −
                                         </button>
                                     </div>
@@ -579,7 +626,8 @@ export default function HomePage() {
             </motion.div>
         </div>
         <section className="z-[52]">
-            <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category}/>
+            {/* @ts-ignore */}
+            <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect} />
         </section>
 
         {/* Mostrar / Ocultar productos */}
@@ -759,3 +807,4 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
         </div>
     );
 }
+

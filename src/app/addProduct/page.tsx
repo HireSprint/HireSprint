@@ -15,7 +15,8 @@ const AddProductPage = () => {
         handleSubmit,
         formState: { errors },
         watch,
-        reset
+        reset,
+        setValue
     } = useForm<ProductTypes>({
         defaultValues: {
             id_category: 0,
@@ -143,6 +144,7 @@ const AddProductPage = () => {
             formData.append('type_of_cut', data.type_of_cut || "");
             formData.append('quality_cf', data.quality_cf || "");
             formData.append('createdById', user?.userData?.id_client || 0);
+            formData.append('plu', data.plu || "");
             // Agregar la imagen
             if (data.image) formData.append('image', data.image[0]);
 
@@ -157,6 +159,7 @@ const AddProductPage = () => {
                 toast.success("¡Product created successfully!");
                 setPreviewUrl(null);
                 reset();
+                setValue("sku", "");
             }
 
             if (!response.ok) {
@@ -320,6 +323,28 @@ const AddProductPage = () => {
         setIsEditModalOpen(true);
     };
 
+    // Agregar esta nueva función para generar SKU
+    const generateSKU = () => {
+        const generateRandomDigits = () => {
+            // Generar 8 dígitos aleatorios
+            let digits = '';
+            for (let i = 0; i < 8; i++) {
+                digits += Math.floor(Math.random() * 10);
+            }
+            return digits;
+        };
+
+        // Verificar si el SKU ya existe
+        const newSKU = `SKU${generateRandomDigits()}`;
+        const skuExists = productsData.some(product => product.sku === newSKU);
+
+        // Si existe, generar otro
+        if (skuExists) {
+            return generateSKU();
+        }
+
+        return newSKU;
+    };
 
     // Componente Modal de Edición
     const EditProductModal = ({ product, onClose, onUpdate }: {
@@ -662,6 +687,11 @@ const AddProductPage = () => {
                             <input {...register("desc", { required: true })} 
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
+                        <div style={inputContainerStyle}>
+                            <label htmlFor="plu" style={labelStyle}>PLU</label>
+                            <input {...register("plu")} 
+                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                        </div>
                     </div>
                 </div>
 
@@ -716,7 +746,32 @@ const AddProductPage = () => {
                             {isSearching ? "Searching..." : "Search"}
                         </button>
                     </div>
+                    <div className=" bg-gray-800  rounded-lg mt-4">
+                    <h2 className="text-white text-xl mb-4">SKU Generator</h2>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={watch("sku") || ""}
+                            readOnly
+                            placeholder="SKU generado"
+                            className="p-2 border rounded text-black flex-1 "
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const newSKU = generateSKU();
+                                // Actualizar el valor del campo SKU en el formulario
+                                setValue("sku", newSKU);
+                            }}
+                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                        >
+                            Generate SKU
+                        </button>
+                        </div>
+                    </div>
                 </div>
+
+             
 
                 {/* Imagen y categoría */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">

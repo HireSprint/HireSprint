@@ -8,6 +8,13 @@ const config: Config = {
     './node_modules/primereact/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
+    screens: {
+      'sm': '440px',
+      'md': '700px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         background: "var(--background)",
@@ -26,4 +33,5 @@ const config: Config = {
     require('@tailwindcss/container-queries')
   ],
 };
+
 export default config;
