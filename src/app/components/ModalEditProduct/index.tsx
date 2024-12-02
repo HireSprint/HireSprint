@@ -10,7 +10,7 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean) => void,
+    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean, limitType: string) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -64,7 +64,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
         <React.Fragment>
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100  ">
                 {/* Contenido del Modal */}
-                <div className="relative xl:left-[24%] top-[3%] ">
+                <div className="relative lg:left-[24%] top-[3%] sm:left-[46%] ">
                     <button onClick={() => setIsOpen(false)}
                         className=" bg-gray-500 p-4 rounded-full border-2">
                         <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28"
@@ -114,213 +114,213 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                 ))}
                             </div>
                         </div>
-                    </div> 
+                    </div>
                     <div>
-                    <div className="rounded-lg align-baseline grid p-2 grid-cols-2 gap-4 space-x-2">
-                        <div className="space-y-2">
-                            {product?.master_brand && product.master_brand !== "undefined" && (
-                                <div className="flex items-center">
-                                    <h1 className="text-black font-bold w-32">Master Brand:</h1>
-                                    <h1 className="text-black uppercase">{product?.master_brand}</h1>
-                                </div>
-                            )}
-
-                            <div className="flex items-center">
-                                <h1 className="text-black font-bold w-32">Brand:</h1>
-                                <h1 className="text-black uppercase">{product?.brand}</h1>
-                            </div>
-
-                            <div className="flex items-center">
-                                <h1 className="text-black font-bold w-32">Description:</h1>
-                                <h1 className="text-black uppercase">{product?.desc ? product.desc : product?.name}</h1>
-                            </div>
-
-                            {product.id_category === 5 && (
-                                <>
+                        <div className="rounded-lg align-baseline grid p-2 grid-cols-2 gap-4 space-x-2">
+                            <div className="space-y-2">
+                                {product?.master_brand && product.master_brand !== "undefined" && (
                                     <div className="flex items-center">
-                                        <h1 className="text-black font-bold w-32">Type of Cut:</h1>
-                                        <h1 className="text-black uppercase">{product?.type_of_cut}</h1>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <h1 className="text-black font-bold w-32">Type of Meat:</h1>
-                                        <h1 className="text-black uppercase">{product?.type_of_meat}</h1>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <h1 className="text-black font-bold w-32">Quality CF:</h1>
-                                        <h1 className="text-black uppercase">{product?.quality_cf}</h1>
-                                    </div>
-                                </>
-                            )}
-
-                            <div className="flex items-center">
-                                <h1 className="text-black font-bold w-32">Variety:</h1>
-                                <h1 className="text-black uppercase">{product?.variety}</h1>
-                            </div>
-
-                            <div className="flex items-center">
-                                <h1 className="text-black font-bold w-32">Size:</h1>
-                                <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
-                            </div>
-                            <div>
-                                <div className="flex flex-row items-center gap-5">
-                                    {/* Título y Campo de Precio */}
-                                    <div className="flex items-center gap-1">
-                                        <h3 className="font-bold text-black">Price:</h3>
-                                        <input
-                                            type="text"
-                                            value={price}
-                                            onChange={(event) => {
-                                                const newValue = event.target.value
-                                                setPrice(newValue);
-                                            }}
-                                            className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex w-full flex-row justify-start gap-5">
-                                <div className="flex items-center gap-1">
-                                    <h3 className="font-bold text-black w-10">Per:</h3>
-                                    <select
-                                        className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
-                                        defaultValue=""
-                                    >
-                                        <option value="" disabled></option>
-                                        {SELECT_OPTIONS.map((item: string, index: number) => (
-                                            <option key={index} value={item}>{item}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex items-center">
-                            <h1 className="text-black font-bold pr-2">Comment:</h1>
-                            <input
-                                type="text"
-                                value={notes}
-                                onChange={(event) => {
-                                    const newValue = event.target.value
-                                    setNotes(newValue);
-                                    }}
-                                    className="w-full  p-1 border border-gray-950 rounded font-bold text-black"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                        <div className="flex items-center">
-                            <h1 className="text-black font-bold pr-2">UPC/PLU:</h1>
-                            <h1 className="text-black text-red-500 font-bold">{product?.upc}</h1>
-                        </div>
-                        <div className="flex justify-center pt-12 pb-4">
-                            <h1 className="text-black font-bold w-24">Conditions</h1>
-                        </div>
-                        <div className="flex">
-                            <h1 className="text-black font-bold pr-2">Add'l $: </h1>
-                            <input
-                                type="text"
-                                value={addl}
-                                onChange={(event) => {
-                                    const newValue = event.target.value
-                                    setAddl(newValue);
-                                }}
-                                className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
-                            />
-                        </div>
-                        <div className="flex pt-2 items-center">
-                            <h1 className="text-black font-bold pr-2 w-16">Limit: </h1>
-                            <input
-                                type="text"
-                                value={limit}
-                                onChange={(event) => {
-                                    const newValue = event.target.value
-                                    setLimit(newValue);
-                                }}
-                                className="w-12 p-1 border border-gray-950 rounded font-bold text-black"
-                            />
-
-                            <div className="relative ml-2">
-                                <button
-                                    className={`flex items-center justify-center p-2 border rounded ${limitType !== '' ? 'bg-blue-500 text-white' : 'border-gray-950'}`}
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                >
-                                    <svg
-                                        className="w-4 h-4 text-black"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-
-                                {isDropdownOpen && (
-                                    <div className="absolute top-full mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg">
-                                        <div
-                                            className={`px-4 py-2 cursor-pointer text-black ${limitType === 'Per Family' ? 'bg-blue-500 text-white ' : 'hover:bg-gray-100 '}`}
-                                            onClick={() => {
-                                                setLimitType('Per Family');
-                                                setIsDropdownOpen(false);
-                                            }}
-                                        >
-                                            Per Family
-                                        </div>
-                                        <div
-                                            className={`px-4 py-2  cursor-pointer text-black ${limitType === 'Per Offer' ? 'bg-blue-500 text-white no-hover' : 'hover:bg-gray-100 '}`}
-                                            onClick={() => {
-                                                setLimitType('Per Offer');
-                                                setIsDropdownOpen(false);
-                                            }}
-                                        >
-                                            Per Offer
-                                        </div>
+                                        <h1 className="text-black font-bold w-32">Master Brand:</h1>
+                                        <h1 className="text-black uppercase">{product?.master_brand}</h1>
                                     </div>
                                 )}
-                            </div>
-                        </div>
-                        <div className=" flex items-center pt-2">
-                            <h1 className="text-black font-bold pr-2">Must Buy: </h1>
-                            <input
-                                type="text"
-                                value={mustBuy}
-                                onChange={(event) => {
-                                    const newValue = event.target.value
-                                    setMustBuy(newValue);
-                                }}
-                                className="w-16 p-1 border border-gray-950 rounded font-bold text-black"
-                            />
-                        </div>
-                        <div className="flex items-center pt-2">
-                            <h1 className="text-black font-bold pr-2">With Card: </h1>
-                            <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="flex gap-10 items-center justify-center pt-4">
-                        <button
-                            className="bg-gray-500 p-2 text-black rounded-md "
-                            onClick={() => ChangeFC(GridID)}>
-                            <div className="flex gap-2">
-                                <ChangeIcon />
-                                Swap Item
+                                <div className="flex items-center">
+                                    <h1 className="text-black font-bold w-32">Brand:</h1>
+                                    <h1 className="text-black uppercase">{product?.brand}</h1>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <h1 className="text-black font-bold w-32">Description:</h1>
+                                    <h1 className="text-black uppercase">{product?.desc ? product.desc : product?.name}</h1>
+                                </div>
+
+                                {product.id_category === 5 && (
+                                    <>
+                                        <div className="flex items-center">
+                                            <h1 className="text-black font-bold w-32">Type of Cut:</h1>
+                                            <h1 className="text-black uppercase">{product?.type_of_cut}</h1>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <h1 className="text-black font-bold w-32">Type of Meat:</h1>
+                                            <h1 className="text-black uppercase">{product?.type_of_meat}</h1>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <h1 className="text-black font-bold w-32">Quality CF:</h1>
+                                            <h1 className="text-black uppercase">{product?.quality_cf}</h1>
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="flex items-center">
+                                    <h1 className="text-black font-bold w-32">Variety:</h1>
+                                    <h1 className="text-black uppercase">{product?.variety}</h1>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <h1 className="text-black font-bold w-32">Size:</h1>
+                                    <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
+                                </div>
+                                <div>
+                                    <div className="flex flex-row items-center gap-5">
+                                        {/* Título y Campo de Precio */}
+                                        <div className="flex items-center gap-1">
+                                            <h3 className="font-bold text-black">Price:</h3>
+                                            <input
+                                                type="text"
+                                                value={price}
+                                                onChange={(event) => {
+                                                    const newValue = event.target.value
+                                                    setPrice(newValue);
+                                                }}
+                                                className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex w-full flex-row justify-start gap-5">
+                                    <div className="flex items-center gap-1">
+                                        <h3 className="font-bold text-black w-10">Per:</h3>
+                                        <select
+                                            className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
+                                            defaultValue=""
+                                        >
+                                            <option value="" disabled></option>
+                                            {SELECT_OPTIONS.map((item: string, index: number) => (
+                                                <option key={index} value={item}>{item}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="flex items-center">
+                                    <h1 className="text-black font-bold pr-2">Comment:</h1>
+                                    <input
+                                        type="text"
+                                        value={notes}
+                                        onChange={(event) => {
+                                            const newValue = event.target.value
+                                            setNotes(newValue);
+                                        }}
+                                        className="w-full  p-1 border border-gray-950 rounded font-bold text-black"
+                                    />
+                                </div>
                             </div>
-                        </button>
-                        <button
-                            className="bg-red-500 p-2 text-black rounded-md "
-                            onClick={() => DeleteFC(GridID)}>
-                            <div className="flex gap-2">
-                                <DeleteIcon />
-                                Delete Item
+                            <div>
+                                <div className="flex items-center">
+                                    <h1 className="text-black font-bold pr-2">UPC/PLU:</h1>
+                                    <h1 className="text-black text-red-500 font-bold">{product?.upc}</h1>
+                                </div>
+                                <div className="flex justify-center pt-12 pb-4">
+                                    <h1 className="text-black font-bold w-24">Conditions</h1>
+                                </div>
+                                <div className="flex">
+                                    <h1 className="text-black font-bold pr-2">Add'l $: </h1>
+                                    <input
+                                        type="text"
+                                        value={addl}
+                                        onChange={(event) => {
+                                            const newValue = event.target.value
+                                            setAddl(newValue);
+                                        }}
+                                        className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
+                                    />
+                                </div>
+                                <div className="flex pt-2 items-center">
+                                    <h1 className="text-black font-bold pr-2 w-16">Limit: </h1>
+                                    <input
+                                        type="text"
+                                        value={limit}
+                                        onChange={(event) => {
+                                            const newValue = event.target.value
+                                            setLimit(newValue);
+                                        }}
+                                        className="w-12 p-1 border border-gray-950 rounded font-bold text-black"
+                                    />
+
+                                    <div className="relative ml-2">
+                                        <button
+                                            className={`flex items-center justify-center p-2 border rounded ${limitType !== '' ? 'bg-blue-500 text-white' : 'border-gray-950'}`}
+                                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        >
+                                            <svg
+                                                className="w-4 h-4 text-black"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        {isDropdownOpen && (
+                                            <div className="absolute top-full mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg">
+                                                <div
+                                                    className={`px-4 py-2 cursor-pointer text-black ${limitType === 'Per Family' ? 'bg-blue-500 text-white ' : 'hover:bg-gray-100 '}`}
+                                                    onClick={() => {
+                                                        setLimitType(limitType === 'Per Family' ? '' : 'Per Family');
+                                                        setIsDropdownOpen(false);
+                                                    }}
+                                                >
+                                                    Per Family
+                                                </div>
+                                                <div
+                                                    className={`px-4 py-2  cursor-pointer text-black ${limitType === 'Per Offer' ? 'bg-blue-500 text-white no-hover' : 'hover:bg-gray-100 '}`}
+                                                    onClick={() => {
+                                                        setLimitType(limitType === 'Per Offer' ? '' : 'Per Offer');
+                                                        setIsDropdownOpen(false);
+                                                    }}
+                                                >
+                                                    Per Offer
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className=" flex items-center pt-2">
+                                    <h1 className="text-black font-bold pr-2">Must Buy: </h1>
+                                    <input
+                                        type="text"
+                                        value={mustBuy}
+                                        onChange={(event) => {
+                                            const newValue = event.target.value
+                                            setMustBuy(newValue);
+                                        }}
+                                        className="w-16 p-1 border border-gray-950 rounded font-bold text-black"
+                                    />
+                                </div>
+                                <div className="flex items-center pt-2">
+                                    <h1 className="text-black font-bold pr-2">With Card: </h1>
+                                    <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
+                                </div>
                             </div>
-                        </button>
-                        <button
-                            className="p-2 text-black  bg-lime-500 rounded-md "
-                            onClick={() => SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard)}>
-                            <div className="flex gap-2">
-                                <SaveIcon />
-                                Save Changes
-                            </div>
-                        </button>
-                    </div>
+                        </div>
+
+                        <div className="flex gap-10 items-center justify-center pt-4">
+                            <button
+                                className="bg-gray-500 p-2 text-black rounded-md "
+                                onClick={() => ChangeFC(GridID)}>
+                                <div className="flex gap-2">
+                                    <ChangeIcon />
+                                    Swap Item
+                                </div>
+                            </button>
+                            <button
+                                className="bg-red-500 p-2 text-black rounded-md "
+                                onClick={() => DeleteFC(GridID)}>
+                                <div className="flex gap-2">
+                                    <DeleteIcon />
+                                    Delete Item
+                                </div>
+                            </button>
+                            <button
+                                className="p-2 text-black  bg-lime-500 rounded-md "
+                                onClick={() => SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limitType)}>
+                                <div className="flex gap-2">
+                                    <SaveIcon />
+                                    Save Changes
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
