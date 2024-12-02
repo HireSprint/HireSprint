@@ -68,7 +68,6 @@ export default function HomePage() {
                 }
 
                 const data = await response.json();
-                console.log(data, "data");
                 
                 if (data.success) {
                     const loadedProducts = data.result.map((item: any) => ({
@@ -115,10 +114,9 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         }
 
         const data = await response.json();
+        console.log(data, "data products")
         
         if (data.success) {
-            console.log("Circular actualizado en el servidor");
-            // Opcional: actualizar estado local si es necesario
             setUpdateCircular(data.result);
         } else {
             throw new Error(data.message || "Error al actualizar circular");
@@ -318,10 +316,8 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);
             setIsModalOpen(false);
-            console.log("Abriste el panel")
         }
         setCategory(category);
-        console.log("Seleccionaste la categoria")
     };
 
     const ClosetPanels = () => {
@@ -340,7 +336,6 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         setZoomScaleSubPagines(0.9);
     }, [currentPage]);
 
-    console.log(isModalOpen, showProducts)
     return (
 
     <div className="grid grid-rows-[1fr_min-content] overflow-hidden" >

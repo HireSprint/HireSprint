@@ -21,8 +21,8 @@ export const ImageGrid = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { selectedProducts, productDragging } = useProductContext();
-
+    const { productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const initialGridCells: cellTypes[] = [
         //meats
         { id: 1001, top: "top-[20.8%]", left: "left-[0%]", width: "24.2%", height: "6.9%", category: "Meat"},
@@ -91,7 +91,8 @@ export const ImageGrid = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-
+    const { idCircular, user } = useAuth();
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -102,7 +103,61 @@ export const ImageGrid = ({
                 })
             );
         }
-    }, [categoriesData]);
+    }, [categoriesData])
+
+    useEffect(() => {
+        const getProductByCircular = async () => {
+            try {
+                const reqBody = {
+                    "id_circular":Number(idCircular),
+                    "id_client":user.userData.id_client
+                }
+                const resp = await getProductsByCircular(reqBody)
+                
+                if(resp && resp.result) setCircularProducts(resp.result)
+                setLoading(false)
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
+            }
+        };
+
+        getProductByCircular();
+    }, [idCircular, user]);
+
+    useEffect(() => {
+        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
+            const productsMap = new Map(
+                productsData.map(product => [product.upc.toString(), product])
+            );
+
+            // Filtrar solo productos para el grid 1 (1001-1999)
+            const gridFilled = circularProducts
+                .filter(circularProduct => {
+                    const gridId = Number(circularProduct.id_grid) || 0;
+                    const isInRange = gridId >= 1001 && gridId <= 1999;
+                    return isInRange && productsMap.has(circularProduct.upc.toString());
+                })
+                .map(circularProduct => {
+                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
+                    return {
+                        ...baseProduct,
+                        id_grid: circularProduct.id_grid
+                    };
+                });
+
+            // Actualizar selectedProducts manteniendo solo los productos de este grid
+            setSelectedProducts(prevProducts => {
+                // Mantener productos de otros grids
+                const otherGridProducts = prevProducts.filter(p => {
+                    const gridId = Number(p.id_grid) || 0;
+                    return gridId < 1001 || gridId > 1999;
+                });
+
+                // Combinar con los nuevos productos de este grid
+                return [...otherGridProducts, ...gridFilled];
+            });
+        }
+    }, [productsData, gridCells, circularProducts]);
 
 
 
@@ -138,7 +193,6 @@ export const ImageGrid2 = ({
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, user } = useAuth();
     const {  productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
-    const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
     const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
     const initialGridCells: cellTypes[] = [
@@ -256,44 +310,33 @@ export const ImageGrid2 = ({
     }, [idCircular, user]);
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
-            // Crear un mapa de productos por UPC para búsqueda rápida
+        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
             const productsMap = new Map(
-                productsData.map(product => [product.upc, product])
+                productsData.map(product => [product.upc.toString(), product])
             );
-
-            // Mapear los productos del circular a sus posiciones específicas
+    
             const gridFilled = circularProducts
                 .filter(circularProduct => {
-                    return productsMap.has(circularProduct.upc);
+                    const gridId = Number(circularProduct.id_grid) || 0;
+                    const isInRange = gridId >= 2001 && gridId <= 2999;
+                    return isInRange && productsMap.has(circularProduct.upc.toString());
                 })
                 .map(circularProduct => {
-                    const product = productsMap.get(circularProduct.upc)!;
+                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
-                        ...product,
+                        ...baseProduct,
                         id_grid: circularProduct.id_grid
                     };
                 });
     
-            // Mantener los productos existentes y agregar los nuevos
             setSelectedProducts(prevProducts => {
-                // Crear un mapa de los productos existentes por id_grid
-                const existingProductsMap = new Map(
-                    prevProducts.map(product => [product.id_grid, product])
-                );
-    
-                // Agregar o actualizar productos del gridFilled
-                gridFilled.forEach(product => {
-                    existingProductsMap.set(product.id_grid, product);
+                const otherGridProducts = prevProducts.filter(p => {
+                    const gridId = Number(p.id_grid) || 0;
+                    return gridId < 2001 || gridId > 2999;
                 });
     
-                // Convertir el mapa de vuelta a array
-                return Array.from(existingProductsMap.values());
+                return [...otherGridProducts, ...gridFilled];
             });
-    
-            if (gridCells.some((cell) => cell?.idCategory != undefined && cell?.idCategory != null)) {
-                setHasFilledGrid(true);
-            }
         }
     }, [productsData, gridCells, circularProducts]);
 
@@ -488,45 +531,38 @@ export const ImageGrid3 = ({
         getProductByCircular();
     }, [idCircular, user]);
 
+
     useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
+        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
             const productsMap = new Map(
                 productsData.map(product => [product.upc.toString(), product])
             );
     
-            // Para ImageGrid3
             const gridFilled = circularProducts
                 .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;  // Asegurarnos que sea número
+                    const gridId = Number(circularProduct.id_grid) || 0;
                     const isInRange = gridId >= 3001 && gridId <= 3999;
-                    const hasUPC = productsMap.has(circularProduct.upc.toString());
-                    return isInRange && hasUPC;
+                    return isInRange && productsMap.has(circularProduct.upc.toString());
                 })
                 .map(circularProduct => {
-                    const product = productsMap.get(circularProduct.upc.toString())!;
+                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
-                        ...product,
+                        ...baseProduct,
                         id_grid: circularProduct.id_grid
                     };
                 });
     
-            if (gridFilled.length > 0) {
-                setSelectedProducts(prevProducts => {
-                    const existingProductsMap = new Map(
-                        prevProducts.map(product => [product.id_grid, product])
-                    );
-    
-                    gridFilled.forEach(product => {
-                        existingProductsMap.set(product.id_grid, product);
-                    });
-    
-                    return Array.from(existingProductsMap.values());
+            setSelectedProducts(prevProducts => {
+                const otherGridProducts = prevProducts.filter(p => {
+                    const gridId = Number(p.id_grid) || 0;
+                    return gridId < 3001 || gridId > 3999;
                 });
-            }
+    
+                return [...otherGridProducts, ...gridFilled];
+            });
         }
     }, [productsData, gridCells, circularProducts]);
 
- 
 
 
     return (
@@ -680,41 +716,35 @@ export const ImageGrid4 = ({
         getProductByCircular();
     }, [idCircular, user]);
 
+
     useEffect(() => {
-        if (productsData.length && gridCells.length && !hasFilledGrid && circularProducts?.length > 0) {
+        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
             const productsMap = new Map(
                 productsData.map(product => [product.upc.toString(), product])
             );
     
-            // Para ImageGrid3
             const gridFilled = circularProducts
                 .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;  // Asegurarnos que sea número
+                    const gridId = Number(circularProduct.id_grid) || 0;
                     const isInRange = gridId >= 4001 && gridId <= 4999;
-                    const hasUPC = productsMap.has(circularProduct.upc.toString());
-                    return isInRange && hasUPC;
+                    return isInRange && productsMap.has(circularProduct.upc.toString());
                 })
                 .map(circularProduct => {
-                    const product = productsMap.get(circularProduct.upc.toString())!;
+                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
-                        ...product,
+                        ...baseProduct,
                         id_grid: circularProduct.id_grid
                     };
                 });
     
-            if (gridFilled.length > 0) {
-                setSelectedProducts(prevProducts => {
-                    const existingProductsMap = new Map(
-                        prevProducts.map(product => [product.id_grid, product])
-                    );
-    
-                    gridFilled.forEach(product => {
-                        existingProductsMap.set(product.id_grid, product);
-                    });
-    
-                    return Array.from(existingProductsMap.values());
+            setSelectedProducts(prevProducts => {
+                const otherGridProducts = prevProducts.filter(p => {
+                    const gridId = Number(p.id_grid) || 0;
+                    return gridId < 4001 || gridId > 4999;
                 });
-            }
+    
+                return [...otherGridProducts, ...gridFilled];
+            });
         }
     }, [productsData, gridCells, circularProducts]);
 
