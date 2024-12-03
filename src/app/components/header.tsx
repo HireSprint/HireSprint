@@ -33,10 +33,6 @@ export default function Header() {
         getProductView();
     }, []);
 
-
-    const handleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
     
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
@@ -97,8 +93,8 @@ export default function Header() {
                     </button>
                 </div>
                 <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
-                    {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/}
                     <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
+                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Circular: {user?.userData.circular}</p>
                 </div>
                 <div className='flex items-center justify-center space-x-4 '>
                     {
@@ -141,7 +137,7 @@ export default function Header() {
                                     }}
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
-                                    view products
+                                    View Products
                                 </button>
                                 <button
                                     onClick={() => {
