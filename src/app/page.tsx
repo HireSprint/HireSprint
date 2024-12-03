@@ -70,10 +70,21 @@ export default function HomePage() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    const loadedProducts = data.result.map((item: any) => ({
-                        grid_id: item.grid_id,
-                        upc: item.upc,
-                    }));
+                    // Obtener los productos completos del productsData
+                    const loadedProducts = data.result.map((item: any) => {
+                        const fullProduct = productsData.find(p => p.upc === item.upc);
+                        return {
+                            ...fullProduct, // Mantener toda la información del producto
+                            id_grid: item.grid_id,
+                            price: item.price || fullProduct?.price, // Mantener el precio guardado o usar el default
+                            conditions: item.conditions,
+                            burst: item.burst,
+                            addl: item.addl,
+                            limit: item.limit,
+                            must_buy: item.must_buy,
+                            with_cart: item.with_cart
+                        };
+                    });
 
                     setSelectedProducts(loadedProducts);
                 } else {
@@ -85,7 +96,7 @@ export default function HomePage() {
         };
 
         loadCircularProducts();
-    }, [idCircular, user]); // Se ejecuta cuando cambia el idCircular
+    }, [idCircular, user, productsData]); // Se ejecuta cuando cambia el idCircular
 
 
     // Función para actualizar el servidor
@@ -104,7 +115,14 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
                 id_circular: idCircular,
                 circular_products_upc: products.map(product => ({
                     grid_id: product.id_grid,
-                    upc: product.upc
+                    upc: product.upc,
+                    price: product.price,
+                    conditions: product.conditions,
+                    burst: product.burst,
+                    addl: product.addl,
+                    limit: product.limit,
+                    must_buy: product.must_buy,
+                    with_cart: product.with_cart
                 }))
             })
         });
@@ -112,10 +130,7 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
         }
-
         const data = await response.json();
-        console.log(data, "data products")
-        
         if (data.success) {
             setUpdateCircular(data.result);
         } else {
@@ -294,21 +309,42 @@ const updateCircularInServer = async (products: ProductTypes[]) => {
 
     }
 
-    const handleSaveChangeProduct = (gridID: number | undefined, price: string, conditions: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean) => {
+    const handleSaveChangeProduct = (
+        gridID: number | undefined, 
+        price: string, 
+        conditions: string, 
+        burst: string, 
+        addl: string, 
+        limit: string, 
+        mustBuy: string, 
+        withCard: boolean
+    ) => {
         if (gridID === undefined) return;
         
-        const productIndex = selectedProducts.findIndex((product) => product.id_grid === gridID);
-        if (productIndex === -1) return;
-
-        selectedProducts[productIndex].price = price;
-        selectedProducts[productIndex].conditions = conditions;
-        selectedProducts[productIndex].burst = burst;
-        selectedProducts[productIndex].addl = addl;
-        selectedProducts[productIndex].limit = limit;
-        selectedProducts[productIndex].must_buy = mustBuy;
-        selectedProducts[productIndex].with_cart = withCard;
-
-        setProductsData([...selectedProducts]);
+        setSelectedProducts(prevProducts => {
+            const updatedProducts = prevProducts.map(product => {
+                if (product.id_grid === gridID) {
+                    const updatedProduct = {
+                        ...product,
+                        price,
+                        conditions,
+                        burst,
+                        addl,
+                        limit,
+                        must_buy: mustBuy,
+                        with_cart: withCard
+                    };
+                    return updatedProduct;
+                }
+                return product;
+            });
+    
+            // Actualizar el servidor con los cambios
+            updateCircularInServer(updatedProducts);
+            
+            return updatedProducts;
+        });
+    
         ClosetPanels();
     };
 

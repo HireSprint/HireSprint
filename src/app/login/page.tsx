@@ -41,7 +41,11 @@ const Login = () => {
               password: data.password,
               client_name: data.client_name,
               client_phone: data.phone,
-              client_address: data.address
+              client_city: data.city,
+              client_state: data.state,
+              client_zip: data.zipcode,
+              client_address: data.address,
+              client_country: data.country
           })
       });
 
@@ -98,16 +102,16 @@ const Login = () => {
         </h2>
 
         {isRegistering && (
-          <>
+          <div className="grid grid-cols-2 gap-4">
             <div className="mb-4">
               <input
                 placeholder="Full Name"
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                 {...register("client_name", { required: "The name is required" })}
               />
-              {errors.client_name &&
+              {errors.client_name && (
                 <span className="text-red-500 text-sm">{errors.client_name.message as string}</span>
-              }
+              )}
             </div>
 
             <div className="mb-4">
@@ -116,9 +120,9 @@ const Login = () => {
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                 {...register("phone", { required: "The phone is required" })}
               />
-              {errors.phone &&
+              {errors.phone && (
                 <span className="text-red-500 text-sm">{errors.phone.message as string}</span>
-              }
+              )}
             </div>
 
             <div className="mb-4">
@@ -127,11 +131,55 @@ const Login = () => {
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                 {...register("address", { required: "The address is required" })}
               />
-              {errors.address &&
+              {errors.address && (
                 <span className="text-red-500 text-sm">{errors.address.message as string}</span>
-              }
+              )}
             </div>
-          </>
+
+            <div className="mb-4">
+              <input
+                placeholder="City"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+                {...register("city", { required: "The city is required" })}
+              />
+              {errors.city && (
+                <span className="text-red-500 text-sm">{errors.city.message as string}</span>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <input
+                placeholder="State"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+                {...register("state", { required: "The state is required" })}
+              />
+              {errors.state && (
+                <span className="text-red-500 text-sm">{errors.state.message as string}</span>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <input
+                placeholder="Zipcode"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+                {...register("zipcode", { required: "The zipcode is required" })}
+              />
+              {errors.zipcode && (
+                <span className="text-red-500 text-sm">{errors.zipcode.message as string}</span>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <input
+                placeholder="Country"
+                className="!w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+                {...register("country", { required: "The country is required" })}
+              />
+              {errors.country && (
+                <span className="text-red-500 text-sm">{errors.country.message as string}</span>
+              )}
+            </div>
+          </div>
         )}
 
         <div className="mb-4">
