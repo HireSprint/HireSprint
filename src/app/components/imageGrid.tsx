@@ -129,7 +129,7 @@ export const ImageGrid = ({
             const productsMap = new Map(
                 productsData.map(product => [product.upc.toString(), product])
             );
-
+    
             // Filtrar solo productos para el grid 1 (1001-1999)
             const gridFilled = circularProducts
                 .filter(circularProduct => {
@@ -141,10 +141,17 @@ export const ImageGrid = ({
                     const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
                         ...baseProduct,
-                        id_grid: circularProduct.id_grid
+                        id_grid: circularProduct.id_grid,
+                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
+                        conditions: circularProduct.conditions,
+                        burst: circularProduct.burst,
+                        addl: circularProduct.addl,
+                        limit: circularProduct.limit,
+                        must_buy: circularProduct.must_buy,
+                        with_cart: circularProduct.with_cart
                     };
                 });
-
+    
             // Actualizar selectedProducts manteniendo solo los productos de este grid
             setSelectedProducts(prevProducts => {
                 // Mantener productos de otros grids
@@ -152,7 +159,7 @@ export const ImageGrid = ({
                     const gridId = Number(p.id_grid) || 0;
                     return gridId < 1001 || gridId > 1999;
                 });
-
+    
                 // Combinar con los nuevos productos de este grid
                 return [...otherGridProducts, ...gridFilled];
             });
@@ -315,6 +322,7 @@ export const ImageGrid2 = ({
                 productsData.map(product => [product.upc.toString(), product])
             );
     
+            // Filtrar solo productos para el grid 2 (2001-2999)
             const gridFilled = circularProducts
                 .filter(circularProduct => {
                     const gridId = Number(circularProduct.id_grid) || 0;
@@ -325,16 +333,26 @@ export const ImageGrid2 = ({
                     const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
                         ...baseProduct,
-                        id_grid: circularProduct.id_grid
+                        id_grid: circularProduct.id_grid,
+                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
+                        conditions: circularProduct.conditions,
+                        burst: circularProduct.burst,
+                        addl: circularProduct.addl,
+                        limit: circularProduct.limit,
+                        must_buy: circularProduct.must_buy,
+                        with_cart: circularProduct.with_cart
                     };
                 });
     
+            // Actualizar selectedProducts manteniendo solo los productos de este grid
             setSelectedProducts(prevProducts => {
+                // Mantener productos de otros grids
                 const otherGridProducts = prevProducts.filter(p => {
                     const gridId = Number(p.id_grid) || 0;
                     return gridId < 2001 || gridId > 2999;
                 });
     
+                // Combinar con los nuevos productos de este grid
                 return [...otherGridProducts, ...gridFilled];
             });
         }
@@ -538,6 +556,7 @@ export const ImageGrid3 = ({
                 productsData.map(product => [product.upc.toString(), product])
             );
     
+            // Filtrar solo productos para el grid 1 (1001-1999)
             const gridFilled = circularProducts
                 .filter(circularProduct => {
                     const gridId = Number(circularProduct.id_grid) || 0;
@@ -548,16 +567,26 @@ export const ImageGrid3 = ({
                     const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
                         ...baseProduct,
-                        id_grid: circularProduct.id_grid
+                        id_grid: circularProduct.id_grid,
+                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
+                        conditions: circularProduct.conditions,
+                        burst: circularProduct.burst,
+                        addl: circularProduct.addl,
+                        limit: circularProduct.limit,
+                        must_buy: circularProduct.must_buy,
+                        with_cart: circularProduct.with_cart
                     };
                 });
     
+            // Actualizar selectedProducts manteniendo solo los productos de este grid
             setSelectedProducts(prevProducts => {
+                // Mantener productos de otros grids
                 const otherGridProducts = prevProducts.filter(p => {
                     const gridId = Number(p.id_grid) || 0;
                     return gridId < 3001 || gridId > 3999;
                 });
     
+                // Combinar con los nuevos productos de este grid
                 return [...otherGridProducts, ...gridFilled];
             });
         }
@@ -723,6 +752,7 @@ export const ImageGrid4 = ({
                 productsData.map(product => [product.upc.toString(), product])
             );
     
+            // Filtrar solo productos para el grid 1 (1001-1999)
             const gridFilled = circularProducts
                 .filter(circularProduct => {
                     const gridId = Number(circularProduct.id_grid) || 0;
@@ -733,16 +763,26 @@ export const ImageGrid4 = ({
                     const baseProduct = productsMap.get(circularProduct.upc.toString())!;
                     return {
                         ...baseProduct,
-                        id_grid: circularProduct.id_grid
+                        id_grid: circularProduct.id_grid,
+                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
+                        conditions: circularProduct.conditions,
+                        burst: circularProduct.burst,
+                        addl: circularProduct.addl,
+                        limit: circularProduct.limit,
+                        must_buy: circularProduct.must_buy,
+                        with_cart: circularProduct.with_cart
                     };
                 });
     
+            // Actualizar selectedProducts manteniendo solo los productos de este grid
             setSelectedProducts(prevProducts => {
+                // Mantener productos de otros grids
                 const otherGridProducts = prevProducts.filter(p => {
                     const gridId = Number(p.id_grid) || 0;
                     return gridId < 4001 || gridId > 4999;
                 });
     
+                // Combinar con los nuevos productos de este grid
                 return [...otherGridProducts, ...gridFilled];
             });
         }

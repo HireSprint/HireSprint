@@ -242,7 +242,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                 {
                                     product?.url_image && (
                                         <div className="absolute justify-self-end self-center">
-                                            <div className="@[25px]:w-17 @[25px]:h-17    @[45px]:w-15 @[45px]:h-15    @[75px]:w-15 @[75px]:h-15">
+                                            <div className="@[66px]:w-10 @[66px]:h-10    @[71px]:w-16 @[71px]:h-16    @[125px]:w-16 @[125px]:h-18">
                                                 <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
                                             </div>
                                         </div>
