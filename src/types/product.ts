@@ -39,7 +39,8 @@ export interface ProductTypes {
     category?: string,
     plu?: string,
     limit?: string
-    must_buy?: string
+    must_buy?: string,
+    status_active?:boolean
 
 }
 
