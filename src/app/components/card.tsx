@@ -242,13 +242,13 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                 {
                                     product?.url_image && (
                                         <div className="absolute justify-self-end self-center">
-                                            <div className="@[27px]:w-20 @[27px]:h-20    @[47px]:w-20 @[47px]:h-20    @[77px]:w-20 @[77px]:h-20">
+                                            <div className="@[25px]:w-17 @[25px]:h-17    @[45px]:w-15 @[45px]:h-15    @[75px]:w-15 @[75px]:h-15">
                                                 <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
                                             </div>
                                         </div>
                                     )
                                 }
-                                <div className="absolute flex flex-col  text-blue-950 font-bold @[17px]:text-[10px] @[17px]:leading-[10px] @[27px]:text-[15px] @[27px]:leading-[15px] @[47px]:text-[15px] @[47px]:leading-[15px] @[77px]:leading-[15px] @[77px]:text-[15px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                <div className="absolute flex flex-col  text-blue-950 font-bold @[17px]:text-[7px] @[17px]:leading-[7px] @[27px]:text-[12px] @[27px]:leading-[12px] @[47px]:text-[14px] @[47px]:leading-[12px] @[77px]:leading-[13px] @[77px]:text-[13px] @[77px]:inset-[5px]" style={textShadowWhite}>
                                     {product && (
                                         <>
                                             <span className="text-blue-600 uppercase">
@@ -261,7 +261,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                                 { product.size }
                                             </span>
                                             <span className="text-red-500">
-                                                <span className="@[27px]:text-[20px] @[47px]:text-[20px] @[77px]:text-[20px]">$</span>
+                                                <span className="@[27px]:text-[10px] @[47px]:text-[20px] @[77px]:text-[17px]">$</span>
                                                 { product.price }
                                             </span>
                                         </>

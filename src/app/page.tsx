@@ -375,124 +375,140 @@ export default function HomePage() {
     return (
 
         <div className="grid grid-rows-[1fr_min-content] overflow-hidden" >
+        <div
+            className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${productDragging ? 'overflow-x-hidden' : ''} `}>
+            <AnimatePresence>
+                {category && (
+                    <motion.div
+                        initial={{y: 1000}}
+                        animate={{y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
+                        exit={{y: 1000}}
+                        transition={{duration: 0.5}}
+                        className="fixed left-[35.5%] top-[155px]"
+                    >
+                        <ProductContainer category={category} setCategory={setCategory}
+                                          onProductSelect={handleProductSelect}
+                                          onDragAndDropCell={handleDragAndDropSidebar}
+                                          setShowProductCardBrand={setShowProductCardBrand}/>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div
-                className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${productDragging ? 'overflow-x-hidden' : ''} `}>
-                <AnimatePresence>
-                    {category && (
-                        <motion.div
-                            initial={{ y: 1000 }}
-                            animate={{ y: showProductCardBrand ? 0 : 1000, zIndex: 51 }}
-                            exit={{ y: 1000 }}
-                            transition={{ duration: 0.5 }}
-                            className="fixed left-[35.5%] top-[155px]"
-                        >
-                            <ProductContainer category={category} setCategory={setCategory}
-                                onProductSelect={handleProductSelect}
-                                onDragAndDropCell={handleDragAndDropSidebar}
-                                setShowProductCardBrand={setShowProductCardBrand} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <div className="flex flex-col w-full h-full border-r-2 border-black items-center">
-                    <TransformWrapper
-                        initialScale={0.9}
-                        minScale={0.9}
-                        maxScale={3}
-                        centerOnInit={true}
-                        wheel={{disabled: true}}
-                        panning={{disabled: true}}
-                    >
-                        {({zoomIn, zoomOut, setTransform}) => (
-                            <>
-                                <div className="flex space-x-2 justify-center items-center p-4 z-50">
-                                    <button
-                                        onClick={() => {
-                                            setScale(scale + 50);
-                                            const newScale = zoomScale + 0.5;
-                                            setZoomScale(newScale);
-                                            setTransform(0, 0, newScale);
-                                        }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                    >
-                                        +
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            if (scale > 0) {
-                                                zoomOut();
-                                                setScale(scale - 50);
-                                                const newScale = zoomScale - 0.5;
-                                                setZoomScale(newScale);
-                                            }
-                                        }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                    >
-                                        −
-                                    </button>
-                                </div>
-                                <TransformComponent
-                                    wrapperStyle={{
-                                        overflow: scale > 0.9 ? "auto" : "visible",
-                                        width: "100%",
-                                        height: "100%",
+                className={`flex flex-col   w-full h-full border-r-2 border-black items-center transform ${
+                    productDragging && productDragging.page && productDragging.page > 1
+                        ? "z-0"
+                        : "z-50"
+                }`}
+                style={{position: "relative", overflow: "visible"}}
+            >
+                <TransformWrapper
+                    initialScale={0.9}
+                    minScale={0.9}
+                    maxScale={3}
+                    centerOnInit={true} // Cambiar a false para evitar centrar en la inicialización
+                    wheel={{disabled: true}}
+                    panning={{disabled: true}}
+                    // alignmentAnimation={{sizeX: 0, sizeY: 0}}
+                >
+                    {({zoomIn, zoomOut, setTransform}) => (
+                        <>
+                            {/* Botones para modificar el zoom */}
+                            <div
+                                className="flex space-x-2 justify-center items-center p-4  rounded-lg  z-50">
+                                <button
+                                    onClick={() => {
+                                        setScale(scale + 50);
+                                        const newScale = zoomScale + 0.5;
+                                        setZoomScale(newScale);
+                                        setTransform(0, 0, newScale);
                                     }}
-                                >
-                                    <div>
-                                        {/* @ts-ignore */}
-                                        <ImageGrid {...commonGridProps} />
-                                    </div>
-                                </TransformComponent>
-                            </>
-                        )}
-                    </TransformWrapper>
-                </div>
+                                    className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                    +
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (scale > 0) {
+                                            zoomOut();
+                                            setScale(scale - 50);
+                                            const newScale = zoomScale - 0.5;
+                                            setZoomScale(newScale);
+                                        }
+                                    }}
+                                    className="w-10  bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                    −
+                                </button>
+                            </div>
 
-                <div className="flex flex-col w-full h-full">
-                    <TransformWrapper
-                        initialScale={0.9}
-                        minScale={0.9}
-                        maxScale={3}
-                        centerOnInit={true}
-                        wheel={{disabled: true}}
-                        panning={{disabled: true}}
-                    >
-                        {({zoomIn, zoomOut, setTransform}) => (
-                            <>
-                                <div className="flex space-x-2 justify-center items-center p-4 z-50">
-                                    <button
-                                        onClick={() => {
-                                            setScaleSubPagines(scaleSubPagines + 50);
-                                            const newScale = zoomScaleSubPagines + 0.5;
-                                            setZoomScaleSubPagines(newScale);
-                                            setTransform(0, 0, newScale);
-                                        }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                    >
-                                        +
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            if (scaleSubPagines > 0) {
-                                                zoomOut();
-                                                setScaleSubPagines(scaleSubPagines - 50);
-                                                const newScale = zoomScaleSubPagines - 0.5;
-                                                setZoomScaleSubPagines(newScale);
-                                            }
-                                        }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                    >
-                                        −
-                                    </button>
+                            <TransformComponent
+                                wrapperStyle={{
+                                    overflow: scale > 0.9 ? "auto" : "visible",
+                                    width: "100%",
+                                    height: "100%",
+                                }}
+                            >
+                                <div>
+                                    {/* @ts-ignore */}
+                                    <ImageGrid {...commonGridProps} />
                                 </div>
-                                <motion.div
-                                    key={currentPage}
-                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
-                                    animate={{x: 0, opacity: 1}}
-                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
-                                    transition={{duration: 0.5}}
-                                    className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
-                                >
+                            </TransformComponent>
+                            <p className=" text-black text-md">Page 1</p>
+                        </>
+                    )}
+                </TransformWrapper>
+
+            </div>
+
+            <motion.div
+                key={currentPage}
+                initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                animate={{x: 0, opacity: 1}}
+                exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                transition={{duration: 0.5}}
+                className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
+            >
+                {currentPage === 2 && (
+                    <div className={`flex flex-col justify-center items-center w-full border-r-2`}>
+                        <TransformWrapper
+                            initialScale={0.9}
+                            minScale={0.9}
+                            maxScale={3}
+                            centerOnInit={true}
+                            wheel={{disabled: true}}
+                            panning={{disabled: true}}
+                        >
+                            {({zoomIn, zoomOut, setTransform}) => (
+                                <>
+
+                                    {/* Botones para modificar el zoom */}
+                                    <div
+                                        className="relative -top-12 flex space-x-2 justify-center items-center rounded-lg  z-50"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                setScaleSubPagines(scaleSubPagines + 50);
+                                                const newScale = zoomScaleSubPagines + 0.5;
+                                                setZoomScaleSubPagines(newScale);
+                                                setTransform(0, 0, newScale);
+                                            }}
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            +
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (scaleSubPagines > 0) {
+                                                    zoomOut();
+                                                    setScaleSubPagines(scaleSubPagines - 50);
+                                                    const newScale = zoomScaleSubPagines - 0.5;
+                                                    setZoomScaleSubPagines(newScale);
+                                                }
+                                            }}
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            −
+                                        </button>
+                                    </div>
+
+                                    {/* Componente TransformComponent que envuelve el contenido */}
                                     <TransformComponent
                                         wrapperStyle={{
                                             overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
@@ -500,71 +516,195 @@ export default function HomePage() {
                                             height: "100%",
                                         }}
                                     >
-                                        <div className="flex flex-col items-center w-full">
-                                            <div className="w-full h-full">
-                                                {currentPage === 2 && <ImageGrid2 {...commonGridProps} />}
-                                                {currentPage === 3 && <ImageGrid3 {...commonGridProps} />}
-                                                {currentPage === 4 && <ImageGrid4 {...commonGridProps} />}
-                                            </div>
-                                            <p className="text-black text-md mt-4">Page {currentPage}</p>
+                                        <div >
+                                            {/* @ts-ignore */}
+                                            <ImageGrid2 {...commonGridProps} />
                                         </div>
                                     </TransformComponent>
-                                </motion.div>
-                            </>
-                        )}
-                    </TransformWrapper>
-                </div>
-            </div>
-            <section className="z-[52]">
-                {/* @ts-ignore */}
-                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect} />
-            </section>
 
-            {/* Mostrar / Ocultar productos */}
-            <div className="flex ">
-                {isModalOpen && productSelected && !showProducts && (
-                    <ModalEditProduct
-                        setIsOpen={setIsModalOpen}
-                        product={productSelected as ProductTypes}
-                        GridID={selectedGridId || 0}
-                        SaveFC={handleSaveChangeProduct}
-                        ChangeFC={() => {
-                            handleChangeProductForOther(selectedGridId || 0);
-                        }}
-                        DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
-                    />
+                                    {/* Número de página */}
+                                    <p className="text-black text-md ">Page {currentPage}</p>
+                                </>
+                            )}
+                        </TransformWrapper>
+                    </div>
                 )}
 
-                {/* Mostrar el panel de selección de productos (GridProduct) */}
-                <AnimatePresence>
-                    {showProducts && mousePosition && (
-                        <motion.div
-
-
-                            initial={{ opacity: 0, y: 20 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="absolute z-[100] "
-                            style={{
-                                top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                                left: Math.min(mousePosition.x, window.innerWidth - 900),
-                            }}
-
+                {currentPage === 3 && (
+                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                        <TransformWrapper
+                            initialScale={0.9}
+                            minScale={0.9}
+                            maxScale={3}
+                            centerOnInit={true}
+                            wheel={{disabled: true}}
+                            panning={{disabled: true}}
                         >
-                            <GridProduct
-                                onProductSelect={handleProductSelect}
-                                onHideProducts={ClosetPanels}
-                                initialCategory={gridCategory}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+                            {({zoomIn, zoomOut, setTransform}) => (
+                                <>
+                                    {/* Botones para modificar el zoom */}
+                                    <div
+                                        className="relative -top-12 flex space-x-2 justify-center items-center rounded-lg  z-50"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                setScaleSubPagines(scaleSubPagines + 50);
+                                                const newScale = zoomScaleSubPagines + 0.5;
+                                                setZoomScaleSubPagines(newScale);
+                                                setTransform(0, 0, newScale);
+                                            }}
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            +
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (scaleSubPagines > 0) {
+                                                    zoomOut();
+                                                    setScaleSubPagines(scaleSubPagines - 50);
+                                                    const newScale = zoomScaleSubPagines - 0.5;
+                                                    setZoomScaleSubPagines(newScale);
+                                                }
+                                            }}
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            −
+                                        </button>
+                                    </div>
+
+                                    {/* Componente TransformComponent que envuelve el contenido */}
+                                    <TransformComponent
+                                        wrapperStyle={{
+                                            overflow: scaleSubPagines > 0 ? "auto" : "visible",
+                                            width: "100%",
+                                            height: "100%",
+                                        }}
+                                    >
+                                        <div className="w-full h-full">
+                                            {/* @ts-ignore */}
+                                            <ImageGrid3 {...commonGridProps} />
+                                        </div>
+                                    </TransformComponent>
+
+                                    {/* Número de página */}
+                                    <p className="text-black text-md mt-4">Página {currentPage}</p>
+                                </>
+                            )}
+                        </TransformWrapper>
+                    </div>
+                )}
+
+                {currentPage === 4 && (
+                    <div className="flex flex-col justify-center items-center w-full border-r-2">
+                        <TransformWrapper
+                            initialScale={0.9}
+                            minScale={0.9}
+                            maxScale={3}
+                            centerOnInit={true}
+                            wheel={{disabled: true}}
+                            panning={{disabled: true}}
+                        >
+                            {({zoomIn, zoomOut, setTransform}) => (
+                                <>
+                                    {/* Botones para modificar el zoom */}
+                                    <div
+                                        className="relative -top-12 flex space-x-2 justify-center items-center rounded-lg  z-50"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                setScaleSubPagines(scaleSubPagines + 50);
+                                                const newScale = zoomScaleSubPagines + 0.5;
+                                                setZoomScaleSubPagines(newScale);
+                                                setTransform(0, 0, newScale);
+                                            }}
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            +
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (scaleSubPagines > 0) {
+                                                    zoomOut();
+                                                    setScaleSubPagines(scaleSubPagines - 50);
+                                                    const newScale = zoomScaleSubPagines - 0.5;
+                                                    setZoomScaleSubPagines(newScale);
+                                                }
+                                            }}
+                                            className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            −
+                                        </button>
+                                    </div>
+
+                                    {/* Componente TransformComponent que envuelve el contenido */}
+                                    <TransformComponent
+                                        wrapperStyle={{
+                                            overflow: scaleSubPagines > 0 ? "auto" : "visible",
+                                            width: "100%",
+                                            height: "100%",
+                                        }}
+                                    >
+                                        <div className="w-full h-full">
+                                            {/* @ts-ignore */}
+                                            <ImageGrid4 {...commonGridProps} />
+                                        </div>
+                                    </TransformComponent>
+
+                                    {/* Número de página */}
+                                    <p className="text-black text-md mt-4">Página {currentPage}</p>
+                                </>
+                            )}
+                        </TransformWrapper>
+                    </div>
+                )}
+
+            </motion.div>
         </div>
+        <section className="z-[52]">
+            {/* @ts-ignore */}
+            <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect} />
+        </section>
+
+        {/* Mostrar / Ocultar productos */}
+        <div className="flex ">
+            {isModalOpen && productSelected && !showProducts && (
+                <ModalEditProduct
+                    setIsOpen={setIsModalOpen}
+                    product={productSelected as ProductTypes}
+                    GridID={selectedGridId || 0}
+                    SaveFC={handleSaveChangeProduct}
+                    ChangeFC={() => {
+                        handleChangeProductForOther(selectedGridId || 0);
+                    }}
+                    DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
+                />
+            )}
+
+            {/* Mostrar el panel de selección de productos (GridProduct) */}
+            <AnimatePresence>
+                {showProducts && mousePosition && (
+                    <motion.div
+
+
+                        initial={{opacity: 0, y: 20}}
+                        exit={{opacity: 0, y: 20}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{duration: 0.5}}
+                        className="absolute z-[100] "
+                        style={{
+                            top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
+                            left: Math.min(mousePosition.x, window.innerWidth - 900),
+                        }}
+
+                    >
+                        <GridProduct
+                            onProductSelect={handleProductSelect}
+                            onHideProducts={ClosetPanels}
+                            initialCategory={gridCategory}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    </div>
     );
 }
-
 interface GridProductProps {
     onProductSelect: (product: ProductTypes) => void;
     onHideProducts?: () => void;
