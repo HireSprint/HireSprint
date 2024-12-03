@@ -27,7 +27,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [withCard, setWithCard] = useState(product?.with_cart ?? false)
     const [limitType, setLimitType] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const [notes, setNotes] = useState(product?.conditions ?? "")
+    const [notes, setNotes] = useState(product?.conditions && product.conditions !== 'undefined' ? product.conditions : "")
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -59,7 +59,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     }, [categories, product]);
 
 
-
+    console.log(notes)
     return (
         <React.Fragment>
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100  ">

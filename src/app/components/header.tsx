@@ -8,6 +8,7 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
+import { formatDate } from './formaDate';
 
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
@@ -18,6 +19,7 @@ export default function Header() {
     const [direction, setDirection] = useState(0);
     const [showDropdown, setShowDropdown] = useState(false);
     const [productTableOpen, setProductTableOpen] = useState(false)
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -33,11 +35,40 @@ export default function Header() {
         getProductView();
     }, []);
 
+    useEffect(() => {
+        const getCircularDate = async () => {
+            if (idCircular && pathname === '/') {
+                try {
+                    const circular = user?.circulars?.find(
+                        (circ: any) => circ.id_circular === idCircular
+                    );
+                    
+                } catch (error) {
+                    console.error("Error al obtener la fecha del circular:", error);
+                }
+            }
+        };
 
-    const handleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-    
+        getCircularDate();
+    }, [idCircular, pathname, user]);
+
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+        
+        if (showDropdown) {
+            timeoutId = setTimeout(() => {
+                setShowDropdown(false);
+            }, 5000); // 5000 ms = 5 segundos
+        }
+
+        // Limpieza del timeout cuando el componente se desmonta o showDropdown cambia
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [showDropdown]);
+
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
@@ -97,8 +128,14 @@ export default function Header() {
                     </button>
                 </div>
                 <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
-                    {/* <Calendar value={dates} onChange={(e) => setDates(e.value)} selectionMode="range" readOnlyInput hideOnRangeSelection showIcon />*/}
-                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
+                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>
+                        Client: {user?.userData.name}
+                    </p>
+                    {pathname === '/' && selectedDate && (
+                        <p className='text-white text-xl font-bold hover:underline cursor-pointer'>
+                            Circular: {selectedDate}
+                        </p>
+                    )}
                 </div>
                 <div className='flex items-center justify-center space-x-4 '>
                     {
@@ -125,7 +162,7 @@ export default function Header() {
                             <ProfileIcon />
                         </button>
                         {showDropdown && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-[100]">
                                 <button
                                     onClick={() => {
                                         logout();
@@ -141,7 +178,7 @@ export default function Header() {
                                     }}
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
-                                    view products
+                                    View Products
                                 </button>
                                 <button
                                     onClick={() => {

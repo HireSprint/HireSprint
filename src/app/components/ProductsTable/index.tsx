@@ -108,12 +108,6 @@ type ParamsType = {
     id_circular: number; // Cambia el tipo según corresponda
 };
 
-interface filterInterface {
-    id_category: string;
-    page:string;
-    upc:string;
-}
-
 
 const ProductsTable = ({id_circular}:ParamsType) => {
     const {user } = useAuth();
@@ -122,7 +116,6 @@ const ProductsTable = ({id_circular}:ParamsType) => {
     const [filteredProduct, setFilteredProduct] = useState<ProductTypes[]>([])
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState<categoriesInterface[]|[]>([])
-    const {getCategoryByName} = useCategoryContext();
     const [numberOfPage, setNumberOfPage] = useState<number[]|[]>([])
     const [filters, setFilters] = useState({ id_category: "",page:"", upc: "" });
 

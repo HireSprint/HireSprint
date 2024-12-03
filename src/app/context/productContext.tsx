@@ -28,7 +28,10 @@ interface ProductContextType {
   setScale(scale: number): void;
   scaleSubPagines: number;
   setScaleSubPagines: (scaleSubPagines: number) => void;
-
+  panningOnPage1: boolean;
+  setPanningOnPage1: (panningOnPage1: boolean) => void;
+  panningOnSubPage: boolean;
+  setPanningOnSubPage: (panningOnSubPage: boolean) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -45,8 +48,14 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [scale, setScale] = useState(0);
   const [scaleSubPagines, setScaleSubPagines] = useState(0);
+  const [panningOnPage1, setPanningOnPage1] = useState(true);
+  const [panningOnSubPage, setPanningOnSubPage] = useState(true);
   return (
-    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen, scale, setScale, scaleSubPagines, setScaleSubPagines }}>
+    <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen, scale, setScale, scaleSubPagines, setScaleSubPagines,
+      panningOnPage1,
+      setPanningOnPage1,
+      panningOnSubPage,
+      setPanningOnSubPage, }}>
       {children}
     </ProductContext.Provider>
   );
