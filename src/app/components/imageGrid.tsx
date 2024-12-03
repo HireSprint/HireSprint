@@ -163,7 +163,7 @@ export const ImageGrid = ({
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
-            <Image src="/pages/page01.jpg" alt="PDF" width={400} height={400} priority draggable={false}/>
+            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false}/>
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
 
@@ -343,7 +343,7 @@ export const ImageGrid2 = ({
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
-            <Image src="/pages/page02.jpg" alt="PDF" width={360} height={360} priority sizes="(max-width: 768px) 100vw, 360px" className={`${productDragging ? '!z-0' : ''}`} draggable={false}/>
+            <Image src="/pages/page02.jpg" alt="PDF" width={700} height={700} priority sizes="(max-width: 768px) 100vw, 360px" className={`${productDragging ? '!z-0' : ''}`} draggable={false}/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
@@ -570,8 +570,8 @@ export const ImageGrid3 = ({
             <Image
                 src="/pages/page03.jpg"
                 alt="PDF"
-                width={470}
-                height={460}
+                width={700}
+                height={700}
                 priority
                 sizes="(max-width: 768px) 100vw, 470px"
                 draggable={false}
@@ -753,7 +753,7 @@ export const ImageGrid4 = ({
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
-            <Image src="/pages/page04.jpg" alt="PDF" width={470} height={460} priority sizes="(max-width: 768px) 100vw, 470px" draggable={false}/>
+            <Image src="/pages/page04.jpg" alt="PDF" width={700} height={700} priority sizes="(max-width: 768px) 100vw, 470px" draggable={false}/>
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
