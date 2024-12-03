@@ -8,6 +8,7 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
+import { formatDate } from './formaDate';
 
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
@@ -18,6 +19,7 @@ export default function Header() {
     const [direction, setDirection] = useState(0);
     const [showDropdown, setShowDropdown] = useState(false);
     const [productTableOpen, setProductTableOpen] = useState(false)
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -33,7 +35,23 @@ export default function Header() {
         getProductView();
     }, []);
 
-    
+    useEffect(() => {
+        const getCircularDate = async () => {
+            if (idCircular && pathname === '/') {
+                try {
+                    const circular = user?.circulars?.find(
+                        (circ: any) => circ.id_circular === idCircular
+                    );
+                    
+                } catch (error) {
+                    console.error("Error al obtener la fecha del circular:", error);
+                }
+            }
+        };
+
+        getCircularDate();
+    }, [idCircular, pathname, user]);
+
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
@@ -93,8 +111,14 @@ export default function Header() {
                     </button>
                 </div>
                 <div className="justify-center items-center space-x-4 hidden lg:flex xl:flex md:flex ">
-                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Client: {user?.userData.name}</p>
-                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>Circular: {user?.userData.circular}</p>
+                    <p className='text-white text-xl font-bold hover:underline cursor-pointer'>
+                        Client: {user?.userData.name}
+                    </p>
+                    {pathname === '/' && selectedDate && (
+                        <p className='text-white text-xl font-bold hover:underline cursor-pointer'>
+                            Circular: {selectedDate}
+                        </p>
+                    )}
                 </div>
                 <div className='flex items-center justify-center space-x-4 '>
                     {

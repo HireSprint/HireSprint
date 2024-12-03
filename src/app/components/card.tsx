@@ -242,13 +242,13 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                 {
                                     product?.url_image && (
                                         <div className="absolute justify-self-end self-center">
-                                            <div className="@[27px]:w-8 @[27px]:h-8    @[47px]:w-10 @[47px]:h-10    @[77px]:w-14 @[77px]:h-14">
+                                            <div className="@[27px]:w-20 @[27px]:h-20    @[47px]:w-20 @[47px]:h-20    @[77px]:w-20 @[77px]:h-20">
                                                 <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
                                             </div>
                                         </div>
                                     )
                                 }
-                                <div className="absolute flex flex-col  text-blue-950 font-bold @[27px]:text-[5.6px] @[27px]:inset-[1px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:inset-[1px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px] @[77px]:inset-[2px]" style={textShadowWhite}>
+                                <div className="absolute flex flex-col  text-blue-950 font-bold @[17px]:text-[10px] @[17px]:leading-[10px] @[27px]:text-[15px] @[27px]:leading-[15px] @[47px]:text-[15px] @[47px]:leading-[15px] @[77px]:leading-[15px] @[77px]:text-[15px] @[77px]:inset-[2px]" style={textShadowWhite}>
                                     {product && (
                                         <>
                                             <span className="text-blue-600 uppercase">
@@ -261,7 +261,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                                 { product.size }
                                             </span>
                                             <span className="text-red-500">
-                                                <span className="@[27px]:text-[5.6px] @[47px]:text-[7.2px] @[77px]:text-[8.8px]">$</span>
+                                                <span className="@[27px]:text-[20px] @[47px]:text-[20px] @[77px]:text-[20px]">$</span>
                                                 { product.price }
                                             </span>
                                         </>
@@ -269,11 +269,11 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                 </div>
                                 <div className="absolute bottom-0 w-full flex flex-col items-end ">
                                     {product?.conditions && product.conditions !== 'undefined' && (
-                                        <span className="text-green-600 absolute left-0 bottom-0 text-orange-600 font-bold uppercase @[27px]:text-[5.6px] @[27px]:leading-[5px] @[47px]:text-[7.2px] @[47px]:leading-[6.4px] @[77px]:leading-[8px] @[77px]:text-[8.8px]">
+                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[27px]:text-[18px] @[27px]:leading-[18px] @[47px]:text-[18px] @[47px]:leading-[18px] @[77px]:leading-[18px] @[77px]:text-[18px]">
                                             {product.conditions}
                                         </span>
                                     )}
-                                    <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[27px]:text-[4px] @[27px]:leading-[4px] @[47px]:text-[4.8px] @[47px]:leading-[4.8px] @[77px]:leading-[5.6px] @[77px]:text-[5.6px]">
+                                    <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[27px]:text-[10px] @[27px]:leading-[10px] @[47px]:text-[10px] @[47px]:leading-[10px] @[77px]:leading-[10px] @[77px]:text-[10px]">
                                         { cell?.id }
                                     </span>
                                 </div>
