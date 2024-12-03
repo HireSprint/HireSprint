@@ -52,6 +52,23 @@ export default function Header() {
         getCircularDate();
     }, [idCircular, pathname, user]);
 
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+        
+        if (showDropdown) {
+            timeoutId = setTimeout(() => {
+                setShowDropdown(false);
+            }, 5000); // 5000 ms = 5 segundos
+        }
+
+        // Limpieza del timeout cuando el componente se desmonta o showDropdown cambia
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [showDropdown]);
+
     const changePage = (newPage: number) => {
         setDirection(newPage > currentPage ? 1 : -1);
         setCurrentPage(newPage);
@@ -145,7 +162,7 @@ export default function Header() {
                             <ProfileIcon />
                         </button>
                         {showDropdown && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-[100]">
                                 <button
                                     onClick={() => {
                                         logout();
