@@ -21,6 +21,7 @@ const BuilderPage = () => {
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 	const [layout, setLayout] = useState<any>([]);
 	const [newGroup, setNewGroup] = useState({ canAddAnother: true, x: 0, y: 0, });
+	const [selectedGroup, setSelectedGroup] = useState<any>(null);
 	
 	useEffect(() => {
 		setLayout(
@@ -58,7 +59,6 @@ const BuilderPage = () => {
 
 	const layoutChangeHandler = (layout: any) => {
 		console.log("layout", layout);
-		console.log("layout", JSON.stringify(layout));
 		
 		setLayout(layout);
 		calculateNextPosition()
@@ -113,13 +113,7 @@ const BuilderPage = () => {
 	const addGroup = () => {
 		if (!newGroup.canAddAnother) return;
 
-		const newItem = {
-		  i: `item-${layout.length + 1}`,
-		  x: newGroup.x,
-		  y: newGroup.y,
-		  w: elementWidth,
-		  h: elementHeight,
-		};
+		const newItem = { i: `item-${layout.length + 1}`, x: newGroup.x, y: newGroup.y, w: elementWidth, h: elementHeight, };
 	
 		setLayout((prevLayout: any) => [...prevLayout, newItem]);
 	
@@ -174,6 +168,13 @@ const BuilderPage = () => {
 						<PlusIcon  color="#fff"/>
 					</button>
 				</div>
+
+
+				{ selectedGroup && (
+					<h2 className="text-black text-md font-bold text-green-700 mb-0 mt-3">Selected Group </h2>
+				)}
+
+
 			</div>
 			
 			<button
@@ -229,7 +230,15 @@ const BuilderPage = () => {
 								>
 									{
 										layout.map((group: any) => (
-											<div key={group.i} className="w-full h-full border-[1px] border-gray-500" >{group.i}</div>
+											<div 
+												key={group.i} 
+												className={`w-full h-full border-[1px] border-[#7cc304] ${selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 bg-green-100' : ''}`}
+												onClick={(e) => {
+													e.stopPropagation(); // Prevenir la propagación del evento
+													setSelectedGroup(group);
+												}}>
+												{group.i}
+											</div>
 										))
 									}
 								</GridLayout>
