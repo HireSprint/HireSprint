@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ProductAddedModal } from "../components/card"
 import { useAuth } from "../components/provider/authprovider"
 import Image from "next/image"
+import {disableProduct} from "@/pages/api/apiMongo/disableProduct";
 
 const AddProductPage = () => {
     const {
@@ -243,7 +244,7 @@ const AddProductPage = () => {
             formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
             formData.append('condition', dataUpdate?.conditions || '');
-            formData.append('id_category', String(dataUpdate?.id_category || ''));      
+            formData.append('id_category', String(dataUpdate?.id_category || ''));
             // Agregar logs para depuración
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
@@ -295,13 +296,15 @@ const AddProductPage = () => {
             // Filtra los productos que coincidan con el término de búsqueda
             const filtered = productsData.filter((product: ProductTypes) => {
                 const searchLower = searchTerm.toLowerCase();
-                return (
-                    (product.desc?.toLowerCase().includes(searchLower)) ||
-                    (product.master_brand?.toLowerCase().includes(searchLower)) ||
-                    (product.brand?.toLowerCase().includes(searchLower)) ||
-                    (String(product.upc).includes(searchTerm)) ||
-                    (String(product.sku).includes(searchTerm))
-                );
+                if(product.status_active !== false){
+                    return (
+                        (product.desc?.toLowerCase().includes(searchLower)) ||
+                        (product.master_brand?.toLowerCase().includes(searchLower)) ||
+                        (product.brand?.toLowerCase().includes(searchLower)) ||
+                        (String(product.upc).includes(searchTerm)) ||
+                        (String(product.sku).includes(searchTerm))
+                    );
+                }
             });
 
             setSearchResults(filtered);
@@ -391,16 +394,27 @@ const AddProductPage = () => {
             }
         };
 
+        const handleDisable = async (idProduct:number) => {
+            const body = {
+                "id_product":idProduct
+            }
+            const resp = await disableProduct(body)
+            setIsEditModalOpen(false)
+        }
+
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
                 <div className="bg-gray-800 rounded-lg p-6 w-full max-w-7xl max-h-[90vh] overflow-y-auto">
                     <div className="sticky -top-6 bg-gray-800 z-10 pb-4 border-b border-gray-700 h-16 ">
                         <div className="flex items-center justify-between py-4">
-                            <h2 className="text-xl text-white font-bold text-center">Edit Product</h2>
+                            <div className={"flex flex-row"}>
+                                <h2 className="text-xl text-white font-bold text-center">Edit Product</h2>
+                                <div className={`px-4 py-2 bg-gray-600 text-white rounded`}>{editedProduct.status_active?"Active":"Disable"}</div>
+                            </div>
                             <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
                         </div>
                     </div>
-                    
+
                     {/* Nueva estructura con grid */}
                     <div className="grid grid-cols-[1fr,1fr] ">
                         {/* Columna izquierda para la imagen */}
@@ -415,7 +429,7 @@ const AddProductPage = () => {
                                         height={600}
                                         onClick={() => window.open(editedProduct.url_image, '_blank')}
                                     />
-                               
+
                                 </div>
                             )}
                         </div>
@@ -511,7 +525,7 @@ const AddProductPage = () => {
                                     {cat.name_category}
                                 </option>
                                 ))}
-                            </select>   
+                            </select>
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="type_of_meat" style={labelStyle}>Type of Meat</label>
@@ -541,7 +555,7 @@ const AddProductPage = () => {
                                 />
                             </div>
 
-                            
+
                             {/* ... resto de los campos ... */}
 
                             {/* Sección de carga de nueva imagen */}
@@ -573,6 +587,12 @@ const AddProductPage = () => {
 
                             {/* Botones */}
                             <div className="col-span-2 flex justify-end gap-2 mt-4">
+                                <button
+                                    onClick={() => handleDisable(Number(editedProduct.id_product))}
+                                    className="px-4 text-bold text-red-500 border border-gray-800 hover:border-red-500 rounded-lg"
+                                >
+                                    Disable
+                                </button>
                                 <button
                                     onClick={onClose}
                                     className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
@@ -663,33 +683,33 @@ const AddProductPage = () => {
                             )}
                             {errors.id_category && <span className="text-red-500">This field is required</span>}
                         </div>
-                        
+
                         <div style={inputContainerStyle}>
                             <label htmlFor="upc" style={labelStyle}>UPC</label>
-                            <input {...register("upc", { required: true })} 
+                            <input {...register("upc", { required: true })}
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
 
                         <div style={inputContainerStyle}>
                             <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
-                            <input {...register("master_brand")} 
+                            <input {...register("master_brand")}
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
 
                         <div style={inputContainerStyle}>
                             <label htmlFor="brand" style={labelStyle}>Brand</label>
-                            <input {...register("brand")} 
+                            <input {...register("brand")}
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
 
                         <div style={inputContainerStyle}>
                             <label htmlFor="desc" style={labelStyle}>Description</label>
-                            <input {...register("desc", { required: true })} 
+                            <input {...register("desc", { required: true })}
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
                         <div style={inputContainerStyle}>
                             <label htmlFor="plu" style={labelStyle}>PLU</label>
-                            <input {...register("plu")} 
+                            <input {...register("plu")}
                                    className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
                     </div>
@@ -771,7 +791,7 @@ const AddProductPage = () => {
                     </div>
                 </div>
 
-             
+
 
                 {/* Imagen y categoría */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
