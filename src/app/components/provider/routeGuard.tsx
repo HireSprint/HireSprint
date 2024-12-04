@@ -8,14 +8,17 @@ import { clientType } from '@/types/clients';
 export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     const { user, loading, idCircular } = useAuth();
     const [clients, setClients] = useState<clientType[] | []>([]);
+    const [isVerifyingLevel, setIsVerifyingLevel] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
+        let isMounted = true;
+
         const gettingClients = async () => {
             try {
                 const resp = await getClients();
-                if (resp.status === 200) {
+                if (resp.status === 200 && isMounted) {
                     setClients(resp.result);
                 } else {
                     console.error('Error al obtener clientes:', resp.status);
@@ -25,40 +28,39 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
             }
         };
         gettingClients();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     useEffect(() => {
+        if (!loading && user) {
+            setIsVerifyingLevel(true);
+            
+            const clientLevel = clients?.find(
+                client => client?.id_cliente === user?.userData?.id_client
+            )?.level_client || null;
 
+            let targetPath = null;
 
-        const clientLevel = clients?.find(
-            client => client?.id_cliente === user?.userData?.id_client
-        )?.level_client || null;
-
-
-        if (!loading) {
-            if (!user && pathname !== '/login') {
-                router.push('/login');
-                return;
+            if (clientLevel === 5) {
+                targetPath = '/addProduct';
+            } else {
+                targetPath = '/onboarding';
             }
 
-            if (clientLevel === 5 && user && pathname === '/onboarding') {
-                router.push('/addProduct');
-                return;
+            if (pathname !== targetPath) {
+                router.push(targetPath);
             }
-            if (user && pathname === '/login') {
-                router.push('/onboarding');
-                return;
-            }
-
-
-            if (user && idCircular === null && pathname !== '/onboarding') {
-                router.push('/onboarding');
-                return;
-            }
+            
+            setIsVerifyingLevel(false);
+        } else if (!loading && !user && pathname !== '/login') {
+            router.push('/login');
         }
-    }, [user, loading, pathname, idCircular, clients, router]);
+    }, [user, loading, pathname, clients, router]);
 
-    if (loading) {
+    if (loading || isVerifyingLevel) {
         return (
             <div className='flex items-center justify-center text-black text-2xl pt-10 h-[calc(100vh-100px)]'>
                 Loading...
