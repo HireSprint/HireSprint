@@ -3,9 +3,9 @@ import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
-import choice from '../../../../public/choice.png'
-import mima from '../../../../public/mima.png'
-import half from '../../../../public/half.png'
+import choice from '../../../../public/choice.svg'
+import mima from '../../../../public/mima.svg'
+import half from '../../../../public/half.svg'
 
 
 
