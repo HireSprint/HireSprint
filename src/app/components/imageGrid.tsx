@@ -93,6 +93,7 @@ export const ImageGrid = ({
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const { idCircular, user } = useAuth();
     const [loading, setLoading] = useState(true);
+    const {panningOnPage1} = useProductContext();
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -174,7 +175,7 @@ export const ImageGrid = ({
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
 
-                return (
+                return (                  
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
