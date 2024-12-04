@@ -78,6 +78,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     const handledSelectedBurst = (item:burstType) => {
         setSelectedBurst(item);
+        setBurst(String(item.value))
         setOpenDropdown(false)
     }
 
