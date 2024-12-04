@@ -35,16 +35,16 @@ const BuilderPage = () => {
 	const bg_height = watch('bg_height');
 
 	useEffect(() => {
-		const layoutStructure: gridLayoutTypes[] = []
-		// const layoutStructure = [
-		// 	{ w: 72,  h: 168,   x: 0,     y: 170,    moved: false,  i: "1",  static: true,  id_category: 5  },
-		// 	{ w: 72,  h: 50,    x: 0,     y: 345,    moved: false,  i: "2",  static: true,  id_category: 16 },
-		// 	{ w: 72,  h: 53,    x: 0,     y: 403,    moved: false,  i: "3",  static: true,  id_category: 7  },
-		// 	{ w: 72,  h: 229,   x: 0,     y: 463,    moved: false,  i: "4",  static: true,  id_category: 4  },
-		// 	{ w: 72,  h: 51,    x: 0,     y: 699,    moved: false,  i: "5",  static: true,  id_category: 6  },
-		// 	{ w: 28,  h: 651,   x: 72,    y: 169,    moved: false,  i: "6",  static: false, id_category: 15 },
-		// 	{ w: 72,  h: 64,    x: 0,     y: 756,    moved: false,  i: "7",  static: true,  id_category: 1  }
-		// ]
+		
+		const layoutStructure = [
+			{ w: 72,  h: 168,   x: 0,     y: 170,    moved: false,  i: "1",  static: true,  id_category: 5  },
+			{ w: 72,  h: 50,    x: 0,     y: 345,    moved: false,  i: "2",  static: true,  id_category: 16 },
+			{ w: 72,  h: 53,    x: 0,     y: 403,    moved: false,  i: "3",  static: true,  id_category: 7  },
+			{ w: 72,  h: 229,   x: 0,     y: 463,    moved: false,  i: "4",  static: true,  id_category: 4  },
+			{ w: 72,  h: 51,    x: 0,     y: 699,    moved: false,  i: "5",  static: true,  id_category: 6  },
+			{ w: 28,  h: 651,   x: 72,    y: 169,    moved: false,  i: "6",  static: false, id_category: 15 },
+			{ w: 72,  h: 64,    x: 0,     y: 756,    moved: false,  i: "7",  static: true,  id_category: 1  }
+		]
 
 		setLayout(layoutStructure);
 		calculateNextPosition()
@@ -413,7 +413,7 @@ const BuilderPage = () => {
 														</div>
 													</Tooltip>
 
-													<div id={"div-" + group.i} className={`w-full h-full border-[1px] border-[#7cc304] ${selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 bg-green-100 bg-opacity-50' : ''}`} >
+													<div id={"div-" + group.i} className={`w-full h-full border-[1px] border-[#7cc304] ${selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
 														
 													</div>
 												</div>
