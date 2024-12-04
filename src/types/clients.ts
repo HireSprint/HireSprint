@@ -7,4 +7,5 @@ export interface clientType {
     password:string,
     phone?:string,
     status:boolean,
+    level_client:number,
 }
