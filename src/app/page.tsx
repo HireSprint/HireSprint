@@ -434,6 +434,7 @@ export default function HomePage() {
                         initialScale={0.9}
                         minScale={0.9}
                         maxScale={3}
+                        doubleClick={{disabled: true}}
                         centerOnInit={true} // Cambiar a false para evitar centrar en la inicialización
                         wheel={{disabled: true}}
                         panning={{disabled: panningOnPage1}}
@@ -523,6 +524,7 @@ export default function HomePage() {
                         minScale={0.9}
                         maxScale={3}
                         centerOnInit={true}
+                        doubleClick={{disabled: true}}
                         wheel={{disabled: true}}
                         panning={{disabled: panningOnSubPage}}
                     >
