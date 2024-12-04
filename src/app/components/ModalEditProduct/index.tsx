@@ -3,9 +3,9 @@ import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
-import mima from '../../../../public/Burst Mix & Match.svg'
-import half from '../../../../public/Burst 1 - 2.svg'
-import choice from '../../../../public/Burst your choice.svg'
+import mima from '../../../../public/BurstMiMA.svg'
+import half from '../../../../public/Burst1-2.svg'
+import choice from '../../../../public/BurstYourChoise.svg'
 
 interface ModalEditProductInterface {
 
