@@ -100,18 +100,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-
     useEffect(() => {
         const getProductView = async () => {
             if (!user?.userData?.id_client) return;
-
+            
             try {
                 const body = {
-                    "id_cliente": user.userData.id_client,
+                    "id_client": user.userData.id_client,
                 }
-                const resp = await getCircularByClient(body);
-                if (resp.status === 200) {
-                    setCirculars(resp.result);
+                if (circulars.length === 0) {
+                    const resp = await getCircularByClient(body);
+                    if (resp.status === 200) {
+                        setCirculars(resp.result);
+                    }
                 }
             } catch (error) {
                 console.error("Error al obtener las categorías:", error);
