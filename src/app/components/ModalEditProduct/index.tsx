@@ -3,9 +3,11 @@ import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
-import mima from '../../../../public/BurstMiMA.svg'
-import half from '../../../../public/Burst1-2.svg'
-import choice from '../../../../public/BurstYourChoise.svg'
+import choice from '../../../../public/choice.png'
+import mima from '../../../../public/mima.png'
+import half from '../../../../public/half.png'
+
+
 
 interface ModalEditProductInterface {
 
