@@ -441,87 +441,77 @@ export default function HomePage() {
                     >
                         {({zoomIn, zoomOut, setTransform}) => (
                             <>
+                                <div className="relative h-full">
+                                    <div className="sticky top-4 left-0flex justify-end px-4 z-50">
+                                        <div className="flex space-x-2">
+                                            {!panelScale1 && (
+                                                <button
+                                                    onClick={() => {
+                                                        setPanelScale1(!panelScale1);      
+                                                    }}
+                                                >
+                                                    <ZoomInIcon/>                                        
+                                                </button>
+                                            )}
+                                            {panelScale1 && (
+                                                <button
+                                                    onClick={() => {
+                                                        if (scale <= 250) {
+                                                            setScale(scale + 50);
+                                                            const newScale = zoomScale + 0.5;
+                                                            setZoomScale(newScale);
+                                                            setTransform(0, 0, newScale);
+                                                        }
+                                                    }}
+                                                >
+                                                    <ZoomInIcon/>
+                                                </button>
+                                            )}
 
-
-                                {/* Botones para modificar el zoom */}
-                                <div
-                                    className="  sticky   w-full h-24  z-50 items-center justify-center "
-                                    style={{
-                                        width: "auto",
-                                        height: "5px",
-                                      
-                                    }}
-                                >
-                                    {!panelScale1 && (
-                                    <button
-                                        onClick={() => {
-                                            setPanelScale1(!panelScale1);      
-                                        }}
-                                        className=" justify-center items-center"
-                                    >
-                                        <ZoomInIcon/>                                        
-                                    </button>
-                                    )}
-                                    {panelScale1 && (
-                                    <button
-                                        onClick={() => {
-                                            if (scale <= 250) {
-                                                setScale(scale + 50);
-                                                const newScale = zoomScale + 0.5;
-                                                setZoomScale(newScale);
-                                                setTransform(0, 0, newScale);
-                                            }
-                                        }}
-                                        className=" justify-center items-center"
-                                    >
-                                        <ZoomInIcon/>
-                                    </button>
-                                    )}
-
-                                    {panelScale1 && (
-                                        <button
-                                            onClick={() => {
-                                                if (scale <= 0) {
-                                                    setPanelScale1(!panelScale1);
-                                                  setPanningOnPage1(true);
-                                                }
-                                                if (scale > 0) {
-                                                    zoomOut();
-                                                    setScale(scale - 50);
-                                                    const newScale = zoomScale - 0.5;
-                                                    setZoomScale(newScale);
-                                                }
-                                              
-                                            }}
-                                            className=" justify-center items-center"
-                                        >
-                                            <ZoomOutIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale1 && (
-                                        <button
-                                            onClick={handleButtonClickPage1}
-                                            className=" justify-center items-center"
-                                        >
-                                            {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                            <GrapIconOpen/>
-                                        </button>
-                                    )}
-                                </div>
-
-                                <TransformComponent
-                                    wrapperStyle={{
-                                        overflow: scale > 0.9 ? "auto" : "visible",
-                                        width: "100%",
-                                        height: "100%",
-                                    }}
-                                >
-                                    <div>
-                                        {/* @ts-ignore */}
-                                        <ImageGrid {...commonGridProps} />
+                                            {panelScale1 && (
+                                                <button
+                                                    onClick={() => {
+                                                        if (scale <= 0) {
+                                                            setPanelScale1(!panelScale1);
+                                                          setPanningOnPage1(true);
+                                                        }
+                                                        if (scale > 0) {
+                                                            zoomOut();
+                                                            setScale(scale - 50);
+                                                            const newScale = zoomScale - 0.5;
+                                                            setZoomScale(newScale);
+                                                        }
+                                                      
+                                                    }}
+                                                >
+                                                    <ZoomOutIcon/>
+                                                </button>
+                                            )}
+                                            {panelScale1 && (
+                                                <button
+                                                    onClick={handleButtonClickPage1}
+                                                >
+                                                    {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                                    <GrapIconOpen/>
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                </TransformComponent>
-                                <p className=" text-black text-md">Page 1</p>
+
+                                    <TransformComponent
+                                        wrapperStyle={{
+                                            overflow: scale > 0.9 ? "auto" : "visible",
+                                            width: "100%",
+                                            height: "100%",
+                                        }}
+                                    >
+                                        <div>
+                                            {/* @ts-ignore */}
+                                            <ImageGrid {...commonGridProps} />
+                                        </div>
+                                    </TransformComponent>
+                                    <p className=" text-black text-md">Page 1</p>
+                                </div>
                             </>
                         )}
                     </TransformWrapper>
@@ -545,18 +535,13 @@ export default function HomePage() {
                                     setResetScale(false);
                                 })()}
                                 <div
-                                    className=" sticky top-4  space-x-3 p-1    z-50 items-center justify-center"
-                                    style={{
-                                        width: "auto",
-                                        height: "auto",                                       
-                                    }}
+                                    className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
                                 >
                                     {!panelScale2 && (
                                         <button
                                             onClick={() => {
                                                 setPanelScale2(!panelScale2);
                                             }}
-                                            className=" justify-center items-center"
                                         >
                                             <ZoomInIcon/>
                                         </button>
@@ -591,7 +576,6 @@ export default function HomePage() {
                                                     setZoomScaleSubPagines(newScale);
                                                 }
                                             }}
-                                            className=" items-center justify-center"
                                         >
                                             <ZoomOutIcon/>
                                         </button>
