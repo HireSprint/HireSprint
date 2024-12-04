@@ -167,7 +167,7 @@ const AddCircular = () => {
                                     Select a customer
                                 </option>
                                 {clientes.map((client: clientType) => (
-                                    <option key={client.id_cliente} value={client.id_cliente}>
+                                    <option key={client.id_client} value={client.id_client}>
                                         {client.client_name}
                                     </option>
                                 ))}

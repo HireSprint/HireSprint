@@ -1,5 +1,5 @@
 export interface clientType {
-    id_cliente:number,
+    id_client:number,
     client_products?:number[],
     client_name:string,
     address?:string,
@@ -7,4 +7,5 @@ export interface clientType {
     password:string,
     phone?:string,
     status:boolean,
+    level_client:number,
 }
