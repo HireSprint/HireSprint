@@ -128,14 +128,11 @@ const AddProductPage = () => {
             formData.append('desc', data.desc || "");
             formData.append('main', data.main || "");
             formData.append('addl', data.addl || "");
-            formData.append('burst', data.burst || "");
+            formData.append('burst', (data.burst || 0).toString());
             formData.append('price_text', data.price_text || "");
             formData.append('save_up_to', data.save_up_to || "");
             formData.append('item_code', '0');
             formData.append('group_code', '0');
-            formData.append('burst2', data.burst2 || "");
-            formData.append('burst3', data.burst3 || "");
-            formData.append('burst4', data.burst4 || "");
             formData.append('notes', data.notes || "");
             formData.append('buyer_notes', data.buyer_notes || "");
             formData.append('effective', data.effective || "");

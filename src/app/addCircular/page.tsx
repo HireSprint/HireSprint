@@ -148,7 +148,7 @@ const AddCircular = () => {
                                 id="circularName"
                                 type="text"
                                 onChange={(e) => setCircularName(e.target.value)}
-                                className="border-2 border-[#7cc304] bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-[#7cc304]"
+                                className="bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-[#7cc304]"
                             />
                         </div>
 
@@ -160,7 +160,7 @@ const AddCircular = () => {
                             </label>
                             <select
                                 id="clientSelect"
-                                className="border-2 border-green-400 bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                className=" bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                                 onChange={handleClientChange}
                             >
                                 <option value="" disabled selected>
@@ -183,7 +183,7 @@ const AddCircular = () => {
                             </label>
                             <input
                                 type="text"
-                                className="border-2 border-green-400 bg-gray-700 text-gray-200 rounded-lg w-full h-12 mb-4 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                className=" bg-gray-700 text-gray-200 rounded-lg w-full h-12 mb-4 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                                 onChange={event => setWeekCircular(event.target.value)}
                             />
                         </div>
@@ -197,7 +197,7 @@ const AddCircular = () => {
                             <input
                                 id="dateInput"
                                 type="date"
-                                className="border-2 border-green-400 bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                className=" bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                                 onChange={(e) => setDateCircular(e.target.value)}
                             />
                         </div>
@@ -215,7 +215,7 @@ const AddCircular = () => {
                                     placeholder="Escribe una opción"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
-                                    className="flex-grow border-2 border-green-400 bg-gray-700 text-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                    className="flex-grow  bg-gray-700 text-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                                 />
                                 <button
                                     onClick={handleAddOption}
@@ -231,7 +231,7 @@ const AddCircular = () => {
                             options.map((option, index) => (
                                 <span
                                     key={index}
-                                    className="flex w-auto p-4 border rounded-lg border-green-500 py-2 text-center"
+                                    className="flex w-auto p-4  rounded-lg  py-2 text-center"
                                 >
                                             {option}
                                 </span>
@@ -250,7 +250,7 @@ const AddCircular = () => {
                             type="file"
                             accept=".csv"
                             onChange={handleFileChange}
-                            className="border-2 border-green-400 bg-gray-700 text-gray-200 rounded-lg w-2/3 h-12  mb-4 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                            className="  bg-gray-700 text-gray-200 rounded-lg w-2/3 h-12  mb-4 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                         />
 
                         <div className="overflow-y-auto bg-gray-800 text-gray-200 p-4 rounded-lg h-44 mt-4">
