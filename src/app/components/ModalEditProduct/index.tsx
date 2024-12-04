@@ -3,6 +3,9 @@ import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import mima from '../../../../public/Burst Mix & Match.svg'
+import half from '../../../../public/Burst 1 - 2.svg'
+import choice from '../../../../public/Burst your choice.svg'
 
 interface ModalEditProductInterface {
 
@@ -14,12 +17,17 @@ interface ModalEditProductInterface {
     setIsOpen: (isOpen: boolean) => void
 }
 
+interface burstType{
+    value: number,
+    image: any
+}
+
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
     const SELECT_OPTIONS = ["Ea", "Lb", "Pound", "Head", "Bunch", "Bag", "PKG", "Pack"]
-    const [price, setPrice] = useState<string>(product?.price?.toString());
+    const [price, setPrice] = useState<string>(product?.price);
     const [burst, setBurst] = useState(product?.burst ?? "")
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
@@ -27,7 +35,17 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [withCard, setWithCard] = useState(product?.with_cart ?? false)
     const [limitType, setLimitType] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const [notes, setNotes] = useState(product?.conditions && product.conditions !== 'undefined' ? product.conditions : "")
+    const [notes, setNotes] = useState(product?.conditions && product.conditions !== 'undefined' ? product.conditions : "")//
+
+    //dropdown burst
+    const [openDropdown, setOpenDropdown] = useState(false)
+    const [burstOption, setBurstOption] = useState<burstType[] | []>([])
+    const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
+
+    useEffect(() => {
+        setBurstOption([{value: 1,image:mima},{value: 2,image:half},{value: 3,image:choice}])
+    }, []);
+
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -57,6 +75,11 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
 
     }, [categories, product]);
+
+    const handledSelectedBurst = (item:burstType) => {
+        setSelectedBurst(item);
+        setOpenDropdown(false)
+    }
 
 
     console.log(notes)
@@ -204,6 +227,44 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         className="w-full  p-1 border border-gray-950 rounded font-bold text-black"
                                     />
                                 </div>
+                                {/* Contenedor del campo Brust */}
+                                <div className="flex items-center gap-1">
+                                    <h3 className="font-bold text-black">Burst:</h3>
+                                    <div className="flex flex-col items-center gap-1">
+                                        <button onClick={() => setOpenDropdown(!openDropdown)}  className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
+                                            {!selectedBurst?"Select Burst":"Change burst"}
+                                        </button>
+                                        {openDropdown && (
+                                            <div className="flex  absolute m-10 bg-white rounded-md shadow-lg z-50">
+                                                {burstOption.map((item,index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handledSelectedBurst(item)}
+                                                        className="text-left py-1 shadow hover:bg-gray-100"
+                                                    >
+                                                        <Image
+                                                            src={item.image}
+                                                            alt={`Burst option`}
+                                                            width={60}
+                                                            height={60}
+                                                            className="object-contain"
+                                                        />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {
+                                        selectedBurst !== null && (
+                                            <Image
+                                                src={selectedBurst?.image}
+                                                alt={`Burst option ${selectedBurst?.value}`}
+                                                width={60}
+                                                height={60}
+                                                className="object-contain"
+                                            />)
+                                    }
+                                </div>
                             </div>
                             <div>
                                 <div className="flex items-center">
@@ -275,6 +336,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             </div>
                                         )}
                                     </div>
+
                                 </div>
                                 <div className=" flex items-center pt-2">
                                     <h1 className="text-black font-bold pr-2">Must Buy: </h1>

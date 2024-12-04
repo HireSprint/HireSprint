@@ -37,7 +37,10 @@ export interface ProductTypes {
     type_of_cut?: string
     quality_cf?: string
     category?: string,
-    plu?: string
+    plu?: string,
+    limit?: string
+    must_buy?: string,
+    status_active?:boolean
 
 }
 

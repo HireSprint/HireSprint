@@ -7,6 +7,7 @@ import { useAuth } from "../components/provider/authprovider";
 import ProductsTable from "@/app/components/ProductsTable";
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { formatDate } from "../components/formaDate";
 
 const OnboardingPage = () => {
     const router = useRouter();
@@ -49,15 +50,6 @@ const OnboardingPage = () => {
             setSelectedCircular(circular || null);
             setIsLoading(false);
         }, 2000);
-    };
-
-    // Función para formatear la fecha
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const month = date.toLocaleString('en-US', { month: 'long' });
-        const day = date.getDate() +1;
-        const year = date.getFullYear();
-        return `${month} ${day}, ${year}`;
     };
 
     const handleContinue = async () => {
