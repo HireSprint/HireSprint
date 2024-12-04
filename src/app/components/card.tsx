@@ -297,11 +297,11 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
     if ( typeof enableDragAndDrop !== "boolean" ) enableDragAndDrop = false;
 
     const startDragging = (e: any , data: any) => {
-        
+
         setPosition({ x: 0, y: 0 });
-        
+
         setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
-        
+
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'none' ;
         }, 250);
@@ -332,7 +332,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
 
         if (enableDragAndDrop && e.button == 0) {
             timeoutRef.current = setTimeout(() => {
-                
+
                 if (!productReadyDrag) {
                     setProductReadyDrag({from: 'sidebar', id_product: product.id_product});
                 }
@@ -355,7 +355,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
             <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
 
             <Draggable disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar') )} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
-                {    isLoading ? 
+                {    isLoading ?
                     (
                         <div className="bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
                             <div className="w-28 h-28 bg-gray-300 rounded flex items-center justify-center "></div>
@@ -365,12 +365,12 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                     )
                     :
                     (
-                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`} 
+                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`}
                             onClick={(e) => {
                                 if (!enableDragAndDrop || !productReadyDrag) {
                                     onProductSelect && onProductSelect(product, e)
                                 }
-                            }} 
+                            }}
                         >
                             <div className=" flex w-28 h-28 items-center justify-center">
                                 {
@@ -388,7 +388,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                                             placeholder="blur"
                                             blurDataURL={product.url_image}
                                         />
-                                    ) 
+                                    )
                                     :
                                     (
                                         <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">

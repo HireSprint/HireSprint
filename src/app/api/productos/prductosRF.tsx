@@ -49,7 +49,7 @@ export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> =
             must_buy: product.must_buy || null,
             with_cart: product.with_cart || null,
             desc: Array.isArray(product.desc) ? product.desc.join(", ") : "",
-       
+
         }));
 
         // Hacer la solicitud HTTP POST al script de Google Apps
@@ -128,7 +128,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     price: '0',
                     conditions: '',
                     notes: '',
-                    burst: '',
+                    burst: 0,
                     addl: '',
                     limit: '',
                     must_buy: "",
@@ -174,7 +174,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             must_buy: product.must_buy,
             with_cart: product.with_cart,
 
-          
+
         }));
         await fetch(url, {
             method: 'POST',
@@ -188,7 +188,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             }),
         });
 
-        console.log("Solicitud enviada a Google Sheets.");
+        console.log("Solicitud enviada a Google Sheets.",formattedData);
 
     } catch (error) {
         console.error('Error al interactuar con Google Sheet:', error);
