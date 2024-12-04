@@ -281,7 +281,7 @@ export const SaveIcon = () => {
 
 export const Burst1 = () => {
   return (
-    <svg width="100" height="100" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+    <svg width="60" height="60" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="419.58" height="300" fill="url(#pattern0_37_15)"/>
 <rect x="34" y="30" width="352" height="239" fill="url(#pattern1_37_15)"/>
 <mask id="path-3-outside-1_37_15" maskUnits="userSpaceOnUse" x="96" y="67" width="236" height="127" fill="black">
@@ -306,7 +306,7 @@ export const Burst1 = () => {
 
 export const Burst2 = () => {
   return(
-    <svg width="100" height="100" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+    <svg width="60" height="60" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="419.58" height="300" fill="url(#pattern0_37_13)"/>
 <rect x="34" y="30" width="352" height="239" fill="url(#pattern1_37_13)"/>
 <mask id="path-3-outside-1_37_13" maskUnits="userSpaceOnUse" x="132" y="75" width="157" height="154" fill="black">
@@ -332,7 +332,7 @@ export const Burst2 = () => {
 
 export const Burst3 = () => {
   return(
-    <svg width="100" height="100" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+    <svg width="60" height="60" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="419.58" height="300" fill="url(#pattern0_37_14)"/>
 <rect x="34" y="30" width="352" height="239" fill="url(#pattern1_37_14)"/>
 <mask id="path-3-outside-1_37_14" maskUnits="userSpaceOnUse" x="114" y="80" width="193" height="130" fill="black">

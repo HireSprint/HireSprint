@@ -3,6 +3,7 @@ import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import {Switch} from "@chakra-ui/react";
 
 
 
@@ -19,7 +20,7 @@ interface ModalEditProductInterface {
 
 interface burstType{
     value: number,
-    image: any
+    text: string,
 }
 
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
@@ -42,6 +43,10 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
 
+
+    useEffect(() => {
+        setBurstOption([{value:1,text:"Mix & Match"},{value:2,text:"1/2 Price"},{value:3,text:"Your Choice"}])
+    }, []);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -232,14 +237,26 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         <button onClick={() => setOpenDropdown(!openDropdown)}  className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
                                             {!selectedBurst?"Select Burst":"Change burst"}
                                         </button>
+
                                         {openDropdown && (
                                             <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
-                                              <Burst1/>
-                                              <Burst2/>
-                                              <Burst3/>
+                                                {burstOption.map((item,index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handledSelectedBurst(item)}
+                                                        className="text-left py-1 shadow gap-2 hover:bg-gray-100"
+                                                    >
+                                                        {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2/> :
+                                                            <Burst3/>}
+                                                    </button>
+                                                ))}
                                             </div>
                                         )}
                                     </div>
+                                    {
+                                        selectedBurst !== null && (
+                                            selectedBurst?.value === 1 ?<Burst1/> :selectedBurst?.value === 2 ?<Burst2/> : <Burst3/>)
+                                    }
                                 </div>
                             </div>
                             <div>
