@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
-import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
-import choice from '../../../../public/choice.svg'
-import mima from '../../../../public/mima.svg'
-import half from '../../../../public/half.svg'
+import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+
 
 
 
@@ -44,9 +42,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
 
-    useEffect(() => {
-        setBurstOption([{value: 1,image:mima},{value: 2,image:half},{value: 3,image:choice}])
-    }, []);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -238,35 +233,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             {!selectedBurst?"Select Burst":"Change burst"}
                                         </button>
                                         {openDropdown && (
-                                            <div className="flex  absolute m-10 bg-white rounded-md shadow-lg z-50">
-                                                {burstOption.map((item,index) => (
-                                                    <button
-                                                        key={index}
-                                                        onClick={() => handledSelectedBurst(item)}
-                                                        className="text-left py-1 shadow hover:bg-gray-100"
-                                                    >
-                                                        <Image
-                                                            src={item.image}
-                                                            alt={`Burst option`}
-                                                            width={60}
-                                                            height={60}
-                                                            className="object-contain"
-                                                        />
-                                                    </button>
-                                                ))}
+                                            <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
+                                              <Burst1/>
+                                              <Burst2/>
+                                              <Burst3/>
                                             </div>
                                         )}
                                     </div>
-                                    {
-                                        selectedBurst !== null && (
-                                            <Image
-                                                src={selectedBurst?.image}
-                                                alt={`Burst option ${selectedBurst?.value}`}
-                                                width={60}
-                                                height={60}
-                                                className="object-contain"
-                                            />)
-                                    }
                                 </div>
                             </div>
                             <div>
