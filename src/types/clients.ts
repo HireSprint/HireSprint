@@ -1,5 +1,5 @@
 export interface clientType {
-    id_cliente:number,
+    id_client:number,
     client_products?:number[],
     client_name:string,
     address?:string,
