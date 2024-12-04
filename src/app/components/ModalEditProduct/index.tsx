@@ -14,7 +14,7 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean, limitType: string) => void,
+    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: number, addl: string, limit: string, mustBuy: string, withCard: boolean, limitType: string) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -29,7 +29,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [categoria, setCategoria] = useState<categoriesInterface>()
     const SELECT_OPTIONS = ["Ea", "Lb", "Pound", "Head", "Bunch", "Bag", "PKG", "Pack"]
     const [price, setPrice] = useState<string>(product?.price);
-    const [burst, setBurst] = useState(product?.burst ?? "")
+    const [burst, setBurst] = useState<number|0>(product?.burst?? 0)
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
@@ -80,7 +80,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     const handledSelectedBurst = (item:burstType) => {
         setSelectedBurst(item);
-        setBurst(String(item.value))
+        setBurst(item.value)
         setOpenDropdown(false)
     }
 

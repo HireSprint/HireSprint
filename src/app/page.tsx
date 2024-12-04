@@ -321,7 +321,7 @@ export default function HomePage() {
         gridID: number | undefined,
         price: string,
         conditions: string,
-        burst: string,
+        burst: number,
         addl: string,
         limit: string,
         mustBuy: string,
@@ -379,7 +379,7 @@ export default function HomePage() {
     const {panningOnPage1, setPanningOnPage1} = useProductContext();
     const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
 
-  
+
     const handleButtonClickPage1 = () => {
         setPanningOnPage1(!panningOnPage1);
     }
@@ -389,7 +389,7 @@ export default function HomePage() {
     }
 
     useEffect(() => {
-        // Cuando currentPage cambie, reiniciamos los valores       
+        // Cuando currentPage cambie, reiniciamos los valores
         setScaleSubPagines(0);
         setZoomScaleSubPagines(0.9);
     }, [currentPage]);
@@ -444,7 +444,7 @@ export default function HomePage() {
                                         alignItems: "center",
                                     }}
                                 >
-                                    
+
                                     <button
                                         onClick={() => {
                                             if (scale < 250) {
