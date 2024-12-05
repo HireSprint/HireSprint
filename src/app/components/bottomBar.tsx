@@ -1,4 +1,4 @@
-"use client.ts";
+"use client";
 import React, { useEffect, useRef, useState } from "react";
 import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, CircleArrowIcon, ArrowIcon, } from "./icons";
 import { categoriesInterface } from "@/types/category";
@@ -133,7 +133,7 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     setShowMore(false);
     checkScroll();
   }, [showCategories]);
-  
+
   // Restaura la posición del scroll después del renderizado
   useEffect(() => (bottomBarRef.current?.scrollTo({ left: scrollPosition.current, behavior: "auto", })), [categorySelected]);
 
@@ -150,7 +150,7 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
   }, []);
-  
+
 
   // filtrado de las categorias
   const filteredButtons = bottomBarButtons.all.filter(({ label }) =>
@@ -182,23 +182,23 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
 
   return (
     <div ref={dropdownRef} className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-      <button 
+      <button
         className="bg-white text-black px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-2"
         onClick={() => {
           setShowCategories(!showCategories);
           onClick?.();
         }}
       >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-5 w-5" 
-          viewBox="0 0 20 20" 
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
           fill="currentColor"
         >
-          <path 
-            fillRule="evenodd" 
-            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" 
-            clipRule="evenodd" 
+          <path
+            fillRule="evenodd"
+            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+            clipRule="evenodd"
           />
         </svg>
         Show Categories

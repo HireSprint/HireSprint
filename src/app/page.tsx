@@ -129,7 +129,7 @@ export default function HomePage() {
                         burst: product.burst,
                         addl: product.addl,
                         limit: product.limit,
-                        must_buy: product.must_buy, 
+                        must_buy: product.must_buy,
                         with_card: product.with_card
                     }))
                 })
@@ -319,7 +319,7 @@ export default function HomePage() {
     const handleSaveChangeProduct = (
         gridID: number | undefined,
         price: string,
-        notes: string,  
+        notes: string,
         burst: number,
         addl: string,
         limit: string,
@@ -382,7 +382,7 @@ export default function HomePage() {
 
     const {panningOnPage1, setPanningOnPage1} = useProductContext();
     const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
-    
+
     const [panelScale1, setPanelScale1] = useState(false);
     const [panelScale2, setPanelScale2] = useState(false);
     const [resetScale, setResetScale] = useState(false);
@@ -394,9 +394,9 @@ export default function HomePage() {
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
     }
-    
-    
-    
+
+
+
     useEffect(() => {
         // Cuando currentPage cambie, reiniciamos los valores
         setScaleSubPagines(0);
@@ -406,9 +406,9 @@ export default function HomePage() {
 
     return (
 
-        <div className="grid grid-rows-[1fr_min-content] overflow-hidden">
+        <div className="grid grid-rows-[1fr_min-content] max-h-screen ">
             <div
-                className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${productDragging ? 'overflow-x-hidden' : ''} `}>
+                className={`relative grid grid-cols-2 items-center  justify-center ${productDragging ? 'overflow-x-visible' : ''} `}>
                 <AnimatePresence>
                     {category && (
                         <motion.div
@@ -442,7 +442,7 @@ export default function HomePage() {
                         centerOnInit={true} // Cambiar a false para evitar centrar en la inicialización
                         wheel={{disabled: true}}
                         panning={{disabled: panningOnPage1}}
-                        
+
                     >
                         {({zoomIn, zoomOut, setTransform}) => (
                             <>
@@ -452,10 +452,10 @@ export default function HomePage() {
                                             {!panelScale1 && (
                                                 <button
                                                     onClick={() => {
-                                                        setPanelScale1(!panelScale1);      
+                                                        setPanelScale1(!panelScale1);
                                                     }}
                                                 >
-                                                    <ZoomInIcon/>                                        
+                                                    <ZoomInIcon/>
                                                 </button>
                                             )}
                                             {panelScale1 && (
@@ -486,7 +486,7 @@ export default function HomePage() {
                                                             const newScale = zoomScale - 0.5;
                                                             setZoomScale(newScale);
                                                         }
-                                                      
+
                                                     }}
                                                 >
                                                     <ZoomOutIcon/>
@@ -505,9 +505,11 @@ export default function HomePage() {
 
                                     <TransformComponent
                                         wrapperStyle={{
-                                            overflow: scale > 0.9 ? "auto" : "visible",
+                                            // overflow: scale > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "100%",
+                                            height: "90vh",
+                                            overflow:productDragging? 'visible':"hidden",
+                                            overflowY: "scroll",
                                         }}
                                     >
                                         <div>
@@ -520,7 +522,6 @@ export default function HomePage() {
                             </>
                         )}
                     </TransformWrapper>
-
                 </div>
                 <div className={`flex flex-col h-full w-full p-align-center`}>
                     <TransformWrapper
@@ -560,7 +561,7 @@ export default function HomePage() {
                                                 const newScale = zoomScaleSubPagines + 0.5;
                                                 setZoomScaleSubPagines(newScale);
                                                 setTransform(0, 0, newScale);
-                                             
+
                                             }
                                         }}
                                         className="  justify-center items-center"
@@ -606,14 +607,14 @@ export default function HomePage() {
                                 >
                                     <TransformComponent
                                         wrapperStyle={{
-                                            overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
+                                            // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "100%",
-                                            zIndex: "-10",
-
-                                        }}                                        
+                                            height: "90vh",
+                                            overflow:productDragging? 'visible':"hidden",
+                                            overflowY: "scroll",
+                                        }}
                                     >
-                                        <div className={`flex flex-col  w-full  item-center`}>                                     
+                                        <div className={`flex flex-col  w-full  item-center`}>
                                             <div
                                                 className={`h-full  w-full `}>
                                                 {currentPage === 2 && <ImageGrid2 {...commonGridProps} />}
@@ -629,6 +630,9 @@ export default function HomePage() {
                     </TransformWrapper>
                 </div>
             </div>
+
+
+            {/*//fin*/}
             <section className="z-[52]">
                 {/* @ts-ignore */}
                 <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect}/>
