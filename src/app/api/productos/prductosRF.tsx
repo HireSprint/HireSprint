@@ -3,81 +3,6 @@ import {useCategoryContext} from "@/app/context/categoryContext";
 import {ProductTypes} from "@/types/product";
 
 
-export const addGoogleSheet = async (data: any) => {
-    const url = "https://script.google.com/macros/s/AKfycbzJAeQpfaBhzTdRv46eW2F9mADydMk7hg9UsglE9DQ2n54tNsOH7TFT157SiICSQMTJiw/exec";  // url vieja "https://script.google.com/macros/s/AKfycbx5uzWgfSHSu2MXMbakyBOGDKtWCBZFoZqNdL73wbu9VokxYWzF50OleQF044ChGfhx/exec";
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        console.log('Datos enviados a Google Sheet:', result);
-        return result;
-    } catch (error) {
-        console.error('Error al enviar datos a Google Sheet:', error);
-        throw error;
-    }
-};
-
-export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
-
-    const {categoriesData} = useCategoryContext()
-
-    const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec"
-
-    try {
-        // Convertir los productos al formato adecuado para la API de Google Sheets
-        const formattedData = dataArray.map(product => ({
-            id_product: product.id_product,
-            name: product.name,
-            url_image: product.url_image,
-            id_category: product.id_category,
-            price: product.price || null,
-            conditions: product.conditions || null,
-            notes: product.notes || null,
-            burst: product.burst || null,
-            addl: product.addl || null,
-            limit: product.limit || null,
-            must_buy: product.must_buy || null,
-            with_cart: product.with_cart || null,
-            desc: Array.isArray(product.desc) ? product.desc.join(", ") : "",
-
-        }));
-
-        // Hacer la solicitud HTTP POST al script de Google Apps
-        const response = await fetch(url, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({productos: formattedData}),
-        });
-
-        // Verificar si la respuesta HTTP fue exitosa
-        if (!response.ok) {
-            throw new Error(`Error en la solicitud HTTP! status: ${response.status}`);
-        }
-
-        // Obtener el resultado en formato JSON
-        const result = await response.json();
-        console.log("Respuesta de Google Sheet:", result);
-        return result;
-
-    } catch (error) {
-        console.error('Error al interactuar con Google Sheet:', error);
-        throw error;
-    }
-};
-
 export let InfoHojaIdInicialIdFinal = [
     {
         hoja: 1,
@@ -102,9 +27,10 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbxmQWjnSXZRzZ5CHsyQS6Bd2dlnL_ZZjQMpoYdXwCmi4c3GDGPoAUtl3F2PXpHKzLLS/exec";
+    const url = "https://script.google.com/macros/s/AKfycbwrweTzKez3g51zESM4ahfngHJkJgHmo2Ze28f_WCj2kQFrTMa4BAnHUbReFF0m_qGW/exec";
 
 
+    console.log(selectedProducts);
     try {
         // Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
         let allProducts: ProductTypes[] = [];
@@ -126,13 +52,15 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     type_of_meat: '',
                     type_of_cut: '',
                     price: '0',
-                    conditions: '',
                     notes: '',
                     burst: 0,
                     addl: '',
                     limit: '',
                     must_buy: "",
-                    with_cart: false,
+                    with_card: false,
+                    per: '',
+                    limitType: ''
+                  
                 });
             }
         });
@@ -166,14 +94,14 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             typeOfMeat: product.type_of_meat,
             typeOfCutVariety: product.type_of_cut,
             price: product.price,
-            conditions: product.conditions,
             notes: product.notes,
-            burst: product.burst,
+            burst: Number(product.burst),
             addl: product.addl,
             limit: product.limit,
             must_buy: product.must_buy,
-            with_cart: product.with_cart,
-
+            with_card: product.with_card,
+            per: product.per,
+            limitType: product.limitType
 
         }));
         await fetch(url, {

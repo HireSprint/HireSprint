@@ -108,6 +108,7 @@ function MyDropzone({ className }: { className: string }) {
                 alt={file.name}
                 width={500}
                 height={500}
+                draggable={false}
                 className='draggable-image object-contain'
                 style={{
                   transition: 'transform 0.1s',

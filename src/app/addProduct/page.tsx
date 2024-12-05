@@ -306,7 +306,6 @@ const AddProductPage = () => {
 
             setSearchResults(filtered);
             setOpenSearch(true);
-
             if (filtered.length === 0) {
                 toast.info("No se encontraron productos");
             }
@@ -623,6 +622,23 @@ const AddProductPage = () => {
         color: 'white',
         fontSize: '0.875rem'
     };
+
+    // Añadir un useEffect para manejar el evento de teclado
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                handleSearch();
+            }
+        };
+
+        // Añadir el evento al documento
+        document.addEventListener('keydown', handleKeyDown);
+
+        // Limpiar el evento al desmontar el componente
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [searchTerm, productsData]);
 
     return (
         <div className="flex p-2 bg-[#121212] h-screen overflow-y-auto no-scrollbar ">

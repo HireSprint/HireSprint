@@ -93,6 +93,7 @@ export const ImageGrid = ({
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const { idCircular, user } = useAuth();
     const [loading, setLoading] = useState(true);
+    const {panningOnPage1} = useProductContext();
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -170,16 +171,16 @@ export const ImageGrid = ({
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
-            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false}/>
+            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false} />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
 
-                return (
+                return (                  
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnPage1 ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}
@@ -281,7 +282,7 @@ export const ImageGrid2 = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-
+    const {panningOnSubPage} = useProductContext();
 
 
 
@@ -372,7 +373,7 @@ export const ImageGrid2 = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnSubPage ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}
@@ -516,6 +517,7 @@ export const ImageGrid3 = ({
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
+    const {panningOnSubPage} = useProductContext();
     const [loading, setLoading] = useState(true);
 
 
@@ -615,7 +617,7 @@ export const ImageGrid3 = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnSubPage ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}
@@ -713,6 +715,7 @@ export const ImageGrid4 = ({
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
+    const {panningOnSubPage} = useProductContext();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -804,7 +807,7 @@ export const ImageGrid4 = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnSubPage ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}

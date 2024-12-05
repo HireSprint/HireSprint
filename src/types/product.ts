@@ -18,7 +18,7 @@ export interface ProductTypes {
     save_up_to?: string,
     item_code?: number,
     group_code?: number,
-    with_cart?: boolean,
+    with_card?: boolean,
     id_product?: number,
     id_grid?: number,
     notes?: string,
@@ -38,6 +38,8 @@ export interface ProductTypes {
     limit?: string
     must_buy?: string,
     status_active?:boolean
+    per: string,
+    limitType: string
 
 }
 
