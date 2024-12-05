@@ -187,6 +187,7 @@ const BuilderPage = () => {
 	
 	const handleSelectedCell = (cell: any) => {
 		console.log('----- handleSelectedCell -----');
+		// TODO: revisar por que cuando se llena un grupo de celdas y luego se da un click fuera o en otro grupo no se quita el selectedGroup
 		if (selectedGroup && !selectedGroup.static) return;
 
 		let currentGroup = selectedGroup
