@@ -43,6 +43,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
                         layout="fill"
                         style={{ objectFit: 'cover' }}
                         className="rounded-lg"
+                        draggable={false}
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -107,6 +108,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
                     height={100}
                     className="rounded object-cover mt-2"
                     onLoadingComplete={handleImageLoad}
+                    draggable={false}
                 />
             ) : (
                 <div className="w-12 h-12 bg-gray-200 flex items-center justify-center mt-2">
@@ -146,6 +148,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
                         width={150}
                         height={150}
                         className="rounded object-cover"
+                        draggable={false}
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -243,7 +246,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                     product?.url_image && (
                                         <div className="absolute justify-self-end self-center">
                                             <div className="@[66px]:w-10 @[66px]:h-10    @[71px]:w-16 @[71px]:h-16    @[125px]:w-16 @[125px]:h-18">
-                                                <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
+                                                <Image src={product.url_image} alt={product.name || ''} width={100} height={100} draggable={false} />
                                             </div>
                                         </div>
                                     )
@@ -268,11 +271,20 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                     )}
                                 </div>
                                 <div className="absolute bottom-0 w-full flex flex-col items-end ">
-                                    {product?.conditions && product.conditions !== 'undefined' && (
-                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[27px]:text-[18px] @[27px]:leading-[18px] @[47px]:text-[18px] @[47px]:leading-[18px] @[77px]:leading-[18px] @[77px]:text-[18px]">
-                                            {product.conditions}
+                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                        {product?.with_cart && "With Club Card  "}
+                                    </span>
+                                    {product?.limit && product?.limit.length > 0 && (
+                                        <span className="text-green-600 absolute left-0 bottom-3 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                            {"Limit  " + product?.limit + " Offer"}
                                         </span>
                                     )}
+                                    {product?.must_buy && product.must_buy.length > 0 && (
+                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                            {"Must Buy  " + product?.must_buy}
+                                        </span>
+                                    )}
+                                   
                                     <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[27px]:text-[10px] @[27px]:leading-[10px] @[47px]:text-[10px] @[47px]:leading-[10px] @[77px]:leading-[10px] @[77px]:text-[10px]">
                                         { cell?.id }
                                     </span>
@@ -297,11 +309,11 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
     if ( typeof enableDragAndDrop !== "boolean" ) enableDragAndDrop = false;
 
     const startDragging = (e: any , data: any) => {
-        
+
         setPosition({ x: 0, y: 0 });
-        
+
         setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
-        
+
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'none' ;
         }, 250);
@@ -332,7 +344,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
 
         if (enableDragAndDrop && e.button == 0) {
             timeoutRef.current = setTimeout(() => {
-                
+
                 if (!productReadyDrag) {
                     setProductReadyDrag({from: 'sidebar', id_product: product.id_product});
                 }
@@ -355,7 +367,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
             <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
 
             <Draggable disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar') )} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
-                {    isLoading ? 
+                {    isLoading ?
                     (
                         <div className="bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
                             <div className="w-28 h-28 bg-gray-300 rounded flex items-center justify-center "></div>
@@ -365,12 +377,12 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                     )
                     :
                     (
-                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`} 
+                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`}
                             onClick={(e) => {
                                 if (!enableDragAndDrop || !productReadyDrag) {
                                     onProductSelect && onProductSelect(product, e)
                                 }
-                            }} 
+                            }}
                         >
                             <div className=" flex w-28 h-28 items-center justify-center">
                                 {
@@ -380,7 +392,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                                             alt={product.name}
                                             width={100}
                                             height={100}
-                                            draggable="false"
+                                            draggable={false}
                                             style={{ objectFit: 'cover' }}
                                             className="rounded-lg"
                                             onError={() => setImageError(true)}
@@ -388,7 +400,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                                             placeholder="blur"
                                             blurDataURL={product.url_image}
                                         />
-                                    ) 
+                                    )
                                     :
                                     (
                                         <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -458,6 +470,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                                 alt={product.desc || 'Producto'}
                                 fill
                                 className="object-contain rounded-lg"
+                                draggable={false}
                             />
                         </div>
                     )}

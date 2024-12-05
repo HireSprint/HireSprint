@@ -87,8 +87,8 @@ export default function Header() {
             <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between ">
                 <div className='flex items-center justify-center '>
                     <button className="flex items-center justify-center" onClick={() => router.push('/')}>
-                        <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} />
-                        <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' />
+                        <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} draggable={false} />
+                        <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' draggable={false} />
 
                     </button>
                 </div>
@@ -122,8 +122,8 @@ export default function Header() {
             <div className="flex items-center p-4 bg-[#393939] space-x-4 justify-between ">
                 <div className='flex items-center justify-center '>
                     <button className="flex items-center justify-center" onClick={() => router.push('/')}>
-                        <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} />
-                        <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' />
+                        <Image src="/HPlogo.png" alt="Retail Fluent" width={70} height={70} draggable={false} />
+                        <Image src="/nameLogo.png" alt="Retail Fluent" width={120} height={100} className='pt-3' draggable={false} />
 
                     </button>
                 </div>

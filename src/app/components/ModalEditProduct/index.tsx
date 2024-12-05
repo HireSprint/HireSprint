@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
-import { ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import {Switch} from "@chakra-ui/react";
+
+
+
 
 interface ModalEditProductInterface {
 
@@ -10,24 +14,41 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: string, addl: string, limit: string, mustBuy: string, withCard: boolean, limitType: string) => void,
+    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: number, addl: string, limit: string, mustBuy: string, withCard: boolean, limitType: string, per: string) => void,
     setIsOpen: (isOpen: boolean) => void
+}
+
+interface burstType{
+    value: number,
+    text: string,
 }
 
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const [categories, setCategories] = useState<[]>()
     const [categoria, setCategoria] = useState<categoriesInterface>()
-    const SELECT_OPTIONS = ["Ea", "Lb", "Pound", "Head", "Bunch", "Bag", "PKG", "Pack"]
-    const [price, setPrice] = useState<string>(product?.price?.toString());
-    const [burst, setBurst] = useState(product?.burst ?? "")
+    const per = ["Ea", "Lb", "POUND", "HEAD", "BUNCH", "BAG", "PKG", "PK"]
+    const [price, setPrice] = useState<string>(product?.price);
+    const [burst, setBurst] = useState<number|0>(product?.burst?? 0)
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
     const [withCard, setWithCard] = useState(product?.with_cart ?? false)
     const [limitType, setLimitType] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const [notes, setNotes] = useState(product?.conditions && product.conditions !== 'undefined' ? product.conditions : "")
+    const [notes, setNotes] = useState(product?.notes && product.notes !== 'undefined' ? product.notes : "")//
+
+    //dropdown burst
+    const [openDropdown, setOpenDropdown] = useState(false)
+    const [burstOption, setBurstOption] = useState<burstType[] | []>([])
+    const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
+
+    const [selectedPer, setSelectedPer] = useState<string>(per[0]);
+
+    useEffect(() => {
+        setBurstOption([{value:1,text:"Mix & Match"},{value:2,text:"1/2 Price"},{value:3,text:"Your Choice"}])
+    }, []);
+
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -58,6 +79,12 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     }, [categories, product]);
 
+    const handledSelectedBurst = (item:burstType) => {
+        setSelectedBurst(item);
+        setBurst(item.value)
+        setOpenDropdown(false)
+    }
+
 
     console.log(notes)
     return (
@@ -85,6 +112,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         alt={product?.name}
                                         width={300}
                                         height={300}
+                                        draggable={false}
                                     />
                                 ) : (
                                     <div className="h-full w-full bg-gray-200 flex items-center justify-center">
@@ -104,6 +132,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                 alt={`${product?.name}-${index}`}
                                                 width={100}
                                                 height={100}
+                                                draggable={false}
                                             />
                                         ) : (
                                             <div className="h-full w-full bg-gray-200 flex items-center justify-center">
@@ -184,9 +213,10 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         <select
                                             className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
                                             defaultValue=""
+                                            onChange={(e) => setSelectedPer(e.target.value)}
                                         >
                                             <option value="" disabled></option>
-                                            {SELECT_OPTIONS.map((item: string, index: number) => (
+                                            {per.map((item: string, index: number) => (
                                                 <option key={index} value={item}>{item}</option>
                                             ))}
                                         </select>
@@ -204,13 +234,37 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         className="w-full  p-1 border border-gray-950 rounded font-bold text-black"
                                     />
                                 </div>
+                                {/* Contenedor del campo Brust */}
+                                <div className="flex items-center gap-1">
+                                    <h3 className="font-bold text-black">Burst:</h3>
+                                    <div className="flex flex-col items-center gap-1">
+                                        <button onClick={() => setOpenDropdown(!openDropdown)}  className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
+                                            {!selectedBurst?"Select Burst":"Change burst"}
+                                        </button>
+
+                                        {openDropdown && (
+                                            <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
+                                                {burstOption.map((item,index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handledSelectedBurst(item)}
+                                                        className="text-left py-1 shadow gap-2 hover:bg-gray-100"
+                                                    >
+                                                        {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2/> :
+                                                            <Burst3/>}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {
+                                        selectedBurst !== null && (
+                                            selectedBurst?.value === 1 ?<Burst1/> :selectedBurst?.value === 2 ?<Burst2/> : <Burst3/>)
+                                    }
+                                </div>
                             </div>
                             <div>
-                                <div className="flex items-center">
-                                    <h1 className="text-black font-bold pr-2">UPC/PLU:</h1>
-                                    <h1 className="text-black text-red-500 font-bold">{product?.upc}</h1>
-                                </div>
-                                <div className="flex justify-center pt-12 pb-4">
+                                <div className="flex pb-4">
                                     <h1 className="text-black font-bold w-24">Conditions</h1>
                                 </div>
                                 <div className="flex">
@@ -275,6 +329,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             </div>
                                         )}
                                     </div>
+
                                 </div>
                                 <div className=" flex items-center pt-2">
                                     <h1 className="text-black font-bold pr-2">Must Buy: </h1>
@@ -314,7 +369,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limitType)}>
+                                onClick={() => SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limitType, selectedPer)}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save Changes
