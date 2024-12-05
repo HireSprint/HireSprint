@@ -3,7 +3,7 @@
 import { watch } from "fs";
 import React, { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { PlusIcon, TrashIcon } from "../components/icons";
+import { MoveIcon, PlusIcon, TrashIcon } from "../components/icons";
 import { Tooltip } from 'primereact/tooltip';
 import { Message } from "primereact/message";
 import GridLayout from "react-grid-layout";
@@ -27,8 +27,11 @@ const BuilderPage = () => {
 	const [customLayout, setCustomLayout] = useState<gridLayoutTypes[]>([]);
 	const [newGroup, setNewGroup] = useState({ canAddAnother: true, x: 0, y: 0, });
 	const [selectedGroup, setSelectedGroup] = useState<gridLayoutTypes | null>(null);
+	const [selectedCell, setSelectedCell] = useState<gridLayoutTypes | null>(null);
 	const [groupGridCells, setGroupGridCells] = useState<any>(null);
 	const {categoriesData, getCategoryById, isLoadingCategories} = useCategoryContext();
+	const [elementDimensions, setElementDimensions] = useState<{[key: string]: {width: number, height: number}}>({});
+
 
 	const imageFile = watch("image");
 	const bg_width = watch('bg_width');
@@ -37,18 +40,41 @@ const BuilderPage = () => {
 	useEffect(() => {
 		
 		const layoutStructure = [
-			{ w: 72,  h: 168,   x: 0,     y: 170,    moved: false,  i: "1",  static: true,  id_category: 5  },
-			{ w: 72,  h: 50,    x: 0,     y: 345,    moved: false,  i: "2",  static: true,  id_category: 16 },
-			{ w: 72,  h: 53,    x: 0,     y: 403,    moved: false,  i: "3",  static: true,  id_category: 7  },
-			{ w: 72,  h: 229,   x: 0,     y: 463,    moved: false,  i: "4",  static: true,  id_category: 4  },
-			{ w: 72,  h: 51,    x: 0,     y: 699,    moved: false,  i: "5",  static: true,  id_category: 6  },
-			{ w: 28,  h: 651,   x: 72,    y: 169,    moved: false,  i: "6",  static: false, id_category: 15 },
-			{ w: 72,  h: 64,    x: 0,     y: 756,    moved: false,  i: "7",  static: true,  id_category: 1  }
+			{ w: 72,  h: 168,   x: 0,     y: 170,    moved: false,  i: "1",  static: true,  id_category: 5,  groupRef: undefined  },
+			{ w: 72,  h: 50,    x: 0,     y: 345,    moved: false,  i: "2",  static: true,  id_category: 16, groupRef: undefined  },
+			{ w: 72,  h: 53,    x: 0,     y: 403,    moved: false,  i: "3",  static: true,  id_category: 7,  groupRef: undefined  },
+			{ w: 72,  h: 229,   x: 0,     y: 463,    moved: false,  i: "4",  static: true,  id_category: 4,  groupRef: undefined  },
+			{ w: 72,  h: 51,    x: 0,     y: 699,    moved: false,  i: "5",  static: true,  id_category: 6,  groupRef: undefined  },
+			{ w: 28,  h: 651,   x: 72,    y: 169,    moved: false,  i: "6",  static: false, id_category: 15, groupRef: undefined  },
+			{ w: 72,  h: 64,    x: 0,     y: 756,    moved: false,  i: "7",  static: true,  id_category: 1,  groupRef: undefined }
 		]
 
 		setLayout(layoutStructure);
 		calculateNextPosition()
 	}, []);
+
+	useEffect(() => {
+		const observer = new ResizeObserver((entries) => {
+		  entries.forEach(entry => {
+			const id = entry.target.getAttribute('id');
+			
+			if (id) {
+			  setElementDimensions(prev => ({
+				...prev,
+				[id]: {
+				  width: entry.contentRect.width,
+				  height: entry.contentRect.height
+				}
+			  }));
+			}
+		  });
+		});
+	
+		// Observar todos los elementos del grid
+		document.querySelectorAll('[id^="group-"]').forEach(element => observer.observe(element));
+	
+		return () => observer.disconnect();
+	  }, [layout]);
 	
 	
 	useEffect(() => {
@@ -83,22 +109,112 @@ const BuilderPage = () => {
 	}, [imageFile]);
 
 
-	const handleSelectedGroup = (group: any) => {
-		const newLayout = customLayout.map((item: any) => ({ ...item, static: true }))
+	const makeAllGroupAndCellsStatic = (groups: gridLayoutTypes[]) => {
+		return groups.map((group: gridLayoutTypes) => {
+			if (group.gridCells && group.gridCells.length > 0) {
+				return {
+					...group,
+					gridCells: group.gridCells.map((cell: gridLayoutTypes) => ({ ...cell, static: true }))
+				};
+			}
+			return { ...group, static: true }
+		});
+	};
+
+	const toogleGroupStatic = () => {
+		
+		if (!selectedGroup){
+			console.error("selectedGroup not found");
+			return;
+		} 
+		
+		const newLayout = makeAllGroupAndCellsStatic(customLayout)
+		const selectedIndex = newLayout.findIndex((item: any) => item.i === selectedGroup.i);
+		if (selectedIndex !== -1) {	
+			newLayout[selectedIndex].static = !selectedGroup.static;
+		}
+		
+		setSelectedGroup({...newLayout[selectedIndex]})
+		setLayout(newLayout);
+	}
+	
+	const toogleCellStatic = () => {
+		if (!selectedCell){
+			console.error("selectedCell not found");
+			return;
+		} 
+
+		if (!selectedGroup){
+			console.error("selectedGroup not found");
+			return;
+		} 
+		
+		const newLayout = makeAllGroupAndCellsStatic(customLayout)
+
+		const selectedGroupIndex = newLayout.findIndex((item: any) => item.i === selectedGroup.i);	 
+		if (selectedGroupIndex !== -1 && newLayout[selectedGroupIndex].gridCells && newLayout[selectedGroupIndex].gridCells.length > 0) {  
+			const selectedCellIndex = newLayout[selectedGroupIndex].gridCells.findIndex((item: any) => item.i === selectedCell.i);
+
+			if (selectedCellIndex !== -1) {
+				newLayout[selectedGroupIndex].gridCells[selectedCellIndex].static = !selectedCell.static
+			}
+			
+			setSelectedCell({...newLayout[selectedGroupIndex].gridCells[selectedCellIndex]})
+			setLayout(newLayout);
+		}
+	}
+
+	const handleSelectedGroup = (group: any, makeStatic: boolean = true) => {
+		handleSelectedCell(null)
+		const newLayout = makeAllGroupAndCellsStatic(customLayout)
 		
 		let selectedGroup = null
 		
 		if (group) {			 
-			 const selectedIndex = newLayout.findIndex((item: any) => item.i === group.i);
+			const selectedIndex = newLayout.findIndex((item: any) => item.i === group.i);
+			
+			if (selectedIndex !== -1) {  
+				newLayout[selectedIndex].static = !makeStatic;
+				selectedGroup = newLayout[selectedIndex];
+			}
+		}
+		
+		setLayout(newLayout);
+		setSelectedGroup(selectedGroup);
+		return selectedGroup
+	}
+	
+	
+	const handleSelectedCell = (cell: any) => {
+		console.log('----- handleSelectedCell -----');
+		if (selectedGroup && !selectedGroup.static) return;
 
-			 if (selectedIndex !== -1) {  
-			   newLayout[selectedIndex].static = false;
-			   selectedGroup = newLayout[selectedIndex];
+		let currentGroup = selectedGroup
+
+		if (cell && (!currentGroup || (cell.groupI !== currentGroup.i) )){
+			currentGroup = handleSelectedGroup({i: cell.groupI}, false)
+		} 
+		
+		const newLayout = makeAllGroupAndCellsStatic(customLayout)
+		
+		let selectedCell = null
+		
+		if (cell && currentGroup) {			 
+
+			 const selectedGroupIndex = newLayout.findIndex((item: any) => item.i === currentGroup.i);
+			 
+			 if (selectedGroupIndex !== -1 && newLayout[selectedGroupIndex].gridCells && newLayout[selectedGroupIndex].gridCells.length > 0) {  
+				 const selectedIndex = newLayout[selectedGroupIndex].gridCells.findIndex((item: any) => item.i === cell.i);
+
+				 if (selectedIndex !== -1) {
+					 newLayout[selectedGroupIndex].gridCells[selectedIndex].static = false;
+					 selectedCell = newLayout[selectedGroupIndex].gridCells[selectedIndex];
+				 }
 			 }
 		}
 
 		setLayout(newLayout);
-		setSelectedGroup(selectedGroup);
+		setSelectedCell(selectedCell);
 	}
 
 	const onSubmit: SubmitHandler<any> = async (data: any) => {
@@ -109,8 +225,13 @@ const BuilderPage = () => {
 		}, 2000);
 	}
 
-	const layoutChangeHandler = (newLayout: any) => {
+	const layoutGroupChangeHandler = (newLayout: any) => {
 		setLayout(newLayout);
+		calculateNextPosition()
+	}
+	
+	const layoutCellChangeHandler = (newLayout: any) => {
+		// setLayout(newLayout);
 		calculateNextPosition()
 	}
 
@@ -180,7 +301,10 @@ const BuilderPage = () => {
 	};
 
 	const removeGroup = () => {
-		if (!selectedGroup) return;
+		if (!selectedGroup){
+			console.error("selectedGroup not found");
+			return;
+		} 
 
 		setLayout((prevLayout: any) =>{
 			const newLayout = prevLayout.filter((item: any) => item.i !== selectedGroup.i);
@@ -227,19 +351,75 @@ const BuilderPage = () => {
 		setGroupGridCells(data);
 	}
 	
-	const applyGroupGridCells = () => {
+
+	const generateGridCells = (num_rows: number, num_cols: number) => {
 		if (!selectedGroup){
 			console.error("selectedGroup not found");
 			return;
 		} 
+		const cells: gridLayoutTypes[] = [];
+		let cellCounter = 1;
+	  
+		// Espaciado entre las celdas
+		const spacing = 0.4; 
+		const totalXSpacing = (num_cols - 1) * spacing; // Total espacio horizontal ocupado por separaciones
+		const totalYSpacing = (num_rows - 1) * spacing; // Total espacio vertical ocupado por separaciones
+	  
+		// Calcular dimensiones efectivas
+		const effectiveWidth = (100 - totalXSpacing) / num_cols;
+		const totalHeight =
+		  elementDimensions[`group-${selectedGroup?.i}`]?.height || 0;
+		const effectiveHeight = (totalHeight - totalYSpacing) / num_rows;
+	  
+		for (let row = 0; row < num_rows; row++) {
+		  let currentX = 0;
+		  let currentY = row * (effectiveHeight + spacing);
+	  
+		  for (let col = 0; col < num_cols; col++) {
+			cells.push({
+			  i: `cell-${selectedGroup?.i}-${cellCounter}`,
+			  x: Math.round(currentX * 1000) / 1000, 
+			  y: Math.round(currentY * 1000) / 1000, 
+			  w: Math.round(effectiveWidth * 1000) / 1000, 
+			  h: Math.round(effectiveHeight * 1000) / 1000,
+			  moved: false,
+			  static: true,
+			  id_category: null,
+			  groupI: selectedGroup.i
+			});
+	  
+			currentX += effectiveWidth + spacing;
+			cellCounter++;
+		  }
+		}
+	  
+		return cells;
+	  };
+	  
+
+	const applyGroupGridCells = () => {
+		if (!selectedGroup) {
+			console.error("selectedGroup not found");
+			return;
+		} 
 		
-		if (!groupGridCells){
+		if (!groupGridCells) {
 			console.error("groupGridCells not found");
 			return;
 		} 
 		
-		console.log("groupGridCells", groupGridCells);
-	}
+		const { rows, cols } = groupGridCells;
+		const generatedCells = generateGridCells(rows, cols);
+
+		const updatedLayout = layout.map(group => {
+			if (group.i === selectedGroup.i) {
+				return { ...group, gridCells: generatedCells };
+			}
+			return group;
+		});
+
+		setLayout(updatedLayout);
+	};
 	
 	if (isLoadingCategories) {
 		return  <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
@@ -303,13 +483,24 @@ const BuilderPage = () => {
 									<span className="text-black text-md font-bold text-green-700 mb-0">{selectedGroup.i}</span>
 								</div>
 	
-								<div className="flex items-center justify-end gap-2">
-									<Tooltip target="#remove-group-btn" content="Remove group" position="right" autoHide={true} />
-									<button id="remove-group-btn" type="button" className="w-[30px] bg-red-500 text-white p-1 rounded-md hover:bg-red-700 transition-colors" onClick={() => removeGroup() } >
-										<div className="flex items-center justify-center">
-											<TrashIcon color="#fff" />
-										</div>
-									</button>
+								<div className="flex gap-2 items-center">
+									<div className="flex items-center justify-end gap-2">
+										<Tooltip target="#move-group-btn" content={`${ selectedGroup.static ? 'Move group' : 'Make group static' }`} position="right" autoHide={true} />
+										<button id="move-group-btn" type="button" className={`w-[30px] text-white p-1 rounded-md ${ selectedGroup.static ? 'bg-gray-300 hover:bg-gray-400' : 'bg-[#7cc304] hover:bg-green-600' } transition-colors`} onClick={() => toogleGroupStatic() } >
+											<div className="flex items-center justify-center">
+												<MoveIcon color={`${ selectedGroup.static ? '#9e9c9c' : '#fff' }`} />
+											</div>
+										</button>
+									</div>
+
+									<div className="flex items-center justify-end gap-2">
+										<Tooltip target="#remove-group-btn" content="Remove group" position="right" autoHide={true} />
+										<button id="remove-group-btn" type="button" className="w-[30px] text-white p-1 rounded-md bg-red-500 hover:bg-red-700 transition-colors" onClick={() => removeGroup() } >
+											<div className="flex items-center justify-center">
+												<TrashIcon color="#fff" />
+											</div>
+										</button>
+									</div>
 								</div>
 							</div>
 
@@ -358,7 +549,7 @@ const BuilderPage = () => {
 			</form>
 		</div>
 
-		<div className="h-full overflow-y-auto" onClick={() => handleSelectedGroup(null)}>
+		<div className="h-full overflow-y-auto" onClick={() => { handleSelectedGroup(null); handleSelectedCell(null) }}>
 			<div className="p-4">
 				<div className="w-full flex justify-center">
 					{	
@@ -372,12 +563,13 @@ const BuilderPage = () => {
 								<img src={backgroundUrl} alt="Vista previa" className="object-fill" draggable={false} style={{ width: `${bg_width}px`, height: `${bg_height}px` }}/>
 							) : (
 								<div className={`bg-white rounded-md flex items-center justify-center`}  style={{ width: `${bg_width}px`, height: `${bg_height}px` }}>
-									<span className="text-gray-500 text-lg">No image selected</span>
+									{/* <span className="text-gray-500 text-lg">No image selected</span> */}
 								</div>
 							)}
 							<div className="w-full h-full absolute top-0 left-0 z-10 overflow-hidden">
 								<GridLayout
-									onLayoutChange={layoutChangeHandler}
+									key={'layout-group'}
+									onLayoutChange={layoutGroupChangeHandler}
 									className="layout"
 									layout={layout}
 									cols={cols}
@@ -394,11 +586,8 @@ const BuilderPage = () => {
 									>
 										{
 											layout.map((group: gridLayoutTypes) => (
-												<div key={group.i} onClick={(e) => {
-													e.stopPropagation(); // Prevenir la propagación del evento
-													handleSelectedGroup(group);
-												}}>
-													<Tooltip target={"#div-" + group.i} position="top" > 
+												<div key={group.i} onClick={(e) => { e.stopPropagation(); handleSelectedGroup(group); }}>
+													<Tooltip target={"#group-" + group.i} position="top" > 
 														<div className="flex flex-col gap-3">
 															<div className="flex items-center gap-1">
 																<span className="text-white text-md font-bold">Grupo</span>
@@ -413,9 +602,35 @@ const BuilderPage = () => {
 														</div>
 													</Tooltip>
 
-													<div id={"div-" + group.i} className={`w-full h-full border-[1px] border-[#7cc304] ${selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
-														
-													</div>
+													<div id={"group-" + group.i} className={`w-full h-full border-[1px] border-[#7cc304] box-border cursor-pointer ${selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
+														{
+															elementDimensions && getCustomReference(group)?.gridCells && (
+																<GridLayout
+																	key={'layout-group-cells-' + group.i}
+																	onLayoutChange={layoutCellChangeHandler}
+																	layout={getCustomReference(group)?.gridCells || []}
+																	cols={cols}
+																	rowHeight={rowHeight}
+																	width={elementDimensions[`group-${group.i}`]?.width}
+																	preventCollision={true}
+																	autoSize={true}
+																	margin={[0, 0]}
+																	containerPadding={[0, 0]}
+																	maxRows={elementDimensions[`group-${group.i}`]?.height}
+																	// resizeHandles={['se', 'ne', 'nw', 'sw', 'e', 'n', 'w', 's']}
+																	resizeHandles={['se']}
+																	compactType={null}
+																>
+																	{ getCustomReference(group)?.gridCells?.map((cell: gridLayoutTypes) => (
+																		<div key={cell.i} onClick={(e) => { e.stopPropagation(); handleSelectedCell(cell); }}>
+																			<div className={`w-full h-full border-[1px] border-gray-500 rounded text-black ${selectedCell && selectedCell?.i === cell.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
+																			</div>
+																		</div>
+																	))}
+																</GridLayout>
+															)
+														}
+														</div>
 												</div>
 											))
 										}

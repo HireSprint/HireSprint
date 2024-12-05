@@ -8,6 +8,7 @@ export interface gridLayoutTypes {
   static: boolean;
   id_category: number | null;
   gridCells?: gridLayoutTypes[];
+  groupI?: string;
 }
 
 export type PartialGridLayoutTypes = Partial<gridLayoutTypes> &
