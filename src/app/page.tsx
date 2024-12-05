@@ -25,7 +25,6 @@ export default function HomePage() {
         currentPage,
         productDragging,
         setIsLoadingProducts,
-        isLoadingProducts
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -91,7 +90,7 @@ export default function HomePage() {
                             addl: item.addl,
                             limit: item.limit,
                             must_buy: item.must_buy,
-                            with_cart: item.with_cart
+                            with_card: item.with_card
                         };
                     });
 
@@ -130,8 +129,8 @@ export default function HomePage() {
                         burst: product.burst,
                         addl: product.addl,
                         limit: product.limit,
-                        must_buy: product.must_buy,
-                        with_cart: product.with_cart
+                        must_buy: product.must_buy, 
+                        with_card: product.with_card
                     }))
                 })
             });
@@ -326,7 +325,8 @@ export default function HomePage() {
         limit: string,
         mustBuy: string,
         withCard: boolean,
-        per: string
+        per: string,
+        limitType: string
     ) => {
         if (gridID === undefined) return;
 
@@ -342,7 +342,8 @@ export default function HomePage() {
                         limit,
                         must_buy: mustBuy,
                         with_cart: withCard,
-                        per
+                        per,
+                        limitType
                     };
                     return updatedProduct;
                 }
@@ -352,6 +353,7 @@ export default function HomePage() {
             // Actualizar el servidor con los cambios
             updateCircularInServer(updatedProducts);
 
+            console.log(updatedProducts);
             return updatedProducts;
         });
 

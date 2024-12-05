@@ -3,7 +3,6 @@ import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
-import {Switch} from "@chakra-ui/react";
 
 
 
@@ -33,7 +32,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
-    const [withCard, setWithCard] = useState(product?.with_cart ?? false)
+    const [withCard, setWithCard] = useState(product?.with_card ?? false)
     const [limitType, setLimitType] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [notes, setNotes] = useState(product?.notes && product.notes !== 'undefined' ? product.notes : "")//
