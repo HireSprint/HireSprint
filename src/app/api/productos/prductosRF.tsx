@@ -27,9 +27,10 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbwzPpvXA2QWnuK4sNCBq_0XOhvv0-F_4eI7-0v5lO7JUlyyDv7ZxUICuXrZyUq_Ve9U/exec";
+    const url = "https://script.google.com/macros/s/AKfycbwrweTzKez3g51zESM4ahfngHJkJgHmo2Ze28f_WCj2kQFrTMa4BAnHUbReFF0m_qGW/exec";
 
 
+    console.log(selectedProducts);
     try {
         // Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
         let allProducts: ProductTypes[] = [];
@@ -57,6 +58,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     limit: '',
                     must_buy: "",
                     with_cart: false,
+                  
                 });
             }
         });
@@ -91,7 +93,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             typeOfCutVariety: product.type_of_cut,
             price: product.price,
             notes: product.notes,
-            burst: product.burst,
+            burst: Number(product.burst),
             addl: product.addl,
             limit: product.limit,
             must_buy: product.must_buy,
