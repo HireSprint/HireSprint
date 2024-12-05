@@ -272,7 +272,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                 </div>
                                 <div className="absolute bottom-0 w-full flex flex-col items-end ">
                                     <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
-                                        {product?.with_cart && "With Club Card  "}
+                                        {product?.with_card && "With Club Card  "}
                                     </span>
                                     {product?.limit && product?.limit.length > 0 && (
                                         <span className="text-green-600 absolute left-0 bottom-3 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
