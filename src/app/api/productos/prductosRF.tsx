@@ -30,6 +30,8 @@ export const addGoogleSheet = async (data: any) => {
 export const addGoogleSheet2 = async (dataArray: ProductTypes[]): Promise<any> => {
 
     const {categoriesData} = useCategoryContext()
+    
+    
 
     const url = "https://script.google.com/macros/s/AKfycbxAtyQcahGuH7L2Q2ihxMRUnXGLAEbjgb33rzrG1vjGSWwZOgt69bmSQur9fz1aIvd_/exec"
 
@@ -102,9 +104,9 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbxmQWjnSXZRzZ5CHsyQS6Bd2dlnL_ZZjQMpoYdXwCmi4c3GDGPoAUtl3F2PXpHKzLLS/exec";
+    const url = "https://script.google.com/macros/s/AKfycbwjCflNBwEJRor_nxuedLcFZj0EJn67wrPgUOLHofa84K7ZGPU3AA0c2FmMFvTdrT8c/exec";
 
-
+    console.log(selectedProducts);
     try {
         // Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
         let allProducts: ProductTypes[] = [];
@@ -125,8 +127,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     quality_cf: '',
                     type_of_meat: '',
                     type_of_cut: '',
-                    price: '0',
-                    conditions: '',
+                    price: '0',                 
                     notes: '',
                     burst: 0,
                     addl: '',
@@ -165,10 +166,9 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             qualityCf: product.quality_cf,
             typeOfMeat: product.type_of_meat,
             typeOfCutVariety: product.type_of_cut,
-            price: product.price,
-            conditions: product.conditions,
+            price: product.price,          
             notes: product.notes,
-            burst: product.burst,
+            burst: Number(product.burst),
             addl: product.addl,
             limit: product.limit,
             must_buy: product.must_buy,
