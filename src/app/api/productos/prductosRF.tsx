@@ -104,7 +104,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbwjCflNBwEJRor_nxuedLcFZj0EJn67wrPgUOLHofa84K7ZGPU3AA0c2FmMFvTdrT8c/exec";
+    const url = "https://script.google.com/macros/s/AKfycbwzPpvXA2QWnuK4sNCBq_0XOhvv0-F_4eI7-0v5lO7JUlyyDv7ZxUICuXrZyUq_Ve9U/exec";
 
     console.log(selectedProducts);
     try {
@@ -134,6 +134,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     limit: '',
                     must_buy: "",
                     with_cart: false,
+                  
                 });
             }
         });
