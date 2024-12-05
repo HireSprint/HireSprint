@@ -59,7 +59,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     must_buy: "",
                     with_card: false,
                     per: '',
-                    limitType: ''
+                    limit_type: ''
                   
                 });
             }
@@ -101,7 +101,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             must_buy: product.must_buy,
             with_card: product.with_card,
             per: product.per,
-            limitType: product.limitType
+            limit_type: product.limit_type
 
         }));
         await fetch(url, {

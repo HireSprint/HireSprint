@@ -251,7 +251,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-                                <div className="absolute flex flex-col  text-blue-950 font-bold @[17px]:text-[7px] @[17px]:leading-[7px] @[27px]:text-[12px] @[27px]:leading-[12px] @[47px]:text-[14px] @[47px]:leading-[12px] @[77px]:leading-[13px] @[77px]:text-[13px] @[77px]:inset-[5px]" style={textShadowWhite}>
+                                <div className="absolute flex flex-col  text-blue-950 font-bold @[44px]:text-[7px] @[44px]:leading-[7px] @[66px]:text-[12px] @[66px]:leading-[12px] @[71px]:text-[14px] @[71px]:leading-[12px] @[125px]:leading-[13px] @[125px]:text-[13px] @[125px]:inset-[5px]" style={textShadowWhite}>
                                     {product && (
                                         <>
                                             <span className="text-blue-600 uppercase">
@@ -264,28 +264,28 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                                 { product.size }
                                             </span>
                                             <span className="text-red-500">
-                                                <span className="@[27px]:text-[10px] @[47px]:text-[20px] @[77px]:text-[17px]">$</span>
+                                                <span className="@[66px]:text-[10px] @[71px]:text-[15px] @[125px]:text-[15px]">$</span>
                                                 { product.price }
                                             </span>
                                         </>
                                     )}
                                 </div>
                                 <div className="absolute bottom-0 w-full flex flex-col items-end ">
-                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
-                                        {product?.with_cart && "With Club Card  "}
+                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[77px]:text-[15px] @[77px]:leading-[15px] @[125px]:leading-[10px] @[125px]:text-[10px]">
+                                        {product?.with_card && "With Club Card  "}
                                     </span>
                                     {product?.limit && product?.limit.length > 0 && (
-                                        <span className="text-green-600 absolute left-0 bottom-3 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                        <span className="text-green-600 absolute left-0 bottom-3 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:text-[15px] @[71px]:leading-[15px] @[125px]:leading-[10px] @[125px]:text-[10px]">
                                             {"Limit  " + product?.limit + " Offer"}
                                         </span>
                                     )}
                                     {product?.must_buy && product.must_buy.length > 0 && (
-                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:text-[15px] @[71px]:leading-[15px] @[125px]:leading-[10px] @[125px]:text-[10px]">
                                             {"Must Buy  " + product?.must_buy}
                                         </span>
                                     )}
                                    
-                                    <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[27px]:text-[10px] @[27px]:leading-[10px] @[47px]:text-[10px] @[47px]:leading-[10px] @[77px]:leading-[10px] @[77px]:text-[10px]">
+                                    <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[44px]:text-[10px] @[44px]:leading-[10px] @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[10px]">
                                         { cell?.id }
                                     </span>
                                 </div>

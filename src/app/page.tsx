@@ -90,7 +90,8 @@ export default function HomePage() {
                             addl: item.addl,
                             limit: item.limit,
                             must_buy: item.must_buy,
-                            with_card: item.with_card
+                            with_card: item.with_card,
+                            limit_type: item.limit_type
                         };
                     });
 
@@ -130,7 +131,8 @@ export default function HomePage() {
                         addl: product.addl,
                         limit: product.limit,
                         must_buy: product.must_buy, 
-                        with_card: product.with_card
+                        with_card: product.with_card,
+                        limit_type: product.limit_type
                     }))
                 })
             });
@@ -326,7 +328,7 @@ export default function HomePage() {
         mustBuy: string,
         withCard: boolean,
         per: string,
-        limitType: string
+        limit_type: string
     ) => {
         if (gridID === undefined) return;
 
@@ -343,7 +345,7 @@ export default function HomePage() {
                         must_buy: mustBuy,
                         with_cart: withCard,
                         per,
-                        limitType
+                        limit_type
                     };
                     return updatedProduct;
                 }

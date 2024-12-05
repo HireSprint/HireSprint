@@ -149,7 +149,7 @@ export const ImageGrid = ({
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
                         must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
+                        with_card: circularProduct.with_card
                     };
                 });
     
@@ -341,7 +341,7 @@ export const ImageGrid2 = ({
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
                         must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
+                        with_card: circularProduct.with_card
                     };
                 });
     
@@ -576,7 +576,7 @@ export const ImageGrid3 = ({
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
                         must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
+                        with_card: circularProduct.with_card
                     };
                 });
     
@@ -773,7 +773,7 @@ export const ImageGrid4 = ({
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
                         must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
+                        with_card: circularProduct.with_card
                     };
                 });
     
