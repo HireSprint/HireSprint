@@ -41,7 +41,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [openDropdown, setOpenDropdown] = useState(false)
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
-
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
 
     useEffect(() => {
@@ -368,7 +367,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer)}>
+                                onClick={() => {SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);
+                                    console.log(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);}}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save Changes
