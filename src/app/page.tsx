@@ -13,7 +13,7 @@ import {categoriesInterface} from "@/types/category";
 import {Message} from "primereact/message";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import {useAuth} from "./components/provider/authprovider";
-
+import {GrapIconClose, GrapIconOpen, ZoomInIcon, ZoomOutIcon} from "@/app/components/icons";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -380,7 +380,10 @@ export default function HomePage() {
 
     const {panningOnPage1, setPanningOnPage1} = useProductContext();
     const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
-
+    
+    const [panelScale1, setPanelScale1] = useState(false);
+    const [panelScale2, setPanelScale2] = useState(false);
+    const [resetScale, setResetScale] = useState(false);
 
     const handleButtonClickPage1 = () => {
         setPanningOnPage1(!panningOnPage1);
@@ -389,12 +392,15 @@ export default function HomePage() {
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
     }
-
+    
+    
+    
     useEffect(() => {
         // Cuando currentPage cambie, reiniciamos los valores
         setScaleSubPagines(0);
         setZoomScaleSubPagines(0.9);
-    }, [currentPage]);
+        setResetScale(true);
+        }, [currentPage]);
 
     return (
 
@@ -419,7 +425,7 @@ export default function HomePage() {
                 </AnimatePresence>
 
                 <div
-                    className={`flex flex-col   w-full h-full border-r-2 border-black  transform ${
+                    className={`flex flex-col   w-full h-full border-r-2 border-black  transform ${panningOnPage1 ? 'cursor-default' : 'cursor-grabbing'} ${
                         productDragging && productDragging.page && productDragging.page > 1
                             ? "z-0"
                             : "z-50"
@@ -430,67 +436,85 @@ export default function HomePage() {
                         initialScale={0.9}
                         minScale={0.9}
                         maxScale={3}
+                        doubleClick={{disabled: true}}
                         centerOnInit={true} // Cambiar a false para evitar centrar en la inicialización
                         wheel={{disabled: true}}
                         panning={{disabled: panningOnPage1}}
-
+                        
                     >
                         {({zoomIn, zoomOut, setTransform}) => (
                             <>
-                                {/* Botones para modificar el zoom */}
-                                <div
-                                    className=" sticky top-4  flex flex-col space-y-1 p-2 bg-white shadow-md rounded-lg  z-50"
-                                    style={{
-                                        width: "60px",
-                                        height: "auto",
-                                        alignItems: "center",
-                                    }}
-                                >
+                                <div className="relative h-full">
+                                    <div className="sticky top-4 left-0flex justify-end px-4 z-50">
+                                        <div className="flex space-x-2">
+                                            {!panelScale1 && (
+                                                <button
+                                                    onClick={() => {
+                                                        setPanelScale1(!panelScale1);      
+                                                    }}
+                                                >
+                                                    <ZoomInIcon/>                                        
+                                                </button>
+                                            )}
+                                            {panelScale1 && (
+                                                <button
+                                                    onClick={() => {
+                                                        if (scale <= 250) {
+                                                            setScale(scale + 50);
+                                                            const newScale = zoomScale + 0.5;
+                                                            setZoomScale(newScale);
+                                                            setTransform(0, 0, newScale);
+                                                        }
+                                                    }}
+                                                >
+                                                    <ZoomInIcon/>
+                                                </button>
+                                            )}
 
-                                    <button
-                                        onClick={() => {
-                                            if (scale < 250) {
-                                                setScale(scale + 50);
-                                                const newScale = zoomScale + 0.5;
-                                                setZoomScale(newScale);
-                                                setTransform(0, 0, newScale);
-                                            }
-                                        }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                                        +
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            if (scale > 0) {
-                                                zoomOut();
-                                                setScale(scale - 50);
-                                                const newScale = zoomScale - 0.5;
-                                                setZoomScale(newScale);
-                                            }
-                                        }}
-                                        className="w-10  bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                                        −
-                                    </button>
-                                    <button
-                                        onClick={handleButtonClickPage1}
-                                        className="w-10  bg-blue-500 cursor-grab rounded-lg hover:bg-blue-600 ">
-                                        ✊ {/* Emoji que representa una mano */}
-                                    </button>
-                                </div>
-
-                                <TransformComponent
-                                    wrapperStyle={{
-                                        overflow: scale > 0.9 ? "auto" : "visible",
-                                        width: "100%",
-                                        height: "100%",
-                                    }}
-                                >
-                                    <div>
-                                        {/* @ts-ignore */}
-                                        <ImageGrid {...commonGridProps} />
+                                            {panelScale1 && (
+                                                <button
+                                                    onClick={() => {
+                                                        if (scale <= 0) {
+                                                            setPanelScale1(!panelScale1);
+                                                          setPanningOnPage1(true);
+                                                        }
+                                                        if (scale > 0) {
+                                                            zoomOut();
+                                                            setScale(scale - 50);
+                                                            const newScale = zoomScale - 0.5;
+                                                            setZoomScale(newScale);
+                                                        }
+                                                      
+                                                    }}
+                                                >
+                                                    <ZoomOutIcon/>
+                                                </button>
+                                            )}
+                                            {panelScale1 && (
+                                                <button
+                                                    onClick={handleButtonClickPage1}
+                                                >
+                                                    {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                                    <GrapIconOpen/>
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                </TransformComponent>
-                                <p className=" text-black text-md">Page 1</p>
+
+                                    <TransformComponent
+                                        wrapperStyle={{
+                                            overflow: scale > 0.9 ? "auto" : "visible",
+                                            width: "100%",
+                                            height: "100%",
+                                        }}
+                                    >
+                                        <div>
+                                            {/* @ts-ignore */}
+                                            <ImageGrid {...commonGridProps} />
+                                        </div>
+                                    </TransformComponent>
+                                    <p className=" text-black text-md">Page 1</p>
+                                </div>
                             </>
                         )}
                     </TransformWrapper>
@@ -502,19 +526,31 @@ export default function HomePage() {
                         minScale={0.9}
                         maxScale={3}
                         centerOnInit={true}
+                        doubleClick={{disabled: true}}
                         wheel={{disabled: true}}
                         panning={{disabled: panningOnSubPage}}
                     >
-                        {({zoomIn, zoomOut, setTransform}) => (
+                        {({zoomIn, zoomOut, setTransform, resetTransform}) => (
                             <>
+                                {resetScale && (() => {
+                                    resetTransform();
+                                    setPanelScale2(false);
+                                    setPanningOnSubPage(true);
+                                    setResetScale(false);
+                                })()}
                                 <div
-                                    className=" sticky top-4  flex flex-col space-y-1 p-2 bg-white shadow-md rounded-lg  z-50"
-                                    style={{
-                                        width: "60px",
-                                        height: "auto",
-                                        alignItems: "center",
-                                    }}
+                                    className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
                                 >
+                                    {!panelScale2 && (
+                                        <button
+                                            onClick={() => {
+                                                setPanelScale2(!panelScale2);
+                                            }}
+                                        >
+                                            <ZoomInIcon/>
+                                        </button>
+                                    )}
+                                    {panelScale2 && (
                                     <button
                                         onClick={() => {
                                             if (scaleSubPagines < 250) {
@@ -522,30 +558,41 @@ export default function HomePage() {
                                                 const newScale = zoomScaleSubPagines + 0.5;
                                                 setZoomScaleSubPagines(newScale);
                                                 setTransform(0, 0, newScale);
+                                             
                                             }
                                         }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                                        className="  justify-center items-center"
                                     >
-                                        +
+                                        <ZoomInIcon/>
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            if (scaleSubPagines > 0) {
-                                                zoomOut();
-                                                setScaleSubPagines(scaleSubPagines - 50);
-                                                const newScale = zoomScaleSubPagines - 0.5;
-                                                setZoomScaleSubPagines(newScale);
-                                            }
-                                        }}
-                                        className="w-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                    >
-                                        −
-                                    </button>
-                                    <button
-                                        onClick={handleButtonClickPage2}
-                                        className="w-10  bg-blue-500 cursor-grab rounded-lg hover:bg-blue-600 ">
-                                        ✊ {/* Emoji que representa una mano */}
-                                    </button>
+                                    )}
+                                    {panelScale2 && (
+                                        <button
+                                            onClick={() => {
+                                                if (scale <= 0) {
+                                                    setPanelScale2(!panelScale2);
+                                                    setPanningOnSubPage(true);
+                                                }
+                                                if (scaleSubPagines > 0) {
+                                                    zoomOut();
+                                                    setScaleSubPagines(scaleSubPagines - 50);
+                                                    const newScale = zoomScaleSubPagines - 0.5;
+                                                    setZoomScaleSubPagines(newScale);
+                                                }
+                                            }}
+                                        >
+                                            <ZoomOutIcon/>
+                                        </button>
+                                    )}
+                                    {panelScale2 && (
+                                        <button
+                                            onClick={handleButtonClickPage2}
+                                            className=" justify-center items-center"
+                                        >
+                                            {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                            {panningOnSubPage ? <GrapIconOpen/> : <GrapIconClose/>}
+                                        </button>
+                                    )}
                                 </div>
                                 <motion.div
                                     key={currentPage}
@@ -562,9 +609,9 @@ export default function HomePage() {
                                             height: "100%",
                                             zIndex: "-10",
 
-                                        }}
+                                        }}                                        
                                     >
-                                        <div className={`flex flex-col  w-full  item-center`}>
+                                        <div className={`flex flex-col  w-full  item-center`}>                                     
                                             <div
                                                 className={`h-full  w-full `}>
                                                 {currentPage === 2 && <ImageGrid2 {...commonGridProps} />}
