@@ -86,7 +86,7 @@ export default function HomePage() {
                             ...fullProduct, // Mantener toda la información del producto
                             id_grid: item.grid_id,
                             price: item.price || fullProduct?.price, // Mantener el precio guardado o usar el default
-                            conditions: item.conditions,
+                            notes: item.notes,
                             burst: item.burst,
                             addl: item.addl,
                             limit: item.limit,
@@ -126,7 +126,7 @@ export default function HomePage() {
                         grid_id: product.id_grid,
                         upc: product.upc,
                         price: product.price,
-                        conditions: product.conditions,
+                        notes: product.notes,
                         burst: product.burst,
                         addl: product.addl,
                         limit: product.limit,
@@ -320,12 +320,13 @@ export default function HomePage() {
     const handleSaveChangeProduct = (
         gridID: number | undefined,
         price: string,
-        conditions: string,
+        notes: string,  
         burst: number,
         addl: string,
         limit: string,
         mustBuy: string,
-        withCard: boolean
+        withCard: boolean,
+        per: string
     ) => {
         if (gridID === undefined) return;
 
@@ -335,12 +336,13 @@ export default function HomePage() {
                     const updatedProduct = {
                         ...product,
                         price,
-                        conditions,
+                        notes,
                         burst,
                         addl,
                         limit,
                         must_buy: mustBuy,
-                        with_cart: withCard
+                        with_cart: withCard,
+                        per
                     };
                     return updatedProduct;
                 }

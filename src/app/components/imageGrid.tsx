@@ -170,7 +170,7 @@ export const ImageGrid = ({
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
-            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false}/>
+            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false} />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
 
