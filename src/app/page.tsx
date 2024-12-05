@@ -326,9 +326,10 @@ export default function HomePage() {
         addl: string,
         limit: string,
         mustBuy: string,
-        withCard: boolean,
-        per: string,
-        limit_type: string
+        withCard: boolean,       
+        limit_type: string,
+        per: string
+        
     ) => {
         if (gridID === undefined) return;
 
@@ -344,8 +345,9 @@ export default function HomePage() {
                         limit,
                         must_buy: mustBuy,
                         with_cart: withCard,
+                        limit_type,
                         per,
-                        limit_type
+                        
                     };
                     return updatedProduct;
                 }
