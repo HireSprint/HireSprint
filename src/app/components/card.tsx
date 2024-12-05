@@ -43,6 +43,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
                         layout="fill"
                         style={{ objectFit: 'cover' }}
                         className="rounded-lg"
+                        draggable={false}
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -107,6 +108,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
                     height={100}
                     className="rounded object-cover mt-2"
                     onLoadingComplete={handleImageLoad}
+                    draggable={false}
                 />
             ) : (
                 <div className="w-12 h-12 bg-gray-200 flex items-center justify-center mt-2">
@@ -146,6 +148,7 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
                         width={150}
                         height={150}
                         className="rounded object-cover"
+                        draggable={false}
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -243,7 +246,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                     product?.url_image && (
                                         <div className="absolute justify-self-end self-center">
                                             <div className="@[66px]:w-10 @[66px]:h-10    @[71px]:w-16 @[71px]:h-16    @[125px]:w-16 @[125px]:h-18">
-                                                <Image src={product.url_image} alt={product.name || ''} width={100} height={100} />
+                                                <Image src={product.url_image} alt={product.name || ''} width={100} height={100} draggable={false} />
                                             </div>
                                         </div>
                                     )
@@ -268,11 +271,20 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                     )}
                                 </div>
                                 <div className="absolute bottom-0 w-full flex flex-col items-end ">
-                                    {product?.conditions && product.conditions !== 'undefined' && (
-                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[27px]:text-[18px] @[27px]:leading-[18px] @[47px]:text-[18px] @[47px]:leading-[18px] @[77px]:leading-[18px] @[77px]:text-[18px]">
-                                            {product.conditions}
+                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                        {product?.with_cart && "With Club Card  "}
+                                    </span>
+                                    {product?.limit && product?.limit.length > 0 && (
+                                        <span className="text-green-600 absolute left-0 bottom-3 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                            {"Limit  " + product?.limit + " Offer"}
                                         </span>
                                     )}
+                                    {product?.must_buy && product.must_buy.length > 0 && (
+                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[27px]:text-[15px] @[27px]:leading-[14px] @[47px]:text-[14px] @[47px]:leading-[18px] @[77px]:leading-[10px] @[77px]:text-[12px]">
+                                            {"Must Buy  " + product?.must_buy}
+                                        </span>
+                                    )}
+                                   
                                     <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[27px]:text-[10px] @[27px]:leading-[10px] @[47px]:text-[10px] @[47px]:leading-[10px] @[77px]:leading-[10px] @[77px]:text-[10px]">
                                         { cell?.id }
                                     </span>
@@ -380,7 +392,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                                             alt={product.name}
                                             width={100}
                                             height={100}
-                                            draggable="false"
+                                            draggable={false}
                                             style={{ objectFit: 'cover' }}
                                             className="rounded-lg"
                                             onError={() => setImageError(true)}
@@ -458,6 +470,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                                 alt={product.desc || 'Producto'}
                                 fill
                                 className="object-contain rounded-lg"
+                                draggable={false}
                             />
                         </div>
                     )}
