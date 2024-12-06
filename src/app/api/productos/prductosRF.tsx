@@ -27,7 +27,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbwFp0Z9GMriIUIBrxq-1VUw67AgVwXI-AvcoSakiFk33YzeEPMHIDPI0ekloi99_3lp/exec";
+    const url = "https://script.google.com/macros/s/AKfycbz-fFe_733nFiVM5BEmElSgfLzxV_tJFoPvMFVyJcnZm0KCkU36SOnjRB6Ci9sHW_2r/exec";
 
 
     console.log(selectedProducts);
@@ -95,7 +95,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             addl: product.addl,
             limit: product.limit ? `Limit ${product.limit}` : '',
             must_buy: product.must_buy ? `Must Buy ${product.must_buy}` : '',
-            with_card: product.with_card,
+            with_cart: product.with_card,
             per: product.per,
             limit_type: product.limit_type
 
