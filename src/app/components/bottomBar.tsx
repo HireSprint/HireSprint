@@ -172,13 +172,6 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     };
   }, []);
 
-  if (!categoriesData.length || !productsData.length) {
-    return (
-      <div className="bg-white shadow-up-lg p-2">
-          <Skeleton width="120px" height="35px" className="skeleton-none-mb" />
-      </div>
-    );
-  }
 
   return (
     <div ref={dropdownRef} className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
