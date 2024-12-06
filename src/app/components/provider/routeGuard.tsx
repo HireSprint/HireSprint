@@ -9,6 +9,7 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
+    const allowRoutes = ["/addProduct","/addCircular"];
 
 
     useEffect(() => {
@@ -22,7 +23,7 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
                 router.push('/addProduct');
             } else if (user && pathname === '/login') {
                 router.push('/onboarding');
-            } else if (user && idCircular === null && pathname !== '/onboarding') {
+            } else if (user && idCircular === null && pathname && !allowRoutes.includes(pathname)) {
                 router.push('/onboarding');
             }
             setIsVerifyingLevel(false);

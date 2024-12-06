@@ -84,7 +84,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     }
 
 
-    console.log(notes)
     return (
         <React.Fragment>
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100  ">
@@ -367,8 +366,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => {SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);
-                                    console.log(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);}}>
+                                onClick={() => {SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);}}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save Changes
