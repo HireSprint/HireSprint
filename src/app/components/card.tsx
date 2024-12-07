@@ -166,8 +166,8 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
     const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
-    const {scale} = useProductContext();
-    const {scaleSubPagines} = useProductContext();
+    const {panningOnPage1} = useProductContext();
+    const {panningOnSubPage} = useProductContext();
 
     const startDragging = (e: any , data: any) => {
         setProductDragging && setProductDragging({ from: 'grid', id_product: product?.id_product, id_grid: cell && cell.id, page: page });
@@ -198,7 +198,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
     }
 
     const handleMouseDown = (e:any) => {
-        if (scale > 0.9 || scaleSubPagines > 0.9)
+        if (!panningOnPage1 || !panningOnSubPage)
             return
 
         if (e.button == 0) {
@@ -223,7 +223,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
 
     return (
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
-            <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product || scale > 0.9 || scaleSubPagines > 0.9} showDelay={1000}/>
+            <Tooltip target={ '#grid-card-product-' + cell?.id } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"  disabled={!product || !panningOnSubPage || !panningOnPage1 } showDelay={1000}/>
             <Draggable disabled={!productReadyDrag || (productReadyDrag && productReadyDrag.id_grid != cell?.id)} onStart={startDragging} onStop={stopDragging} position={position}>
                 <div
                     ref={elementRef}
