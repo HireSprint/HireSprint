@@ -27,15 +27,13 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbwrweTzKez3g51zESM4ahfngHJkJgHmo2Ze28f_WCj2kQFrTMa4BAnHUbReFF0m_qGW/exec";
+    const url = "https://script.google.com/macros/s/AKfycbz-fFe_733nFiVM5BEmElSgfLzxV_tJFoPvMFVyJcnZm0KCkU36SOnjRB6Ci9sHW_2r/exec";
 
 
     console.log(selectedProducts);
     try {
-        // Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
         let allProducts: ProductTypes[] = [];
 
-// Paso 1: Crear todos los espacios necesarios según los rangos de InfoHojaIdInicialIdFinal
         InfoHojaIdInicialIdFinal.forEach((hoja) => {
             for (let id = hoja.startId; id <= hoja.endId; id++) {
                 allProducts.push({
@@ -59,7 +57,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     must_buy: "",
                     with_card: false,
                     per: '',
-                    limitType: ''
+                    limit_type: ''
                   
                 });
             }
@@ -69,15 +67,13 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
         selectedProducts.forEach((product: ProductTypes) => {
             const index = allProducts.findIndex((p) => p.id_grid === product.id_grid);
             if (index !== -1) {
-                // Reemplaza el placeholder con el producto real, manteniendo propiedades existentes cuando no estén presentes
                 allProducts[index] = {
-                    ...allProducts[index], // Mantén los valores del placeholder que no se hayan sobreescrito
-                    ...product // Inserta los valores reales del producto
+                    ...allProducts[index],
+                    ...product
                 };
             }
         });
 
-// Ordena el array allProducts de menor a mayor según el campo id_grid
         allProducts = allProducts.filter(product => product.id_grid !== undefined);
 
         allProducts.sort((a, b) => a.id_grid! - b.id_grid!);
@@ -97,11 +93,11 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             notes: product.notes,
             burst: Number(product.burst),
             addl: product.addl,
-            limit: product.limit,
-            must_buy: product.must_buy,
-            with_card: product.with_card,
+            limit: product.limit ? `Limit ${product.limit}` : '',
+            must_buy: product.must_buy ? `Must Buy ${product.must_buy}` : '',
+            with_cart: product.with_card,
             per: product.per,
-            limitType: product.limitType
+            limit_type: product.limit_type
 
         }));
         await fetch(url, {
@@ -111,7 +107,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                sheetId: sheetId, // Agregar el `sheetId` aquí
+                sheetId: sheetId,
                 productos: formattedData
             }),
         });

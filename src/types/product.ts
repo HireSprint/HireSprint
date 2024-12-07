@@ -39,7 +39,7 @@ export interface ProductTypes {
     must_buy?: string,
     status_active?:boolean
     per: string,
-    limitType: string
+    limit_type: string
 
 }
 

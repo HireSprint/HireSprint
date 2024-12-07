@@ -13,7 +13,7 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: number, addl: string, limit: string, mustBuy: string, withCard: boolean, limitType: string, per: string) => void,
+    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: number, addl: string, limit: string, mustBuy: string, withCard: boolean, limit_type: string, per: string) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -33,7 +33,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
     const [withCard, setWithCard] = useState(product?.with_card ?? false)
-    const [limitType, setLimitType] = useState('')
+    const [limit_type, setLimitType] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [notes, setNotes] = useState(product?.notes && product.notes !== 'undefined' ? product.notes : "")//
 
@@ -41,7 +41,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [openDropdown, setOpenDropdown] = useState(false)
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
-
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
 
     useEffect(() => {
@@ -85,7 +84,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     }
 
 
-    console.log(notes)
     return (
         <React.Fragment>
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100  ">
@@ -292,7 +290,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                     <div className="relative ml-2">
                                         <button
-                                            className={`flex items-center justify-center p-2 border rounded ${limitType !== '' ? 'bg-blue-500 text-white' : 'border-gray-950'}`}
+                                            className={`flex items-center justify-center p-2 border rounded ${limit_type !== '' ? 'bg-blue-500 text-white' : 'border-gray-950'}`}
                                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                         >
                                             <svg
@@ -308,18 +306,18 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         {isDropdownOpen && (
                                             <div className="absolute top-full mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg">
                                                 <div
-                                                    className={`px-4 py-2 cursor-pointer text-black ${limitType === 'Per Family' ? 'bg-blue-500 text-white ' : 'hover:bg-gray-100 '}`}
+                                                    className={`px-4 py-2 cursor-pointer text-black ${limit_type === 'Per Family' ? 'bg-blue-500 text-white ' : 'hover:bg-gray-100 '}`}
                                                     onClick={() => {
-                                                        setLimitType(limitType === 'Per Family' ? '' : 'Per Family');
+                                                        setLimitType(limit_type === 'Per Family' ? '' : 'Per Family');
                                                         setIsDropdownOpen(false);
                                                     }}
                                                 >
                                                     Per Family
                                                 </div>
                                                 <div
-                                                    className={`px-4 py-2  cursor-pointer text-black ${limitType === 'Per Offer' ? 'bg-blue-500 text-white no-hover' : 'hover:bg-gray-100 '}`}
+                                                    className={`px-4 py-2  cursor-pointer text-black ${limit_type === 'Per Offer' ? 'bg-blue-500 text-white no-hover' : 'hover:bg-gray-100 '}`}
                                                     onClick={() => {
-                                                        setLimitType(limitType === 'Per Offer' ? '' : 'Per Offer');
+                                                        setLimitType(limit_type === 'Per Offer' ? '' : 'Per Offer');
                                                         setIsDropdownOpen(false);
                                                     }}
                                                 >
@@ -368,7 +366,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limitType, selectedPer)}>
+                                onClick={() => {SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);}}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save Changes
