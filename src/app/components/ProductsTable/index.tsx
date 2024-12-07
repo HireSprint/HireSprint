@@ -37,19 +37,19 @@ const columns = [
         cell: info => `${info.row.index + 1}`, // El índice de la fila empieza en 0, se suma 1 para numerar desde 1.
         footer: () => 'Amount',
     }),
-    columnHelper.accessor('id_grid', {
-        cell: info => info.getValue(),
-        header: () => 'id_grid',
-        footer: info => info.column.id,
-    }),
     columnHelper.accessor('category', {
         cell: info => info.getValue(),
         header: () => 'Category',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('desc', {
-        cell: info => info.getValue() || 'No Description',
-        header: () => 'Description',
+    columnHelper.accessor('id_grid', {
+        cell: info => info.getValue(),
+        header: () => 'id_grid',
+        footer: info => info.column.id,
+    }),
+    columnHelper.accessor('upc', {
+        cell: info => info.getValue(),
+        header: () => 'UPC',
         footer: info => info.column.id,
     }),
     columnHelper.accessor('master_brand', {
@@ -62,19 +62,29 @@ const columns = [
         header: () => 'Brand',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('upc', {
-        cell: info => info.getValue(),
-        header: () => 'UPC',
-        footer: info => info.column.id,
-    }),
     columnHelper.accessor('size', {
         cell: info => info.getValue() || 'N/A',
         header: () => 'Size',
         footer: info => info.column.id,
     }),
+    columnHelper.accessor('desc', {
+        cell: info => info.getValue() || 'No Description',
+        header: () => 'Description',
+        footer: info => info.column.id,
+    }),
     columnHelper.accessor('price', {
         cell: info => `$${info.getValue()}`,
         header: () => 'Price',
+        footer: info => info.column.id,
+    }),
+    columnHelper.accessor('sku', {
+        cell: info => info.getValue() || 'N/A',
+        header: () => 'SKU',
+        footer: info => info.column.id,
+    }),
+    columnHelper.accessor('quality_cf', {
+        cell: info => info.getValue() || 'N/A',
+        header: () => 'Quality CF',
         footer: info => info.column.id,
     }),
     columnHelper.accessor('type_of_meat', {
@@ -86,17 +96,7 @@ const columns = [
         cell: info => info.getValue() || 'N/A',
         header: () => 'Type of Cut',
         footer: info => info.column.id,
-    }),
-    columnHelper.accessor('quality_cf', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'Quality CF',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('sku', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'SKU',
-        footer: info => info.column.id,
-    }),
+    })
     // columnHelper.accessor('url_image', {
     //     cell: (info) => info.getValue()?"True":"False",
     //     header: () => 'url_image',
@@ -131,16 +131,23 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 const respCategories = await fetch("/api/apiMongo/getCategories");
                 const data = await respCategories.json();
                 const resp = await getProductsByCircular(reqBody)
-                const productos = resp.result.map((item: ProductTypes) => {
-                    const category = data.result.find(
-                        (cat: categoriesInterface) => cat.id_category === item.id_category
-                    );
-                    return { ...item, category: category.name_category || "Unknown" };
-                });
-                setCircularProducts(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
-                setFilteredProduct(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
-                setCategories(data.result)
-                setLoading(false)
+                if (resp.length <= 0){
+
+                    setLoading(false)
+                }else{
+                    const productos = resp.result.map((item: ProductTypes) => {
+                        const category = data.result.find(
+                            (cat: categoriesInterface) => cat.id_category === item.id_category
+                        );
+                        return { ...item, category: category.name_category || "Unknown" };
+                    });
+
+
+                    setCircularProducts(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
+                    setFilteredProduct(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
+                    setCategories(data.result)
+                    setLoading(false)
+                }
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
             }
@@ -294,7 +301,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                         {
                             filteredProduct.length <= 0 &&
                             <div className={"flex flex-row w-full items-center justify-center text-center h-64 bg-white"}>
-                                <h1>product not listed</h1>
+                                <h1>Product not listed</h1>
                             </div>
                         }
                     </div>
