@@ -31,8 +31,6 @@ export default function HomePage() {
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
     const [showProductCardBrand, setShowProductCardBrand] = useState<boolean>(true);
-
-
     //states modal for grids with [id_circular] selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
@@ -733,13 +731,14 @@ export default function HomePage() {
             {/* Pop-up de confirmación */}
             {isClearAllPopupOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white p-4 rounded-lg shadow-lg text-center">
+                    <div className="bg-white p-4 rounded-lg shadow-lg text-center space-y-2">
                         <h2 className="text-lg font-bold text-black">Confirm Clear All</h2>
                         <p className="text-black">¿Are you sure you want to clear all products?</p>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-500" onClick={() => handleClearAllConfirmation(1)}> 1</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-500" onClick={() => handleClearAllConfirmation(2)}> 2</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-500" onClick={() => handleClearAllConfirmation(3)}> 3</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-500" onClick={() => handleClearAllConfirmation(4)}> 4</button>
+                        <p className="text-black">¿Which Page do you want to clear?</p>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(1)}> 1</button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(2)}> 2</button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(3)}> 3</button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(4)}> 4</button>
                         <div className="flex justify-end mt-4">
                             <button onClick={cancelClearAll} className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel</button>
                             <button onClick={confirmClearAll} className="bg-green-500 text-white p-2 rounded-md">Confirm</button>

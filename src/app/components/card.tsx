@@ -251,7 +251,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                         </div>
                                     )
                                 }
-                                <div className="absolute flex flex-col  text-blue-950 font-bold @[44px]:text-[7px] @[44px]:leading-[7px] @[66px]:text-[12px] @[66px]:leading-[12px] @[71px]:text-[14px] @[71px]:leading-[12px] @[125px]:leading-[13px] @[125px]:text-[13px] @[125px]:inset-[5px]" style={textShadowWhite}>
+                                <div className="absolute flex flex-col  text-blue-950 font-bold @[44px]:text-[7px] @[44px]:leading-[7px] @[66px]:text-[12px] @[66px]:leading-[12px] @[71px]:text-[10px] @[71px]:leading-[12px] @[125px]:leading-[13px] @[125px]:text-[13px] @[125px]:inset-[5px]" style={textShadowWhite}>
                                     {product && (
                                         <>
                                             <span className="text-blue-600 uppercase">
@@ -260,9 +260,12 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                             <span className="uppercase ">
                                                 { product.desc }
                                             </span>
-                                            <span className="text-purple-600 uppercase">
-                                                { product.size }
-                                            </span>
+                                            <div className="flex items-center">
+                                                <span className="text-purple-600 uppercase">
+                                                        { product?.size }
+                                                </span>
+                                            </div>
+
                                             <span className="text-red-500">
                                                 <span className="@[66px]:text-[10px] @[71px]:text-[15px] @[125px]:text-[15px]">$</span>
                                                 { product.price }
@@ -271,7 +274,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                                     )}
                                 </div>
                                 <div className="absolute bottom-0 w-full flex flex-col items-end ">
-                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[77px]:text-[15px] @[77px]:leading-[15px] @[125px]:leading-[10px] @[125px]:text-[10px]">
+                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:text-[10px] @[71px]:leading-[10px] @[125px]:leading-[10px] @[125px]:text-[10px]">
                                         {product?.with_card && "With Club Card  "}
                                     </span>
                                     {product?.limit && product?.limit.length > 0 && (
