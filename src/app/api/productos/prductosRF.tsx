@@ -57,7 +57,11 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     must_buy: "",
                     with_card: false,
                     per: '',
-                    limit_type: ''
+                    limit_type: '',
+                    pack: 0,
+                    count: 0,
+                    w_simbol: '',
+                    emabase: ''
                   
                 });
             }
@@ -97,7 +101,11 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             must_buy: product.must_buy ? `Must Buy ${product.must_buy}` : '',
             with_cart: product.with_card,
             per: product.per,
-            limit_type: product.limit_type
+            limit_type: product.limit_type,
+            pack: product.pack,
+            count: product.count,
+            w_simbol: product.w_simbol,
+            emabase: product.emabase
 
         }));
         await fetch(url, {

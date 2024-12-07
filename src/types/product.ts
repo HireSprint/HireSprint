@@ -6,7 +6,6 @@ export interface ProductTypes {
     size?: string,
     variety?: [string],
     price: string,
-    conditions?: string,
     sku?: string,
     desc?: string,
     main?: string,
@@ -38,8 +37,14 @@ export interface ProductTypes {
     limit?: string
     must_buy?: string,
     status_active?:boolean
-    per: string,
     limit_type: string
+    per: string,
+    pack: number,
+    count: number,
+    w_simbol: string,
+    emabase: string,
+
+
 
 }
 

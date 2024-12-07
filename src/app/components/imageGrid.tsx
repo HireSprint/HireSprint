@@ -145,7 +145,6 @@ export const ImageGrid = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -337,7 +336,6 @@ export const ImageGrid2 = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -572,7 +570,6 @@ export const ImageGrid3 = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -769,7 +766,6 @@ export const ImageGrid4 = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
