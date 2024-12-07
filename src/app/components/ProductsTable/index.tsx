@@ -118,6 +118,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
     const [categories, setCategories] = useState<categoriesInterface[]|[]>([])
     const [numberOfPage, setNumberOfPage] = useState<number[]|[]>([])
     const [filters, setFilters] = useState({ id_category: "",page:"", upc: "" });
+    const [errormesage, setErrormesage] = useState("")
 
 
 
@@ -132,16 +133,22 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 const data = await respCategories.json();
                 const resp = await getProductsByCircular(reqBody)
                 if (resp.length <= 0){
-
                     setLoading(false)
                 }else{
                     const productos = resp.result.map((item: ProductTypes) => {
                         const category = data.result.find(
                             (cat: categoriesInterface) => cat.id_category === item.id_category
                         );
+                        if(category == undefined){
+                            return null
+                        }
                         return { ...item, category: category.name_category || "Unknown" };
                     });
-
+                    if (productos.includes(null)) {
+                        setErrormesage("Some products do not exist or have no category assigned.")
+                        setLoading(false);
+                        throw new Error("Some products do not exist or have no category assigned.");
+                    }
 
                     setCircularProducts(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
                     setFilteredProduct(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
@@ -301,7 +308,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                         {
                             filteredProduct.length <= 0 &&
                             <div className={"flex flex-row w-full items-center justify-center text-center h-64 bg-white"}>
-                                <h1>Product not listed</h1>
+                                <h1>{errormesage ? errormesage : "Product not listed"}</h1>
                             </div>
                         }
                     </div>

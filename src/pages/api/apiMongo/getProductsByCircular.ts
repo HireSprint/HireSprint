@@ -9,6 +9,7 @@ export const getProductsByCircular = async (reqBody:object) => {
         });
 
         const data = await resp.json();
+        console.log("response",data);
         if (data.status === 200) {
             return data;
         }else {
