@@ -26,8 +26,8 @@ interface ProductContextType {
   setIsSendModalOpen: (value: boolean) => void;
   scale: number;
   setScale(scale: number): void;
-  scaleSubPagines: number;
-  setScaleSubPagines: (scaleSubPagines: number) => void;
+  scaleSubPagines: boolean;
+  setScaleSubPagines: (scaleSubPagines: boolean) => void;
   panningOnPage1: boolean;
   setPanningOnPage1: (panningOnPage1: boolean) => void;
   panningOnSubPage: boolean;
@@ -47,7 +47,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [scale, setScale] = useState(0);
-  const [scaleSubPagines, setScaleSubPagines] = useState(0);
+  const [scaleSubPagines, setScaleSubPagines] = useState(false);
   const [panningOnPage1, setPanningOnPage1] = useState(true);
   const [panningOnSubPage, setPanningOnSubPage] = useState(true);
   return (
