@@ -178,7 +178,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
             setNumberOfPage(arraGrid);
         }
     }, [circularProducts]);
-
+//xCirculars new nombre
     const numberPage = (grid_id:number|undefined) => {
         if(grid_id !== undefined) {
             const numberOfPage = grid_id / 1000;
