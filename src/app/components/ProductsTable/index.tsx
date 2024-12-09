@@ -120,7 +120,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
     const [numberOfPage, setNumberOfPage] = useState<number[]|[]>([])
     const [filters, setFilters] = useState({ id_category: "",page:"", upc: "" });
     const [errormesage, setErrormesage] = useState("")
-    const [invalidRows, setInvalidRows] = useState([])
+    const [invalidRows, setInvalidRows] = useState<ProductTypes[]|[]>([])
 
 
 
