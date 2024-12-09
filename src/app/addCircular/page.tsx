@@ -111,6 +111,8 @@ const AddCircular = () => {
                 setCsvFile(null);
             } else if (resp.status === 409) {
                 toast.error("Date of the circular already exists!!");
+            } else if (resp.status === 500) {
+                toast.error(resp.message);
             } else {
                 toast.error("Something is wrong!!");
             }
