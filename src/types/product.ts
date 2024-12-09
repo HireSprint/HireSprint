@@ -42,7 +42,7 @@ export interface ProductTypes {
     pack: number,
     count: number,
     w_simbol: string,
-    emabase: string,
+    embase: string,
 
 
 

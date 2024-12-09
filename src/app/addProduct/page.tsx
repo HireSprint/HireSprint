@@ -131,7 +131,7 @@ const AddProductPage = () => {
             formData.append('pack', String(data.pack) || "");
             formData.append('count', String(data.count) || "");
             formData.append('w_simbol', data.w_simbol || "");
-            formData.append('emabase', data.emabase || "");
+            formData.append('embase', data.embase || "");
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
@@ -253,7 +253,7 @@ const AddProductPage = () => {
             formData.append('pack', String(dataUpdate?.pack) || "");
             formData.append('count', String(dataUpdate?.count) || "");
             formData.append('w_simbol', dataUpdate?.w_simbol || "");
-            formData.append('emabase', dataUpdate?.emabase || "");
+            formData.append('embase', dataUpdate?.embase || "");
             // Agregar logs para depuración
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
@@ -547,12 +547,12 @@ const AddProductPage = () => {
                                 />
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="emabase" style={labelStyle}>Emabase</label>
+                                <label htmlFor="embase" style={labelStyle}>Embase</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.emabase || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, emabase: e.target.value })}
-                                    placeholder="Emabase"
+                                    value={editedProduct.embase || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, embase: e.target.value })}
+                                    placeholder="Embase"
                                 />
                             </div>
                             <div style={inputContainerStyle}>
@@ -821,8 +821,8 @@ const AddProductPage = () => {
                                             <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
                                         <div style={inputContainerStyle}>
-                                            <label htmlFor="emabase" style={labelStyle}>Emabase</label>
-                                            <input {...register("emabase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <label htmlFor="embase" style={labelStyle}>Embase</label>
+                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
                                     </div>
                                 </>

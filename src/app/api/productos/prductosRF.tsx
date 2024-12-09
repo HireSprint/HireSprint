@@ -60,7 +60,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     pack: 0,
                     count: 0,
                     w_simbol: '',
-                    emabase: ''
+                    embase: ''
                   
                 });
             }
@@ -104,7 +104,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             pack: product.pack,
             count: product.count,
             w_simbol: product.w_simbol,
-            emabase: product.emabase
+            embase: product.embase
 
         }));
         await fetch(url, {
