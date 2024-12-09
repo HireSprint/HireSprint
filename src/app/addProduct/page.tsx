@@ -161,6 +161,8 @@ const AddProductPage = () => {
             });
 
             if (response.ok) {
+                const dataResponse = await response.json();
+                setProductsData(prevData => [...prevData, { ...data, id_product: dataResponse.id_product }]);
                 setAddProduct([...addProduct, data]);
                 setShowModal(true);
                 toast.success("¡Product created successfully!");
@@ -250,8 +252,8 @@ const AddProductPage = () => {
             formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
             formData.append('id_category', String(dataUpdate?.id_category || ''));
-            formData.append('pack', String(dataUpdate?.pack) || "");
-            formData.append('count', String(dataUpdate?.count) || "");
+            formData.append('pack', String(dataUpdate?.pack || 0));
+            formData.append('count', String(dataUpdate?.count || 0));
             formData.append('w_simbol', dataUpdate?.w_simbol || "");
             formData.append('embase', dataUpdate?.embase || "");
             // Agregar logs para depuración
