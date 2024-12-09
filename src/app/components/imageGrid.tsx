@@ -88,6 +88,7 @@ export const ImageGrid = ({
         { id: 1049, top: "top-[75.5%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
         { id: 1050, top: "top-[83.4%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
         { id: 1051, top: "top-[91.2%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
+        //{ id: 1501, top: "top-[91.5%]", left: "left-[92%]", width: "8%", height: "3%", category: "Produce" },
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
@@ -144,7 +145,6 @@ export const ImageGrid = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -336,7 +336,6 @@ export const ImageGrid2 = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -571,7 +570,6 @@ export const ImageGrid3 = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -768,7 +766,6 @@ export const ImageGrid4 = ({
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
                         price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,

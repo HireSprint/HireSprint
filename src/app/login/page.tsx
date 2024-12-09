@@ -80,7 +80,7 @@ const Login = () => {
 };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 overflow-y-auto">
       <ToastContainer
         position="top-right"
         autoClose={3000}

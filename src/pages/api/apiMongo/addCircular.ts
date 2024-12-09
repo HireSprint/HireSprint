@@ -8,7 +8,10 @@ export const addCircular = async (reqBody:object) => {
             body: JSON.stringify(reqBody),
         });
         const data = await resp.json();
+        console.log("prueba",data);
         if (data.status === 201) {
+            return data;
+        }else if (data.status === 409) {
             return data;
         }
     }catch (e: unknown) {
