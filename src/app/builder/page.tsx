@@ -8,49 +8,56 @@ import { Tooltip } from 'primereact/tooltip';
 import { Message } from "primereact/message";
 import GridLayout from "react-grid-layout";
 import { useCategoryContext } from "../context/categoryContext";
-import { gridLayoutTypes, PartialGridLayoutTypes } from "@/types/gridLayout";
+import { gridLayoutTypes, groupGridCellsTypes, PartialGridLayoutTypes } from "@/types/gridLayout";
 import { Skeleton } from 'primereact/skeleton';
 import HoverGrid from "../components/hoverGrid";
 import { AnimatePresence, motion } from "framer-motion";
 
 const BuilderPage = () => {
-	const { register, handleSubmit, formState: { errors }, watch, reset } = useForm<any>({ defaultValues: { id_category: 0, bg_width: '430', bg_height: '820' } })
+	const { register, handleSubmit, formState: { errors }, watch, reset, trigger } = useForm<any>({ defaultValues: { id_category: 0, bg_width: '430', bg_height: '820' } })
 
 	const cols = 100; // Número de columnas del grid
 	const rowHeight = 1; // Altura de una fila
 	const elementWidth = 10; // Ancho del nuevo elemento
 	const elementHeight = 40; // Altura del nuevo elemento
+	
 
 	const formRef = useRef<HTMLFormElement>(null);
 	const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+	const [isProcessingLayout, setIsProcessingLayout] = useState<boolean>(false);
+	const [isLayoutChanging, setIsLayoutChanging] = useState<boolean>(false);
 	const [layout, setLayout] = useState<gridLayoutTypes[]>([]);
 	const [customLayout, setCustomLayout] = useState<gridLayoutTypes[]>([]);
 	const [newGroup, setNewGroup] = useState({ canAddAnother: true, x: 0, y: 0, });
 	const [selectedGroup, setSelectedGroup] = useState<gridLayoutTypes | null>(null);
 	const [selectedCell, setSelectedCell] = useState<gridLayoutTypes | null>(null);
-	const [groupGridCells, setGroupGridCells] = useState<any>(null);
+	const [groupGridCells, setGroupGridCells] = useState<groupGridCellsTypes | null>(null);
 	const {categoriesData, getCategoryById, isLoadingCategories} = useCategoryContext();
 	const [elementDimensions, setElementDimensions] = useState<{[key: string]: {width: number, height: number}}>({});
+	const [minGroupHeight, setMinGroupHeight] = useState<number>(24);
+	const [minGroupWidth, setMinGroupWidth] = useState<number>(6);
+	const [isRangeModalOpen, setIsRangeModalOpen] = useState<boolean>(false)
+	const [rangeCells, setRengeCells] = useState<{start:number; end:number} | null>(null);
 
 
-	const imageFile = watch("image");
-	const bg_width = watch('bg_width');
-	const bg_height = watch('bg_height');
+	const imageFile   = watch("image");
+	const bg_width    = watch('bg_width');
+	const bg_height   = watch('bg_height');
+	const page_number = watch('page_number');
 
 	useEffect(() => {
-		
 		const layoutStructure: gridLayoutTypes[] = [
-			{ w: 72,  h: 168,   x: 0,     y: 170,    moved: false,  i: "1",  static: true,  id_category: 5  },
-			{ w: 72,  h: 50,    x: 0,     y: 345,    moved: false,  i: "2",  static: true,  id_category: 16 },
-			{ w: 72,  h: 53,    x: 0,     y: 403,    moved: false,  i: "3",  static: true,  id_category: 7  },
-			{ w: 72,  h: 229,   x: 0,     y: 463,    moved: false,  i: "4",  static: true,  id_category: 4  },
-			{ w: 72,  h: 51,    x: 0,     y: 699,    moved: false,  i: "5",  static: true,  id_category: 6  },
-			{ w: 28,  h: 651,   x: 72,    y: 169,    moved: false,  i: "6",  static: false, id_category: 15 },
-			{ w: 72,  h: 64,    x: 0,     y: 756,    moved: false,  i: "7",  static: true,  id_category: 1  }
+			// { w: 72,  h: 168,   x: 0,     y: 170,    moved: false,  i: "1",  static: true,  id_category: 5,  minW: 6   minH: 6 },
+			// { w: 72,  h: 50,    x: 0,     y: 345,    moved: false,  i: "2",  static: true,  id_category: 16, minW: 6   minH: 6 },
+			// { w: 72,  h: 53,    x: 0,     y: 403,    moved: false,  i: "3",  static: true,  id_category: 7,  minW: 6   minH: 6 },
+			// { w: 72,  h: 229,   x: 0,     y: 463,    moved: false,  i: "4",  static: true,  id_category: 4,  minW: 6   minH: 6 },
+			// { w: 72,  h: 51,    x: 0,     y: 699,    moved: false,  i: "5",  static: true,  id_category: 6,  minW: 6   minH: 6 },
+			// { w: 28,  h: 651,   x: 72,    y: 169,    moved: false,  i: "6",  static: false, id_category: 15, minW: 6   minH: 6 },
+			// { w: 72,  h: 64,    x: 0,     y: 756,    moved: false,  i: "7",  static: true,  id_category: 1,  minW: 6   minH: 6 }
 		]
 
-		setLayout(layoutStructure);
+		layoutProcessing(layoutStructure);
 		calculateNextPosition()
 	}, []);
 
@@ -86,6 +93,7 @@ const BuilderPage = () => {
 		const updatedLayout = [...layout].map((item: any) => {
 			const existingItemIndex = customLayout.findIndex((group: any) => group.i === item.i);
 			
+			
 			if (existingItemIndex !== -1) {
 				customLayout[existingItemIndex] = { ...customLayout[existingItemIndex], ...item };
 				return customLayout[existingItemIndex]
@@ -109,8 +117,33 @@ const BuilderPage = () => {
 	}, [imageFile]);
 
 
+	useEffect(() => {
+		if (bg_width) setMinGroupWidth(Math.floor(bg_width * 0.015));
+		if (bg_height) setMinGroupHeight(Math.floor(bg_height * 0.03));
+		
+	}, [bg_width, bg_height]);
+
+	useEffect(() => {
+		if (rangeCells) {
+			applyGroupGridCells();
+		}
+	}, [rangeCells]);
+
+
+	const layoutProcessing = (newLayout: gridLayoutTypes[]) => {
+
+		if (isProcessingLayout) return;
+
+		setIsProcessingLayout(true);
+		
+		setLayout(newLayout);
+		setTimeout(() => {
+			setIsProcessingLayout(false);
+		}, 250);
+	}
+
 	const makeAllGroupAndCellsStatic = (groups: gridLayoutTypes[]) => {
-		return groups.map((group: gridLayoutTypes) => {
+		const allStatic =  groups.map((group: gridLayoutTypes) => {
 			const newGroup = { ...group, static: true };
 			
 			if (Array.isArray(group.gridCells) && group.gridCells.length > 0) {
@@ -119,6 +152,8 @@ const BuilderPage = () => {
 			
 			return newGroup;
 		});
+
+		return [...allStatic];
 	};
 
 	const toggleStatic = (type: 'group' | 'cell') => {
@@ -152,17 +187,22 @@ const BuilderPage = () => {
 			}
 		}
 		
-		setLayout(newLayout);
+		layoutProcessing(newLayout);
 	};
 
 	const handleSelection = (element: any) => {
+
+		
+		if (isLayoutChanging) return;
+
 		const newLayout = makeAllGroupAndCellsStatic(customLayout);
 		let newSelectedGroup = null;
 		let newSelectedCell = null;
 
 		// Si no hay elemento, limpiar selecciones
 		if (!element) {
-			setLayout(newLayout);
+			
+			layoutProcessing(newLayout);
 			setSelectedGroup(null);
 			setSelectedCell(null);
 			return;
@@ -170,6 +210,7 @@ const BuilderPage = () => {
 
 		// Determinar si es una celda o un grupo
 		const isCell = 'groupI' in element;
+
 
 		if (isCell) {
 			// Si hay un grupo seleccionado y no es estático, no hacer nada
@@ -191,18 +232,26 @@ const BuilderPage = () => {
 				}
 			}
 		} else {
+			// Si el un grupo seleccinado es el mismo grupo que se clickeo y si hay una celda seleccionada y no es estática, no hacer nada
+			if ((selectedGroup?.gridCells && selectedGroup.i === element.i && selectedGroup?.gridCells.length > 0) && (selectedCell && !selectedCell.static) ) {
+				return;
+			}
 			// Selección de grupo
 			const groupIndex = newLayout.findIndex(item => item.i === element.i);
+			
 			if (groupIndex !== -1) {
 				newLayout[groupIndex].static = false;
 				newSelectedGroup = newLayout[groupIndex];
 			}
+
 		}
 
-		setLayout(newLayout);
+
+		layoutProcessing(newLayout);
 		setSelectedGroup(newSelectedGroup);
 		setSelectedCell(newSelectedCell);
 	};
+
 
 	const onSubmit: SubmitHandler<any> = async (data: any) => {
 		setIsSubmitting(true);
@@ -213,7 +262,7 @@ const BuilderPage = () => {
 	}
 
 	const layoutGroupChangeHandler = (newLayout: any) => {
-		setLayout(newLayout);
+		layoutProcessing(newLayout);
 		calculateNextPosition()
 	}
 	
@@ -227,7 +276,10 @@ const BuilderPage = () => {
 				// Preservar las propiedades existentes de las celdas
 				const updatedCells = newLayout.map((newCell: any) => {
 					const existingCell = group.gridCells?.find((cell: any) => cell.i === newCell.i);
-					return { ...existingCell, ...newCell, groupI: selectedGroup.i, static: existingCell?.static ?? true, id_category: selectedGroup.id_category };
+
+					const minW = elementDimensions[`group-${selectedGroup.i}`]?.width * 0.03;
+					const minH = elementDimensions[`group-${selectedGroup.i}`]?.height * 0.09;
+					return { ...existingCell, ...newCell, groupI: selectedGroup.i, static: existingCell?.static ?? true, id_category: selectedGroup.id_category, minW, minH };
 				});
 
 				return { ...group, gridCells: updatedCells };
@@ -235,7 +287,7 @@ const BuilderPage = () => {
 			return group;
 		});
 
-		setLayout(updatedLayout);
+		layoutProcessing(updatedLayout);
 		
 		// Actualizar el grupo seleccionado con la nueva referencia
 		const newSelectedGroup = updatedLayout.find(group => group.i === selectedGroup.i);
@@ -299,7 +351,7 @@ const BuilderPage = () => {
 		
 		if (!newGroup.canAddAnother) return;
 
-		const newItem = { i: `${findNextAvailableNumber(layout)}`, x: newGroup.x, y: newGroup.y, w: elementWidth, h: elementHeight, moved: false, static: true, id_category: null };
+		const newItem = { i: `${findNextAvailableNumber(layout)}`, x: newGroup.x, y: newGroup.y, w: elementWidth, h: elementHeight, moved: false, static: true, id_category: null, minW: minGroupWidth, minH: minGroupHeight };
 		
 		setLayout((prevLayout: any) =>{
 			return [...prevLayout, {...newItem}]
@@ -347,7 +399,7 @@ const BuilderPage = () => {
 			setSelectedGroup(newLayout[selectedIndex]);
 		}
 
-		setLayout(newLayout);
+		layoutProcessing(newLayout);
 	}
 
 	const handleCategoryChange = (e: any) => {
@@ -368,7 +420,7 @@ const BuilderPage = () => {
 	}
 	
 
-	const generateGridCells = (num_rows: number, num_cols: number) => {
+	const generateGridCells = (num_rows: number, num_cols: number, rangeCells: any) => {
 		if (!selectedGroup) return;
 		
 		const cells: gridLayoutTypes[] = [];
@@ -398,7 +450,12 @@ const BuilderPage = () => {
 			  h: Math.round(effectiveHeight * 1000) / 1000,
 			  moved: false,
 			  static: true,
+			  minW: elementDimensions[`group-${selectedGroup.i}`]?.width * 0.03,
+			  minH: elementDimensions[`group-${selectedGroup.i}`]?.height * 0.09,
+			  cellx: col + 1,
+			  celly: row + 1,
 			  id_category: selectedGroup.id_category,
+			  id_grid: (page_number * 1000) + (rangeCells.start - 1) + cellCounter,
 			  groupI: selectedGroup.i
 			});
 	  
@@ -412,11 +469,16 @@ const BuilderPage = () => {
 	  
 
 	const applyGroupGridCells = () => {
+		console.log("rangeCells ", rangeCells);
+		console.log("groupGridCells ", groupGridCells);
+		console.log("selectedGroup ", selectedGroup);
+		
+		if (!rangeCells) return;
 		if (!selectedGroup) return;
 		if (!groupGridCells) return;
 
 		const { rows, cols } = groupGridCells;
-		const generatedCells = generateGridCells(rows, cols);
+		const generatedCells = generateGridCells(rows, cols, rangeCells);
 		const newLayout = makeAllGroupAndCellsStatic(customLayout);
 
 		const updatedLayout = newLayout.map(group => {
@@ -427,18 +489,63 @@ const BuilderPage = () => {
 			return group;
 		});
 
-		setLayout(updatedLayout);
+		layoutProcessing(updatedLayout);
+		setGroupGridCells(null);
+		setRengeCells(null);
 	};
 	
+	const transformGridCellsToFormat = (gridCells: any[]) => {
+		return gridCells?.map(cell => ({
+		  row: cell.celly,
+		  col: cell.cellx
+		})) || [];
+	};
+
 	if (isLoadingCategories) {
 		return  <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
 	}
 
 	return (        
 		<div className="w-full h-full grid grid-cols-[min-content_1fr] overflow-hidden">
-			<div className="bg-gray-300 w-[300px] h-full p-2 pt-4">
+			<div className="bg-gray-300 w-[300px] h-full p-2 pt-4 overflow-y-auto no-scrollbar">
 				<form ref={formRef} onSubmit={handleSubmit(onSubmit)} >
-					<h2 className="text-green-800 font-bold text-xl mb-1">Background </h2>
+					{/* ----- PAGE NUMBER ----- */}
+					<h2 className="text-green-800 font-bold text-xl mb-1">Page number </h2>
+					<div className="bg-gray-400 bg-opacity-[0.4] p-2 rounded-md">
+						<div className="flex flex-col w-full">
+							<div className="relative">
+								<Tooltip target="#page-number-input" disabled={layout.length === 0} content="You can only set the page number before adding a group" position="right" autoHide={true} showOnDisabled={true} />
+								<input 
+									id="page-number-input"
+									disabled={layout.length > 0}
+									type="number" 
+									{...register("page_number", { 
+										required: true,
+										min: {
+											value: 1,
+											message: "Page number must be at least 1"
+											},
+											onBlur: (e) => {
+												trigger("page_number");
+											}
+										})} 
+										className="bg-white text-gray-700 p-1 rounded w-full disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed" 
+										placeholder="Page number"
+										min="1"
+								/>
+							</div>
+
+							{errors.page_number && (
+								<span className="text-red-500 text-sm">
+									{errors.page_number?.type === 'required' && "Page number is required"}
+									{errors.page_number?.type === 'min' && errors.page_number?.message?.toString()}
+								</span>
+							)}
+						</div>
+					</div>
+
+					{/* ----- BACKGROUND ----- */}
+					<h2 className="text-green-800 font-bold text-xl mb-1 mt-3">Background </h2>
 					<div className="bg-gray-400 bg-opacity-[0.4] p-2 rounded-md">
 						<input {...register("image")} className="hidden" type="file" accept="image/*" id="backgroundInput" />
 						<h2 className="text-black text-lg mb-0">Image </h2>
@@ -473,12 +580,14 @@ const BuilderPage = () => {
 						</div>
 					</div>
 
-					<h2 className="text-green-800 font-bold text-xl mb-1 mt-4">Group </h2>
+					{/* ----- GROUP ----- */}
+					<h2 className="text-green-800 font-bold text-xl mb-1 mt-3">Group </h2>
 					<div className="bg-gray-400 bg-opacity-[0.4] p-2 rounded-md">
 
-						<div className="flex items-center justify-end  gap-2">
-							<span className="text-gray-500 text-lg">Add Group</span>
-							<button disabled={!newGroup.canAddAnother} type="button" className="p-2 rounded-md bg-[#7cc304] hover:bg-green-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { addGroup() }} >
+						<div className="flex items-center justify-end gap-2">
+							<span className="text-gray-500 text-lg flex-1">Add Group</span>
+							<Tooltip disabled={page_number && !Boolean(errors.page_number)} target="#add-group-btn" content={Boolean(errors.page_number) ? errors.page_number?.message?.toString() : "You must set the page number before adding a group"} position="right" autoHide={true} showOnDisabled={true} />
+							<button id="add-group-btn" disabled={!newGroup.canAddAnother || !page_number || Boolean(errors.page_number)} type="button" className="p-2 rounded-md bg-[#7cc304] hover:bg-green-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { addGroup() }} >
 								<PlusIcon  color="#fff"/>
 							</button>
 						</div>
@@ -494,7 +603,7 @@ const BuilderPage = () => {
 		
 									<div className="flex gap-2 items-center">
 										<div className="flex items-center justify-end gap-2">
-											<Tooltip target="#move-group-btn" content={`${ selectedGroup.static ? 'Move group' : 'Make group static' }`} position="top"  />
+											<Tooltip target="#move-group-btn" content={`${ selectedGroup.static ? 'Move group' : 'Make group static' }`} position="top" autoHide={true}/>
 											<button id="move-group-btn" type="button" className={`w-[30px] text-white p-1 rounded-md ${ selectedGroup.static ? 'bg-gray-300 hover:bg-gray-400' : 'bg-[#7cc304] hover:bg-green-600' } transition-colors`} onClick={() => toggleStatic('group') } >
 												<div className="flex items-center justify-center">
 													<MoveIcon color={`${ selectedGroup.static ? '#9e9c9c' : '#fff' }`} />
@@ -503,7 +612,7 @@ const BuilderPage = () => {
 										</div>
 
 										<div className="flex items-center justify-end gap-2">
-											<Tooltip target="#remove-group-btn" content="Remove group" position="top"  />
+											<Tooltip target="#remove-group-btn" content="Remove group" position="top" autoHide={true} />
 											<button id="remove-group-btn" type="button" className="w-[30px] text-white p-1 rounded-md bg-red-500 hover:bg-red-700 transition-colors" onClick={() => remove('group') } >
 												<div className="flex items-center justify-center">
 													<TrashIcon color="#fff" />
@@ -528,10 +637,10 @@ const BuilderPage = () => {
 								<div className="flex flex-col gap-1">
 									<h2 className="text-black text-lg mb-0">Select the cells of the group. </h2>
 
-									<HoverGrid key={selectedGroup?.i} rows={11} cols={8} onSelection={handleGroupGridSelection} />
+									<HoverGrid key={selectedGroup?.i} rows={11} cols={8} onSelection={handleGroupGridSelection} existingCells={selectedGroup?.gridCells ? transformGridCellsToFormat(selectedGroup.gridCells) : undefined } />
 
 									<div className="flex items-center justify-end">
-										<button disabled={!groupGridCells} type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { applyGroupGridCells() }} >	Apply </button>
+										<button disabled={!groupGridCells} type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { setIsRangeModalOpen(true) }} >	Apply </button>
 									</div>
 								</div>
 							</div>
@@ -577,6 +686,10 @@ const BuilderPage = () => {
 								)}
 								<div className="w-full h-full absolute top-0 left-0 z-10 overflow-hidden">
 									<GridLayout
+										onDragStart={() => { setIsLayoutChanging(true) }}
+										onDragStop={() => { setTimeout(() => { setIsLayoutChanging(false) }, 250) }}
+										onResizeStart={() => { setIsLayoutChanging(true) }}
+										onResizeStop={() => { setTimeout(() => { setIsLayoutChanging(false) }, 250) }}
 										key={'layout-group'}
 										onLayoutChange={layoutGroupChangeHandler}
 										className="layout"
@@ -596,7 +709,7 @@ const BuilderPage = () => {
 											{
 												layout.map((group: gridLayoutTypes) => (
 													<div key={group.i} onClick={(e) => { e.stopPropagation(); handleSelection(group); }}>
-														<Tooltip target={"#group-" + group.i} position="top" disabled={(getCustomReference(group)?.gridCells || [])?.length > 0 ?? false} > 	
+														<Tooltip target={"#group-" + group.i} position="top" disabled={(getCustomReference(group)?.gridCells || [])?.length > 0 ?? false} autoHide={true}> 	
 															<div className="flex flex-col gap-3">
 																<div className="flex items-center gap-1">
 																	<span className="text-white text-md font-bold">Grupo</span>
@@ -632,7 +745,7 @@ const BuilderPage = () => {
 																	>
 																		{ getCustomReference(group)?.gridCells?.map((cell: gridLayoutTypes) => (
 																			<div id={ 'cell-' + cell.i } key={cell.i} onClick={(e) => { e.stopPropagation(); handleSelection(cell); }}>
-																				<Tooltip target={"#cell-" + cell.i} position="top" > 	
+																				<Tooltip target={"#cell-" + cell.i} position="top" autoHide={true} > 	
 																					<div className="flex flex-col gap-3">
 																						<div className="flex items-center gap-1">
 																							<span className="text-white text-md font-bold">Grupo</span>
@@ -650,7 +763,8 @@ const BuilderPage = () => {
 																						)}
 																					</div>
 																				</Tooltip>
-																				<div className={`w-full h-full border-[1px] border-gray-500 rounded text-black ${selectedCell && selectedCell?.i === cell.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
+																				<div className={`w-full h-full border-[1px] relative border-gray-500 rounded text-black ${selectedCell && selectedCell?.i === cell.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
+																					<span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold text-[10px] absolute bottom-0 right-0"> { cell?.id_grid && cell.id_grid.toString() } </span>
 																				</div>
 																			</div>
 																		))}
@@ -681,6 +795,10 @@ const BuilderPage = () => {
 						</motion.div>
 					)}
 				</AnimatePresence>
+
+				<AnimatePresence>
+					<RangeModal isRangeModalOpen={isRangeModalOpen} setIsRangeModalOpen={setIsRangeModalOpen} setRengeCells={setRengeCells} groupGridCells={groupGridCells} />
+				</AnimatePresence>
 			</div>
 
 			
@@ -703,12 +821,11 @@ const CellToolBox: React.FC<cellToolBoxProps> = ({selectedCell, toggleStatic, re
 			<div className="flex items-center justify-between gap-4">
 				<div className="flex items-center gap-2">
 					<h2 className="text-black text-md font-bold text-green-700 mb-0">Selected Cell </h2>
-
 				</div>
 
 				<div className="flex gap-2 items-center">
 					<div className="flex items-center justify-end gap-2">
-						<Tooltip target="#move-cell-btn" content={`${ selectedCell.static ? 'Move cell' : 'Make cell static' }`} position="top" />
+						<Tooltip target="#move-cell-btn" content={`${ selectedCell.static ? 'Move cell' : 'Make cell static' }`} position="top" autoHide={true} />
 						<button id="move-cell-btn" type="button" className={`w-[30px] text-white p-1 rounded-md ${ selectedCell.static ? 'bg-gray-300 hover:bg-gray-400' : 'bg-[#7cc304] hover:bg-green-600' } transition-colors`} onClick={(e) => { e.stopPropagation(); toggleStatic('cell') } } >
 							<div className="flex items-center justify-center">
 								<MoveIcon color={`${ selectedCell.static ? '#9e9c9c' : '#fff' }`} />
@@ -717,7 +834,7 @@ const CellToolBox: React.FC<cellToolBoxProps> = ({selectedCell, toggleStatic, re
 					</div>
 
 					<div className="flex items-center justify-end gap-2">
-						<Tooltip target="#remove-cell-btn" content="Remove cell" position="top" />
+						<Tooltip target="#remove-cell-btn" content="Remove cell" position="top" autoHide={true} />
 						<button id="remove-cell-btn" type="button" className="w-[30px] text-white p-1 rounded-md bg-red-500 hover:bg-red-700 transition-colors" onClick={(e) => { e.stopPropagation(); remove('cell') } } >
 							<div className="flex items-center justify-center">
 								<TrashIcon color="#fff" />
@@ -726,28 +843,172 @@ const CellToolBox: React.FC<cellToolBoxProps> = ({selectedCell, toggleStatic, re
 					</div>
 				</div>
 			</div>
-
-
-			{/* <div className="flex flex-col gap-1">
-				<h2 className="text-black text-lg mb-0">Category </h2>
-
-				<select className="text-black w-36 font-bold px-1 py-2 rounded-md" value={selectedGroup?.id_category || ''} onChange={handleCategoryChange} >
-					<option value="" disabled>Select category</option>
-					{categoriesData.map((cat) => (
-						<option key={cat.id_category} value={cat.id_category}> {cat.name_category} </option>
-					))}
-				</select>
-			</div> */}
-
-			{/* <div className="flex flex-col gap-1">
-				<h2 className="text-black text-lg mb-0">Select the cells of the group. </h2>
-
-				<HoverGrid key={selectedGroup?.i} rows={11} cols={8} onSelection={handleGroupGridSelection} />
-
-				<div className="flex items-center justify-end">
-					<button disabled={!groupGridCells} type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { applyGroupGridCells() }} >	Apply </button>
-				</div>
-			</div> */}
 		</div>
 	)
 }
+
+interface RangeModalProps {
+	isRangeModalOpen:	boolean;
+	setIsRangeModalOpen: (value:boolean) => void;
+	setRengeCells: (value: {start:number; end:number}) => void;
+	groupGridCells: groupGridCellsTypes | null;
+}
+
+const RangeModal: React.FC<RangeModalProps> = ({isRangeModalOpen, setIsRangeModalOpen, setRengeCells,  groupGridCells}) => {
+	const [start, setStart] = useState<number>(0);
+	const [end, setEnd] = useState<number>(0);
+	const [errors, setErrors] = useState<{start?: string, end?: string, range?: string}>({});
+
+	const validateRange = (startVal: number, endVal: number) => {
+		if (!groupGridCells) return;
+		
+		const rangeSize = endVal - startVal + 1;
+		
+		if (rangeSize < groupGridCells.totalItems) {
+			setErrors(prev => ({
+				...prev,
+				range: `Range is incomplete. Need ${groupGridCells.totalItems} cells but range only covers ${rangeSize} cells`
+			}));
+			return false;
+		}
+		
+		if (rangeSize > groupGridCells.totalItems) {
+			setErrors(prev => ({
+				...prev,
+				range: `Range is too large. Need ${groupGridCells.totalItems} cells but range covers ${rangeSize} cells`
+			}));
+			return false;
+		}
+		
+		setErrors(prev => ({ ...prev, range: undefined }));
+		return true;
+	};
+
+	const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = parseInt(e.target.value);
+		setStart(value);
+		
+		// Validar que start no sea mayor que end
+		if (end !== 0 && value > end) {
+			setErrors(prev => ({...prev, start: "Start cannot be greater than end"}));
+		} else {
+			setErrors(prev => ({...prev, start: undefined}));
+			if (end !== 0) validateRange(value, end);
+		}
+	};
+
+	const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = parseInt(e.target.value);
+		setEnd(value);
+		
+		// Validar que end no sea menor que start
+		if (value < start) {
+			setErrors(prev => ({...prev, end: "End cannot be less than start"}));
+		} else {
+			setErrors(prev => ({...prev, end: undefined}));
+			validateRange(start, value);
+		}
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		
+		if (!groupGridCells) return;
+		
+		const isRangeValid = validateRange(start, end);
+		
+
+		console.log("ANDO AQUUII");
+		
+		if (!errors.start && !errors.end && !errors.range && start && end && isRangeValid) {
+			console.log("start ", start);
+			console.log("end ", end);
+			setRengeCells({start, end}); 
+			handleOpenCloseModal(false);
+		}
+	};
+
+	const handleOpenCloseModal = (visible: boolean) => {
+		setIsRangeModalOpen(visible);
+		setStart(0);
+		setEnd(0);
+		setErrors({});
+	}
+
+	return (
+		<React.Fragment>
+			{isRangeModalOpen && (
+				<motion.div 
+					className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-[100]"
+					initial={{opacity: 0}}
+					animate={{opacity: 1}}
+					exit={{opacity: 0}}
+					onClick={(e) => { e.stopPropagation(); }}
+				>
+					<div className="w-96 bg-white p-6 relative rounded-lg">
+						<h1 className="text-black text-2xl font-bold mb-4">Select cell range</h1>
+						
+						<form onSubmit={handleSubmit} className="flex flex-col gap-4">
+							<div className="flex flex-col gap-2">
+								<label className="text-sm font-medium text-gray-700">Start Range</label>
+								<input
+									type="number"
+									value={start || ''}
+									onChange={handleStartChange}
+									min={1}
+									className="bg-white text-gray-700 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+									placeholder="Enter start range"
+								/>
+								{errors.start && (
+									<span className="text-red-500 text-sm">{errors.start}</span>
+								)}
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<label className="text-sm font-medium text-gray-700">End Range</label>
+								<input
+									type="number"
+									value={end || ''}
+									onChange={handleEndChange}
+									min={start}
+									disabled={!start}
+									className="bg-white text-gray-700 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+									placeholder="Enter end range"
+								/>
+								{errors.end && (
+									<span className="text-red-500 text-sm">{errors.end}</span>
+								)}
+								{groupGridCells && (
+									<div className="flex items-center gap-2 mt-1">
+										<span className="text-sm text-gray-400">Total cells needed:</span>
+										<span className="text-sm font-medium text-gray-500"> {groupGridCells.totalItems} cells </span>
+									</div>
+								)}
+							</div>
+
+							{errors.range && (
+								<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
+									{errors.range}
+								</div>
+							)}
+
+							<div className="flex gap-2 mt-4">
+								<button type="button" onClick={() => handleOpenCloseModal(false)} className="bg-gray-500 text-white p-2 rounded-md w-24 hover:bg-gray-600 transition-colors" >
+									Cancel
+								</button>
+
+								<button 
+									type="submit"
+									disabled={!start || !end || Boolean(errors.start) || Boolean(errors.end) || Boolean(errors.range)}
+									className="bg-[#7cc304] text-white p-2 rounded-md w-24 flex items-center justify-center hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
+								>
+									Confirm
+								</button>
+							</div>
+						</form>
+					</div>
+				</motion.div>
+			)}
+		</React.Fragment>
+	);
+};

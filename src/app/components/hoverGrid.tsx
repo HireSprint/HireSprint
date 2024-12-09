@@ -1,8 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const HoverGrid = ({ rows, cols, onSelection }: { rows: number, cols: number, onSelection: (data: any) => void }) => {
+const HoverGrid = ({ rows, cols, onSelection, existingCells }: { 
+  rows: number, 
+  cols: number, 
+  onSelection: (data: any) => void,
+  existingCells?: { row: number, col: number }[] 
+}) => {
   const [hoveredCells, setHoveredCells] = useState<{ row: number, col: number }[]>([]);
   const [selectedCells, setSelectedCells] = useState<{ row: number, col: number }[]>([]);
+
+  useEffect(() => {
+    if (existingCells && existingCells.length > 0) {
+        setSelectedCells(existingCells);
+        setHoveredCells(existingCells);
+    }
+  }, []);
+
 
   const handleMouseEnter = (row: number, col: number) => {
     const newHoveredCells = [];
@@ -11,6 +24,7 @@ const HoverGrid = ({ rows, cols, onSelection }: { rows: number, cols: number, on
         newHoveredCells.push({ row: r + 1, col: c + 1 });
       }
     }
+    
     setHoveredCells(newHoveredCells);
   };
 
@@ -20,7 +34,6 @@ const HoverGrid = ({ rows, cols, onSelection }: { rows: number, cols: number, on
     const selectedCols = Math.max(...hoveredCells.map((cell) => cell.col));
     const totalItems = hoveredCells.length;
 
-    // Retorna los datos al componente padre
     onSelection({
       rows: selectedRows,
       cols: selectedCols,
@@ -53,7 +66,7 @@ const HoverGrid = ({ rows, cols, onSelection }: { rows: number, cols: number, on
               key={`${rowIndex}-${colIndex}`}
               onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
               onClick={handleClick}
-              className={`w-full h-[25px] border-[1px] border-black cursor-pointer ${
+              className={`w-full h-[25px] border-[1px] border-black cursor-pointer flex items-center justify-center ${
                 isHovered && !isSelected 
                   ? 'bg-[#7cc304]' 
                   : isSelected 
@@ -62,7 +75,9 @@ const HoverGrid = ({ rows, cols, onSelection }: { rows: number, cols: number, on
                       : 'bg-green-600' 
                     : 'bg-white'
               }`}
-            ></div>
+            >
+              { ((isSelected || isHovered ) && (rowIndex == 0 || colIndex == 0)) ? (rowIndex == 0 ? colIndex + 1 : rowIndex + 1) : ''}
+            </div>
           );
         })
       )}
