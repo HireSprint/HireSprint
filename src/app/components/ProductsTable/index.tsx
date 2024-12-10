@@ -17,6 +17,7 @@ import category = meta.docs.category;
 import {RowData} from "@tanstack/table-core";
 import {clientType} from "@/types/clients";
 import {number} from "prop-types";
+import {toast, ToastContainer} from "react-toastify";
 
 
 const columnHelper = createColumnHelper<ProductTypes>();
@@ -119,6 +120,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
     const [numberOfPage, setNumberOfPage] = useState<number[]|[]>([])
     const [filters, setFilters] = useState({ id_category: "",page:"", upc: "" });
     const [errormesage, setErrormesage] = useState("")
+    const [invalidRows, setInvalidRows] = useState<ProductTypes[]|[]>([])
 
 
 
@@ -126,42 +128,57 @@ const ProductsTable = ({id_circular}:ParamsType) => {
         const getProductByCircular = async () => {
             try {
                 const reqBody = {
-                    "id_circular":Number(id_circular),
-                    "id_client":user.userData.id_client
-                }
+                    id_circular: Number(id_circular),
+                    id_client: user.userData.id_client,
+                };
+
                 const respCategories = await fetch("/api/apiMongo/getCategories");
                 const data = await respCategories.json();
-                const resp = await getProductsByCircular(reqBody)
-                if (resp.length <= 0){
-                    setLoading(false)
-                }else{
-                    const productos = resp.result.map((item: ProductTypes) => {
+
+                const resp = await getProductsByCircular(reqBody);
+                if (resp.length <= 0) {
+                    setLoading(false);
+                    return;
+                }
+
+                const invalidRows: ProductTypes[] = [];
+
+                const productos = resp.result.map((item: ProductTypes) => {
                         const category = data.result.find(
                             (cat: categoriesInterface) => cat.id_category === item.id_category
                         );
-                        if(category == undefined){
-                            return null
-                        }
-                        return { ...item, category: category.name_category || "Unknown" };
-                    });
-                    if (productos.includes(null)) {
-                        setErrormesage("Some products do not exist or have no category assigned.")
-                        setLoading(false);
-                        throw new Error("Some products do not exist or have no category assigned.");
-                    }
 
-                    setCircularProducts(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
-                    setFilteredProduct(productos.filter((product: ProductTypes) => product.id_grid !== undefined).sort((a: ProductTypes, b: ProductTypes) => (a.id_grid! - b.id_grid!)))
-                    setCategories(data.result)
-                    setLoading(false)
-                }
+                        if (!category) {
+                            invalidRows.push(item);
+                            return null;
+                        }
+
+                        return { ...item, category: category.name_category || "Unknown" };
+                    }).filter((product: ProductTypes | null) => product !== null) as ProductTypes[]; // Filtrar los productos nulos
+
+                setInvalidRows(invalidRows);
+
+                setCircularProducts(
+                    productos.filter((product: ProductTypes) => product.id_grid !== undefined)
+                        .sort((a: ProductTypes, b: ProductTypes) => a.id_grid! - b.id_grid!)
+                );
+                setFilteredProduct(
+                    productos.filter((product: ProductTypes) => product.id_grid !== undefined)
+                        .sort((a: ProductTypes, b: ProductTypes) => a.id_grid! - b.id_grid!)
+                );
+                setCategories(data.result);
+                setLoading(false);
+                console.log("invalid rows",invalidRows)
             } catch (error) {
                 console.error("Error al obtener los productos:", error);
+                setErrormesage("Ocurrió un error al obtener los productos.");
+                setLoading(false);
             }
         };
 
         getProductByCircular();
     }, [id_circular, user]);
+
 
     useEffect(() => {
         if (circularProducts.length > 0) {
@@ -178,7 +195,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
             setNumberOfPage(arraGrid);
         }
     }, [circularProducts]);
-
+//xCirculars new nombre
     const numberPage = (grid_id:number|undefined) => {
         if(grid_id !== undefined) {
             const numberOfPage = grid_id / 1000;
@@ -213,6 +230,14 @@ const ProductsTable = ({id_circular}:ParamsType) => {
             setFilteredProduct(newProduct)
         }
     }, [filters]);
+
+    // useEffect(() => {
+    //     if(invalidRows.length > 0 ){
+    //         invalidRows.map((item:object)=>{
+    //             toast.error(`upc: ${item.upc} does not exist`);
+    //         })
+    //     }
+    // }, [invalidRows]);
 
 
 
@@ -315,6 +340,14 @@ const ProductsTable = ({id_circular}:ParamsType) => {
 
                 )}
             </div>
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                closeOnClick
+                pauseOnHover
+                theme="light"
+            />
         </div>
     )
 };
