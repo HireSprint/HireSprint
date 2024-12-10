@@ -156,11 +156,9 @@ const BuilderPage = () => {
 		return [...allStatic];
 	};
 
-	const toggleStatic = (type: 'group' | 'cell') => {
+	const toggleStatic = (type: 'group') => {
 		
-		if (type === 'group' && !selectedGroup) return;	
-		if (type === 'cell' && (!selectedCell || !selectedGroup)) return;	
-		
+		if (!selectedGroup) return;	
 		
 		const newLayout = makeAllGroupAndCellsStatic(customLayout);
 		const selectedGroupIndex = newLayout.findIndex((item: any) => item.i === selectedGroup?.i );
@@ -172,19 +170,8 @@ const BuilderPage = () => {
 			// Toggle grupo
 			newGroupSelected.static = !selectedGroup?.static;
 			setSelectedGroup(newGroupSelected);
-		} else {
-			// Toggle celda
-			if (newLayout[selectedGroupIndex].gridCells && newLayout[selectedGroupIndex].gridCells.length > 0) {
-				const selectedCellIndex = newLayout[selectedGroupIndex].gridCells.findIndex((item: any) => item.i === selectedCell?.i );
-				
-				if (selectedCellIndex === -1)  return;
-				const newCellSelected = {...newLayout[selectedGroupIndex].gridCells[selectedCellIndex]};
-				
-				newCellSelected.static = !selectedCell?.static;
-				newLayout[selectedGroupIndex].gridCells[selectedCellIndex] = newCellSelected;
-
-				setSelectedCell(newCellSelected);
-			}
+			newLayout[selectedGroupIndex] = newGroupSelected;
+			setSelectedCell(null);
 		}
 		
 		layoutProcessing(newLayout);
@@ -391,12 +378,22 @@ const BuilderPage = () => {
 	};
 
 	const updateSelectedGroup = (group: PartialGridLayoutTypes) => {
+		
 		const newLayout = [...layout]
 		const selectedIndex = newLayout.findIndex((item: any) => item.i === group.i);
 
 		if (selectedIndex !== -1) {  
-			newLayout[selectedIndex] = { ...newLayout[selectedIndex], ...group };
-			setSelectedGroup(newLayout[selectedIndex]);
+			const newGroup: gridLayoutTypes = { ...newLayout[selectedIndex], ...group };
+			if(newGroup.gridCells && newGroup.gridCells.length > 0) newGroup.gridCells = newGroup.gridCells?.map((cell: gridLayoutTypes) => ({ ...cell, id_category: group.id_category ?? null }));
+			
+			setSelectedGroup(newGroup);
+			newLayout[selectedIndex] = newGroup;
+
+
+			if (selectedCell && selectedCell.groupI === group.i && group.id_category) {
+				const newCell: gridLayoutTypes = { ...selectedCell, id_category: newGroup.id_category };
+				setSelectedCell(newCell);
+			}
 		}
 
 		layoutProcessing(newLayout);
@@ -407,12 +404,14 @@ const BuilderPage = () => {
 		
 		const idCategory = e.target.value
 		if (idCategory) updateSelectedGroup({ i: selectedGroup.i, id_category: idCategory });
+
+		
 	}
 		
 	const getCustomReference = (group: gridLayoutTypes): gridLayoutTypes | null => {
-		const existingItemIndex = customLayout.findIndex((item: any) => item.i === group.i);
+		const existingItemIndex = customLayout.findIndex((item: gridLayoutTypes) => item.i === group.i);
 		return customLayout[existingItemIndex] || null;
-	}
+	};
 
 	
 	const handleGroupGridSelection = (data: any) => {
@@ -469,10 +468,6 @@ const BuilderPage = () => {
 	  
 
 	const applyGroupGridCells = () => {
-		console.log("rangeCells ", rangeCells);
-		console.log("groupGridCells ", groupGridCells);
-		console.log("selectedGroup ", selectedGroup);
-		
 		if (!rangeCells) return;
 		if (!selectedGroup) return;
 		if (!groupGridCells) return;
@@ -483,15 +478,19 @@ const BuilderPage = () => {
 
 		const updatedLayout = newLayout.map(group => {
 			if (group.i === selectedGroup.i) {
-				setSelectedGroup({...group, gridCells: generatedCells});
-				return { ...group, gridCells: generatedCells };
+				const newGroup = { ...group, gridCells: generatedCells, range_cell_id_start: rangeCells.start, range_cell_id_end: rangeCells.end };
+				updateSelectedGroup(newGroup);
+				return newGroup;
 			}
 			return group;
 		});
 
 		layoutProcessing(updatedLayout);
-		setGroupGridCells(null);
-		setRengeCells(null);
+
+		setTimeout(() => {
+			setGroupGridCells(null);
+			setRengeCells(null);
+		}, 200);
 	};
 	
 	const transformGridCellsToFormat = (gridCells: any[]) => {
@@ -715,13 +714,19 @@ const BuilderPage = () => {
 																	<span className="text-white text-md font-bold">Grupo</span>
 																	<span className="text-white text-sm">{group.i}</span>	
 																</div>
-																{ getCustomReference(group)?.id_category && (
 																	<div className="flex items-center gap-1">
 																		<span className="text-white text-md font-bold">Category: </span>
-																		<span className="text-white text-sm">{getCategoryById(getCustomReference(group)?.id_category || 0)?.name_category}</span>	
+																		{ getCustomReference(group)?.id_category ? 
+																			(
+																				<span className="text-white text-sm">{getCategoryById(getCustomReference(group)?.id_category || 0)?.name_category}</span>	
+																			)
+																			:
+																			(
+																				<span className="text-white text-sm mb-0 italic">No category Selected</span>
+																			)
+																		}
 																	</div>
-																)}
-															</div>
+																</div>
 														</Tooltip>
 
 														<div id={"group-" + group.i} className={`w-full h-full border-[1px] border-[#7cc304] box-border cursor-pointer ${selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
@@ -748,23 +753,31 @@ const BuilderPage = () => {
 																				<Tooltip target={"#cell-" + cell.i} position="top" autoHide={true} > 	
 																					<div className="flex flex-col gap-3">
 																						<div className="flex items-center gap-1">
-																							<span className="text-white text-md font-bold">Grupo</span>
+																							<span className="text-white text-md font-bold">Grupo: </span>
 																							<span className="text-white text-sm">{group.i}</span>	
 																						</div>
 																						<div className="flex items-center gap-1">
-																							<span className="text-white text-md font-bold">Cell</span>
-																							<span className="text-white text-sm">{cell.i.replace(`cell-${group.i}-`, '')}</span>	
+																							<span className="text-white text-md font-bold">Cell ID: </span>
+																							<span className="text-white text-sm">{cell.id_grid}</span>	
 																						</div>
-																						{ getCustomReference(group)?.id_category && (
-																							<div className="flex items-center gap-1">
-																								<span className="text-white text-md font-bold">Category: </span>
-																								<span className="text-white text-sm">{getCategoryById(getCustomReference(group)?.id_category || 0)?.name_category}</span>	
-																							</div>
-																						)}
+																						
+																						<div className="flex items-center gap-1">
+																							<span className="text-white text-md font-bold">Category: </span>
+																							{ getCustomReference(group)?.id_category ? 
+																								(
+																									<span className="text-white text-sm">{getCategoryById(cell?.id_category || 0)?.name_category}</span>	
+																								)
+																								:
+																								(
+																									<span className="text-white text-sm mb-0 italic">No category Selected</span>
+																								)
+																							}
+																						</div>
+																						
 																					</div>
 																				</Tooltip>
 																				<div className={`w-full h-full border-[1px] relative border-gray-500 rounded text-black ${selectedCell && selectedCell?.i === cell.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'}`} >
-																					<span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold text-[10px] absolute bottom-0 right-0"> { cell?.id_grid && cell.id_grid.toString() } </span>
+																					<span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold text-[9px] absolute top-0 right-0"> { cell?.id_grid && cell.id_grid.toString() } </span>
 																				</div>
 																			</div>
 																		))}
@@ -791,13 +804,13 @@ const BuilderPage = () => {
 							transition={{duration: 0.5}}
 							className="fixed top-[calc(100vh-50%)] right-3"
 						>
-							<CellToolBox selectedCell={selectedCell} toggleStatic={toggleStatic} remove={remove} />
+							<CellToolBox selectedCell={selectedCell} remove={remove} />
 						</motion.div>
 					)}
 				</AnimatePresence>
 
 				<AnimatePresence>
-					<RangeModal isRangeModalOpen={isRangeModalOpen} setIsRangeModalOpen={setIsRangeModalOpen} setRengeCells={setRengeCells} groupGridCells={groupGridCells} />
+					<RangeModal isRangeModalOpen={isRangeModalOpen} setIsRangeModalOpen={setIsRangeModalOpen} setRengeCells={setRengeCells} groupGridCells={groupGridCells} selectedGroup={selectedGroup} getCustomReference={getCustomReference} />
 				</AnimatePresence>
 			</div>
 
@@ -811,55 +824,85 @@ export default BuilderPage;
 
 interface cellToolBoxProps {
 	selectedCell: gridLayoutTypes;
-	toggleStatic: (type: 'group' | 'cell') => void;
 	remove: (type: 'group' | 'cell') => void;
 }
 
-const CellToolBox: React.FC<cellToolBoxProps> = ({selectedCell, toggleStatic, remove}) => {
+const CellToolBox: React.FC<cellToolBoxProps> = ({selectedCell,  remove}) => {
+	const {getCategoryById} = useCategoryContext();
 	return (
-		<div className="flex flex-col gap-2 bg-gray-200 p-2 rounded-md mt-3">
-			<div className="flex items-center justify-between gap-4">
+		<div className="flex flex-col gap-2 bg-gray-200 p-2 rounded-md mt-3 shadow-md">
+			<div className="flex items-center justify-between gap-4 mb-2">
 				<div className="flex items-center gap-2">
 					<h2 className="text-black text-md font-bold text-green-700 mb-0">Selected Cell </h2>
 				</div>
 
-				<div className="flex gap-2 items-center">
-					<div className="flex items-center justify-end gap-2">
-						<Tooltip target="#move-cell-btn" content={`${ selectedCell.static ? 'Move cell' : 'Make cell static' }`} position="top" autoHide={true} />
-						<button id="move-cell-btn" type="button" className={`w-[30px] text-white p-1 rounded-md ${ selectedCell.static ? 'bg-gray-300 hover:bg-gray-400' : 'bg-[#7cc304] hover:bg-green-600' } transition-colors`} onClick={(e) => { e.stopPropagation(); toggleStatic('cell') } } >
-							<div className="flex items-center justify-center">
-								<MoveIcon color={`${ selectedCell.static ? '#9e9c9c' : '#fff' }`} />
-							</div>
-						</button>
-					</div>
-
-					<div className="flex items-center justify-end gap-2">
-						<Tooltip target="#remove-cell-btn" content="Remove cell" position="top" autoHide={true} />
-						<button id="remove-cell-btn" type="button" className="w-[30px] text-white p-1 rounded-md bg-red-500 hover:bg-red-700 transition-colors" onClick={(e) => { e.stopPropagation(); remove('cell') } } >
-							<div className="flex items-center justify-center">
-								<TrashIcon color="#fff" />
-							</div>
-						</button>
-					</div>
+				
+				<div className="flex items-center justify-end gap-2">
+					<Tooltip target="#remove-cell-btn" content="Remove cell" position="top" autoHide={true} />
+					<button id="remove-cell-btn" type="button" className="w-[30px] text-white p-1 rounded-md bg-red-500 hover:bg-red-700 transition-colors" onClick={(e) => { e.stopPropagation(); remove('cell') } } >
+						<div className="flex items-center justify-center">
+							<TrashIcon color="#fff" />
+						</div>
+					</button>
 				</div>
+			</div>
+
+			<div className="flex items-center gap-1">
+				<h2 className="text-black text-md font-bold mb-0">Cell ID: </h2>
+				<span className="text-black text-sm mb-0">{selectedCell?.id_grid}</span>
+			</div>
+
+			<div className="flex items-center gap-1">
+				<h2 className="text-black text-md font-bold mb-0">Category: </h2>
+				{ selectedCell?.id_category ? 
+					(
+						<span className="text-black text-sm mb-0">{getCategoryById(selectedCell?.id_category || 0)?.name_category}</span>
+					)
+					:
+					(
+						<span className="text-black text-sm mb-0 italic">No category Selected</span>
+					)
+				}
 			</div>
 		</div>
 	)
 }
 
 interface RangeModalProps {
+	selectedGroup: gridLayoutTypes | null;
 	isRangeModalOpen:	boolean;
 	setIsRangeModalOpen: (value:boolean) => void;
 	setRengeCells: (value: {start:number; end:number}) => void;
 	groupGridCells: groupGridCellsTypes | null;
+	getCustomReference: (group: gridLayoutTypes) => gridLayoutTypes | null;
 }
 
-const RangeModal: React.FC<RangeModalProps> = ({isRangeModalOpen, setIsRangeModalOpen, setRengeCells,  groupGridCells}) => {
-	const [start, setStart] = useState<number>(0);
-	const [end, setEnd] = useState<number>(0);
+const RangeModal: React.FC<RangeModalProps> = ({selectedGroup, isRangeModalOpen, setIsRangeModalOpen, setRengeCells,  groupGridCells, getCustomReference}) => {
+	
+	
+	const [start, setStart] = useState<number>( selectedGroup ?getCustomReference(selectedGroup)?.range_cell_id_start ?? 0 : 0 );
+	const [end, setEnd] = useState<number>( selectedGroup ? getCustomReference(selectedGroup)?.range_cell_id_end ?? 0 : 0);
 	const [errors, setErrors] = useState<{start?: string, end?: string, range?: string}>({});
+	
+	useEffect(() => {
+		
+		if (!isRangeModalOpen) return;
+		const customSelectedGroup = selectedGroup ? getCustomReference(selectedGroup) : null;
+		
+		
+		const startVal = customSelectedGroup?.range_cell_id_start ?? 0;
+		const endVal = customSelectedGroup?.range_cell_id_end ?? 0;
+		setStart(startVal);
+		setEnd(endVal);
 
+		if (startVal && endVal) {
+			validateRange(startVal, endVal);
+		}
+		
+	}, [isRangeModalOpen]);
+	
 	const validateRange = (startVal: number, endVal: number) => {
+		
 		if (!groupGridCells) return;
 		
 		const rangeSize = endVal - startVal + 1;
@@ -885,29 +928,22 @@ const RangeModal: React.FC<RangeModalProps> = ({isRangeModalOpen, setIsRangeModa
 	};
 
 	const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+		if (!groupGridCells) return;
+
+		if (!e.target.value) {
+			setStart(0);
+			setEnd(0);
+			return;
+		}
+		
 		const value = parseInt(e.target.value);
 		setStart(value);
 		
-		// Validar que start no sea mayor que end
-		if (end !== 0 && value > end) {
-			setErrors(prev => ({...prev, start: "Start cannot be greater than end"}));
-		} else {
-			setErrors(prev => ({...prev, start: undefined}));
-			if (end !== 0) validateRange(value, end);
-		}
-	};
+		const end = value + groupGridCells?.totalItems - 1;
+		setEnd(end);
 
-	const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value);
-		setEnd(value);
-		
-		// Validar que end no sea menor que start
-		if (value < start) {
-			setErrors(prev => ({...prev, end: "End cannot be less than start"}));
-		} else {
-			setErrors(prev => ({...prev, end: undefined}));
-			validateRange(start, value);
-		}
+		validateRange(value, end);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -916,13 +952,8 @@ const RangeModal: React.FC<RangeModalProps> = ({isRangeModalOpen, setIsRangeModa
 		if (!groupGridCells) return;
 		
 		const isRangeValid = validateRange(start, end);
-		
-
-		console.log("ANDO AQUUII");
-		
+				
 		if (!errors.start && !errors.end && !errors.range && start && end && isRangeValid) {
-			console.log("start ", start);
-			console.log("end ", end);
 			setRengeCells({start, end}); 
 			handleOpenCloseModal(false);
 		}
@@ -969,18 +1000,13 @@ const RangeModal: React.FC<RangeModalProps> = ({isRangeModalOpen, setIsRangeModa
 								<input
 									type="number"
 									value={end || ''}
-									onChange={handleEndChange}
-									min={start}
-									disabled={!start}
-									className="bg-white text-gray-700 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+									disabled={true}
+									className="border rounded-md p-2 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
 									placeholder="Enter end range"
 								/>
-								{errors.end && (
-									<span className="text-red-500 text-sm">{errors.end}</span>
-								)}
 								{groupGridCells && (
 									<div className="flex items-center gap-2 mt-1">
-										<span className="text-sm text-gray-400">Total cells needed:</span>
+										<span className="text-sm text-gray-400">Total cells:</span>
 										<span className="text-sm font-medium text-gray-500"> {groupGridCells.totalItems} cells </span>
 									</div>
 								)}
