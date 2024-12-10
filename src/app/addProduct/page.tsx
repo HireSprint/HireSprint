@@ -39,6 +39,7 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [reloadFlag, setReloadFlag] = useState(false);
     const { user } = useAuth();
 
 
@@ -167,6 +168,7 @@ const AddProductPage = () => {
                 setShowModal(true);
                 toast.success("¡Product created successfully!");
                 setPreviewUrl(null);
+                setReloadFlag(true)
                 reset();
                 setValue("sku", "");
             }
@@ -181,6 +183,25 @@ const AddProductPage = () => {
             console.error('Error al crear producto:', error);
         }
     };
+
+    useEffect(() => {
+        if(reloadFlag === true){
+            const updateProduct = async () => {
+                try {
+                    const resp = await fetch("/api/apiMongo/getProduct");
+                    const data = await resp.json();
+                    if (resp.status === 200) {
+                        setProductsData(data.result);
+                    }
+                } catch (error) {
+                    console.error("Error in get products", error);
+                }
+            };
+
+            updateProduct();
+            setReloadFlag(false);
+        }
+    }, [reloadFlag]);
 
     useEffect(() => {
         if (imageFile && imageFile[0]) {
