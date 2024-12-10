@@ -203,6 +203,7 @@ export const ImageGrid2 = ({
     const {  productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
     const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
+    const [groupedProducts, setGroupedProducts] = useState<ProductTypes[]>([]);
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -322,8 +323,16 @@ export const ImageGrid2 = ({
             const productsMap = new Map(
                 productsData.map(product => [product.upc.toString(), product])
             );
-    
-            // Filtrar solo productos para el grid 2 (2001-2999)
+            
+            const groupedProducts = circularProducts.reduce((acc: any, product: any) => {
+                const gridId = product?.id_grid;
+                if (!acc[gridId]) {
+                    acc[gridId] = [];
+                }
+                acc[gridId].push(product);
+                return acc;
+            }, {}); 
+            setGroupedProducts(groupedProducts);
             const gridFilled = circularProducts
                 .filter(circularProduct => {
                     const gridId = Number(circularProduct.id_grid) || 0;
@@ -335,7 +344,7 @@ export const ImageGrid2 = ({
                     return {
                         ...baseProduct,
                         id_grid: circularProduct.id_grid,
-                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
+                        price: circularProduct.price || baseProduct.price, 
                         burst: circularProduct.burst,
                         addl: circularProduct.addl,
                         limit: circularProduct.limit,
@@ -344,15 +353,12 @@ export const ImageGrid2 = ({
                     };
                 });
     
-            // Actualizar selectedProducts manteniendo solo los productos de este grid
             setSelectedProducts(prevProducts => {
-                // Mantener productos de otros grids
                 const otherGridProducts = prevProducts.filter(p => {
                     const gridId = Number(p.id_grid) || 0;
                     return gridId < 2001 || gridId > 2999;
                 });
     
-                // Combinar con los nuevos productos de este grid
                 return [...otherGridProducts, ...gridFilled];
             });
         }
