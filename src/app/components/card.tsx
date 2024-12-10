@@ -250,7 +250,7 @@ export const GridCardProduct = ({
             const {offsetWidth, offsetHeight} = divRef.current;
             setDivDimensions({width: offsetWidth, height: offsetHeight});
         }
-    }, []);
+    }, [product]);
 
 
     return (
