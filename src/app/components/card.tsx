@@ -1,28 +1,28 @@
 "use client.ts";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { ProductTypes } from "@/types/product";
-import { cellTypes } from "@/types/cell";
-import { categoriesInterface } from "@/types/category";
-import { Skeleton } from 'primereact/skeleton';
+import {useEffect, useRef, useState} from "react";
+import {ProductTypes} from "@/types/product";
+import {cellTypes} from "@/types/cell";
+import {categoriesInterface} from "@/types/category";
+import {Skeleton} from 'primereact/skeleton';
 import Draggable from 'react-draggable';
-import { Tooltip } from 'primereact/tooltip';
-import { useProductContext } from "../context/productContext";
+import {Tooltip} from 'primereact/tooltip';
+import {useProductContext} from "../context/productContext";
 
 
 interface CardProductProps {
-  product: ProductTypes;
-  cell?: cellTypes;
-  onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
-  onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
-  onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
-  onPriceChange?: (id: string, price: string) => void;
-  isLoading?: boolean;
-  enableDragAndDrop?: boolean;
-  page?: number;
-  onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
-  setCategory?:  (category: categoriesInterface | null) => void;
-  setShowProductCardBrand?: (arg:boolean) => void;
+    product: ProductTypes;
+    cell?: cellTypes;
+    onContextMenu?: (e: React.MouseEvent, gridId: number) => void;
+    onProductSelect?: (product: ProductTypes, event: React.MouseEvent) => void;
+    onGridCellClick?: (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => void;
+    onPriceChange?: (id: string, price: string) => void;
+    isLoading?: boolean;
+    enableDragAndDrop?: boolean;
+    page?: number;
+    onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
+    setCategory?: (category: categoriesInterface | null) => void;
+    setShowProductCardBrand?: (arg: boolean) => void;
 }
 
 export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
@@ -41,7 +41,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
                         src={product.url_image}
                         alt={product.name}
                         layout="fill"
-                        style={{ objectFit: 'cover' }}
+                        style={{objectFit: 'cover'}}
                         className="rounded-lg"
                         draggable={false}
                     />
@@ -161,29 +161,43 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
 }
 
 
-export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick,  onDragAndDropCell, isLoading, page, setShowProductCardBrand}: CardProductProps) => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+export const GridCardProduct = ({
+                                    product,
+                                    cell,
+                                    onContextMenu,
+                                    onGridCellClick,
+                                    onDragAndDropCell,
+                                    isLoading,
+                                    page,
+                                    setShowProductCardBrand
+                                }: CardProductProps) => {
+    const [position, setPosition] = useState({x: 0, y: 0});
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
     const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
     const {panningOnPage1} = useProductContext();
     const {panningOnSubPage} = useProductContext();
 
-    const startDragging = (e: any , data: any) => {
-        setProductDragging && setProductDragging({ from: 'grid', id_product: product?.id_product, id_grid: cell && cell.id, page: page });
+    const startDragging = (e: any, data: any) => {
+        setProductDragging && setProductDragging({
+            from: 'grid',
+            id_product: product?.id_product,
+            id_grid: cell && cell.id,
+            page: page
+        });
 
-        if (elementRef.current){
+        if (elementRef.current) {
             setTimeout(() => {
-                (elementRef.current as any).style.pointerEvents = 'none' ;
+                (elementRef.current as any).style.pointerEvents = 'none';
             }, 250);
         }
         setShowProductCardBrand && setShowProductCardBrand(false)
     }
 
-    const stopDragging = (e: any , data: any) => {
-        setPosition({ x: 0, y: 0 });
+    const stopDragging = (e: any, data: any) => {
+        setPosition({x: 0, y: 0});
 
-        if (elementRef.current){
+        if (elementRef.current) {
             setTimeout(() => {
                 (elementRef.current as any).style.pointerEvents = 'auto';
             }, 250);
@@ -203,23 +217,41 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
 
         if (e.button == 0) {
             timeoutRef.current = setTimeout(() => {
-                if ((product != undefined && product != null) && !productReadyDrag ) {
-                    setProductReadyDrag({ from: 'grid', id_product: product.id_product, id_grid: cell && cell.id, page: page });
+                if ((product != undefined && product != null) && !productReadyDrag) {
+                    setProductReadyDrag({
+                        from: 'grid',
+                        id_product: product.id_product,
+                        id_grid: cell && cell.id,
+                        page: page
+                    });
                 }
             }, 1000);
 
         }
     };
 
-    const handleMouseUp = (e:any) => {
+    const handleMouseUp = (e: any) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
 
-    if ( typeof isLoading !== "boolean" ) isLoading = false;
+    if (typeof isLoading !== "boolean") isLoading = false;
 
     const textShadowWhite = {
         'textShadow': '1px 1px 0 #ffffff, -1px 1px 0 #ffffff, 1px -1px 0 #ffffff, -1px -1px 0 #ffffff'
     }
+
+
+    const divRef = useRef<HTMLDivElement>(null);
+    const [divDimensions, setDivDimensions] = useState({width: 0, height: 0});
+
+
+    useEffect(() => {
+        if (divRef.current) {
+            const {offsetWidth, offsetHeight} = divRef.current;
+            setDivDimensions({width: offsetWidth, height: offsetHeight});
+        }
+    }, [product]);
+
 
     return (
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
@@ -227,7 +259,7 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
             <Draggable disabled={!productReadyDrag || (productReadyDrag && productReadyDrag.id_grid != cell?.id)} onStart={startDragging} onStop={stopDragging} position={position}>
                 <div
                     ref={elementRef}
-                    id={ 'grid-card-product-' + cell?.id }
+                    id={'grid-card-product-' + cell?.id}
                     key={cell?.id}
                     className={`absolute border-2 border-gray-400 ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
                     style={{width: cell?.width, height: cell?.height}}
@@ -237,63 +269,112 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
                         }
                     }}
                     onContextMenu={(e) => cell && onContextMenu && onContextMenu(e, cell.id)}
-                    >
-                        { isLoading ?
-                            <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
+                >
+                    {isLoading ?
+                        <Skeleton width="100%" height="100%" borderRadius="0"> </Skeleton>
                         :
-                            <div className="@container h-full w-full relative grid overflow-hidden">
-                                {
-                                    product?.url_image && (
-                                        <div className="absolute justify-self-end self-center">
-                                            <div className="@[66px]:w-10 @[66px]:h-10    @[71px]:w-16 @[71px]:h-16    @[125px]:w-16 @[125px]:h-18">
-                                                <Image src={product.url_image} alt={product.name || ''} width={100} height={100} draggable={false} />
-                                            </div>
-                                        </div>
-                                    )
-                                }
-                                <div className="absolute flex flex-col  text-blue-950 font-bold @[44px]:text-[7px] @[44px]:leading-[7px] @[66px]:text-[12px] @[66px]:leading-[12px] @[71px]:text-[10px] @[71px]:leading-[12px] @[125px]:leading-[13px] @[125px]:text-[13px] @[125px]:inset-[5px]" style={textShadowWhite}>
-                                    {product && (
-                                        <>
-                                            <span className="text-blue-600 uppercase">
-                                                { product.brand }
-                                            </span>
-                                            <span className="uppercase ">
-                                                { product.desc }
-                                            </span>
-                                            <div className="flex items-center">
-                                                <span className="text-purple-600 uppercase">
-                                                        { product?.size }
-                                                </span>
-                                            </div>
+                        <div className="@container h-full w-full relative grid overflow-hidden">
+                            {
 
-                                            <span className="text-red-500">
-                                                <span className="@[66px]:text-[10px] @[71px]:text-[15px] @[125px]:text-[15px]">$</span>
-                                                { product.price }
+                                product?.url_image && (
+                                    <div className=" absolute justify-self-end self-center  w-[70%] h-[70%] -right-[5%]">
+
+                                        <Image
+                                            src={product.url_image}
+                                            alt={product.name || ''}
+                                            width={100} // Ajustado a la resolución necesaria
+                                            height={100} // Compatible con el tamaño máximo
+                                            className="w-full h-full object-contain"
+                                            draggable={false}
+                                        />
+
+                                    </div>
+                                )
+                            }
+                            <div
+                                ref={divRef}
+                                className="absolute border-2 border-blue-600 flex flex-col  justify-self-start  overflow-hidden text-blue-950 font-bold "
+                                style={{
+                                    ...textShadowWhite,
+                                    width: '100%', 
+                                    height: '100%',
+                                    fontSize: `calc(1 * ${Math.min(divDimensions.width, divDimensions.height) * 0.12}px)`, 
+                                    lineHeight: '1.2', 
+                                }}
+                            >
+                                {product && (
+                                    <>
+                                      
+                                        <span
+                                            className="text-blue-600 uppercase truncate text-left w-full"
+                                            style={{fontSize: '1.3em'}}>
+                                            {product.brand}
+                                        </span>
+
+                                        
+                                        <span
+                                            className="uppercase truncate text-left w-full"
+                                            style={{fontSize: '1em'}}
+                                        >
+                                            {product.desc}
+                                        </span>
+
+                                        
+                                        <span
+                                            className="text-purple-600 uppercase truncate text-left w-full"
+                                            style={{fontSize: '1em'}}
+                                        >
+                                            {product?.size}
+                                        </span>
+
+                                        
+                                        <span
+                                            className="text-red-500 truncate text-left w-full"
+                                            style={{fontSize: '1.1em'}}
+                                        >
+                                            ${product.price}
+                                        </span>
+                                        
+
+                                        {product?.with_card && (
+                                            <span
+                                                className="text-green-600 uppercase truncate text-left w-full"
+                                                style={{fontSize: '1em'}}
+                                            >With Club Card
                                             </span>
-                                        </>
-                                    )}
-                                </div>
-                                <div className="absolute bottom-0 w-full flex flex-col items-end ">
-                                    <span className="text-green-600 absolute left-0 bottom-6 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:text-[10px] @[71px]:leading-[10px] @[125px]:leading-[10px] @[125px]:text-[10px]">
-                                        {product?.with_card && "With Club Card  "}
-                                    </span>
-                                    {product?.limit && product?.limit.length > 0 && (
-                                        <span className="text-green-600 absolute left-0 bottom-3 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:text-[15px] @[71px]:leading-[15px] @[125px]:leading-[10px] @[125px]:text-[10px]">
-                                            {"Limit  " + product?.limit + " Offer"}
-                                        </span>
-                                    )}
-                                    {product?.must_buy && product.must_buy.length > 0 && (
-                                        <span className="text-green-600 absolute left-0 bottom-0 font-bold uppercase @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:text-[15px] @[71px]:leading-[15px] @[125px]:leading-[10px] @[125px]:text-[10px]">
-                                            {"Must Buy  " + product?.must_buy}
-                                        </span>
-                                    )}
-                                   
-                                    <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold @[44px]:text-[10px] @[44px]:leading-[10px] @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[10px]">
-                                        { cell?.id }
-                                    </span>
-                                </div>
+                                        )}
+
+                                        
+                                        {product?.limit && product?.limit.length > 0 && (
+                                            <span
+                                                className="text-green-600 uppercase truncate text-left w-full"
+                                                style={{fontSize: '1em'}}
+                                            >
+                                                Limit {product?.limit} Offer
+                                            </span>
+                                        )}
+
+                                        
+                                        {product?.must_buy && product.must_buy.length > 0 && (
+                                            <span
+                                                className="text-green-600 uppercase truncate text-left w-full"
+                                                style={{fontSize: '1em'}}
+                                            >
+                                                Must Buy {product?.must_buy}
+                                            </span>
+                                        )}
+                                    </>
+                                )}
                             </div>
-                        }
+                            <div className="absolute bottom-0 w-full flex flex-col items-end ">                                   
+                                   
+                                    <span
+                                        className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold  @[44px]:text-[10px] @[44px]:leading-[10px] @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[10px]">
+                                        {cell?.id}
+                                    </span>
+                            </div>
+                        </div>
+                    }
                 </div>
             </Draggable>
         </div>
@@ -301,32 +382,39 @@ export const GridCardProduct = ({ product, cell, onContextMenu,  onGridCellClick
 }
 
 
-export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDragAndDropCell, setShowProductCardBrand, isLoading}: CardProductProps) => {
+export const CardShowSide = ({
+                                 product,
+                                 onProductSelect,
+                                 enableDragAndDrop,
+                                 onDragAndDropCell,
+                                 setShowProductCardBrand,
+                                 isLoading
+                             }: CardProductProps) => {
     const [imageError, setImageError] = useState(false);
 
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [position, setPosition] = useState({x: 0, y: 0});
     const elementRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<any>(null);
-    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
+    const {productDragging, setProductDragging, productReadyDrag, setProductReadyDrag} = useProductContext();
 
-    if ( typeof enableDragAndDrop !== "boolean" ) enableDragAndDrop = false;
+    if (typeof enableDragAndDrop !== "boolean") enableDragAndDrop = false;
 
-    const startDragging = (e: any , data: any) => {
+    const startDragging = (e: any, data: any) => {
 
-        setPosition({ x: 0, y: 0 });
+        setPosition({x: 0, y: 0});
 
-        setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
+        setProductDragging && setProductDragging({from: 'sidebar', id_product: product.id_product});
 
         setTimeout(() => {
-            if (elementRef.current) elementRef.current.style.pointerEvents = 'none' ;
+            if (elementRef.current) elementRef.current.style.pointerEvents = 'none';
         }, 250);
 
         setShowProductCardBrand && setShowProductCardBrand(false)
 
     }
 
-    const stopDragging = (e: any , data: any) => {
-        setPosition({ x: 0, y: 0 });
+    const stopDragging = (e: any, data: any) => {
+        setPosition({x: 0, y: 0});
 
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'auto';
@@ -343,7 +431,7 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
         }, 250);
     }
 
-    const handleMouseDown = (e:any ) => {
+    const handleMouseDown = (e: any) => {
 
         if (enableDragAndDrop && e.button == 0) {
             timeoutRef.current = setTimeout(() => {
@@ -357,22 +445,27 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
     };
 
 
-    const handleMouseUp = (e:any) => {
+    const handleMouseUp = (e: any) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     };
 
-    const productDraggindClass= 'border-dashed border-2 border-[#dddddd] bg-gray-100'
+    const productDraggindClass = 'border-dashed border-2 border-[#dddddd] bg-gray-100'
 
     return (
 
-        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
-            <Tooltip target={ '#sidebar-card-product-' + product?.id_product } content={`To activate Drag and Drop,\n press the box for 1 second`} position="top" disabled={!enableDragAndDrop} showDelay={1000}/>
+        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+            <Tooltip target={'#sidebar-card-product-' + product?.id_product}
+                     content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"
+                     disabled={!enableDragAndDrop} showDelay={1000}/>
 
-            <Draggable disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar') )} defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position} >
-                {    isLoading ?
+            <Draggable
+                disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar'))}
+                defaultPosition={{x: 0, y: 0}} onStart={startDragging} onStop={stopDragging} position={position}>
+                {isLoading ?
                     (
-                        <div className="bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
+                        <div
+                            className="bg-gray-200 animate-pulse rounded-lg p-4 flex flex-col items-center justify-center overflow-y-auto space-y-2 ">
                             <div className="w-28 h-28 bg-gray-300 rounded flex items-center justify-center "></div>
                             <div className="h-4 bg-gray-300 rounded w-3/4"></div>
                             <div className="h-4 bg-gray-300 rounded w-1/2"></div>
@@ -380,42 +473,44 @@ export const CardShowSide = ({product, onProductSelect, enableDragAndDrop, onDra
                     )
                     :
                     (
-                        <div ref={elementRef} id={ 'sidebar-card-product-' + product?.id_product } className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`}
-                            onClick={(e) => {
-                                if (!enableDragAndDrop || !productReadyDrag) {
-                                    onProductSelect && onProductSelect(product, e)
-                                }
-                            }}
+                        <div ref={elementRef} id={'sidebar-card-product-' + product?.id_product}
+                             className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`}
+                             onClick={(e) => {
+                                 if (!enableDragAndDrop || !productReadyDrag) {
+                                     onProductSelect && onProductSelect(product, e)
+                                 }
+                             }}
                         >
                             <div className=" flex w-28 h-28 items-center justify-center">
                                 {
                                     product.url_image && !imageError ? (
-                                        <Image
-                                            src={product.url_image}
-                                            alt={product.name}
-                                            width={100}
-                                            height={100}
-                                            draggable={false}
-                                            style={{ objectFit: 'cover' }}
-                                            className="rounded-lg"
-                                            onError={() => setImageError(true)}
-                                            loading="lazy"
-                                            placeholder="blur"
-                                            blurDataURL={product.url_image}
-                                        />
-                                    )
-                                    :
-                                    (
-                                        <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                                            <span className="text-gray-500">No Image</span>
-                                        </div>
-                                    )
+                                            <Image
+                                                src={product.url_image}
+                                                alt={product.name}
+                                                width={100}
+                                                height={100}
+                                                draggable={false}
+                                                style={{objectFit: 'cover'}}
+                                                className="rounded-lg"
+                                                onError={() => setImageError(true)}
+                                                loading="lazy"
+                                                placeholder="blur"
+                                                blurDataURL={product.url_image}
+                                            />
+                                        )
+                                        :
+                                        (
+                                            <div
+                                                className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                                                <span className="text-gray-500">No Image</span>
+                                            </div>
+                                        )
                                 }
                             </div>
                             <p className="text-center text-gray-950 font-bold">{product.master_brand}</p>
                             <p className={`text-center text-gray-950 ${product.master_brand ? 'font-medium' : 'font-bold'}`}>{product.brand}</p>
                             <p className="text-center text-gray-900 font-medium leading-tight">{product.desc}</p>
-                            <p className="text-center text-gray-500 text-xs">{product.variety?.[0].trim().replaceAll('"','')}</p>
+                            <p className="text-center text-gray-500 text-xs">{product.variety?.[0].trim().replaceAll('"', '')}</p>
                             <p className="text-center text-gray-500 text-xs">{product.size}</p>
                         </div>
                     )
@@ -432,7 +527,7 @@ interface ProductAddedModalProps {
     categories: categoriesInterface[];
 }
 
-export const ProductAddedModal = ({ product, onClose, categories }: ProductAddedModalProps) => {
+export const ProductAddedModal = ({product, onClose, categories}: ProductAddedModalProps) => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     useEffect(() => {

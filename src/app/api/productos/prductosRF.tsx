@@ -27,10 +27,9 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbz-fFe_733nFiVM5BEmElSgfLzxV_tJFoPvMFVyJcnZm0KCkU36SOnjRB6Ci9sHW_2r/exec";
+    const url = "https://script.google.com/macros/s/AKfycby2pDrtASzSikiPtF0rMsW1qU571uF1ULN-NKVQ2bQAAJ338atx7onnv_xQKyFsIVo1/exec";
 
 
-    console.log(selectedProducts);
     try {
         let allProducts: ProductTypes[] = [];
 
@@ -61,7 +60,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     pack: 0,
                     count: 0,
                     w_simbol: '',
-                    emabase: ''
+                    embase: ''
                   
                 });
             }
@@ -105,7 +104,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             pack: product.pack,
             count: product.count,
             w_simbol: product.w_simbol,
-            emabase: product.emabase
+            embase: product.embase
 
         }));
         await fetch(url, {

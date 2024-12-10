@@ -7,9 +7,13 @@ export const getProductsByCircular = async (reqBody:object) => {
             },
             body: JSON.stringify(reqBody),
         });
+
         const data = await resp.json();
+        console.log("response",data);
         if (data.status === 200) {
             return data;
+        }else {
+            return []
         }
     }catch (e: unknown) {
         console.error(e);

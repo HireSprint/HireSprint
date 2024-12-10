@@ -39,6 +39,7 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [reloadFlag, setReloadFlag] = useState(false);
     const { user } = useAuth();
 
 
@@ -131,7 +132,7 @@ const AddProductPage = () => {
             formData.append('pack', String(data.pack) || "");
             formData.append('count', String(data.count) || "");
             formData.append('w_simbol', data.w_simbol || "");
-            formData.append('emabase', data.emabase || "");
+            formData.append('embase', data.embase || "");
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
@@ -161,10 +162,13 @@ const AddProductPage = () => {
             });
 
             if (response.ok) {
+                const dataResponse = await response.json();
+                setProductsData(prevData => [...prevData, { ...data, id_product: dataResponse.id_product }]);
                 setAddProduct([...addProduct, data]);
                 setShowModal(true);
                 toast.success("¡Product created successfully!");
                 setPreviewUrl(null);
+                setReloadFlag(true)
                 reset();
                 setValue("sku", "");
             }
@@ -179,6 +183,25 @@ const AddProductPage = () => {
             console.error('Error al crear producto:', error);
         }
     };
+
+    useEffect(() => {
+        if(reloadFlag === true){
+            const updateProduct = async () => {
+                try {
+                    const resp = await fetch("/api/apiMongo/getProduct");
+                    const data = await resp.json();
+                    if (resp.status === 200) {
+                        setProductsData(data.result);
+                    }
+                } catch (error) {
+                    console.error("Error in get products", error);
+                }
+            };
+
+            updateProduct();
+            setReloadFlag(false);
+        }
+    }, [reloadFlag]);
 
     useEffect(() => {
         if (imageFile && imageFile[0]) {
@@ -250,10 +273,10 @@ const AddProductPage = () => {
             formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
             formData.append('id_category', String(dataUpdate?.id_category || ''));
-            formData.append('pack', String(dataUpdate?.pack) || "");
-            formData.append('count', String(dataUpdate?.count) || "");
+            formData.append('pack', String(dataUpdate?.pack || 0));
+            formData.append('count', String(dataUpdate?.count || 0));
             formData.append('w_simbol', dataUpdate?.w_simbol || "");
-            formData.append('emabase', dataUpdate?.emabase || "");
+            formData.append('embase', dataUpdate?.embase || "");
             // Agregar logs para depuración
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
@@ -547,12 +570,12 @@ const AddProductPage = () => {
                                 />
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="emabase" style={labelStyle}>Emabase</label>
+                                <label htmlFor="embase" style={labelStyle}>Embase</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.emabase || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, emabase: e.target.value })}
-                                    placeholder="Emabase"
+                                    value={editedProduct.embase || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, embase: e.target.value })}
+                                    placeholder="Embase"
                                 />
                             </div>
                             <div style={inputContainerStyle}>
@@ -821,8 +844,8 @@ const AddProductPage = () => {
                                             <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
                                         <div style={inputContainerStyle}>
-                                            <label htmlFor="emabase" style={labelStyle}>Emabase</label>
-                                            <input {...register("emabase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <label htmlFor="embase" style={labelStyle}>Embase</label>
+                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
                                     </div>
                                 </>
