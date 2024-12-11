@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
 import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import { useProductContext } from "@/app/context/productContext";
 
 
 
@@ -17,7 +18,7 @@ interface ModalEditProductInterface {
     setIsOpen: (isOpen: boolean) => void
 }
 
-interface burstType{
+interface burstType {
     value: number,
     text: string,
 }
@@ -25,26 +26,28 @@ interface burstType{
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const [categories, setCategories] = useState<[]>()
+    const { groupedProducts } = useProductContext();
     const [categoria, setCategoria] = useState<categoriesInterface>()
     const per = ["Ea", "Lb", "POUND", "HEAD", "BUNCH", "BAG", "PKG", "PK"]
     const [price, setPrice] = useState<string>(product?.price);
-    const [burst, setBurst] = useState<number|0>(product?.burst?? 0)
+    const [burst, setBurst] = useState<number | 0>(product?.burst ?? 0)
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
     const [withCard, setWithCard] = useState(product?.with_card ?? false)
     const [limit_type, setLimitType] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const [notes, setNotes] = useState(product?.notes && product.notes !== 'undefined' ? product.notes : "")//
+    const [notes, setNotes] = useState(product?.notes && product.notes !== 'undefined' ? product.notes : "")
+    const [showVarietyList, setShowVarietyList] = useState(false);
 
     //dropdown burst
     const [openDropdown, setOpenDropdown] = useState(false)
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
-    const [selectedBurst, setSelectedBurst] = useState<burstType|null>(null)
+    const [selectedBurst, setSelectedBurst] = useState<burstType | null>(null)
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
 
     useEffect(() => {
-        setBurstOption([{value:1,text:"Mix & Match"},{value:2,text:"1/2 Price"},{value:3,text:"Your Choice"}])
+        setBurstOption([{ value: 1, text: "Mix & Match" }, { value: 2, text: "1/2 Price" }, { value: 3, text: "Your Choice" }])
     }, []);
 
     useEffect(() => {
@@ -77,11 +80,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     }, [categories, product]);
 
-    const handledSelectedBurst = (item:burstType) => {
+    const handledSelectedBurst = (item: burstType) => {
         setSelectedBurst(item);
         setBurst(item.value)
         setOpenDropdown(false)
     }
+
+
 
 
     return (
@@ -235,20 +240,20 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                 <div className="flex items-center gap-1">
                                     <h3 className="font-bold text-black">Burst:</h3>
                                     <div className="flex flex-col items-center gap-1">
-                                        <button onClick={() => setOpenDropdown(!openDropdown)}  className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
-                                            {!selectedBurst?"Select Burst":"Change burst"}
+                                        <button onClick={() => setOpenDropdown(!openDropdown)} className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
+                                            {!selectedBurst ? "Select Burst" : "Change burst"}
                                         </button>
 
                                         {openDropdown && (
                                             <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
-                                                {burstOption.map((item,index) => (
+                                                {burstOption.map((item, index) => (
                                                     <button
                                                         key={index}
                                                         onClick={() => handledSelectedBurst(item)}
                                                         className="text-left py-1 shadow gap-2 hover:bg-gray-100"
                                                     >
-                                                        {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2/> :
-                                                            <Burst3/>}
+                                                        {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2 /> :
+                                                            <Burst3 />}
                                                     </button>
                                                 ))}
                                             </div>
@@ -256,7 +261,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                     </div>
                                     {
                                         selectedBurst !== null && (
-                                            selectedBurst?.value === 1 ?<Burst1/> :selectedBurst?.value === 2 ?<Burst2/> : <Burst3/>)
+                                            selectedBurst?.value === 1 ? <Burst1 /> : selectedBurst?.value === 2 ? <Burst2 /> : <Burst3 />)
                                     }
                                 </div>
                             </div>
@@ -344,6 +349,43 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                     <h1 className="text-black font-bold pr-2">With Card: </h1>
                                     <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
                                 </div>
+                                {GridID && groupedProducts[GridID]?.length > 0 && (
+                                    <div className="relative">
+                                        <div
+                                            className="flex items-center gap-2 cursor-pointer pt-2 rounded"
+                                            onClick={() => setShowVarietyList(!showVarietyList)}
+                                        >
+                                            <h1 className="text-black font-bold hover:underline">+Add Variety</h1>
+                                        </div>
+
+                                        {showVarietyList && (
+                                            <div className="absolute z-50 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg text-black">
+                                                <div className="max-h-48 overflow-y-auto">
+                                                    {groupedProducts[GridID].map((item: ProductTypes, index: number) => (
+                                                        <div
+                                                            key={index}
+                                                            className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                                                            onClick={() => {
+                                                                setShowVarietyList(false);
+                                                            }}
+                                                        >
+                                                            {item.url_image && (
+                                                                <Image
+                                                                    src={item.url_image}
+                                                                    alt={item.name}
+                                                                    width={30}
+                                                                    height={30}
+                                                                    className="rounded-sm"
+                                                                />
+                                                            )}
+                                                            <span className="text-sm text-black">{item.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -366,7 +408,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => {SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);}}>
+                                onClick={() => { SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer); }}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save Changes

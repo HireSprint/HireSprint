@@ -9,6 +9,7 @@ import { useAuth } from "./provider/authprovider";
 import { getProductsByCircular } from "@/pages/api/apiMongo/getProductsByCircular";
 
 
+
 interface ImageGridProps {
     onGridCellClick: (gridId: number, idCategory: number | undefined,  event: React.MouseEvent) => void;
     onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
@@ -200,10 +201,10 @@ export const ImageGrid2 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, user } = useAuth();
-    const {  productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
+    const {  productsData, selectedProducts, setSelectedProducts, productDragging, panningOnSubPage, setGroupedProducts} = useProductContext();
     const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
-    const [groupedProducts, setGroupedProducts] = useState<ProductTypes[]>([]);
+
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -283,7 +284,6 @@ export const ImageGrid2 = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const {panningOnSubPage} = useProductContext();
 
 
 
@@ -324,34 +324,41 @@ export const ImageGrid2 = ({
                 productsData.map(product => [product.upc.toString(), product])
             );
             
-            const groupedProducts = circularProducts.reduce((acc: any, product: any) => {
-                const gridId = product?.id_grid;
-                if (!acc[gridId]) {
-                    acc[gridId] = [];
+            const groupedByGrid = circularProducts.reduce((acc: { [key: string]: ProductTypes[] }, product) => {
+                const gridId = product?.id_grid?.toString();
+                if (!acc[gridId as string]) {
+                    acc[gridId as string] = [];
                 }
-                acc[gridId].push(product);
-                return acc;
-            }, {}); 
-            setGroupedProducts(groupedProducts);
-            const gridFilled = circularProducts
-                .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;
-                    const isInRange = gridId >= 2001 && gridId <= 2999;
-                    return isInRange && productsMap.has(circularProduct.upc.toString());
-                })
-                .map(circularProduct => {
-                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
-                    return {
+                const baseProduct = productsMap.get(product.upc.toString());
+                if (baseProduct) {
+                    acc[gridId as string].push({
                         ...baseProduct,
-                        id_grid: circularProduct.id_grid,
-                        price: circularProduct.price || baseProduct.price, 
-                        burst: circularProduct.burst,
-                        addl: circularProduct.addl,
-                        limit: circularProduct.limit,
-                        must_buy: circularProduct.must_buy,
-                        with_card: circularProduct.with_card
-                    };
-                });
+                        id_grid: product.id_grid,
+                        price: product.price || baseProduct.price,
+                        burst: product.burst,
+                        addl: product.addl,
+                        limit: product.limit,
+                        must_buy: product.must_buy,
+                        with_card: product.with_card
+                    });
+                }
+                return acc;
+            }, {});
+    
+            const gridFilled: ProductTypes[] = [];
+            const multipleProducts: { [key: string]: ProductTypes[] } = {};
+    
+            Object.entries(groupedByGrid).forEach(([gridId, products]) => {
+                const numGridId = Number(gridId);
+                if (numGridId >= 2001 && numGridId <= 2999) {
+                    if (products.length > 0) {
+                        gridFilled.push(products[0]);
+                        if (products.length > 1) {
+                            multipleProducts[gridId] = products.slice(1);
+                        }
+                    }
+                }
+            });
     
             setSelectedProducts(prevProducts => {
                 const otherGridProducts = prevProducts.filter(p => {
@@ -361,6 +368,9 @@ export const ImageGrid2 = ({
     
                 return [...otherGridProducts, ...gridFilled];
             });
+    
+            setGroupedProducts(multipleProducts);
+            console.log(multipleProducts, 'multipleProducts')
         }
     }, [productsData, gridCells, circularProducts]);
 

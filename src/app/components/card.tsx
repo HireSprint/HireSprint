@@ -1,13 +1,13 @@
 "use client.ts";
 import Image from "next/image";
-import {useEffect, useRef, useState} from "react";
-import {ProductTypes} from "@/types/product";
-import {cellTypes} from "@/types/cell";
-import {categoriesInterface} from "@/types/category";
-import {Skeleton} from 'primereact/skeleton';
+import { useEffect, useRef, useState } from "react";
+import { ProductTypes } from "@/types/product";
+import { cellTypes } from "@/types/cell";
+import { categoriesInterface } from "@/types/category";
+import { Skeleton } from 'primereact/skeleton';
 import Draggable from 'react-draggable';
-import {Tooltip} from 'primereact/tooltip';
-import {useProductContext} from "../context/productContext";
+import { Tooltip } from 'primereact/tooltip';
+import { useProductContext } from "../context/productContext";
 
 
 interface CardProductProps {
@@ -25,7 +25,7 @@ interface CardProductProps {
     setShowProductCardBrand?: (arg: boolean) => void;
 }
 
-export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelect}) => {
+export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSelect }) => {
     return (
         <div
             className="flex flex-col bg-white items-center justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer w-64 h-80"
@@ -41,7 +41,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
                         src={product.url_image}
                         alt={product.name}
                         layout="fill"
-                        style={{objectFit: 'cover'}}
+                        style={{ objectFit: 'cover' }}
                         className="rounded-lg"
                         draggable={false}
                     />
@@ -55,7 +55,7 @@ export const CardProduct: React.FC<CardProductProps> = ({product, onProductSelec
     );
 };
 
-export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, onProductSelect}) => {
+export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, onProductSelect }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [showImage, setShowImage] = useState(false);
     const [localPrice, setLocalPrice] = useState(product.price)
@@ -80,7 +80,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
 
     const handleUpdate = (e: React.MouseEvent) => {
         if (onProductSelect) {
-            const updatedProduct = {...product, price: localPrice};
+            const updatedProduct = { ...product, price: localPrice };
             onProductSelect(updatedProduct, e);
         }
         // Opcionalmente, puedes llamar a onPriceChange aquí también para asegurarte de que el precio se actualice en el componente padre
@@ -130,7 +130,7 @@ export const CardSide: React.FC<CardProductProps> = ({product, onPriceChange, on
     );
 };
 
-export const CardShow = ({product, onProductSelect}: CardProductProps) => {
+export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
     return (
         <div
             className="flex bg-white  justify-between p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer h-48 border border-gray-200  "
@@ -162,21 +162,21 @@ export const CardShow = ({product, onProductSelect}: CardProductProps) => {
 
 
 export const GridCardProduct = ({
-                                    product,
-                                    cell,
-                                    onContextMenu,
-                                    onGridCellClick,
-                                    onDragAndDropCell,
-                                    isLoading,
-                                    page,
-                                    setShowProductCardBrand
-                                }: CardProductProps) => {
-    const [position, setPosition] = useState({x: 0, y: 0});
+    product,
+    cell,
+    onContextMenu,
+    onGridCellClick,
+    onDragAndDropCell,
+    isLoading,
+    page,
+    setShowProductCardBrand
+}: CardProductProps) => {
+    const [position, setPosition] = useState({ x: 0, y: 0 });
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
-    const {productDragging, setProductDragging, productReadyDrag, setProductReadyDrag} = useProductContext();
-    const {scale} = useProductContext();
-    const {scaleSubPagines} = useProductContext();
+    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
+    const { scale } = useProductContext();
+    const { scaleSubPagines } = useProductContext();
 
     const startDragging = (e: any, data: any) => {
         setProductDragging && setProductDragging({
@@ -195,7 +195,7 @@ export const GridCardProduct = ({
     }
 
     const stopDragging = (e: any, data: any) => {
-        setPosition({x: 0, y: 0});
+        setPosition({ x: 0, y: 0 });
 
         if (elementRef.current) {
             setTimeout(() => {
@@ -242,32 +242,30 @@ export const GridCardProduct = ({
 
 
     const divRef = useRef<HTMLDivElement>(null);
-    const [divDimensions, setDivDimensions] = useState({width: 0, height: 0});
+    const [divDimensions, setDivDimensions] = useState({ width: 0, height: 0 });
 
 
     useEffect(() => {
         if (divRef.current) {
-            const {offsetWidth, offsetHeight} = divRef.current;
-            setDivDimensions({width: offsetWidth, height: offsetHeight});
+            const { offsetWidth, offsetHeight } = divRef.current;
+            setDivDimensions({ width: offsetWidth, height: offsetHeight });
         }
     }, [product]);
 
 
     return (
-
-
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
             <Tooltip target={'#grid-card-product-' + cell?.id}
-                     content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"
-                     disabled={!product || scale > 0.9 || scaleSubPagines > 0.9} showDelay={1000}/>
+                content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"
+                disabled={!product || scale > 0.9 || scaleSubPagines > 0.9} showDelay={1000} />
             <Draggable disabled={!productReadyDrag || (productReadyDrag && productReadyDrag.id_grid != cell?.id)}
-                       onStart={startDragging} onStop={stopDragging} position={position}>
+                onStart={startDragging} onStop={stopDragging} position={position}>
                 <div
                     ref={elementRef}
                     id={'grid-card-product-' + cell?.id}
                     key={cell?.id}
                     className={`absolute border-2 border-gray-400 ${cell?.top} ${cell?.left} rounded cursor-pointer  hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
-                    style={{width: cell?.width, height: cell?.height}}
+                    style={{ width: cell?.width, height: cell?.height }}
                     onClick={(e) => {
                         if (!productReadyDrag) {
                             cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
@@ -301,69 +299,69 @@ export const GridCardProduct = ({
                                 className="absolute border-2 border-blue-600 flex flex-col  justify-self-start  overflow-hidden text-blue-950 font-bold "
                                 style={{
                                     ...textShadowWhite,
-                                    width: '100%', 
+                                    width: '100%',
                                     height: '100%',
-                                    fontSize: `calc(1 * ${Math.min(divDimensions.width, divDimensions.height) * 0.12}px)`, 
-                                    lineHeight: '1.2', 
+                                    fontSize: `calc(1 * ${Math.min(divDimensions.width, divDimensions.height) * 0.12}px)`,
+                                    lineHeight: '1.2',
                                 }}
                             >
                                 {product && (
                                     <>
-                                      
+
                                         <span
                                             className="text-blue-600 uppercase truncate text-left w-full"
-                                            style={{fontSize: '1.3em'}}>
+                                            style={{ fontSize: '1.3em' }}>
                                             {product.brand}
                                         </span>
 
-                                        
+
                                         <span
                                             className="uppercase truncate text-left w-full"
-                                            style={{fontSize: '1em'}}
+                                            style={{ fontSize: '1em' }}
                                         >
                                             {product.desc}
                                         </span>
 
-                                        
+
                                         <span
                                             className="text-purple-600 uppercase truncate text-left w-full"
-                                            style={{fontSize: '1em'}}
+                                            style={{ fontSize: '1em' }}
                                         >
                                             {product?.size}
                                         </span>
 
-                                        
+
                                         <span
                                             className="text-red-500 truncate text-left w-full"
-                                            style={{fontSize: '1.1em'}}
+                                            style={{ fontSize: '1.1em' }}
                                         >
                                             ${product.price}
                                         </span>
-                                        
+
 
                                         {product?.with_card && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{fontSize: '1em'}}
+                                                style={{ fontSize: '1em' }}
                                             >With Club Card
                                             </span>
                                         )}
 
-                                        
+
                                         {product?.limit && product?.limit.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{fontSize: '1em'}}
+                                                style={{ fontSize: '1em' }}
                                             >
                                                 Limit {product?.limit} Offer
                                             </span>
                                         )}
 
-                                        
+
                                         {product?.must_buy && product.must_buy.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{fontSize: '1em'}}
+                                                style={{ fontSize: '1em' }}
                                             >
                                                 Must Buy {product?.must_buy}
                                             </span>
@@ -371,12 +369,12 @@ export const GridCardProduct = ({
                                     </>
                                 )}
                             </div>
-                            <div className="absolute bottom-0 w-full flex flex-col items-end ">                                   
-                                   
-                                    <span
-                                        className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold  @[44px]:text-[10px] @[44px]:leading-[10px] @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[10px]">
-                                        {cell?.id}
-                                    </span>
+                            <div className="absolute bottom-0 w-full flex flex-col items-end ">
+
+                                <span
+                                    className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold  @[44px]:text-[10px] @[44px]:leading-[10px] @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[10px]">
+                                    {cell?.id}
+                                </span>
                             </div>
                         </div>
                     }
@@ -388,27 +386,27 @@ export const GridCardProduct = ({
 
 
 export const CardShowSide = ({
-                                 product,
-                                 onProductSelect,
-                                 enableDragAndDrop,
-                                 onDragAndDropCell,
-                                 setShowProductCardBrand,
-                                 isLoading
-                             }: CardProductProps) => {
+    product,
+    onProductSelect,
+    enableDragAndDrop,
+    onDragAndDropCell,
+    setShowProductCardBrand,
+    isLoading
+}: CardProductProps) => {
     const [imageError, setImageError] = useState(false);
 
-    const [position, setPosition] = useState({x: 0, y: 0});
+    const [position, setPosition] = useState({ x: 0, y: 0 });
     const elementRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<any>(null);
-    const {productDragging, setProductDragging, productReadyDrag, setProductReadyDrag} = useProductContext();
+    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
 
     if (typeof enableDragAndDrop !== "boolean") enableDragAndDrop = false;
 
     const startDragging = (e: any, data: any) => {
 
-        setPosition({x: 0, y: 0});
+        setPosition({ x: 0, y: 0 });
 
-        setProductDragging && setProductDragging({from: 'sidebar', id_product: product.id_product});
+        setProductDragging && setProductDragging({ from: 'sidebar', id_product: product.id_product });
 
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'none';
@@ -419,7 +417,7 @@ export const CardShowSide = ({
     }
 
     const stopDragging = (e: any, data: any) => {
-        setPosition({x: 0, y: 0});
+        setPosition({ x: 0, y: 0 });
 
         setTimeout(() => {
             if (elementRef.current) elementRef.current.style.pointerEvents = 'auto';
@@ -442,7 +440,7 @@ export const CardShowSide = ({
             timeoutRef.current = setTimeout(() => {
 
                 if (!productReadyDrag) {
-                    setProductReadyDrag({from: 'sidebar', id_product: product.id_product});
+                    setProductReadyDrag({ from: 'sidebar', id_product: product.id_product });
                 }
             }, 1000);
         }
@@ -461,12 +459,12 @@ export const CardShowSide = ({
 
         <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
             <Tooltip target={'#sidebar-card-product-' + product?.id_product}
-                     content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"
-                     disabled={!enableDragAndDrop} showDelay={1000}/>
+                content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"
+                disabled={!enableDragAndDrop} showDelay={1000} />
 
             <Draggable
                 disabled={!productReadyDrag || (productReadyDrag && ((productReadyDrag.id_product != product.id_product) || productReadyDrag.from != 'sidebar'))}
-                defaultPosition={{x: 0, y: 0}} onStart={startDragging} onStop={stopDragging} position={position}>
+                defaultPosition={{ x: 0, y: 0 }} onStart={startDragging} onStop={stopDragging} position={position}>
                 {isLoading ?
                     (
                         <div
@@ -479,30 +477,30 @@ export const CardShowSide = ({
                     :
                     (
                         <div ref={elementRef} id={'sidebar-card-product-' + product?.id_product}
-                             className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`}
-                             onClick={(e) => {
-                                 if (!enableDragAndDrop || !productReadyDrag) {
-                                     onProductSelect && onProductSelect(product, e)
-                                 }
-                             }}
+                            className={`flex flex-col h-full items-center rounded-lg p-2 cursor-pointer bg-gray-100 bg-opacity-[.68] hover:bg-gray-200 ${(productReadyDrag && productReadyDrag.id_product == product.id_product && productReadyDrag.from == 'sidebar') && !productDragging ? `shake ${productDraggindClass}` : ''} ${productDragging && productDragging.id_product == product.id_product && productDragging.from == 'sidebar' ? `absolute ${productDraggindClass} opacity-[0.7] top-[16rem] max-w-[200px] max-h-[200px]` : ''}`}
+                            onClick={(e) => {
+                                if (!enableDragAndDrop || !productReadyDrag) {
+                                    onProductSelect && onProductSelect(product, e)
+                                }
+                            }}
                         >
                             <div className=" flex w-28 h-28 items-center justify-center">
                                 {
                                     product.url_image && !imageError ? (
-                                            <Image
-                                                src={product.url_image}
-                                                alt={product.name}
-                                                width={100}
-                                                height={100}
-                                                draggable={false}
-                                                style={{objectFit: 'cover'}}
-                                                className="rounded-lg"
-                                                onError={() => setImageError(true)}
-                                                loading="lazy"
-                                                placeholder="blur"
-                                                blurDataURL={product.url_image}
-                                            />
-                                        )
+                                        <Image
+                                            src={product.url_image}
+                                            alt={product.name}
+                                            width={100}
+                                            height={100}
+                                            draggable={false}
+                                            style={{ objectFit: 'cover' }}
+                                            className="rounded-lg"
+                                            onError={() => setImageError(true)}
+                                            loading="lazy"
+                                            placeholder="blur"
+                                            blurDataURL={product.url_image}
+                                        />
+                                    )
                                         :
                                         (
                                             <div
@@ -532,7 +530,7 @@ interface ProductAddedModalProps {
     categories: categoriesInterface[];
 }
 
-export const ProductAddedModal = ({product, onClose, categories}: ProductAddedModalProps) => {
+export const ProductAddedModal = ({ product, onClose, categories }: ProductAddedModalProps) => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     useEffect(() => {
