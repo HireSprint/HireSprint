@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from "react";
 import { useAuth } from "../../components/provider/authprovider"
 import {
+    ColumnDef,
     createColumnHelper,
     flexRender,
     getCoreRowModel,
@@ -22,14 +23,6 @@ import {toast, ToastContainer} from "react-toastify";
 
 const columnHelper = createColumnHelper<ProductTypes>();
 
-
-
-declare module '@tanstack/react-table' {
-    //allows us to define custom properties for our columns
-    interface ColumnMeta<TData extends RowData, TValue> {
-        filterVariant?: 'text' | 'range' | 'select'
-    }
-}
 //@ts-ignore
 const columns = [
     columnHelper.display({
