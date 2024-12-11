@@ -46,6 +46,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [selectedBurst, setSelectedBurst] = useState<burstType | null>(null)
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
 
+
     useEffect(() => {
         setBurstOption([{ value: 1, text: "Mix & Match" }, { value: 2, text: "1/2 Price" }, { value: 3, text: "Your Choice" }])
     }, []);
@@ -185,12 +186,22 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                 <div className="flex items-center">
                                     <h1 className="text-black font-bold w-32">Variety:</h1>
-                                    <h1 className="text-black uppercase">{product?.variety}</h1>
+                                    {GridID && groupedProducts[GridID]?.length > 0 ? (
+                                        <h1 className="text-black uppercase">
+                                            {GridID && groupedProducts[GridID] && groupedProducts[GridID].map(item => item.desc).join(', ')}
+                                        </h1>
+                                    ) : (
+                                        <h1 className="text-black uppercase">{product?.variety}</h1>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center">
                                     <h1 className="text-black font-bold w-32">Size:</h1>
-                                    <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
+                                    {GridID && groupedProducts[GridID]?.length > 0 ? (
+                                        <h1 className="text-black uppercase">{GridID && groupedProducts[GridID] && groupedProducts[GridID].map(item => item.size).join(', ')}</h1>
+                                    ) : (
+                                        <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
+                                    )}
                                 </div>
                                 <div>
                                     <div className="flex flex-row items-center gap-5">

@@ -254,9 +254,15 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 <h2 className="font-bold mb-0">Products table</h2>
             </div>
             <div className="flex flex-row gap-5 mb-4 ">
-                <select name="" id="" onChange={(e)=> setFilters({...filters, id_category: e.target.value})} className={"rounded-lg text-lg pl-2 "}>
-                    <option value="" disabled selected>
-                        Select a Category
+                <select 
+                    name="" 
+                    id="" 
+                    onChange={(e)=> setFilters({...filters, id_category: e.target.value})} 
+                    className={"rounded-lg text-lg pl-2"}
+                    defaultValue=""
+                >
+                    <option value="">
+                        Seleccionar una Categoría
                     </option>
                     {categories.map((client: categoriesInterface) => (
                         <option key={client.id_category} value={client.id_category}>
