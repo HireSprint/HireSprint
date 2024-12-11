@@ -4,6 +4,9 @@ import React, { createContext, useContext, useState } from 'react';
 import { ProductDraggingType, ProductReadyToDrag, ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
 
+interface GroupedProducts {
+  [key: string]: ProductTypes[];
+}
 
 interface ProductContextType {
   productsData: ProductTypes[];
@@ -32,7 +35,11 @@ interface ProductContextType {
   setPanningOnPage1: (panningOnPage1: boolean) => void;
   panningOnSubPage: boolean;
   setPanningOnSubPage: (panningOnSubPage: boolean) => void;
+  groupedProducts: GroupedProducts;
+  setGroupedProducts: (groupedProducts: GroupedProducts) => void;
 }
+
+
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
@@ -50,12 +57,16 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [scaleSubPagines, setScaleSubPagines] = useState(0);
   const [panningOnPage1, setPanningOnPage1] = useState(true);
   const [panningOnSubPage, setPanningOnSubPage] = useState(true);
+  const [groupedProducts, setGroupedProducts] = useState<GroupedProducts>({});
   return (
     <ProductContext.Provider value={{ productsData, setProductsData, selectedProducts, setSelectedProducts, currentPage, setCurrentPage, productArray, setProductArray, productDragging, setProductDragging, category, setCategory, productReadyDrag, setProductReadyDrag, isLoadingProducts, setIsLoadingProducts, isSendModalOpen, setIsSendModalOpen, scale, setScale, scaleSubPagines, setScaleSubPagines,
       panningOnPage1,
       setPanningOnPage1,
       panningOnSubPage,
-      setPanningOnSubPage, }}>
+      setPanningOnSubPage,
+      groupedProducts,
+      setGroupedProducts,
+    }}>
       {children}
     </ProductContext.Provider>
   );
