@@ -845,7 +845,7 @@ const BuilderPage = () => {
                                     >
                                         {layout.map((group: gridLayoutTypes) => (
                                             <div key={group.i} onClick={(e) => { e.stopPropagation(); handleSelection(group); }} >
-                                                <Tooltip target={'#group-' + group.i} position="top" disabled={(getCustomReference(group)?.gridCells || [])?.length > 0 ?? false} autoHide={true} mouseTrack mouseTrackTop={25}>
+                                                <Tooltip target={'#group-' + group.i} position="top" disabled={(getCustomReference(group)?.gridCells || [])?.length > 0 ?? false} autoHide={true} mouseTrack mouseTrackTop={25} hideDelay={20}>
                                                     <div className="flex flex-col gap-3">
                                                         <div className="flex items-center gap-1">
                                                             <span className="text-white text-md font-bold">Grupo</span>
@@ -881,7 +881,7 @@ const BuilderPage = () => {
                                                         >
                                                             {getCustomReference(group)?.gridCells?.map((cell: gridLayoutTypes) => (
                                                                 <div id={'cell-' + cell.i} key={cell.i} onClick={(e) => { e.stopPropagation(); handleSelection(cell); }} >
-                                                                    <Tooltip target={'#cell-' + cell.i} position="top" autoHide={true} mouseTrack mouseTrackTop={25}>
+                                                                    <Tooltip target={'#cell-' + cell.i} position="top" autoHide={true} mouseTrack mouseTrackTop={25} hideDelay={20}>
                                                                         <div className="flex flex-col gap-3">
                                                                             <div className="flex items-center gap-1">
                                                                                 <span className="text-white text-md font-bold">Grupo:</span>
