@@ -47,10 +47,22 @@ const BuilderPage = () => {
 
     useEffect(() => {
         // const layoutStructure: gridLayoutTypes[] = [ ]
-        // const layoutStructure = parseLayoutData(data1);
-        // const layoutStructure = parseLayoutData(data2);
-        // const layoutStructure = parseLayoutData(data3);
-        const layoutStructure = parseLayoutData(data4);
+
+        // const layoutData = data1
+        // const layoutData = data2
+        // const layoutData = data3
+        const layoutData = data4
+        if (layoutData) {
+            reset({
+                bg_width: layoutData.bg_width?.toString() || '430',
+                bg_height: layoutData.bg_height?.toString() || '820',
+                page_number: layoutData.page_number?.toString() || '1',
+                image: {},
+                layout: []
+            });
+        }
+        
+        const layoutStructure = parseLayoutData(layoutData);
 
         layoutProcessing(layoutStructure);
         calculateNextPosition();
