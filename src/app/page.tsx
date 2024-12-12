@@ -1,21 +1,22 @@
 "use client";
-import { CardShowSide } from "./components/card";
-import React, { useEffect, useMemo, useState } from "react";
+import {CardShowSide} from "./components/card";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import BottomBar from "./components/bottomBar";
-import { AnimatePresence, motion } from "framer-motion"; // Para animaciones
-import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
-import { useProductContext } from "./context/productContext";
+import {AnimatePresence, motion} from "framer-motion"; // Para animaciones
+import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "./components/imageGrid";
+import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { ProductTypes } from "@/types/product";
-import { useCategoryContext } from "./context/categoryContext";
-import { categoriesInterface } from "@/types/category";
-import { Message } from "primereact/message";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { useAuth } from "./components/provider/authprovider";
-import { GrapIconClose, GrapIconOpen, ZoomInIcon, ZoomOutIcon } from "@/app/components/icons";
-import { ToastContainer, toast } from 'react-toastify'
+import {Cursor3, FocusIn, GrapIconClose, GrapIconOpen, ZoomInIcon, ZoomOutIcon} from "@/app/components/icons";
+import {ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
+import {ToastContainer, toast} from 'react-toastify'
+import {useAuth} from "./components/provider/authprovider";
+import {Message} from "primereact/message";
+import {categoriesInterface} from "@/types/category";
+import {useCategoryContext} from "./context/categoryContext";
+import {ProductTypes} from "@/types/product";
+import {min} from "@floating-ui/utils";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -26,6 +27,7 @@ export default function HomePage() {
         setProductsData,
         currentPage,
         productDragging,
+        productReadyDrag,
         setIsLoadingProducts,
     } = useProductContext();
     const [direction, setDirection] = useState(0);
@@ -35,13 +37,35 @@ export default function HomePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({x: 0, y: 0});
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
     const [updateCircular, setUpdateCircular] = useState();
-    const { idCircular, user } = useAuth();
-    const { categoriesData } = useCategoryContext();
+    const {idCircular, user} = useAuth();
+    const {categoriesData} = useCategoryContext();
+
     //
     const [showProducts, setShowProducts] = useState(false);
+    //var zoom
+    const {zoomScalePage1, setZoomScalePage1} = useProductContext();
+    const {zoomScaleSubPagines, setZoomScaleSubPagines} = useProductContext();
+    const {panningOnPage1, setPanningOnPage1} = useProductContext();
+    const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
+    const [panelScale1, setPanelScale1] = useState(true);
+    const [panelScale2, setPanelScale2] = useState(true);
+    const [resetScale, setResetScale] = useState(false);
+    const [maxScale, setMaxScale] = useState(3);
+    const [minScale, setMinScale] = useState(1);
+    const [firsTimeOpen, setFistTimeOpen] = useState(true);
+    const divRef = useRef<HTMLDivElement | null>(null); // Ref para el div contenedor
+    const [initialX, setInitialX] = useState(0); // Estado para almacenar el cálculo
+    const containerRefPage1 = useRef<ReactZoomPanPinchContentRef>(null);
+    const containerRefPage2 = useRef<ReactZoomPanPinchContentRef>(null);
+    const [firstDrag, setFirstDrag] = useState(false);
+    const [useZoomPage1, setUseZoomPage1] = useState(false);
+    const [useZoomSubPages, setUseZoomSubPages] = useState(false);
+    const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
+    const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
+
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -155,7 +179,7 @@ export default function HomePage() {
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
 
-        const productWithGrid = { ...product, id_grid: selectedGridId };
+        const productWithGrid = {...product, id_grid: selectedGridId};
 
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
@@ -238,7 +262,7 @@ export default function HomePage() {
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
                 const cellIdTarget = getCellId(gridCellTarget);
 
-                const productWithGrid = { ...productSelected, id_grid: cellIdTarget } as ProductTypes;
+                const productWithGrid = {...productSelected, id_grid: cellIdTarget} as ProductTypes;
 
                 if (cellIdTarget) {
                     setSelectedProducts((prev) => {
@@ -258,10 +282,10 @@ export default function HomePage() {
         setSelectedProducts((prev) => {
             const updatedProducts = prev.map(product => {
                 if (product.id_grid === sourceGridId) {
-                    return { ...product, id_grid: targetGridId };
+                    return {...product, id_grid: targetGridId};
                 }
                 if (product.id_grid === targetGridId) {
-                    return { ...product, id_grid: sourceGridId };
+                    return {...product, id_grid: sourceGridId};
                 }
                 return product;
             });
@@ -278,7 +302,7 @@ export default function HomePage() {
             return;
         }
 
-        setMousePosition({ x: event.clientX, y: event.clientY });
+        setMousePosition({x: event.clientX, y: event.clientY});
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
 
         if (category) {
@@ -329,7 +353,6 @@ export default function HomePage() {
         withCard: boolean,
         limit_type: string,
         per: string
-
     ) => {
         if (gridID === undefined) return;
 
@@ -376,43 +399,151 @@ export default function HomePage() {
     }
 
 
-    const { scale, setScale } = useProductContext();
-    const [zoomScale, setZoomScale] = useState(0.9);
-    const { scaleSubPagines, setScaleSubPagines } = useProductContext();
-    const [zoomScaleSubPagines, setZoomScaleSubPagines] = useState(0.9);
-
-    const { panningOnPage1, setPanningOnPage1 } = useProductContext();
-    const { panningOnSubPage, setPanningOnSubPage } = useProductContext();
-
-    const [panelScale1, setPanelScale1] = useState(false);
-    const [panelScale2, setPanelScale2] = useState(false);
-    const [resetScale, setResetScale] = useState(false);
-
     const handleButtonClickPage1 = () => {
         setPanningOnPage1(!panningOnPage1);
+        setFistTimeOpen(false)
     }
-
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
+        setFistTimeOpen(false)
     }
-
-
+    const handleZoomInPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            if (zoomScalePage1 < maxScale) {
+                setFistTimeOpen(false);
+                const newScale = zoomScalePage1 + 0.25;
+                setZoomScalePage1(newScale);
+                containerRefPage1.current.setTransform(0, 0, newScale);
+            }
+            if (zoomScalePage1 <= 0.75) {
+                containerRefPage1.current.resetTransform();
+                setZoomScalePage1(1);
+            }
+        }
+    };    
+    const handleZoomOutPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            if (zoomScalePage1 > minScale) {
+                const newScale = zoomScalePage1 - 0.25;
+                setZoomScalePage1(newScale);
+                setFistTimeOpen(false)
+                containerRefPage1.current.zoomOut(0.25);
+            }
+        }
+    }
+    const handleFullPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            if (zoomScalePage1 > 0.5) {
+                setZoomScalePage1(0.5)
+                setFistTimeOpen(false)
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
+            } else if (zoomScalePage1 <= 0.75) {
+                setZoomScalePage1(1)
+                containerRefPage1.current.resetTransform();
+            }
+        }
+    }
+    const handleZoomInSubPages = () => {
+        if (containerRefPage2 && containerRefPage2.current) {
+            if (zoomScaleSubPagines < maxScale) {
+                const newScale = zoomScaleSubPagines + 0.25;
+                setZoomScaleSubPagines(newScale);
+                setFistTimeOpen(false)
+                containerRefPage2.current.setTransform(0, 0, newScale);
+            }
+            if (zoomScaleSubPagines <= 0.75) {
+                containerRefPage2.current.resetTransform();
+                setZoomScaleSubPagines(1);
+            }
+        }
+    }
+    const handleZoomOutSubPages = () => {        
+        if (containerRefPage2 && containerRefPage2.current) {
+            if (zoomScaleSubPagines > minScale) {
+                const newScale = zoomScaleSubPagines - 0.25;
+                setZoomScaleSubPagines(newScale);
+                setFistTimeOpen(false)
+                containerRefPage2.current.zoomOut(0.25);
+            }            
+        }
+    }       
+    const handleFullPage2 = () => {
+        if (containerRefPage2 && containerRefPage2.current) {
+            if (zoomScaleSubPagines > 0.5) {
+                setZoomScaleSubPagines(0.5)
+                setFistTimeOpen(false)
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
+            } else if (zoomScaleSubPagines <= 0.75) {
+                setZoomScaleSubPagines(1)
+                containerRefPage2.current.resetTransform();
+            }
+        }
+    }
+    useEffect(() => {
+        if (divRef.current) {
+            const width = divRef.current.offsetWidth;
+            setInitialX(width / 2);
+        }
+    }, [zoomScaleSubPagines]);
 
     useEffect(() => {
-        setScaleSubPagines(0);
-        setZoomScaleSubPagines(0.9);
+        if (productReadyDrag === null && firstDrag) {
+            if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
+                containerRefPage2.current.resetTransform(zoomScaleSubPagines)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
+            }
+            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
+                containerRefPage1.current.resetTransform(zoomScalePage1)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
+            }
+            setDynamicHeightpage1("90vh")
+            setDynamicHeightSubpages("90vh")
+        }
+
+        if (productReadyDrag?.page === 1) {
+
+            if (containerRefPage2 && containerRefPage2.current && productDragging) {
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(true);
+                setUseZoomSubPages(false);
+                setDynamicHeightSubpages("100%")
+            }
+        }
+
+        if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
+
+            if (containerRefPage1 && containerRefPage1.current) {
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(true);
+                setDynamicHeightpage1("100%")
+            }
+        }
+    }, [productReadyDrag, productDragging]);
+
+    useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
+        setDynamicHeightpage1("90vh")
+        setDynamicHeightSubpages("90vh")
+        setZoomScaleSubPagines(1);
         setResetScale(true);
+
     }, [currentPage]);
 
 
     const [isClearAllPopupOpen, setIsClearAllPopupOpen] = useState(false);
     const [gridIdToClear, setGridIdToClear] = useState<number | null>(null);
-
     const handleClearAllConfirmation = (gridId: number | null) => {
+
         setGridIdToClear(gridId);
         setIsClearAllPopupOpen(true);
     };
-
+    console.log(minScale);
     const confirmClearAll = () => {
         if (gridIdToClear) {
             setSelectedProducts((prevProducts) => {
@@ -439,114 +570,117 @@ export default function HomePage() {
         setIsClearAllPopupOpen(false);
         setGridIdToClear(null);
     };
-
     const cancelClearAll = () => {
+
         setIsClearAllPopupOpen(false);
     };
 
+    console.log(zoomScalePage1, zoomScaleSubPagines, "zoom actual");
+
     return (
 
-        <div className="grid grid-rows-[1fr_min-content] overflow-hidden">
+        <div
+            className={`grid grid-rows-[1fr_min-content] max-h-screen overflow-hidden `}>
             <div
-                className={`relative grid grid-cols-2 items-center justify-center overflow-auto ${productDragging ? 'overflow-x-hidden' : ''} `}>
+                className={`relative grid grid-cols-2 items-center  ${productDragging ? 'overflow-x-visible' : ''} `}>
                 <AnimatePresence>
                     {category && (
                         <motion.div
-                            initial={{ y: 1000 }}
-                            animate={{ y: showProductCardBrand ? 0 : 1000, zIndex: 51 }}
-                            exit={{ y: 1000 }}
-                            transition={{ duration: 0.5 }}
+                            initial={{y: 1000}}
+                            animate={{y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
+                            exit={{y: 1000}}
+                            transition={{duration: 0.5}}
                             className="fixed left-[35.5%] top-[155px]"
                         >
                             <ProductContainer category={category} setCategory={setCategory}
-                                onProductSelect={handleProductSelect}
-                                onDragAndDropCell={handleDragAndDropSidebar}
-                                setShowProductCardBrand={setShowProductCardBrand} />
+                                              onProductSelect={handleProductSelect}
+                                              onDragAndDropCell={handleDragAndDropSidebar}
+                                              setShowProductCardBrand={setShowProductCardBrand}/>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
+
                 <div
                     className={`flex flex-col   w-full h-full border-r-2 border-black  transform ${panningOnPage1 ? 'cursor-default' : 'cursor-grabbing'} ${productDragging && productDragging.page && productDragging.page > 1
-                            ? "z-0"
-                            : "z-50"
-                        }`}
-                    style={{ position: "relative", overflow: "visible" }}
+                        ? "z-0"
+                        : "z-50"
+                    }`}
+                    style={{overflow: "visible"}}
                 >
                     <TransformWrapper
-                        initialScale={0.9}
-                        minScale={0.9}
-                        maxScale={3}
-                        doubleClick={{ disabled: true }}
-                        centerOnInit={true} // Cambiar a false para evitar centrar en la inicialización
-                        wheel={{ disabled: true }}
-                        panning={{ disabled: panningOnPage1 }}
-
+                        ref={containerRefPage1}
+                        initialScale={1}
+                        minScale={minScale}
+                        maxScale={maxScale}
+                        centerOnInit={true}
+                        doubleClick={{disabled: true}}
+                        wheel={{disabled: true}}
+                        panning={{disabled: panningOnPage1}}
                     >
-                        {({ zoomIn, zoomOut, setTransform }) => (
+                        {({zoomIn, zoomOut, setTransform, resetTransform}) => (
                             <>
-                                <div className="relative h-full">
-                                    <div className="sticky top-4 left-0flex justify-end px-4 z-50">
-                                        <div className="flex space-x-2">
-                                            {!panelScale1 && (
-                                                <button
-                                                    onClick={() => {
-                                                        setPanelScale1(!panelScale1);
-                                                    }}
-                                                >
-                                                    <ZoomInIcon />
-                                                </button>
-                                            )}
-                                            {panelScale1 && (
-                                                <button
-                                                    onClick={() => {
-                                                        if (scale <= 250) {
-                                                            setScale(scale + 50);
-                                                            const newScale = zoomScale + 0.5;
-                                                            setZoomScale(newScale);
-                                                            setTransform(0, 0, newScale);
-                                                        }
-                                                    }}
-                                                >
-                                                    <ZoomInIcon />
-                                                </button>
-                                            )}
 
-                                            {panelScale1 && (
-                                                <button
-                                                    onClick={() => {
-                                                        if (scale <= 0) {
-                                                            setPanelScale1(!panelScale1);
-                                                            setPanningOnPage1(true);
-                                                        }
-                                                        if (scale > 0) {
-                                                            zoomOut();
-                                                            setScale(scale - 50);
-                                                            const newScale = zoomScale - 0.5;
-                                                            setZoomScale(newScale);
-                                                        }
+                                {firsTimeOpen && (() => {
+                                    console.log('esta entrando');
+                                    resetTransform();
+                                })()}
 
-                                                    }}
-                                                >
-                                                    <ZoomOutIcon />
-                                                </button>
-                                            )}
-                                            {panelScale1 && (
-                                                <button
-                                                    onClick={handleButtonClickPage1}
-                                                >
-                                                    {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                                    <GrapIconOpen />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
+                                <div
+                                    className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
+                                >
 
+
+                                    <button
+                                        onClick={() => {
+                                            handleZoomInPage1();
+                                        }}
+                                        className="  justify-center items-center"
+                                    >
+                                        <ZoomInIcon/>
+                                    </button>
+
+
+                                    <button
+                                        onClick={() => {
+                                            handleZoomOutPage1();
+                                        }}
+                                    >
+                                        <ZoomOutIcon/>
+                                    </button>
+
+
+                                    <button
+                                        onClick={() => {
+                                            handleFullPage1();
+                                        }}
+                                        className=" justify-center items-center"
+                                    >
+                                        <FocusIn/>
+                                    </button>
+                                    <button
+                                        onClick={handleButtonClickPage1}
+                                        className=" justify-center items-center"
+                                    >
+                                        {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                        {panningOnPage1 ? <GrapIconOpen/> : <Cursor3/>}
+                                    </button>
+
+                                </div>
+                                <motion.div
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
+                                    //   className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
+                                >
                                     <TransformComponent
                                         wrapperStyle={{
-                                            overflow: scale > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "100%",
+                                            height: dynamicHeightpage1,
+                                            overflow: productDragging ? 'visible' : "scroll",
+                                            overflowY: "scroll",
+
                                         }}
                                     >
                                         <div>
@@ -554,101 +688,85 @@ export default function HomePage() {
                                             <ImageGrid {...commonGridProps} />
                                         </div>
                                     </TransformComponent>
-                                </div>
+                                </motion.div>
                             </>
                         )}
                     </TransformWrapper>
-
                 </div>
-                <div className={`flex flex-col h-full w-full p-align-center`}>
+
+                <div
+                    ref={divRef}
+                    className={`flex flex-col h-full w-full p-align-center`}>
                     <TransformWrapper
-                        initialScale={0.9}
-                        minScale={0.9}
-                        maxScale={3}
+                        ref={containerRefPage2}
+                        initialScale={1}
+                        minScale={minScale}
+                        maxScale={maxScale}
                         centerOnInit={true}
-                        doubleClick={{ disabled: true }}
-                        wheel={{ disabled: true }}
-                        panning={{ disabled: panningOnSubPage }}
+                        doubleClick={{disabled: true}}
+                        wheel={{disabled: true}}
+                        panning={{disabled: panningOnSubPage}}
                     >
-                        {({ zoomIn, zoomOut, setTransform, resetTransform }) => (
+                        {({zoomIn, zoomOut, setTransform, resetTransform}) => (
                             <>
                                 {resetScale && (() => {
-                                    resetTransform();
-                                    setPanelScale2(false);
-                                    setPanningOnSubPage(true);
-                                    setResetScale(false);
+                                    console.log('esta reiniciando esta care monda')
+                                    if (productDragging === null) {
+                                        resetTransform();
+                                        setPanningOnSubPage(true);
+                                        setResetScale(false);
+                                    }
+
                                 })()}
                                 <div
                                     className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
                                 >
-                                    {!panelScale2 && (
+                                    <button
+                                        onClick={() => {
+                                            handleZoomInSubPages();
+                                        }}
+                                        className="  justify-center items-center">
+                                        <ZoomInIcon/>
+                                    </button>                                   
                                         <button
                                             onClick={() => {
-                                                setPanelScale2(!panelScale2);
+                                                handleZoomOutSubPages();
                                             }}
                                         >
-                                            <ZoomInIcon />
-                                        </button>
-                                    )}
-                                    {panelScale2 && (
+                                            <ZoomOutIcon/>
+                                        </button>                                    
                                         <button
                                             onClick={() => {
-                                                if (scaleSubPagines < 250) {
-                                                    setScaleSubPagines(scaleSubPagines + 50);
-                                                    const newScale = zoomScaleSubPagines + 0.5;
-                                                    setZoomScaleSubPagines(newScale);
-                                                    setTransform(0, 0, newScale);
-
-                                                }
+                                                handleFullPage2();
                                             }}
-                                            className="  justify-center items-center"
+                                            className=" justify-center items-center"
                                         >
-                                            <ZoomInIcon />
+                                            <FocusIn/>
                                         </button>
-                                    )}
-                                    {panelScale2 && (
-                                        <button
-                                            onClick={() => {
-                                                if (scale <= 0) {
-                                                    setPanelScale2(!panelScale2);
-                                                    setPanningOnSubPage(true);
-                                                }
-                                                if (scaleSubPagines > 0) {
-                                                    zoomOut();
-                                                    setScaleSubPagines(scaleSubPagines - 50);
-                                                    const newScale = zoomScaleSubPagines - 0.5;
-                                                    setZoomScaleSubPagines(newScale);
-                                                }
-                                            }}
-                                        >
-                                            <ZoomOutIcon />
-                                        </button>
-                                    )}
-                                    {panelScale2 && (
                                         <button
                                             onClick={handleButtonClickPage2}
                                             className=" justify-center items-center"
                                         >
                                             {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                            {panningOnSubPage ? <GrapIconOpen /> : <GrapIconClose />}
-                                        </button>
-                                    )}
+                                            {panningOnSubPage ? <GrapIconOpen/> : <Cursor3/>}
+                                        </button>                                   
+
                                 </div>
                                 <motion.div
                                     key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
                                     className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
                                 >
                                     <TransformComponent
                                         wrapperStyle={{
-                                            overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
+                                            // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "100%",
-                                            zIndex: "-10",
-
+                                            height: dynamicHeightSubpages,
+                                            overflowY: "scroll",
+                                            overflow: productDragging ? 'visible' : "scroll",
                                         }}
                                     >
                                         <div className={`flex flex-col  w-full  item-center`}>
@@ -658,7 +776,7 @@ export default function HomePage() {
                                                 {currentPage === 3 && <ImageGrid3 {...commonGridProps} />}
                                                 {currentPage === 4 && <ImageGrid4 {...commonGridProps} />}
                                             </div>
-                                            <p className="text-black text-md mt-4">Page {currentPage}</p>
+                                            <p className="justify-center text-black text-md mt-4">Page {currentPage}</p>
                                         </div>
                                     </TransformComponent>
                                 </motion.div>
@@ -675,9 +793,12 @@ export default function HomePage() {
                     theme="light"
                 />
             </div>
+
+
+            {/*//fin*/}
             <section className="z-[52]">
                 {/* @ts-ignore */}
-                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect} />
+                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect}/>
             </section>
 
             {/* Mostrar / Ocultar productos */}
@@ -701,10 +822,10 @@ export default function HomePage() {
                         <motion.div
 
 
-                            initial={{ opacity: 0, y: 20 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
+                            initial={{opacity: 0, y: 20}}
+                            exit={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.5}}
                             className="absolute z-[100] "
                             style={{
                                 top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
@@ -735,13 +856,25 @@ export default function HomePage() {
                         <h2 className="text-lg font-bold text-black">Confirm Clear All</h2>
                         <p className="text-black">¿Are you sure you want to clear all products?</p>
                         <p className="text-black">¿Which Page do you want to clear?</p>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(1)}> 1</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(2)}> 2</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(3)}> 3</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(4)}> 4</button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(1)}> 1
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(2)}> 2
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(3)}> 3
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(4)}> 4
+                        </button>
                         <div className="flex justify-end mt-4">
-                            <button onClick={cancelClearAll} className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel</button>
-                            <button onClick={confirmClearAll} className="bg-green-500 text-white p-2 rounded-md">Confirm</button>
+                            <button onClick={cancelClearAll}
+                                    className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel
+                            </button>
+                            <button onClick={confirmClearAll}
+                                    className="bg-green-500 text-white p-2 rounded-md">Confirm
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -756,10 +889,10 @@ interface GridProductProps {
     initialCategory: categoriesInterface | null;
 }
 
-const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
-    const { productsData } = useProductContext();
+const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProducts, initialCategory}) => {
+    const {productsData} = useProductContext();
     const [searchTerm, setSearchTerm] = useState("");
-    const { categoriesData } = useCategoryContext();
+    const {categoriesData} = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
@@ -804,7 +937,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     return (
         <div className="relative bg-[#f5f5f5] p-4 h-[40vh] w-[45vw]  rounded-lg shadow-xl overflow-visible">
             <button className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50"
-                onClick={onHideProducts}>
+                    onClick={onHideProducts}>
                 X
             </button>
             <div className="grid grid-rows-[min-content_1fr] h-full">
@@ -839,14 +972,14 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     <div className="flex gap-2 mb-1">
                         <button
                             className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                                }`}
+                            }`}
                             onClick={() => setActiveTab('all')}
                         >
                             All Products
                         </button>
                         <button
                             className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                                }`}
+                            }`}
                             onClick={() => setActiveTab('circular')}
                         >
                             In Circular
@@ -861,7 +994,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                             (
                                 <div className='py-3'>
                                     <Message
-                                        style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
+                                        style={{borderLeft: "6px solid #b91c1c", color: "#b91c1c"}}
                                         className="w-full"
                                         severity="error"
                                         text={searchTerm ? "Products not found" : "There are no products of this category"}
@@ -871,9 +1004,9 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                             :
                             <div className="grid grid-cols-4 pt-2 gap-2">
                                 {
-                                    (loading ? Array.from({ length: 8 }).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
+                                    (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
                                         <CardShowSide key={product?.id_product || index} product={product}
-                                            onProductSelect={onProductSelect} isLoading={loading} />
+                                                      onProductSelect={onProductSelect} isLoading={loading}/>
                                     ))
                                 }
                             </div>
