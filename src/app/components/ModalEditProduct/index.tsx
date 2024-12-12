@@ -185,7 +185,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                 <div className="flex items-center">
                                     <h1 className="text-black font-bold w-32">Size:</h1>
-                                    <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
+                                    <div className="flex items-center gap-1">
+                                        <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
+                                        <h1 className="text-black uppercase">{product?.pack || ''}</h1>
+                                        <h1 className="text-black uppercase">{product?.w_simbol || ''}</h1>
+                                        <h1 className="text-black uppercase">{product?.count || ''}</h1>
+                                        <h1 className="text-black uppercase">{product?.embase || ''}</h1>
+                                    </div>
                                 </div>
                                 <div>
                                     <div className="flex flex-row items-center gap-5">
