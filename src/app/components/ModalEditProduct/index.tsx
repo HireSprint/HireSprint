@@ -45,6 +45,12 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType | null>(null)
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
+    
+
+    // Agregar nuevos estados
+    const [selectedVarieties, setSelectedVarieties] = useState<ProductTypes[]>([]);
+    const [selectedDesc, setSelectedDesc] = useState<string[]>([]);
+    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
 
     useEffect(() => {
@@ -86,8 +92,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
         setBurst(item.value)
         setOpenDropdown(false)
     }
-
-
 
 
     return (
@@ -186,22 +190,20 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                 <div className="flex items-center">
                                     <h1 className="text-black font-bold w-32">Variety:</h1>
-                                    {GridID && groupedProducts[GridID]?.length > 0 ? (
-                                        <h1 className="text-black uppercase">
-                                            {GridID && groupedProducts[GridID] && groupedProducts[GridID].map(item => item.desc).join(', ')}
-                                        </h1>
-                                    ) : (
-                                        <h1 className="text-black uppercase">{product?.variety}</h1>
-                                    )}
+                                    <h1 className="text-black uppercase">
+                                        {selectedDesc.length > 0 
+                                            ? selectedDesc.join(', ')
+                                            : product?.variety}
+                                    </h1>
                                 </div>
 
                                 <div className="flex items-center">
                                     <h1 className="text-black font-bold w-32">Size:</h1>
-                                    {GridID && groupedProducts[GridID]?.length > 0 ? (
-                                        <h1 className="text-black uppercase">{GridID && groupedProducts[GridID] && groupedProducts[GridID].map(item => item.size).join(', ')}</h1>
-                                    ) : (
-                                        <h1 className="text-black uppercase">{product?.size || 'No size'}</h1>
-                                    )}
+                                    <h1 className="text-black uppercase">
+                                        {selectedSizes.length > 0
+                                            ? selectedSizes.join(', ')
+                                            : product?.size || 'No size'}
+                                    </h1>
                                 </div>
                                 <div>
                                     <div className="flex flex-row items-center gap-5">
@@ -377,6 +379,9 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                             key={index}
                                                             className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                                                             onClick={() => {
+                                                                setSelectedVarieties(prev => [...prev, item]);
+                                                                setSelectedDesc(prev => [...prev, item.desc || item.name]);
+                                                                setSelectedSizes(prev => [...prev, item.size || '']);
                                                                 setShowVarietyList(false);
                                                             }}
                                                         >
@@ -419,7 +424,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </button>
                             <button
                                 className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => { SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer); }}>
+                                onClick={() => { SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer); 
+                                }}>
                                 <div className="flex gap-2">
                                     <SaveIcon />
                                     Save Changes

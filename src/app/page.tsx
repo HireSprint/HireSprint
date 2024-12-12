@@ -42,29 +42,11 @@ export default function HomePage() {
     const { categoriesData } = useCategoryContext();
     //
     const [showProducts, setShowProducts] = useState(false);
-    useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getProduct");
-                const data = await resp.json();
-                setProductsData(data.result);
-                setIsLoadingProducts(false);
-                if (resp.status === 200) {
-                    setProductByApi(data.result);
-                    setProductSelected(data.result[1]);
-                }
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
 
-        getProductView();
-    }, []);
 
     useEffect(() => {
         const loadCircularProducts = async () => {
             if (!idCircular) {
-                console.log("No hay circular seleccionado");
                 return;
             }
 
@@ -355,6 +337,7 @@ export default function HomePage() {
             });
 
             updateCircularInServer(updatedProducts);
+            console.log(updatedProducts)
 
             return updatedProducts;
         });

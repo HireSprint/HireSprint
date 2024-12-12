@@ -168,9 +168,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 );
                 setCategories(data.result);
                 setLoading(false);
-                console.log("invalid rows",invalidRows)
             } catch (error) {
-                console.error("Error al obtener los productos:", error);
                 setErrormesage("Ocurrió un error al obtener los productos.");
                 setLoading(false);
             }
@@ -212,21 +210,17 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     item.id_category === Number(filters.id_category)
                 ))
-                console.log("filtro cat",newProduct)
             }
             if(filters.page !== "") {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     numberPage(item.id_grid) === filters.page
                 ))
-                console.log("filtro page",newProduct,filters.page)
             }
             if(filters.upc !== "") {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     item.upc.includes(filters.upc) // Coincidencia parcial
                 ));
-                console.log("filtro upc (parcial)", newProduct, filters.upc);
             }
-            console.log(newProduct,filters.id_category)
             setFilteredProduct(newProduct)
         }
     }, [filters]);
