@@ -1,21 +1,22 @@
 "use client";
-import { CardShowSide } from "./components/card";
+import {CardShowSide} from "./components/card";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import BottomBar from "./components/bottomBar";
-import { AnimatePresence, motion } from "framer-motion"; // Para animaciones
-import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
-import { useProductContext } from "./context/productContext";
+import {AnimatePresence, motion} from "framer-motion"; // Para animaciones
+import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "./components/imageGrid";
+import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
 import {Cursor3, FocusIn, GrapIconClose, GrapIconOpen, ZoomInIcon, ZoomOutIcon} from "@/app/components/icons";
 import {ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
-import { ToastContainer, toast } from 'react-toastify'
-import { useAuth } from "./components/provider/authprovider";
-import { Message } from "primereact/message";
-import { categoriesInterface } from "@/types/category";
-import { useCategoryContext } from "./context/categoryContext";
-import { ProductTypes } from "@/types/product";
+import {ToastContainer, toast} from 'react-toastify'
+import {useAuth} from "./components/provider/authprovider";
+import {Message} from "primereact/message";
+import {categoriesInterface} from "@/types/category";
+import {useCategoryContext} from "./context/categoryContext";
+import {ProductTypes} from "@/types/product";
+import {min} from "@floating-ui/utils";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -26,6 +27,7 @@ export default function HomePage() {
         setProductsData,
         currentPage,
         productDragging,
+        productReadyDrag,
         setIsLoadingProducts,
     } = useProductContext();
     const [direction, setDirection] = useState(0);
@@ -35,13 +37,32 @@ export default function HomePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
-    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+    const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({x: 0, y: 0});
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
     const [updateCircular, setUpdateCircular] = useState();
-    const { idCircular, user } = useAuth();
-    const { categoriesData } = useCategoryContext();
+    const {idCircular, user} = useAuth();
+    const {categoriesData} = useCategoryContext();
+
     //
     const [showProducts, setShowProducts] = useState(false);
+    //var zoom
+    const {zoomScalePage1, setZoomScalePage1} = useProductContext();
+    const {zoomScaleSubPagines, setZoomScaleSubPagines} = useProductContext();
+    const {panningOnPage1, setPanningOnPage1} = useProductContext();
+    const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
+    const [panelScale1, setPanelScale1] = useState(true);
+    const [panelScale2, setPanelScale2] = useState(true);
+    const [resetScale, setResetScale] = useState(false);
+    const [maxScale, setMaxScale] = useState(3);
+    const [minScale, setMinScale] = useState(0.5);
+    const [firsTimeOpen, setFistTimeOpen] = useState(true);
+    const divRef = useRef<HTMLDivElement | null>(null); // Ref para el div contenedor
+    const [initialX, setInitialX] = useState(0); // Estado para almacenar el cálculo
+    const containerRefPage1 = useRef<ReactZoomPanPinchContentRef>(null);
+    const containerRefPage2 = useRef<ReactZoomPanPinchContentRef>(null);
+    const [firstDrag, setFirstDrag] = useState(false);
+
+
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -155,7 +176,7 @@ export default function HomePage() {
     const handleProductSelect = (product: ProductTypes) => {
         if (selectedGridId === null) return;
 
-        const productWithGrid = { ...product, id_grid: selectedGridId };
+        const productWithGrid = {...product, id_grid: selectedGridId};
 
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
@@ -238,7 +259,7 @@ export default function HomePage() {
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
                 const cellIdTarget = getCellId(gridCellTarget);
 
-                const productWithGrid = { ...productSelected, id_grid: cellIdTarget } as ProductTypes;
+                const productWithGrid = {...productSelected, id_grid: cellIdTarget} as ProductTypes;
 
                 if (cellIdTarget) {
                     setSelectedProducts((prev) => {
@@ -258,10 +279,10 @@ export default function HomePage() {
         setSelectedProducts((prev) => {
             const updatedProducts = prev.map(product => {
                 if (product.id_grid === sourceGridId) {
-                    return { ...product, id_grid: targetGridId };
+                    return {...product, id_grid: targetGridId};
                 }
                 if (product.id_grid === targetGridId) {
-                    return { ...product, id_grid: sourceGridId };
+                    return {...product, id_grid: sourceGridId};
                 }
                 return product;
             });
@@ -278,7 +299,7 @@ export default function HomePage() {
             return;
         }
 
-        setMousePosition({ x: event.clientX, y: event.clientY });
+        setMousePosition({x: event.clientX, y: event.clientY});
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
 
         if (category) {
@@ -329,7 +350,6 @@ export default function HomePage() {
         withCard: boolean,
         limit_type: string,
         per: string
-
     ) => {
         if (gridID === undefined) return;
 
@@ -376,29 +396,15 @@ export default function HomePage() {
     }
 
 
-    const [zoomScale, setZoomScale] = useState(1);   
-    const [zoomScaleSubPagines, setZoomScaleSubPagines] = useState(1);
-    const {panningOnPage1, setPanningOnPage1} = useProductContext();
-    const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
-
-    const [panelScale1, setPanelScale1] = useState(true);
-    const [panelScale2, setPanelScale2] = useState(true);
-    const [resetScale, setResetScale] = useState(false);
-    let maxScale: number = 2;
-    let minScale: number = 0.5;
-    const [firsTimeOpen , setFistTimeOpen] = useState(true);
     const handleButtonClickPage1 = () => {
         setPanningOnPage1(!panningOnPage1);
+        setFistTimeOpen(false)
     }
 
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
+        setFistTimeOpen(false)
     }
-
-    const divRef = useRef<HTMLDivElement | null>(null); // Ref para el div contenedor
-    const [initialX, setInitialX] = useState(0); // Estado para almacenar el cálculo
-
-    const containerRef = useRef<ReactZoomPanPinchContentRef>(null);
 
     useEffect(() => {
         if (divRef.current) {
@@ -406,12 +412,53 @@ export default function HomePage() {
             const width = divRef.current.offsetWidth;
             setInitialX(width / 2);
             console.log(initialX, 'tamanio dif x ')
+            
         }
     }, [zoomScaleSubPagines]);
 
+    const [useZoomPage1, setUseZoomPage1] = useState(false);
+    const [useZoomSubPages, setUseZoomSubPages] = useState(false);
+
+    useEffect(() => {
+        if (productReadyDrag === null && firstDrag) {
+            if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
+                containerRefPage2.current.resetTransform(zoomScaleSubPagines)
+
+            }
+            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages ) {
+                containerRefPage1.current.resetTransform(zoomScalePage1)
+            }
+        }
+
+
+        if (productReadyDrag?.page === 1) {
+
+            if (containerRefPage2 && containerRefPage2.current) {
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(true);
+                setUseZoomSubPages(false);
+            }
+        }
+
+        if (productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) {
+
+            if (containerRefPage1 && containerRefPage1.current) {
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(true);
+            }
+        }
+
+
+    }, [productReadyDrag]);
+
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
-        
+
         setZoomScaleSubPagines(1);
         setResetScale(true);
     }, [currentPage]);
@@ -422,7 +469,7 @@ export default function HomePage() {
         setGridIdToClear(gridId);
         setIsClearAllPopupOpen(true);
     };
-
+    console.log(minScale);
     const confirmClearAll = () => {
         if (gridIdToClear) {
             setSelectedProducts((prevProducts) => {
@@ -454,32 +501,41 @@ export default function HomePage() {
         setIsClearAllPopupOpen(false);
     };
 
+    console.log(zoomScalePage1, zoomScaleSubPagines, "zoom actual");
+
     return (
 
-        <div className="grid grid-rows-[1fr_min-content] max-h-screen ">
+        <div
+            className={`grid grid-rows-[1fr_min-content] max-h-screen overflow-hidden  ${productDragging ? 'overflow-y-visible' : 'overflow-y-auto'} `}>
             <div
                 className={`relative grid grid-cols-2 items-center  ${productDragging ? 'overflow-x-visible' : ''} `}>
                 <AnimatePresence>
                     {category && (
                         <motion.div
-                            initial={{ y: 1000 }}
-                            animate={{ y: showProductCardBrand ? 0 : 1000, zIndex: 51 }}
-                            exit={{ y: 1000 }}
-                            transition={{ duration: 0.5 }}
+                            initial={{y: 1000}}
+                            animate={{y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
+                            exit={{y: 1000}}
+                            transition={{duration: 0.5}}
                             className="fixed left-[35.5%] top-[155px]"
                         >
                             <ProductContainer category={category} setCategory={setCategory}
-                                onProductSelect={handleProductSelect}
-                                onDragAndDropCell={handleDragAndDropSidebar}
-                                setShowProductCardBrand={setShowProductCardBrand} />
+                                              onProductSelect={handleProductSelect}
+                                              onDragAndDropCell={handleDragAndDropSidebar}
+                                              setShowProductCardBrand={setShowProductCardBrand}/>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
 
-                <div className={`flex flex-col h-full w-full p-align-center overflow-x-visible`}>
+                <div
+                    className={`flex flex-col   w-full h-full border-r-2 border-black  transform ${panningOnPage1 ? 'cursor-default' : 'cursor-grabbing'} ${productDragging && productDragging.page && productDragging.page > 1
+                        ? "z-0"
+                        : "z-50"
+                    }`}
+                    style={{position: "relative", overflow: "visible"}}>
                     <TransformWrapper
-                        initialScale={0.9}
+                        ref={containerRefPage1}
+                        initialScale={1}
                         minScale={minScale}
                         maxScale={maxScale}
                         centerOnInit={true}
@@ -492,8 +548,9 @@ export default function HomePage() {
 
                                 {firsTimeOpen && (() => {
                                     console.log('esta entrando');
-                                    resetTransform();                                   
+                                    resetTransform();
                                 })()}
+
                                 <div
                                     className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
                                 >
@@ -501,7 +558,7 @@ export default function HomePage() {
                                         <button
                                             onClick={() => {
                                                 setPanelScale1(!panelScale1);
-                                                                                        
+
                                             }}
                                         >
                                             <ZoomInIcon/>
@@ -510,12 +567,17 @@ export default function HomePage() {
                                     {panelScale1 && (
                                         <button
                                             onClick={() => {
-                                                if (zoomScale < maxScale) {
+                                                if (zoomScalePage1 < maxScale) {
                                                     setFistTimeOpen(false)
-                                                    const newScale = zoomScale + 0.5;
-                                                    setZoomScale(newScale);
+                                                    const newScale = zoomScalePage1 + 0.25;
+                                                    setZoomScalePage1(newScale);
                                                     setTransform(0, 0, newScale);
                                                 }
+                                                if (zoomScalePage1 <= 0.75) {
+                                                    resetTransform();
+                                                    setZoomScalePage1(1);
+                                                }
+
                                             }}
                                             className="  justify-center items-center"
                                         >
@@ -525,10 +587,11 @@ export default function HomePage() {
                                     {panelScale1 && (
                                         <button
                                             onClick={() => {
-                                                if (zoomScale > minScale) {
-                                                    zoomOut();
-                                                    const newScale = zoomScale - 0.5;
-                                                    setZoomScale(newScale);
+                                                if (zoomScalePage1 > minScale) {
+                                                    const newScale = zoomScalePage1 - 0.25;
+                                                    setZoomScalePage1(newScale);
+                                                    setFistTimeOpen(false)
+                                                    zoomOut(0.25);
                                                 }
                                             }}
                                         >
@@ -538,8 +601,11 @@ export default function HomePage() {
                                     {panelScale1 && (
                                         <button
                                             onClick={() => {
-                                                setZoomScale(0.5)
-                                                setTransform(initialX / 2, 0, 0.45);
+                                                setZoomScalePage1(0.5)
+                                                setFistTimeOpen(false)
+                                                setTransform(initialX / 1.5, 0, 0.45)
+
+
                                             }}
                                             className=" justify-center items-center"
                                         >
@@ -558,22 +624,17 @@ export default function HomePage() {
 
                                 </div>
                                 <motion.div
-                                    key={currentPage}
                                     initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
                                     animate={{x: 0, opacity: 1}}
                                     exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
                                     transition={{duration: 0.5}}
-                                    className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
+                                    //   className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
                                 >
                                     <TransformComponent
                                         wrapperStyle={{
-                                            // overflow: scale > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "90vh",
-                                            overflow: "auto",
-                                            overflowY: "scroll",
-                                            overflowX: productDragging ? 'visible' : "auto",
-                                            
+                                            height: "100%",
+                                            overflow: productDragging ? 'visible' : "hidden",
                                         }}
                                     >
                                         <div>
@@ -591,24 +652,25 @@ export default function HomePage() {
                     ref={divRef}
                     className={`flex flex-col h-full w-full p-align-center`}>
                     <TransformWrapper
+                        ref={containerRefPage2}
                         initialScale={1}
                         minScale={minScale}
                         maxScale={maxScale}
                         centerOnInit={true}
-                        doubleClick={{ disabled: true }}
-                        wheel={{ disabled: true }}
-                        panning={{ disabled: panningOnSubPage }}
+                        doubleClick={{disabled: true}}
+                        wheel={{disabled: true}}
+                        panning={{disabled: panningOnSubPage}}
                     >
-                        {({ zoomIn, zoomOut, setTransform, resetTransform }) => (
+                        {({zoomIn, zoomOut, setTransform, resetTransform}) => (
                             <>
                                 {resetScale && (() => {
                                     console.log('esta reiniciando esta care monda')
-                                    if(productDragging === null){
-                                        resetTransform();                                       
+                                    if (productDragging === null) {
+                                        resetTransform();
                                         setPanningOnSubPage(true);
-                                        setResetScale(false);    
+                                        setResetScale(false);
                                     }
-                                    
+
                                 })()}
                                 <div
                                     className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
@@ -619,17 +681,23 @@ export default function HomePage() {
                                                 setPanelScale2(!panelScale2);
                                             }}
                                         >
-                                            <ZoomInIcon />
+                                            <ZoomInIcon/>
                                         </button>
                                     )}
                                     {panelScale2 && (
                                         <button
                                             onClick={() => {
                                                 if (zoomScaleSubPagines < maxScale) {
-                                                    const newScale = zoomScaleSubPagines + 0.5;
+                                                    const newScale = zoomScaleSubPagines + 0.25;
                                                     setZoomScaleSubPagines(newScale);
+                                                    setFistTimeOpen(false)
                                                     setTransform(0, 0, newScale);
                                                 }
+                                                if (zoomScaleSubPagines <= 0.75) {
+                                                    resetTransform();
+                                                    setZoomScaleSubPagines(1);
+                                                }
+
                                             }}
                                             className="  justify-center items-center"
                                         >
@@ -640,20 +708,22 @@ export default function HomePage() {
                                         <button
                                             onClick={() => {
                                                 if (zoomScaleSubPagines > minScale) {
-                                                    zoomOut();
-                                                    const newScale = zoomScaleSubPagines - 0.5;
+                                                    const newScale = zoomScaleSubPagines - 0.25;
                                                     setZoomScaleSubPagines(newScale);
+                                                    setFistTimeOpen(false)
+                                                    zoomOut(0.25);
                                                 }
                                             }}
                                         >
-                                            <ZoomOutIcon />
+                                            <ZoomOutIcon/>
                                         </button>
                                     )}
                                     {panelScale2 && (
                                         <button
                                             onClick={() => {
                                                 setZoomScaleSubPagines(0.5)
-                                                setTransform(initialX / 2, 0, 0.45);
+                                                setFistTimeOpen(false)
+                                                setTransform(initialX / 1.5, 0, 0.45)
                                             }}
                                             className=" justify-center items-center"
                                         >
@@ -673,22 +743,19 @@ export default function HomePage() {
                                 </div>
                                 <motion.div
                                     key={currentPage}
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
-                                    transition={{ duration: 0.5 }}
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
                                     className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
                                 >
                                     <TransformComponent
                                         wrapperStyle={{
                                             // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "90vh",
-                                            overflow: "auto",
-                                            overflowY: "scroll",
-                                            overflowX: productDragging ? 'visible' : "auto",                                  
-                                            
-                                            
+                                            height: "100%",
+                                            overflow: productDragging ? 'visible' : "hidden",
+
                                         }}
                                     >
                                         <div className={`flex flex-col  w-full  item-center`}>
@@ -698,7 +765,7 @@ export default function HomePage() {
                                                 {currentPage === 3 && <ImageGrid3 {...commonGridProps} />}
                                                 {currentPage === 4 && <ImageGrid4 {...commonGridProps} />}
                                             </div>
-                                            <p className="text-black text-md mt-4">Page {currentPage}</p>
+                                            <p className="justify-center text-black text-md mt-4">Page {currentPage}</p>
                                         </div>
                                     </TransformComponent>
                                 </motion.div>
@@ -720,7 +787,8 @@ export default function HomePage() {
             {/*//fin*/}
             <section className="z-[52]">
                 {/* @ts-ignore */}
-                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect} />
+                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category}
+                           onClick={handleCategorySelect}/>
             </section>
 
             {/* Mostrar / Ocultar productos */}
@@ -744,10 +812,10 @@ export default function HomePage() {
                         <motion.div
 
 
-                            initial={{ opacity: 0, y: 20 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
+                            initial={{opacity: 0, y: 20}}
+                            exit={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.5}}
                             className="absolute z-[100] "
                             style={{
                                 top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
@@ -778,13 +846,25 @@ export default function HomePage() {
                         <h2 className="text-lg font-bold text-black">Confirm Clear All</h2>
                         <p className="text-black">¿Are you sure you want to clear all products?</p>
                         <p className="text-black">¿Which Page do you want to clear?</p>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(1)}> 1</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(2)}> 2</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(3)}> 3</button>
-                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600" onClick={() => handleClearAllConfirmation(4)}> 4</button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(1)}> 1
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(2)}> 2
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(3)}> 3
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(4)}> 4
+                        </button>
                         <div className="flex justify-end mt-4">
-                            <button onClick={cancelClearAll} className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel</button>
-                            <button onClick={confirmClearAll} className="bg-green-500 text-white p-2 rounded-md">Confirm</button>
+                            <button onClick={cancelClearAll}
+                                    className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel
+                            </button>
+                            <button onClick={confirmClearAll}
+                                    className="bg-green-500 text-white p-2 rounded-md">Confirm
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -799,10 +879,10 @@ interface GridProductProps {
     initialCategory: categoriesInterface | null;
 }
 
-const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
-    const { productsData } = useProductContext();
+const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProducts, initialCategory}) => {
+    const {productsData} = useProductContext();
     const [searchTerm, setSearchTerm] = useState("");
-    const { categoriesData } = useCategoryContext();
+    const {categoriesData} = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
@@ -847,7 +927,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     return (
         <div className="relative bg-[#f5f5f5] p-4 h-[40vh] w-[45vw]  rounded-lg shadow-xl overflow-visible">
             <button className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50"
-                onClick={onHideProducts}>
+                    onClick={onHideProducts}>
                 X
             </button>
             <div className="grid grid-rows-[min-content_1fr] h-full">
@@ -882,14 +962,14 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     <div className="flex gap-2 mb-1">
                         <button
                             className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                                }`}
+                            }`}
                             onClick={() => setActiveTab('all')}
                         >
                             All Products
                         </button>
                         <button
                             className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                                }`}
+                            }`}
                             onClick={() => setActiveTab('circular')}
                         >
                             In Circular
@@ -904,7 +984,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                             (
                                 <div className='py-3'>
                                     <Message
-                                        style={{ borderLeft: "6px solid #b91c1c", color: "#b91c1c" }}
+                                        style={{borderLeft: "6px solid #b91c1c", color: "#b91c1c"}}
                                         className="w-full"
                                         severity="error"
                                         text={searchTerm ? "Products not found" : "There are no products of this category"}
@@ -914,9 +994,9 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                             :
                             <div className="grid grid-cols-4 pt-2 gap-2">
                                 {
-                                    (loading ? Array.from({ length: 8 }).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
+                                    (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
                                         <CardShowSide key={product?.id_product || index} product={product}
-                                            onProductSelect={onProductSelect} isLoading={loading} />
+                                                      onProductSelect={onProductSelect} isLoading={loading}/>
                                     ))
                                 }
                             </div>
