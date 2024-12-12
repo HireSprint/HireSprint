@@ -325,11 +325,15 @@ export const GridCardProduct = ({
                                         </span>
 
                                         
-                                        <span
+                                        <span 
                                             className="text-purple-600 uppercase truncate text-left w-full"
                                             style={{fontSize: '1em'}}
                                         >
-                                            {product?.size}
+                                            <span> {product?.size || ''} </span>
+                                            <span> {product?.pack || ''} </span>
+                                            <span> {product?.w_simbol || ''} </span>
+                                            <span> {product?.count || ''} </span>
+                                            <span> {product?.embase || ''} </span>
                                         </span>
 
                                         
@@ -516,7 +520,13 @@ export const CardShowSide = ({
                             <p className={`text-center text-gray-950 ${product.master_brand ? 'font-medium' : 'font-bold'}`}>{product.brand}</p>
                             <p className="text-center text-gray-900 font-medium leading-tight">{product.desc}</p>
                             <p className="text-center text-gray-500 text-xs">{product.variety?.[0].trim().replaceAll('"', '')}</p>
-                            <p className="text-center text-gray-500 text-xs">{product.size}</p>
+                            <p className="text-center text-gray-500 text-xs">
+                                <span> {product?.size || ''} </span>
+                                <span> {product?.pack || ''} </span>
+                                <span> {product?.w_simbol || ''} </span> 
+                                <span> {product?.count || ''} </span> 
+                                <span> {product?.embase || ''} </span>
+                            </p>
                         </div>
                     )
                 }
