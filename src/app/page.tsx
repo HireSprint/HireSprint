@@ -412,7 +412,7 @@ export default function HomePage() {
             const width = divRef.current.offsetWidth;
             setInitialX(width / 2);
             console.log(initialX, 'tamanio dif x ')
-            
+            console.log(divRef.current.getBoundingClientRect())
         }
     }, [zoomScaleSubPagines]);
 
@@ -787,8 +787,7 @@ export default function HomePage() {
             {/*//fin*/}
             <section className="z-[52]">
                 {/* @ts-ignore */}
-                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category}
-                           onClick={handleCategorySelect}/>
+                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect}/>
             </section>
 
             {/* Mostrar / Ocultar productos */}
