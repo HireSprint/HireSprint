@@ -61,7 +61,10 @@ export default function HomePage() {
     const containerRefPage1 = useRef<ReactZoomPanPinchContentRef>(null);
     const containerRefPage2 = useRef<ReactZoomPanPinchContentRef>(null);
     const [firstDrag, setFirstDrag] = useState(false);
-
+    const [useZoomPage1, setUseZoomPage1] = useState(false);
+    const [useZoomSubPages, setUseZoomSubPages] = useState(false);
+    const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
+    const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
 
     useEffect(() => {
         const getProductView = async () => {
@@ -400,49 +403,118 @@ export default function HomePage() {
         setPanningOnPage1(!panningOnPage1);
         setFistTimeOpen(false)
     }
-
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
         setFistTimeOpen(false)
     }
-
+    const handleZoomInPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            if (zoomScalePage1 < maxScale) {
+                setFistTimeOpen(false);
+                const newScale = zoomScalePage1 + 0.25;
+                setZoomScalePage1(newScale);
+                containerRefPage1.current.setTransform(0, 0, newScale);
+            }
+            if (zoomScalePage1 <= 0.75) {
+                containerRefPage1.current.resetTransform();
+                setZoomScalePage1(1);
+            }
+        }
+    };    
+    const handleZoomOutPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            if (zoomScalePage1 > minScale) {
+                const newScale = zoomScalePage1 - 0.25;
+                setZoomScalePage1(newScale);
+                setFistTimeOpen(false)
+                containerRefPage1.current.zoomOut(0.25);
+            }
+        }
+    }
+    const handleFullPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            if (zoomScalePage1 > 0.5) {
+                setZoomScalePage1(0.5)
+                setFistTimeOpen(false)
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
+            } else if (zoomScalePage1 <= 0.75) {
+                setZoomScalePage1(1)
+                containerRefPage1.current.resetTransform();
+            }
+        }
+    }
+    const handleZoomInSubPages = () => {
+        if (containerRefPage2 && containerRefPage2.current) {
+            if (zoomScaleSubPagines < maxScale) {
+                const newScale = zoomScaleSubPagines + 0.25;
+                setZoomScaleSubPagines(newScale);
+                setFistTimeOpen(false)
+                containerRefPage2.current.setTransform(0, 0, newScale);
+            }
+            if (zoomScaleSubPagines <= 0.75) {
+                containerRefPage2.current.resetTransform();
+                setZoomScaleSubPagines(1);
+            }
+        }
+    }
+    const handleZoomOutSubPages = () => {        
+        if (containerRefPage2 && containerRefPage2.current) {
+            if (zoomScaleSubPagines > minScale) {
+                const newScale = zoomScaleSubPagines - 0.25;
+                setZoomScaleSubPagines(newScale);
+                setFistTimeOpen(false)
+                containerRefPage2.current.zoomOut(0.25);
+            }            
+        }
+    }       
+    const handleFullPage2 = () => {
+        if (containerRefPage2 && containerRefPage2.current) {
+            if (zoomScaleSubPagines > 0.5) {
+                setZoomScaleSubPagines(0.5)
+                setFistTimeOpen(false)
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
+            } else if (zoomScaleSubPagines <= 0.75) {
+                setZoomScaleSubPagines(1)
+                containerRefPage2.current.resetTransform();
+            }
+        }
+    }
     useEffect(() => {
         if (divRef.current) {
-            // Calcula el 50% del ancho del div
             const width = divRef.current.offsetWidth;
             setInitialX(width / 2);
-            console.log(initialX, 'tamanio dif x ')
-            console.log(divRef.current.getBoundingClientRect())
         }
     }, [zoomScaleSubPagines]);
-
-    const [useZoomPage1, setUseZoomPage1] = useState(false);
-    const [useZoomSubPages, setUseZoomSubPages] = useState(false);
 
     useEffect(() => {
         if (productReadyDrag === null && firstDrag) {
             if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
                 containerRefPage2.current.resetTransform(zoomScaleSubPagines)
-
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
             }
-            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages ) {
+            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
                 containerRefPage1.current.resetTransform(zoomScalePage1)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
             }
+            setDynamicHeightpage1("90vh")
+            setDynamicHeightSubpages("90vh")
         }
-
 
         if (productReadyDrag?.page === 1) {
 
-            if (containerRefPage2 && containerRefPage2.current) {
+            if (containerRefPage2 && containerRefPage2.current && productDragging) {
                 containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
                 setFirstDrag(true)
                 setFistTimeOpen(false)
                 setUseZoomPage1(true);
                 setUseZoomSubPages(false);
+                setDynamicHeightSubpages("100%")
             }
         }
 
-        if (productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) {
+        if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
 
             if (containerRefPage1 && containerRefPage1.current) {
                 containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
@@ -450,18 +522,20 @@ export default function HomePage() {
                 setFistTimeOpen(false)
                 setUseZoomPage1(false);
                 setUseZoomSubPages(true);
+                setDynamicHeightpage1("100%")
             }
         }
-
-
-    }, [productReadyDrag]);
-
+    }, [productReadyDrag, productDragging]);
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
-
+        setDynamicHeightpage1("90vh")
+        setDynamicHeightSubpages("90vh")
         setZoomScaleSubPagines(1);
         setResetScale(true);
+
     }, [currentPage]);
+
+
     const [isClearAllPopupOpen, setIsClearAllPopupOpen] = useState(false);
     const [gridIdToClear, setGridIdToClear] = useState<number | null>(null);
     const handleClearAllConfirmation = (gridId: number | null) => {
@@ -506,7 +580,7 @@ export default function HomePage() {
     return (
 
         <div
-            className={`grid grid-rows-[1fr_min-content] max-h-screen overflow-hidden  ${productDragging ? 'overflow-y-visible' : 'overflow-y-auto'} `}>
+            className={`grid grid-rows-[1fr_min-content] max-h-screen overflow-hidden `}>
             <div
                 className={`relative grid grid-cols-2 items-center  ${productDragging ? 'overflow-x-visible' : ''} `}>
                 <AnimatePresence>
@@ -532,7 +606,8 @@ export default function HomePage() {
                         ? "z-0"
                         : "z-50"
                     }`}
-                    style={{position: "relative", overflow: "visible"}}>
+                    style={{overflow: "visible"}}
+                >
                     <TransformWrapper
                         ref={containerRefPage1}
                         initialScale={1}
@@ -554,79 +629,42 @@ export default function HomePage() {
                                 <div
                                     className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
                                 >
-                                    {!panelScale1 && (
-                                        <button
-                                            onClick={() => {
-                                                setPanelScale1(!panelScale1);
 
-                                            }}
-                                        >
-                                            <ZoomInIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale1 && (
-                                        <button
-                                            onClick={() => {
-                                                if (zoomScalePage1 < maxScale) {
-                                                    setFistTimeOpen(false)
-                                                    const newScale = zoomScalePage1 + 0.25;
-                                                    setZoomScalePage1(newScale);
-                                                    setTransform(0, 0, newScale);
-                                                }
-                                                if (zoomScalePage1 <= 0.75) {
-                                                    resetTransform();
-                                                    setZoomScalePage1(1);
-                                                }
 
-                                            }}
-                                            className="  justify-center items-center"
-                                        >
-                                            <ZoomInIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale1 && (
-                                        <button
-                                            onClick={() => {
-                                                if (zoomScalePage1 > minScale) {
-                                                    const newScale = zoomScalePage1 - 0.25;
-                                                    setZoomScalePage1(newScale);
-                                                    setFistTimeOpen(false)
-                                                    zoomOut(0.25);
-                                                }
-                                            }}
-                                        >
-                                            <ZoomOutIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale1 && (
-                                        <button
-                                            onClick={() => {
-                                                if(zoomScalePage1 > 0.5) {
-                                                    setZoomScalePage1(0.5)
-                                                    setFistTimeOpen(false)
-                                                    setTransform(initialX / 1.5, 0, 0.45)
-                                                }
-                                                else if (zoomScalePage1 <= 0.75) {
-                                                    setZoomScalePage1(1)
-                                                    resetTransform();
+                                    <button
+                                        onClick={() => {
+                                            handleZoomInPage1();
+                                        }}
+                                        className="  justify-center items-center"
+                                    >
+                                        <ZoomInIcon/>
+                                    </button>
 
-                                                }
 
-                                            }}
-                                            className=" justify-center items-center"
-                                        >
-                                            <FocusIn/>
-                                        </button>
-                                    )}
-                                    {panelScale1 && (
-                                        <button
-                                            onClick={handleButtonClickPage1}
-                                            className=" justify-center items-center"
-                                        >
-                                            {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                            {panningOnPage1 ? <GrapIconOpen/> : <Cursor3/>}
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => {
+                                            handleZoomOutPage1();
+                                        }}
+                                    >
+                                        <ZoomOutIcon/>
+                                    </button>
+
+
+                                    <button
+                                        onClick={() => {
+                                            handleFullPage1();
+                                        }}
+                                        className=" justify-center items-center"
+                                    >
+                                        <FocusIn/>
+                                    </button>
+                                    <button
+                                        onClick={handleButtonClickPage1}
+                                        className=" justify-center items-center"
+                                    >
+                                        {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                        {panningOnPage1 ? <GrapIconOpen/> : <Cursor3/>}
+                                    </button>
 
                                 </div>
                                 <motion.div
@@ -639,8 +677,10 @@ export default function HomePage() {
                                     <TransformComponent
                                         wrapperStyle={{
                                             width: "100%",
-                                            height: "100%",
-                                            overflow: productDragging ? 'visible' : "hidden",
+                                            height: dynamicHeightpage1,
+                                            overflow: productDragging ? 'visible' : "scroll",
+                                            overflowY: "scroll",
+
                                         }}
                                     >
                                         <div>
@@ -681,76 +721,35 @@ export default function HomePage() {
                                 <div
                                     className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
                                 >
-                                    {!panelScale2 && (
+                                    <button
+                                        onClick={() => {
+                                            handleZoomInSubPages();
+                                        }}
+                                        className="  justify-center items-center">
+                                        <ZoomInIcon/>
+                                    </button>                                   
                                         <button
                                             onClick={() => {
-                                                setPanelScale2(!panelScale2);
-                                            }}
-                                        >
-                                            <ZoomInIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale2 && (
-                                        <button
-                                            onClick={() => {
-                                                if (zoomScaleSubPagines < maxScale) {
-                                                    const newScale = zoomScaleSubPagines + 0.25;
-                                                    setZoomScaleSubPagines(newScale);
-                                                    setFistTimeOpen(false)
-                                                    setTransform(0, 0, newScale);
-                                                }
-                                                if (zoomScaleSubPagines <= 0.75) {
-                                                    resetTransform();
-                                                    setZoomScaleSubPagines(1);
-                                                }
-
-                                            }}
-                                            className="  justify-center items-center"
-                                        >
-                                            <ZoomInIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale2 && (
-                                        <button
-                                            onClick={() => {
-                                                if (zoomScaleSubPagines > minScale) {
-                                                    const newScale = zoomScaleSubPagines - 0.25;
-                                                    setZoomScaleSubPagines(newScale);
-                                                    setFistTimeOpen(false)
-                                                    zoomOut(0.25);
-                                                }
+                                                handleZoomOutSubPages();
                                             }}
                                         >
                                             <ZoomOutIcon/>
-                                        </button>
-                                    )}
-                                    {panelScale2 && (
+                                        </button>                                    
                                         <button
                                             onClick={() => {
-                                                if(zoomScaleSubPagines > 0.5) {
-                                                    setZoomScaleSubPagines(0.5)
-                                                    setFistTimeOpen(false)
-                                                    setTransform(initialX / 1.5, 0, 0.45)
-                                                }
-                                                else if (zoomScaleSubPagines <= 0.75) {
-                                                    setZoomScaleSubPagines(1)
-                                                    resetTransform();
-                                                }
+                                                handleFullPage2();
                                             }}
                                             className=" justify-center items-center"
                                         >
                                             <FocusIn/>
                                         </button>
-                                    )}
-                                    {panelScale2 && (
                                         <button
                                             onClick={handleButtonClickPage2}
                                             className=" justify-center items-center"
                                         >
                                             {/* Renderiza el icono según el estado de panningOnPage1 */}
                                             {panningOnSubPage ? <GrapIconOpen/> : <Cursor3/>}
-                                        </button>
-                                    )}
+                                        </button>                                   
 
                                 </div>
                                 <motion.div
@@ -765,9 +764,9 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: "100%",
-                                            overflow: productDragging ? 'visible' : "hidden",
-
+                                            height: dynamicHeightSubpages,
+                                            overflowY: "scroll",
+                                            overflow: productDragging ? 'visible' : "scroll",
                                         }}
                                     >
                                         <div className={`flex flex-col  w-full  item-center`}>

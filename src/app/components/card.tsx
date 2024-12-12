@@ -211,7 +211,6 @@ export const GridCardProduct = ({
             setProductReadyDrag(null)
         }, 250);
     }
-console.log(zoomScalePage1, zoomScaleSubPagines, 'valores del zoom antes del dragg');
     
     const [pageValidity, setPageValidity] = useState<number>(0);
     const handleMouseDown = (e: any) => {
