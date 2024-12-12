@@ -65,7 +65,7 @@ export default function HomePage() {
     const [useZoomSubPages, setUseZoomSubPages] = useState(false);
     const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
-
+    const [dynamicFullSize, setDynamicFullSize] = useState(0.45);
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -436,7 +436,7 @@ export default function HomePage() {
             if (zoomScalePage1 > 0.5) {
                 setZoomScalePage1(0.5)
                 setFistTimeOpen(false)
-                containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
             } else if (zoomScalePage1 <= 0.75) {
                 setZoomScalePage1(1)
                 containerRefPage1.current.resetTransform();
@@ -472,7 +472,7 @@ export default function HomePage() {
             if (zoomScaleSubPagines > 0.5) {
                 setZoomScaleSubPagines(0.5)
                 setFistTimeOpen(false)
-                containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
             } else if (zoomScaleSubPagines <= 0.75) {
                 setZoomScaleSubPagines(1)
                 containerRefPage2.current.resetTransform();
@@ -481,10 +481,21 @@ export default function HomePage() {
     }
     useEffect(() => {
         if (divRef.current) {
-            const width = divRef.current.offsetWidth;
-            setInitialX(width / 2);
+            const width2 = divRef.current.offsetWidth;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            setInitialX(width2 / 2);
+            if (width <= 1280 || height <= 720) {
+                setDynamicFullSize(0.35); // Valor específico para HD
+            } else if (width <= 1920 || height <= 1080) {
+                setDynamicFullSize(0.45); // Valor específico para Full HD
+            } else {
+                setDynamicFullSize(0.5); // Valor por defecto para otros tamaños
+            }
+            console.log(dynamicFullSize, 'tamanio del full size', width, height);
         }
-    }, [zoomScaleSubPagines]);
+       
+    }, [zoomScaleSubPagines, productsData]);
 
     useEffect(() => {
         if (productReadyDrag === null && firstDrag) {
@@ -505,7 +516,7 @@ export default function HomePage() {
         if (productReadyDrag?.page === 1) {
 
             if (containerRefPage2 && containerRefPage2.current && productDragging) {
-                containerRefPage2.current.setTransform(initialX / 1.5, 0, 0.45)
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
                 setFirstDrag(true)
                 setFistTimeOpen(false)
                 setUseZoomPage1(true);
@@ -517,7 +528,7 @@ export default function HomePage() {
         if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
 
             if (containerRefPage1 && containerRefPage1.current) {
-                containerRefPage1.current.setTransform(initialX / 1.5, 0, 0.45)
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
                 setFirstDrag(true)
                 setFistTimeOpen(false)
                 setUseZoomPage1(false);
