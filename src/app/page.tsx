@@ -54,7 +54,7 @@ export default function HomePage() {
     const [panelScale2, setPanelScale2] = useState(true);
     const [resetScale, setResetScale] = useState(false);
     const [maxScale, setMaxScale] = useState(3);
-    const [minScale, setMinScale] = useState(0.5);
+    const [minScale, setMinScale] = useState(1);
     const [firsTimeOpen, setFistTimeOpen] = useState(true);
     const divRef = useRef<HTMLDivElement | null>(null); // Ref para el div contenedor
     const [initialX, setInitialX] = useState(0); // Estado para almacenar el cálculo
@@ -601,10 +601,16 @@ export default function HomePage() {
                                     {panelScale1 && (
                                         <button
                                             onClick={() => {
-                                                setZoomScalePage1(0.5)
-                                                setFistTimeOpen(false)
-                                                setTransform(initialX / 1.5, 0, 0.45)
+                                                if(zoomScalePage1 > 0.5) {
+                                                    setZoomScalePage1(0.5)
+                                                    setFistTimeOpen(false)
+                                                    setTransform(initialX / 1.5, 0, 0.45)
+                                                }
+                                                else if (zoomScalePage1 <= 0.75) {
+                                                    setZoomScalePage1(1)
+                                                    resetTransform();
 
+                                                }
 
                                             }}
                                             className=" justify-center items-center"
@@ -721,9 +727,15 @@ export default function HomePage() {
                                     {panelScale2 && (
                                         <button
                                             onClick={() => {
-                                                setZoomScaleSubPagines(0.5)
-                                                setFistTimeOpen(false)
-                                                setTransform(initialX / 1.5, 0, 0.45)
+                                                if(zoomScaleSubPagines > 0.5) {
+                                                    setZoomScaleSubPagines(0.5)
+                                                    setFistTimeOpen(false)
+                                                    setTransform(initialX / 1.5, 0, 0.45)
+                                                }
+                                                else if (zoomScaleSubPagines <= 0.75) {
+                                                    setZoomScaleSubPagines(1)
+                                                    resetTransform();
+                                                }
                                             }}
                                             className=" justify-center items-center"
                                         >
