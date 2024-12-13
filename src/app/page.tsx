@@ -91,7 +91,6 @@ export default function HomePage() {
     useEffect(() => {
         const loadCircularProducts = async () => {
             if (!idCircular) {
-                console.log("No hay circular seleccionado");
                 return;
             }
 
@@ -436,6 +435,7 @@ export default function HomePage() {
             });
 
             updateCircularInServer(updatedProducts);
+            console.log(updatedProducts)
 
             return updatedProducts;
         });

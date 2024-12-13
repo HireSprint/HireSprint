@@ -118,7 +118,6 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             }),
         });
 
-        console.log("Solicitud enviada a Google Sheets.",formattedData);
 
     } catch (error) {
         console.error('Error al interactuar con Google Sheet:', error);

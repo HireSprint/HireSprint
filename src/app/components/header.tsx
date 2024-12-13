@@ -12,7 +12,7 @@ import { formatDate } from './formaDate';
 
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen } = useProductContext();
+    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen, productsData } = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,19 +21,7 @@ export default function Header() {
     const [productTableOpen, setProductTableOpen] = useState(false)
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-    useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getProduct");
-                const data = await resp.json();
-                setProductsData(data.result);
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
 
-        getProductView();
-    }, []);
 
     useEffect(() => {
         const getCircularDate = async () => {

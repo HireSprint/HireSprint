@@ -69,18 +69,7 @@ const AddProductPage = () => {
     const formRef = useRef<HTMLFormElement>(null);
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
 
-    useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getProduct");
-                const data = await resp.json();
-                setProductsData(data.result);
-            } catch (error) {
-                console.error("Error in get [id_circular]:", error);
-            }
-        };
-        getProductView();
-    }, []);
+
 
     useEffect(() => {
         const getProductView = async () => {
@@ -104,7 +93,6 @@ const AddProductPage = () => {
             const existingProduct = productsData.find(
                 product => product.upc === data.upc
             );
-            console.log(existingProduct, "existingProduct");
 
             if (existingProduct) {
                 toast.error("Ya existe un producto con el mismo UPC");
@@ -169,24 +157,7 @@ const AddProductPage = () => {
         }
     };
 
-    useEffect(() => {
-        if(reloadFlag === true){
-            const updateProduct = async () => {
-                try {
-                    const resp = await fetch("/api/apiMongo/getProduct");
-                    const data = await resp.json();
-                    if (resp.status === 200) {
-                        setProductsData(data.result);
-                    }
-                } catch (error) {
-                    console.error("Error in get products", error);
-                }
-            };
 
-            updateProduct();
-            setReloadFlag(false);
-        }
-    }, [reloadFlag]);
 
     useEffect(() => {
         if (imageFile && imageFile[0]) {
@@ -227,7 +198,6 @@ const AddProductPage = () => {
             }
         } catch (error) {
             toast.error("Error in create category");
-            console.log(error)
             setIsCreatingCategory(false);
         }
     };
@@ -242,8 +212,6 @@ const AddProductPage = () => {
             // Verificar y agregar la imagen solo si existe
             if (dataUpdate?.image && dataUpdate.image.length > 0) {
                 formData.append('image', dataUpdate.image[0]);
-            } else {
-                console.log(dataUpdate?.image, "no image",);
             }
 
             // Campos básicos con validación estricta
