@@ -63,8 +63,8 @@ export default function HomePage() {
     const [firstDrag, setFirstDrag] = useState(false);
     const [useZoomPage1, setUseZoomPage1] = useState(false);
     const [useZoomSubPages, setUseZoomSubPages] = useState(false);
-    const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
-    const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
+    const [dynamicHeightpage1, setDynamicHeightpage1] = useState("50%");
+    const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("50%");
     const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({ top: 0, left: 0 });
     const productSelectionRef = useRef<HTMLDivElement | null>(null);
     const [gridProductDimensions, setGridProductDimensions] = useState({ width: 0, height: 0 });
@@ -556,8 +556,8 @@ export default function HomePage() {
                 setUseZoomPage1(false);
                 setUseZoomSubPages(false);
             }
-            setDynamicHeightpage1("90vh")
-            setDynamicHeightSubpages("90vh")
+            setDynamicHeightpage1("100vh")
+            setDynamicHeightSubpages("100vh")
         }
 
         if (productReadyDrag?.page === 1) {
@@ -586,8 +586,8 @@ export default function HomePage() {
     }, [productReadyDrag, productDragging]);
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
-        setDynamicHeightpage1("90vh")
-        setDynamicHeightSubpages("90vh")
+        setDynamicHeightpage1("85dvh")
+        setDynamicHeightSubpages("85dvh")
         setZoomScaleSubPagines(1);
         setResetScale(true);
 
