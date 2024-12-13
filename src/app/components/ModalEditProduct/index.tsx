@@ -9,7 +9,6 @@ import { useProductContext } from "@/app/context/productContext";
 
 
 interface ModalEditProductInterface {
-
     product: ProductTypes;
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
@@ -45,7 +44,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType | null>(null)
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
-    
+
 
     // Agregar nuevos estados
     const [selectedVarieties, setSelectedVarieties] = useState<ProductTypes[]>([]);
@@ -189,123 +188,123 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         </>
                                     )}
 
-                                <div className="flex items-center">
-                                    <h1 className="text-black font-bold w-32">Variety:</h1>
-                                    <h1 className="text-black uppercase">
-                                        {selectedDesc.length > 0 
-                                            ? selectedDesc.join(', ')
-                                            : product?.variety}
-                                    </h1>
-                                </div>
+                                    <div className="flex items-center">
+                                        <h1 className="text-black font-bold w-32">Variety:</h1>
+                                        <h1 className="text-black uppercase">
+                                            {selectedDesc.length > 0
+                                                ? selectedDesc.join(', ')
+                                                : product?.variety}
+                                        </h1>
+                                    </div>
 
-                                <div className="flex items-center">
-                                    <h1 className="text-black font-bold w-32">Size:</h1>
-                                    <h1 className="text-black uppercase">
-                                        {selectedSizes.length > 0
-                                            ? selectedSizes.join(', ')
-                                            : product?.size || 'No size'}
-                                    </h1>
-                                </div>
-                                <div>
-                                    <div className="flex flex-row items-center gap-5">
-                                        {/* Título y Campo de Precio */}
-                                        <div className="flex items-center gap-1">
-                                            <h3 className="font-bold text-black">Price:</h3>
-                                            <input
-                                                type="text"
-                                                value={price}
-                                                onChange={(event) => {
-                                                    const newValue = event.target.value
-                                                    setPrice(newValue);
-                                                }}
-                                                className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
-                                            />
+                                    <div className="flex items-center">
+                                        <h1 className="text-black font-bold w-32">Size:</h1>
+                                        <h1 className="text-black uppercase">
+                                            {selectedSizes.length > 0
+                                                ? selectedSizes.join(', ')
+                                                : product?.size || 'No size'}
+                                        </h1>
+                                    </div>
+                                    <div>
+                                        <div className="flex flex-row items-center gap-5">
+                                            {/* Título y Campo de Precio */}
+                                            <div className="flex items-center gap-1">
+                                                <h3 className="font-bold text-black">Price:</h3>
+                                                <input
+                                                    type="text"
+                                                    value={price}
+                                                    onChange={(event) => {
+                                                        const newValue = event.target.value
+                                                        setPrice(newValue);
+                                                    }}
+                                                    className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex w-full flex-row justify-start gap-5">
-                                    <div className="flex items-center gap-1">
-                                        <h3 className="font-bold text-black w-10">Per:</h3>
-                                        <select
-                                            className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
-                                            defaultValue=""
-                                            onChange={(e) => setSelectedPer(e.target.value)}
-                                        >
-                                            <option value="" disabled></option>
-                                            {per.map((item: string, index: number) => (
-                                                <option key={index} value={item}>{item}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="flex items-center">
-                                    <h1 className="text-black font-bold pr-2">Comment:</h1>
-                                    <input
-                                        type="text"
-                                        value={notes}
-                                        onChange={(event) => {
-                                            const newValue = event.target.value
-                                            setNotes(newValue);
-                                        }}
-                                        className="w-full  p-1 border border-gray-950 rounded font-bold text-black"
-                                    />
-                                </div>
-                                {/* Contenedor del campo Brust */}
-                                <div className="flex items-center gap-1">
-                                    <h3 className="font-bold text-black">Burst:</h3>
-                                    <div className="flex flex-col items-center gap-1">
-                                        <button onClick={() => setOpenDropdown(!openDropdown)} className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
-                                            {!selectedBurst ? "Select Burst" : "Change burst"}
-                                        </button>
-
-                                        {openDropdown && (
-                                            <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
-                                                {burstOption.map((item, index) => (
-                                                    <button
-                                                        key={index}
-                                                        onClick={() => handledSelectedBurst(item)}
-                                                        className="text-left py-1 shadow gap-2 hover:bg-gray-100"
-                                                    >
-                                                        {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2 /> :
-                                                            <Burst3 />}
-                                                    </button>
+                                    <div className="flex w-full flex-row justify-start gap-5">
+                                        <div className="flex items-center gap-1">
+                                            <h3 className="font-bold text-black w-10">Per:</h3>
+                                            <select
+                                                className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
+                                                defaultValue=""
+                                                onChange={(e) => setSelectedPer(e.target.value)}
+                                            >
+                                                <option value="" disabled></option>
+                                                {per.map((item: string, index: number) => (
+                                                    <option key={index} value={item}>{item}</option>
                                                 ))}
-                                            </div>
-                                        )}
+                                            </select>
+                                        </div>
                                     </div>
-                                    {
-                                        selectedBurst !== null && (
-                                            selectedBurst?.value === 1 ? <Burst1 /> : selectedBurst?.value === 2 ? <Burst2 /> : <Burst3 />)
-                                    }
+                                    <div className="flex items-center">
+                                        <h1 className="text-black font-bold pr-2">Comment:</h1>
+                                        <input
+                                            type="text"
+                                            value={notes}
+                                            onChange={(event) => {
+                                                const newValue = event.target.value
+                                                setNotes(newValue);
+                                            }}
+                                            className="w-full  p-1 border border-gray-950 rounded font-bold text-black"
+                                        />
+                                    </div>
+                                    {/* Contenedor del campo Brust */}
+                                    <div className="flex items-center gap-1">
+                                        <h3 className="font-bold text-black">Burst:</h3>
+                                        <div className="flex flex-col items-center gap-1">
+                                            <button onClick={() => setOpenDropdown(!openDropdown)} className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
+                                                {!selectedBurst ? "Select Burst" : "Change burst"}
+                                            </button>
+
+                                            {openDropdown && (
+                                                <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
+                                                    {burstOption.map((item, index) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() => handledSelectedBurst(item)}
+                                                            className="text-left py-1 shadow gap-2 hover:bg-gray-100"
+                                                        >
+                                                            {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2 /> :
+                                                                <Burst3 />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {
+                                            selectedBurst !== null && (
+                                                selectedBurst?.value === 1 ? <Burst1 /> : selectedBurst?.value === 2 ? <Burst2 /> : <Burst3 />)
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <div className="flex pb-4">
-                                    <h1 className="text-black font-bold w-24">Conditions</h1>
-                                </div>
-                                <div className="flex">
-                                    <h1 className="text-black font-bold pr-2">Add'l $: </h1>
-                                    <input
-                                        type="text"
-                                        value={addl}
-                                        onChange={(event) => {
-                                            const newValue = event.target.value
-                                            setAddl(newValue);
-                                        }}
-                                        className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
-                                    />
-                                </div>
-                                <div className="flex pt-2 items-center">
-                                    <h1 className="text-black font-bold pr-2 w-16">Limit: </h1>
-                                    <input
-                                        type="text"
-                                        value={limit}
-                                        onChange={(event) => {
-                                            const newValue = event.target.value
-                                            setLimit(newValue);
-                                        }}
-                                        className="w-12 p-1 border border-gray-950 rounded font-bold text-black"
-                                    />
+                                <div>
+                                    <div className="flex pb-4">
+                                        <h1 className="text-black font-bold w-24">Conditions</h1>
+                                    </div>
+                                    <div className="flex">
+                                        <h1 className="text-black font-bold pr-2">Add'l $: </h1>
+                                        <input
+                                            type="text"
+                                            value={addl}
+                                            onChange={(event) => {
+                                                const newValue = event.target.value
+                                                setAddl(newValue);
+                                            }}
+                                            className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
+                                        />
+                                    </div>
+                                    <div className="flex pt-2 items-center">
+                                        <h1 className="text-black font-bold pr-2 w-16">Limit: </h1>
+                                        <input
+                                            type="text"
+                                            value={limit}
+                                            onChange={(event) => {
+                                                const newValue = event.target.value
+                                                setLimit(newValue);
+                                            }}
+                                            className="w-12 p-1 border border-gray-950 rounded font-bold text-black"
+                                        />
 
                                         <div className="relative ml-2">
                                             <button
@@ -346,92 +345,94 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             )}
                                         </div>
 
-                                </div>
-                                <div className=" flex items-center pt-2">
-                                    <h1 className="text-black font-bold pr-2">Must Buy: </h1>
-                                    <input
-                                        type="text"
-                                        value={mustBuy}
-                                        onChange={(event) => {
-                                            const newValue = event.target.value
-                                            setMustBuy(newValue);
-                                        }}
-                                        className="w-16 p-1 border border-gray-950 rounded font-bold text-black"
-                                    />
-                                </div>
-                                <div className="flex items-center pt-2">
-                                    <h1 className="text-black font-bold pr-2">With Card: </h1>
-                                    <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
-                                </div>
-                                {GridID && groupedProducts[GridID]?.length > 0 && (
-                                    <div className="relative">
-                                        <div
-                                            className="flex items-center gap-2 cursor-pointer pt-2 rounded"
-                                            onClick={() => setShowVarietyList(!showVarietyList)}
-                                        >
-                                            <h1 className="text-black font-bold hover:underline">+Add Variety</h1>
-                                        </div>
-
-                                        {showVarietyList && (
-                                            <div className="absolute z-50 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg text-black">
-                                                <div className="max-h-48 overflow-y-auto">
-                                                    {groupedProducts[GridID].map((item: ProductTypes, index: number) => (
-                                                        <div
-                                                            key={index}
-                                                            className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
-                                                            onClick={() => {
-                                                                setSelectedVarieties(prev => [...prev, item]);
-                                                                setSelectedDesc(prev => [...prev, item.desc || item.name]);
-                                                                setSelectedSizes(prev => [...prev, item.size || '']);
-                                                                setShowVarietyList(false);
-                                                            }}
-                                                        >
-                                                            {item.url_image && (
-                                                                <Image
-                                                                    src={item.url_image}
-                                                                    alt={item.name}
-                                                                    width={30}
-                                                                    height={30}
-                                                                    className="rounded-sm"
-                                                                />
-                                                            )}
-                                                            <span className="text-sm text-black">{item.name}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                    <div className=" flex items-center pt-2">
+                                        <h1 className="text-black font-bold pr-2">Must Buy: </h1>
+                                        <input
+                                            type="text"
+                                            value={mustBuy}
+                                            onChange={(event) => {
+                                                const newValue = event.target.value
+                                                setMustBuy(newValue);
+                                            }}
+                                            className="w-16 p-1 border border-gray-950 rounded font-bold text-black"
+                                        />
+                                    </div>
+                                    <div className="flex items-center pt-2">
+                                        <h1 className="text-black font-bold pr-2">With Card: </h1>
+                                        <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
+                                    </div>
+                                    {GridID && groupedProducts[GridID]?.length > 0 && (
+                                        <div className="relative">
+                                            <div
+                                                className="flex items-center gap-2 cursor-pointer pt-2 rounded"
+                                                onClick={() => setShowVarietyList(!showVarietyList)}
+                                            >
+                                                <h1 className="text-black font-bold hover:underline">+Add Variety</h1>
+                                            </div>
 
-                        <div className="flex gap-10 items-center justify-center pt-4">
-                            <button
-                                className="bg-gray-500 p-2 text-black rounded-md "
-                                onClick={() => ChangeFC(GridID)}>
-                                <div className="flex gap-2">
-                                    <ChangeIcon />
-                                    Swap Item
+                                            {showVarietyList && (
+                                                <div className="absolute z-50 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg text-black">
+                                                    <div className="max-h-48 overflow-y-auto">
+                                                        {groupedProducts[GridID].map((item: ProductTypes, index: number) => (
+                                                            <div
+                                                                key={index}
+                                                                className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                                                                onClick={() => {
+                                                                    setSelectedVarieties(prev => [...prev, item]);
+                                                                    setSelectedDesc(prev => [...prev, item.desc || item.name]);
+                                                                    setSelectedSizes(prev => [...prev, item.size || '']);
+                                                                    setShowVarietyList(false);
+                                                                }}
+                                                            >
+                                                                {item.url_image && (
+                                                                    <Image
+                                                                        src={item.url_image}
+                                                                        alt={item.name}
+                                                                        width={30}
+                                                                        height={30}
+                                                                        className="rounded-sm"
+                                                                    />
+                                                                )}
+                                                                <span className="text-sm text-black">{item.name}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                            </button>
-                            <button
-                                className="bg-red-500 p-2 text-black rounded-md "
-                                onClick={() => DeleteFC(GridID)}>
-                                <div className="flex gap-2">
-                                    <DeleteIcon />
-                                    Delete Item
-                                </div>
-                            </button>
-                            <button
-                                className="p-2 text-black  bg-lime-500 rounded-md "
-                                onClick={() => { SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer); 
-                                }}>
-                                <div className="flex gap-2">
-                                    <SaveIcon />
-                                    Save Changes
-                                </div>
-                            </button>
+                            </div>
+
+                            <div className="flex gap-10 items-center justify-center pt-4">
+                                <button
+                                    className="bg-gray-500 p-2 text-black rounded-md "
+                                    onClick={() => ChangeFC(GridID)}>
+                                    <div className="flex gap-2">
+                                        <ChangeIcon />
+                                        Swap Item
+                                    </div>
+                                </button>
+                                <button
+                                    className="bg-red-500 p-2 text-black rounded-md "
+                                    onClick={() => DeleteFC(GridID)}>
+                                    <div className="flex gap-2">
+                                        <DeleteIcon />
+                                        Delete Item
+                                    </div>
+                                </button>
+                                <button
+                                    className="p-2 text-black  bg-lime-500 rounded-md "
+                                    onClick={() => {
+                                        SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);
+                                    }}>
+                                    <div className="flex gap-2">
+                                        <SaveIcon />
+                                        Save Changes
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
