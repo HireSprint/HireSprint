@@ -1023,11 +1023,14 @@ const AddProductPage = () => {
                                 <div key={product.id_product} className="bg-gray-700 p-4 rounded-lg">
                                     <div className="relative">
                                         {product.url_image && (
-                                            <img
-                                                src={product.url_image}
-                                                alt={product.desc || ""}
-                                                className="w-full h-48 object-contain rounded"
-                                            />
+                                            <div className="flex flex-col justify-center items-center">
+                                                <p className="text-white text-center">{product.desc}</p>
+                                                <img
+                                                    src={product.url_image}
+                                                    alt={product.desc || ""}
+                                                    className="w-full h-32 object-contain rounded"
+                                                />
+                                            </div>
                                         )}
                                         <button
                                             onClick={() => handleEditClick(product)}
