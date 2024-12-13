@@ -107,7 +107,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         <Image
                                             src={product?.url_image}
                                             className="w-full h-full object-contain"
-                                            alt={product?.name}
+                                            alt={product?.desc || "No hay descripción"}
                                             width={300}
                                             height={300}
                                             draggable={false}
@@ -127,7 +127,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                 <Image
                                                     src={product?.url_image}
                                                     className="w-full h-full object-contain"
-                                                    alt={`${product?.name}-${index}`}
+                                                    alt={`${product?.desc || "No hay descripción"}-${index}`}
                                                     width={100}
                                                     height={100}
                                                     draggable={false}
@@ -159,7 +159,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                     <div className="flex items-center">
                                         <h1 className="text-black font-bold w-32">Description:</h1>
-                                        <h1 className="text-black uppercase">{product?.desc ? product.desc : product?.name}</h1>
+                                        <h1 className="text-black uppercase">{product?.desc || "No hay descripción"}</h1>
                                     </div>
 
                                     {product.id_category === 5 && (

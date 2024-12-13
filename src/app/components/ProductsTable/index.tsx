@@ -71,11 +71,6 @@ const columns = [
         header: () => 'Price',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('sku', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'SKU',
-        footer: info => info.column.id,
-    }),
     columnHelper.accessor('quality_cf', {
         cell: info => info.getValue() || 'N/A',
         header: () => 'Quality CF',

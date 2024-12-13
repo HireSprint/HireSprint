@@ -41,9 +41,7 @@ const AddProductPage = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [reloadFlag, setReloadFlag] = useState(false);
     const { user } = useAuth();
-
-
-
+    const [generatedSKU, setGeneratedSKU] = useState<string>("");
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
             { name: "type_of_meat", placeholder: "Type of meat" },
@@ -117,17 +115,12 @@ const AddProductPage = () => {
             const formData = new FormData();
 
             // Campos básicos
-            formData.append('name', data.name || "");
+            formData.append('name', data.desc || "");
             formData.append('brand', data.brand || "");
             formData.append('upc', data.upc);
-            formData.append('sku', data.sku || "");
             formData.append('price', '0');
-            formData.append('sale_price', "0");
-            formData.append('reg_price', '0');
-            formData.append('unit_price', "0");
             formData.append('size', String(data.size) || "");
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
-            formData.append('color', data.color || "");
             formData.append('id_category', String(data.id_category));
             formData.append('pack', String(data.pack) || "");
             formData.append('count', String(data.count) || "");
@@ -136,16 +129,9 @@ const AddProductPage = () => {
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
-            formData.append('main', data.main || "");
             formData.append('addl', data.addl || "");
             formData.append('burst', (data.burst || 0).toString());
-            formData.append('price_text', data.price_text || "");
-            formData.append('save_up_to', data.save_up_to || "");
-            formData.append('item_code', '0');
-            formData.append('group_code', '0');
             formData.append('notes', data.notes || "");
-            formData.append('buyer_notes', data.buyer_notes || "");
-            formData.append('effective', data.effective || "");
             formData.append('type_of_meat', data.type_of_meat || "");
             formData.append('quantity', data.quantity || "");
             formData.append('master_brand', data.master_brand || "");
@@ -170,7 +156,6 @@ const AddProductPage = () => {
                 setPreviewUrl(null);
                 setReloadFlag(true)
                 reset();
-                setValue("sku", "");
             }
 
             if (!response.ok) {
@@ -335,8 +320,7 @@ const AddProductPage = () => {
                         (product.brand?.toLowerCase().includes(searchLower)) ||
                         (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
                         (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
-                        (String(product.upc).includes(searchTerm)) ||
-                        (String(product.sku).includes(searchTerm))
+                        (String(product.upc).includes(searchTerm))
                     );
                 }
             });
@@ -372,7 +356,7 @@ const AddProductPage = () => {
 
         // Verificar si el SKU ya existe
         const newSKU = `SKU${generateRandomDigits()}`;
-        const skuExists = productsData.some(product => product.sku === newSKU);
+        const skuExists = productsData.some(product => product.upc === newSKU);
 
         // Si existe, generar otro
         if (skuExists) {
@@ -479,24 +463,6 @@ const AddProductPage = () => {
                                     placeholder="UPC"
                                 />
                             </div>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="sku" style={labelStyle}>SKU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.sku || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
-                                    placeholder="SKU"
-                                />
-                            </div>
-                            { /*<div style={inputContainerStyle}>
-                                <label htmlFor="plu" style={labelStyle}>PLU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.plu || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, plu: e.target.value })}
-                                    placeholder="PLU"
-                                />
-                            </div> */}
                             <div style={inputContainerStyle}>
                                 <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                                 <input
@@ -911,17 +877,17 @@ const AddProductPage = () => {
                         <div className="flex gap-2">
                             <input
                                 type="text"
-                                value={watch("sku") || ""}
+                                value={generatedSKU}
                                 readOnly
                                 placeholder="SKU generado"
-                                className="p-2 border rounded text-black flex-1 "
+                                className="p-2 border rounded text-black flex-1"
                             />
                             <button
                                 type="button"
                                 onClick={() => {
                                     const newSKU = generateSKU();
-                                    // Actualizar el valor del campo SKU en el formulario
-                                    setValue("sku", newSKU);
+                                    setGeneratedSKU(newSKU);
+                                    setValue("upc", newSKU);
                                 }}
                                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                             >
