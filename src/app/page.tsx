@@ -485,12 +485,10 @@ export default function HomePage() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             setInitialX(width2 / 2);
-            if (width <= 1280 || height <= 720) {
+            if (width <= 1920 || height <= 1080) {
                 setDynamicFullSize(0.35); // Valor específico para HD
-            } else if (width <= 1920 || height <= 1080) {
+            } else if (width >= 1920 || height >= 1080) {
                 setDynamicFullSize(0.45); // Valor específico para Full HD
-            } else {
-                setDynamicFullSize(0.5); // Valor por defecto para otros tamaños
             }
             console.log(dynamicFullSize, 'tamanio del full size', width, height);
         }
