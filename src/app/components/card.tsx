@@ -175,9 +175,10 @@ export const GridCardProduct = ({
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
     const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
-    const { scale } = useProductContext();
-    const { scaleSubPagines } = useProductContext();
-
+    const {panningOnPage1} = useProductContext();
+    const {panningOnSubPage} = useProductContext();
+    const {zoomScalePage1} = useProductContext();
+    const {zoomScaleSubPagines} = useProductContext();
     const startDragging = (e: any, data: any) => {
         setProductDragging && setProductDragging({
             from: 'grid',
@@ -210,14 +211,28 @@ export const GridCardProduct = ({
             setProductReadyDrag(null)
         }, 250);
     }
-
+    
+    const [pageValidity, setPageValidity] = useState<number>(0);
     const handleMouseDown = (e: any) => {
-        if (scale > 0.9 || scaleSubPagines > 0.9)
-            return
+  
+         const tmpVAlue =
+            (!panningOnPage1 || zoomScalePage1 > 1.25) && (!panningOnSubPage || zoomScaleSubPagines > 1.25)
+                ? 5 // Ambas páginas inválidas
+                : !panningOnPage1 || zoomScalePage1 > 1.25
+                    ? 1 // Página 1 inválida
+                    : !panningOnSubPage || zoomScaleSubPagines > 1.25
+                        ? 2 // Subpágina inválida
+                        : 0; // Ambas páginas válidas
+            
+        setPageValidity(tmpVAlue);
+        // Si las páginas no son válidas (1, 2 o 3), salir
+        if (tmpVAlue === 5) return;
 
-        if (e.button == 0) {
+        // Verificar si el clic es con el botón izquierdo
+        if (e.button === 0) {
             timeoutRef.current = setTimeout(() => {
-                if ((product != undefined && product != null) && !productReadyDrag) {
+                console.log(tmpVAlue ,'paginas selecionadas y valida' , page)
+                if (product && (!productReadyDrag && page !== tmpVAlue)) {
                     setProductReadyDrag({
                         from: 'grid',
                         id_product: product.id_product,
@@ -226,7 +241,6 @@ export const GridCardProduct = ({
                     });
                 }
             }, 1000);
-
         }
     };
 
@@ -254,12 +268,31 @@ export const GridCardProduct = ({
 
 
     return (
-        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
-            <Tooltip target={'#grid-card-product-' + cell?.id}
-                content={`To activate Drag and Drop,\n press the box for 1 second`} position="top"
-                disabled={!product || scale > 0.9 || scaleSubPagines > 0.9} showDelay={1000} />
-            <Draggable disabled={!productReadyDrag || (productReadyDrag && productReadyDrag.id_grid != cell?.id)}
-                onStart={startDragging} onStop={stopDragging} position={position}>
+        <div onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} >
+            <Tooltip
+                target={'#grid-card-product-' + cell?.id}
+                content={
+                    !product
+                        ? 'Product is not available.'
+                        : !panningOnSubPage || !panningOnPage1
+                            ? pageValidity === page
+                                ? 'Panning is not active on Page 1.'
+                                : pageValidity === page
+                                    ? 'Panning is not active on the Subpage.'
+                                    : 'Panning is not active on the current page.'
+                            : zoomScalePage1 > 1.25 || zoomScaleSubPagines >= 1.25
+                                ? pageValidity === page
+                                    ? 'Zoom level is too high on Page 1 to activate drag and drop.'
+                                    : pageValidity === page
+                                        ? 'Zoom level is too high on the Subpage to activate drag and drop.'
+                                        : 'Zoom level is too high to activate drag and drop.'
+                                : 'To activate Drag and Drop, press the box for 1 second'
+                }
+                position="top"
+                disabled={!product}
+                showDelay={1000}
+            />
+            <Draggable disabled={!productReadyDrag || (productReadyDrag && productReadyDrag.id_grid != cell?.id)} onStart={startDragging} onStop={stopDragging} position={position}>
                 <div
                     ref={elementRef}
                     id={'grid-card-product-' + cell?.id}
@@ -322,12 +355,16 @@ export const GridCardProduct = ({
                                             {product.desc}
                                         </span>
 
-
-                                        <span
+                                        
+                                        <span 
                                             className="text-purple-600 uppercase truncate text-left w-full"
                                             style={{ fontSize: '1em' }}
                                         >
-                                            {product?.size}
+                                            <span> {product?.size || ''} </span>
+                                            <span> {product?.pack || ''} </span>
+                                            <span> {product?.w_simbol || ''} </span>
+                                            <span> {product?.count || ''} </span>
+                                            <span> {product?.embase || ''} </span>
                                         </span>
 
 
@@ -514,7 +551,13 @@ export const CardShowSide = ({
                             <p className={`text-center text-gray-950 ${product.master_brand ? 'font-medium' : 'font-bold'}`}>{product.brand}</p>
                             <p className="text-center text-gray-900 font-medium leading-tight">{product.desc}</p>
                             <p className="text-center text-gray-500 text-xs">{product.variety?.[0].trim().replaceAll('"', '')}</p>
-                            <p className="text-center text-gray-500 text-xs">{product.size}</p>
+                            <p className="text-center text-gray-500 text-xs">
+                                <span> {product?.size || ''} </span>
+                                <span> {product?.pack || ''} </span>
+                                <span> {product?.w_simbol || ''} </span> 
+                                <span> {product?.count || ''} </span> 
+                                <span> {product?.embase || ''} </span>
+                            </p>
                         </div>
                     )
                 }

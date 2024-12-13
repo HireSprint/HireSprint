@@ -1,6 +1,6 @@
 "use client.ts";
 import React, { useEffect, useRef, useState } from "react";
-import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, CircleArrowIcon, ArrowIcon, } from "./icons";
+import { BakeryIcon, DairyIcon, DeliIcon, FrozenIcon, GroceryIcon, LiquorIcon, MeatIcon, SeafoodIcon, FloralIcon, HBIcon, HotFoodIcon, ProduceIcon, BeverageIcon, SnackIcon, CircleArrowIcon, ArrowIcon, DefaultIcon, } from "./icons";
 import { categoriesInterface } from "@/types/category";
 import { useCategoryContext } from "../context/categoryContext";
 import { useProductContext } from "../context/productContext";
@@ -17,22 +17,16 @@ interface BottomBarProps {
 interface BottomBarButton {
   label: string;
   category: categoriesInterface;
-  Icon: React.FC<{ isActive: boolean }> | null;
+  Icon: React.FC<{ isActive?: boolean }> | null;
   onClick?: (e: React.MouseEvent) => void;
 }
 
 const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarProps) => {
   const { categoriesData } = useCategoryContext();
   const { productsData } = useProductContext();
-  const [bottomBarButtons, setBottomBarButtons] = useState<{ main: BottomBarButton[]; more: BottomBarButton[]; all: BottomBarButton[] }>({ main: [], more: [], all: [] });
+  const [bottomBarButtons, setBottomBarButtons] = useState< BottomBarButton[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCategories, setShowCategories] = useState(false);
-  const [showScrollButtons, setShowScrollButtons] = useState(false);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const [showMore, setShowMore] = useState(false);
-  const bottomBarRef = useRef<HTMLDivElement>(null);
-  const scrollPosition = useRef(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
 
@@ -66,8 +60,8 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
   };
 
   // division de los botones para mostrar los productos default y los que se muestran al presionar ver mas categorias
-  const generateBottomBarButtons = (): { main: BottomBarButton[]; more: BottomBarButton[]; all: BottomBarButton[] } => {
-    if (!categoriesData.length || !productsData.length) return { main: [], more: [], all: [] };
+  const generateBottomBarButtons = (): BottomBarButton[] => {
+    if (!categoriesData.length || !productsData.length) return [];
 
     const orderedCategories = orderCategoriesByProductCount(productsData);
     const orderedCategoryMap = new Map(orderedCategories.map((id, index) => [id, index]));
@@ -79,81 +73,21 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     });
 
     const buttons: BottomBarButton[] = sortedCategories.map((category) => {
-      const icon = sidebarIcons.find((btn) => btn.label === category.name_category)?.Icon || null;
+      const icon = sidebarIcons.find((btn) => btn.label === category.name_category)?.Icon || DefaultIcon;
       return { label: category.name_category, category, Icon: icon };
     });
 
-    return {
-      main: buttons.slice(0, 14),
-      more: buttons.slice(14),
-      all: buttons
-    };
+    return buttons
   };
 
-
-  // verifica si se debe mostar los botones de scroll
-  const checkScroll = () => {
-    if (bottomBarRef.current) {
-      const hasHorizontalScroll = bottomBarRef.current.scrollWidth > bottomBarRef.current.clientWidth;
-      setShowScrollButtons(hasHorizontalScroll);
-      checkScrollButtons();
-    }
-  };
-
-  // verificar si se puede hacer scroll hacia la izquierda o derecha
-  const checkScrollButtons = () => {
-    if (bottomBarRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = bottomBarRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
-    }
-  };
-
-  // Captura la posición del scroll
-  useEffect(() => {
-    const bottomBar = bottomBarRef.current;
-
-    if (bottomBar) {
-      const handleScroll = () => {
-        scrollPosition.current = bottomBar.scrollLeft
-        checkScrollButtons();
-      }
-
-      bottomBar.addEventListener("scroll", handleScroll);
-
-      return () => {
-        bottomBar.removeEventListener("scroll", handleScroll);
-      };
-    }
-  }, [bottomBarButtons]);
-
-
-  // ocultar las categorias extras cuando se ocultan las categorias
-  useEffect(() => {
-    setShowMore(false);
-    checkScroll();
-  }, [showCategories]);
   
-  // Restaura la posición del scroll después del renderizado
-  useEffect(() => (bottomBarRef.current?.scrollTo({ left: scrollPosition.current, behavior: "auto", })), [categorySelected]);
 
   // seteo de los botones del bottomBar
   useEffect(() => (setBottomBarButtons(generateBottomBarButtons())), [categoriesData, productsData]);
 
-  // verificar si necesita mostrar los botones de scroll
-  useEffect(() => (checkScroll()), [showMore]);
-
-  // view scroll of the bottomBar
-  useEffect(() => {
-    checkScroll();
-    // Opcional: agregar listener para cambios de tamaño de ventana
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, []);
-  
 
   // filtrado de las categorias
-  const filteredButtons = bottomBarButtons.all.filter(({ label }) =>
+  const filteredButtons = bottomBarButtons.filter(({ label }) =>
     label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -172,6 +106,11 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     };
   }, []);
 
+
+  if (!categoriesData || categoriesData.length == 0) {
+    return <div></div>
+  }
+  
 
   return (
     <div ref={dropdownRef} className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
@@ -199,8 +138,12 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
 
       {showCategories && (
         <div className="absolute bottom-16 bg-white rounded-lg shadow-xl w-64 py-2 border border-gray-200 text-black">
-          <div className="max-h-96 overflow-y-auto">
-            {categoriesData?.map((category) => (
+          <div className="p-2">
+            <input type="text" placeholder="Find Category" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="text-black p-2 border border-gray-300 rounded w-full h-[35px]" />
+          </div>
+
+          <div className="h-96 overflow-y-auto">
+            {filteredButtons?.map(({category, label, Icon}) => (
               <button
                 key={category.id_category}
                 className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors duration-200"
@@ -209,7 +152,12 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
                   setShowCategories(false);
                 }}
               >
-                {category.name_category}
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 flex items-center justify-center">
+                    {Icon && <Icon />}
+                  </div>
+                  {label}
+                </div>
               </button>
             ))}
           </div>

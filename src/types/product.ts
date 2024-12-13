@@ -43,9 +43,6 @@ export interface ProductTypes {
     count: number,
     w_simbol: string,
     embase: string,
-
-
-
 }
 
 export interface ProductDraggingType {
