@@ -41,9 +41,7 @@ const AddProductPage = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [reloadFlag, setReloadFlag] = useState(false);
     const { user } = useAuth();
-
-
-
+    const [generatedSKU, setGeneratedSKU] = useState<string>("");
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
             { name: "type_of_meat", placeholder: "Type of meat" },
@@ -93,11 +91,11 @@ const AddProductPage = () => {
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
             const existingProduct = productsData.find(
-                product => product.upc === data.upc || product.sku === data.sku
+                product => product.upc === data.upc
             );
 
             if (existingProduct) {
-                toast.error("Ya existe un producto con el mismo UPC o SKU");
+                toast.error("Ya existe un producto con el mismo UPC");
                 return;
             }
 
@@ -105,17 +103,12 @@ const AddProductPage = () => {
             const formData = new FormData();
 
             // Campos básicos
-            formData.append('name', data.name || "");
+            formData.append('name', data.desc || "");
             formData.append('brand', data.brand || "");
             formData.append('upc', data.upc);
-            formData.append('sku', data.sku || "");
             formData.append('price', '0');
-            formData.append('sale_price', "0");
-            formData.append('reg_price', '0');
-            formData.append('unit_price', "0");
             formData.append('size', String(data.size) || "");
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
-            formData.append('color', data.color || "");
             formData.append('id_category', String(data.id_category));
             formData.append('pack', String(data.pack) || "");
             formData.append('count', String(data.count) || "");
@@ -124,16 +117,9 @@ const AddProductPage = () => {
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
-            formData.append('main', data.main || "");
             formData.append('addl', data.addl || "");
             formData.append('burst', (data.burst || 0).toString());
-            formData.append('price_text', data.price_text || "");
-            formData.append('save_up_to', data.save_up_to || "");
-            formData.append('item_code', '0');
-            formData.append('group_code', '0');
             formData.append('notes', data.notes || "");
-            formData.append('buyer_notes', data.buyer_notes || "");
-            formData.append('effective', data.effective || "");
             formData.append('type_of_meat', data.type_of_meat || "");
             formData.append('quantity', data.quantity || "");
             formData.append('master_brand', data.master_brand || "");
@@ -158,7 +144,6 @@ const AddProductPage = () => {
                 setPreviewUrl(null);
                 setReloadFlag(true)
                 reset();
-                setValue("sku", "");
             }
 
             if (!response.ok) {
@@ -303,8 +288,7 @@ const AddProductPage = () => {
                         (product.brand?.toLowerCase().includes(searchLower)) ||
                         (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
                         (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
-                        (String(product.upc).includes(searchTerm)) ||
-                        (String(product.sku).includes(searchTerm))
+                        (String(product.upc).includes(searchTerm))
                     );
                 }
             });
@@ -340,7 +324,7 @@ const AddProductPage = () => {
 
         // Verificar si el SKU ya existe
         const newSKU = `SKU${generateRandomDigits()}`;
-        const skuExists = productsData.some(product => product.sku === newSKU);
+        const skuExists = productsData.some(product => product.upc === newSKU);
 
         // Si existe, generar otro
         if (skuExists) {
@@ -447,24 +431,6 @@ const AddProductPage = () => {
                                     placeholder="UPC"
                                 />
                             </div>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="sku" style={labelStyle}>SKU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.sku || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
-                                    placeholder="SKU"
-                                />
-                            </div>
-                            { /*<div style={inputContainerStyle}>
-                                <label htmlFor="plu" style={labelStyle}>PLU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.plu || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, plu: e.target.value })}
-                                    placeholder="PLU"
-                                />
-                            </div> */}
                             <div style={inputContainerStyle}>
                                 <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                                 <input
@@ -683,6 +649,40 @@ const AddProductPage = () => {
         };
     }, [searchTerm, productsData]);
 
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.add('border-blue-500'); // Resalta el área cuando se arrastra sobre ella
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.remove('border-blue-500');
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.remove('border-blue-500');
+
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                const input = document.getElementById('imageInput') as HTMLInputElement;
+                if (input) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } else {
+                toast.error("Por favor, arrastra solo archivos de imagen");
+            }
+        }
+    };
+
     return (
         <div className="flex p-2 bg-[#121212] h-screen overflow-y-auto no-scrollbar ">
             {showModal && addProduct && (
@@ -692,7 +692,7 @@ const AddProductPage = () => {
             <form
                 ref={formRef}
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-6xl mx-auto"
+                className={`grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-4xl  ${openSearch ? "ml-28" : "mx-auto"}`}
             >
                 {/* Información básica del producto */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
@@ -845,17 +845,17 @@ const AddProductPage = () => {
                         <div className="flex gap-2">
                             <input
                                 type="text"
-                                value={watch("sku") || ""}
+                                value={generatedSKU}
                                 readOnly
                                 placeholder="SKU generado"
-                                className="p-2 border rounded text-black flex-1 "
+                                className="p-2 border rounded text-black flex-1"
                             />
                             <button
                                 type="button"
                                 onClick={() => {
                                     const newSKU = generateSKU();
-                                    // Actualizar el valor del campo SKU en el formulario
-                                    setValue("sku", newSKU);
+                                    setGeneratedSKU(newSKU);
+                                    setValue("upc", newSKU);
                                 }}
                                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                             >
@@ -878,7 +878,13 @@ const AddProductPage = () => {
                                     id="imageInput"
                                 />
                                 {previewUrl ? (
-                                    <div className="cursor-pointer" onClick={() => document.getElementById('imageInput')?.click()}>
+                                    <div 
+                                        className="cursor-pointer" 
+                                        onClick={() => document.getElementById('imageInput')?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
                                         <img
                                             src={previewUrl}
                                             alt="Vista previa"
@@ -887,10 +893,26 @@ const AddProductPage = () => {
                                     </div>
                                 ) : (
                                     <div
-                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
                                         onClick={() => document.getElementById('imageInput')?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
                                     >
-                                        <span className="text-gray-400">Click to add an image</span>
+                                        <svg 
+                                            className="w-8 h-8 mb-2 text-gray-400" 
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth={2} 
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                            />
+                                        </svg>
+                                        <span className="text-gray-400">Drag an image here or click to select</span>
                                     </div>
                                 )}
                             </div>
@@ -925,9 +947,9 @@ const AddProductPage = () => {
 
             {/* Resultados de búsqueda */}
             {openSearch && (
-                <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar pb-24">
-                    <h2 className=" text-white text-xl mb-4">Search Results</h2>
-                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[12vh]  bg-red-500 text-white p-2 rounded-md">Close</button>
+                <div className="fixed col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar h-screen right-0 pb-28 w-80">
+                    <h2 className=" text-white text-xl mb-4">{"Search Results " + searchResults.length + " products"}</h2>
+                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[15vh]  bg-red-500 text-white p-2 rounded-md z-50">Close</button>
 
                     {searchResults.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
@@ -935,11 +957,14 @@ const AddProductPage = () => {
                                 <div key={product.id_product} className="bg-gray-700 p-4 rounded-lg">
                                     <div className="relative">
                                         {product.url_image && (
-                                            <img
-                                                src={product.url_image}
-                                                alt={product.desc || ""}
-                                                className="w-full h-48 object-contain rounded"
-                                            />
+                                            <div className="flex flex-col justify-center items-center">
+                                                <p className="text-white text-center">{product.desc}</p>
+                                                <img
+                                                    src={product.url_image}
+                                                    alt={product.desc || ""}
+                                                    className="w-full h-32 object-contain rounded"
+                                                />
+                                            </div>
                                         )}
                                         <button
                                             onClick={() => handleEditClick(product)}

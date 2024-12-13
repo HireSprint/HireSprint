@@ -972,7 +972,6 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
                     product.desc?.toLowerCase().includes(searchLower) ||
                     product.master_brand?.toLowerCase().includes(searchLower) ||
                     product.brand?.toLowerCase().includes(searchLower) ||
-                    product.name?.toLowerCase().includes(searchLower) ||
                     product.upc?.toString().includes(debouncedSearchTerm) ||
                     product.variety?.includes(debouncedSearchTerm)
                 );

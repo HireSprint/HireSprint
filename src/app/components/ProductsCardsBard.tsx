@@ -37,7 +37,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
     const filteredProducts = productsData.filter((product) =>
         productsSameCategory.includes(product) &&
-        product.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        product.desc?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (

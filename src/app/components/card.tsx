@@ -32,14 +32,13 @@ export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSele
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="text-center w-full">
-                <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.name}</h2>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.desc || "No hay descripción"}</p>
+                <h2 className="font-semibold text-black text-lg mb-2 truncate">{product.desc || "No hay descripción"}</h2>
             </div>
             <div className="w-full h-40 relative">
                 {product.url_image ? (
                     <Image
                         src={product.url_image}
-                        alt={product.name}
+                        alt={product.desc || "No hay descripción"}
                         layout="fill"
                         style={{ objectFit: 'cover' }}
                         className="rounded-lg"
@@ -91,7 +90,6 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
 
     return (
         <div className="border rounded-lg shadow-md pl-1 flex flex-col text-pretty">
-            <p className="font-semibold text-black">{product.name}</p>
             <p className="text-gray-600">{product.desc}</p>
             <input
                 type="number"
@@ -103,12 +101,12 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
             {showImage && product.url_image ? (
                 <Image
                     src={product.url_image}
-                    alt={product.name}
                     width={100}
                     height={100}
                     className="rounded object-cover mt-2"
                     onLoadingComplete={handleImageLoad}
                     draggable={false}
+                    alt={product.desc || "No hay descripción"}
                 />
             ) : (
                 <div className="w-12 h-12 bg-gray-200 flex items-center justify-center mt-2">
@@ -137,14 +135,14 @@ export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
             onClick={(e) => onProductSelect && onProductSelect(product, e)}
         >
             <div className="flex flex-col w-full">
-                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product?.desc ? product?.desc : product?.name}</h2>
+                <h2 className="text-center font-semibold text-black text-lg mb-2 truncate">{product?.desc ? product?.desc : product?.desc}</h2>
                 <p className="text-gray-600 text-sm mb-4">${parseFloat(product.price || "0").toFixed(2)}</p>
             </div>
             <div className="relative flex items-center justify-end">
                 {product.url_image ? (
                     <Image
                         src={product.url_image}
-                        alt={product.name || ""}
+                        alt={product.desc || "No hay descripción"}
                         width={150}
                         height={150}
                         className="rounded object-cover"
@@ -317,7 +315,7 @@ export const GridCardProduct = ({
 
                                         <Image
                                             src={product.url_image}
-                                            alt={product.name || ''}
+                                            alt={product.desc || "No hay descripción"}
                                             width={100} // Ajustado a la resolución necesaria
                                             height={100} // Compatible con el tamaño máximo
                                             className="w-full h-full object-contain"
@@ -524,20 +522,20 @@ export const CardShowSide = ({
                             <div className=" flex w-28 h-28 items-center justify-center">
                                 {
                                     product.url_image && !imageError ? (
-                                        <Image
-                                            src={product.url_image}
-                                            alt={product.name}
-                                            width={100}
-                                            height={100}
-                                            draggable={false}
-                                            style={{ objectFit: 'cover' }}
-                                            className="rounded-lg"
-                                            onError={() => setImageError(true)}
-                                            loading="lazy"
-                                            placeholder="blur"
-                                            blurDataURL={product.url_image}
-                                        />
-                                    )
+                                            <Image
+                                                src={product.url_image}
+                                                alt={product.desc || "No hay descripción"}
+                                                width={100}
+                                                height={100}
+                                                draggable={false}
+                                                style={{objectFit: 'cover'}}
+                                                className="rounded-lg"
+                                                onError={() => setImageError(true)}
+                                                loading="lazy"
+                                                placeholder="blur"
+                                                blurDataURL={product.url_image}
+                                            />
+                                        )
                                         :
                                         (
                                             <div
