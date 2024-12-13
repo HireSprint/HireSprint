@@ -76,6 +76,7 @@ const AddProductPage = () => {
             try {
                 const resp = await fetch("/api/apiMongo/getProduct");
                 const data = await resp.json();
+                console.log("products",data)
                 setProductsData(data.result);
             } catch (error) {
                 console.error("Error in get [id_circular]:", error);
@@ -89,6 +90,7 @@ const AddProductPage = () => {
             try {
                 const resp = await fetch("/api/apiMongo/getCategories");
                 const data = await resp.json();
+
                 if (resp.status === 200) {
                     setCategories(data.result);
                 }
@@ -190,6 +192,7 @@ const AddProductPage = () => {
                 try {
                     const resp = await fetch("/api/apiMongo/getProduct");
                     const data = await resp.json();
+                    console.log("products",data)
                     if (resp.status === 200) {
                         setProductsData(data.result);
                     }

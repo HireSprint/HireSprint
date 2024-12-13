@@ -159,6 +159,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                     productos.filter((product: ProductTypes) => product.id_grid !== undefined)
                         .sort((a: ProductTypes, b: ProductTypes) => a.id_grid! - b.id_grid!)
                 );
+                
                 setCategories(data.result);
                 setLoading(false);
                 console.log("invalid rows",invalidRows)
