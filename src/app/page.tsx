@@ -65,6 +65,9 @@ export default function HomePage() {
     const [useZoomSubPages, setUseZoomSubPages] = useState(false);
     const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
+    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({ top: 0, left: 0 });
+    const productSelectionRef = useRef<HTMLDivElement | null>(null);
+    const [gridProductDimensions, setGridProductDimensions] = useState({ width: 0, height: 0 });
 
     useEffect(() => {
         const getProductView = async () => {
@@ -131,6 +134,61 @@ export default function HomePage() {
         loadCircularProducts();
     }, [idCircular, user, productsData]); // Se ejecuta cuando cambia el idCircular
 
+
+    useEffect(() => {
+        // Inicializar la posición
+        const gridProductWidth = gridProductDimensions.width ?? 0
+        const gridProductHeight = gridProductDimensions.height ?? 0
+
+        setProductSelectionPosition({ 
+            top: gridProductHeight + (mousePosition.y + 25) > window.innerHeight ? ((window.innerHeight - gridProductHeight) - 15) : mousePosition.y + 25,
+            left:  gridProductWidth + (mousePosition.x + 25) > window.innerWidth ? ((window.innerWidth - gridProductWidth) - 15) : (mousePosition.x + 25),
+        });
+        
+        const handleResize = () => {
+            if (window.innerWidth < 800) {
+                setProductSelectionPosition((prev) => ({
+                    ...prev,
+                    left: (window.innerWidth / 2) - (gridProductWidth / 2),
+                }));
+            } else {
+                setProductSelectionPosition((prev) => ({
+                    ...prev,
+                    left: gridProductWidth + ((mousePosition.x + 25) - 2) > window.innerWidth ? ((window.innerWidth - gridProductWidth) - 15) : ((mousePosition.x + 25) - 2),
+                }));
+            }
+        };
+
+        handleResize()
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [mousePosition, gridProductDimensions]);
+
+
+    const updateGrideProductDimensions = () => {
+        if (productSelectionRef.current) {
+            setGridProductDimensions({ width: productSelectionRef.current.clientWidth, height: productSelectionRef.current.clientHeight, });
+        }
+    };
+
+    useEffect(() => {
+        if (showProducts  && productSelectionRef.current) {
+            const resizeObserver = new ResizeObserver(updateGrideProductDimensions);
+            if (productSelectionRef.current) resizeObserver.observe(productSelectionRef.current);
+    
+            // Llamar a la función para establecer las dimensiones iniciales
+            updateGrideProductDimensions();
+    
+            return () => {
+                if (productSelectionRef.current) {
+                    resizeObserver.unobserve(productSelectionRef.current);
+                }
+            };
+        }
+     },[showProducts])
 
     // Función para actualizar el servidor
     const updateCircularInServer = async (products: ProductTypes[]) => {
@@ -322,16 +380,16 @@ export default function HomePage() {
             setShowProducts(true);
         }
     };
-
+    
     const commonGridProps = {
         onGridCellClick: handleGridClick,
         onDragAndDropCell: handleDragAndDropGridCell,
         setShowProductCardBrand: setShowProductCardBrand
     };
-
-
+    
+    
     let productoShowForce: boolean = true;
-
+    
     const handleChangeProductForOther = (gridId: number | undefined) => {
         if (gridId === undefined)
             return;
@@ -543,7 +601,7 @@ export default function HomePage() {
         setGridIdToClear(gridId);
         setIsClearAllPopupOpen(true);
     };
-    console.log(minScale);
+
     const confirmClearAll = () => {
         if (gridIdToClear) {
             setSelectedProducts((prevProducts) => {
@@ -575,7 +633,7 @@ export default function HomePage() {
         setIsClearAllPopupOpen(false);
     };
 
-    console.log(zoomScalePage1, zoomScaleSubPagines, "zoom actual");
+    
 
     return (
 
@@ -622,7 +680,6 @@ export default function HomePage() {
                             <>
 
                                 {firsTimeOpen && (() => {
-                                    console.log('esta entrando');
                                     resetTransform();
                                 })()}
 
@@ -710,7 +767,6 @@ export default function HomePage() {
                         {({zoomIn, zoomOut, setTransform, resetTransform}) => (
                             <>
                                 {resetScale && (() => {
-                                    console.log('esta reiniciando esta care monda')
                                     if (productDragging === null) {
                                         resetTransform();
                                         setPanningOnSubPage(true);
@@ -820,24 +876,15 @@ export default function HomePage() {
                 <AnimatePresence>
                     {showProducts && mousePosition && (
                         <motion.div
-
-
-                            initial={{opacity: 0, y: 20}}
-                            exit={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5}}
-                            className="absolute z-[100] "
-                            style={{
-                                top: Math.min(mousePosition.y + 80, window.innerHeight - 400),
-                                left: Math.min(mousePosition.x, window.innerWidth - 900),
-                            }}
-
+                            ref={productSelectionRef}
+                            initial={{ opacity: 0, y: 20 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="absolute z-[100]"
+                            style={{ top: productSelectionPosition.top, left: productSelectionPosition.left, }}
                         >
-                            <GridProduct
-                                onProductSelect={handleProductSelect}
-                                onHideProducts={ClosetPanels}
-                                initialCategory={gridCategory}
-                            />
+                            <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels} initialCategory={gridCategory} />   
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -935,16 +982,15 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
     }, [debouncedSearchTerm, productsData, category?.id_category]);
 
     return (
-        <div className="relative bg-[#f5f5f5] p-4 h-[40vh] w-[45vw]  rounded-lg shadow-xl overflow-visible">
-            <button className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50"
-                    onClick={onHideProducts}>
+        <div className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
+            <button className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
                 X
             </button>
             <div className="grid grid-rows-[min-content_1fr] h-full">
-                <div className="flex bg-white items-center justify-between relative rounded-md px-2">
+                <div className="flex flex-wrap bg-white items-center justify-between relative rounded-md p-2 gap-3">
                     <div>
                         <select
-                            className="text-black w-36 font-bold"
+                            className="text-black w-36 font-bold p-2"
                             value={category?.name_category || ''}
                             onChange={(e) => {
                                 const selectedCategory = categoriesData.find(
@@ -962,26 +1008,14 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
                             ))}
                         </select>
                     </div>
-                    <input
-                        type="text"
-                        placeholder="Search Products"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className=" p-2 border rounded text-black m-4 sm:text-sm"
-                    />
-                    <div className="flex gap-2 mb-1">
-                        <button
-                            className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                            }`}
-                            onClick={() => setActiveTab('all')}
-                        >
+
+                    <input type="text" placeholder="Search Products" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className=" p-2 border rounded text-black sm:text-sm" />
+
+                    <div className="flex flex-wrap gap-2 mb-1">
+                        <button className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400' }`} onClick={() => setActiveTab('all')} >
                             All Products
                         </button>
-                        <button
-                            className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'
-                            }`}
-                            onClick={() => setActiveTab('circular')}
-                        >
+                        <button className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400' }`} onClick={() => setActiveTab('circular')} >
                             In Circular
                         </button>
                     </div>
@@ -1002,7 +1036,7 @@ const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProduct
                                 </div>
                             )
                             :
-                            <div className="grid grid-cols-4 pt-2 gap-2">
+                            <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
                                 {
                                     (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
                                         <CardShowSide key={product?.id_product || index} product={product}
