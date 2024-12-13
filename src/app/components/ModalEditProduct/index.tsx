@@ -380,7 +380,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                                 className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                                                                 onClick={() => {
                                                                     setSelectedVarieties(prev => [...prev, item]);
-                                                                    setSelectedDesc(prev => [...prev, item.desc || item.name]);
+                                                                    setSelectedDesc(prev => [...prev, item.desc || "No hay descripción"]);
                                                                     setSelectedSizes(prev => [...prev, item.size || '']);
                                                                     setShowVarietyList(false);
                                                                 }}
@@ -388,13 +388,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                                 {item.url_image && (
                                                                     <Image
                                                                         src={item.url_image}
-                                                                        alt={item.name}
+                                                                        alt={item.desc || "No hay descripción"}
                                                                         width={30}
                                                                         height={30}
                                                                         className="rounded-sm"
                                                                     />
                                                                 )}
-                                                                <span className="text-sm text-black">{item.name}</span>
+                                                                <span className="text-sm text-black">{item.desc || "No hay descripción"}</span>
                                                             </div>
                                                         ))}
                                                     </div>
