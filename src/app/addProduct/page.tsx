@@ -104,12 +104,12 @@ const AddProductPage = () => {
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
             const existingProduct = productsData.find(
-                product => product.upc === data.upc || product.sku === data.sku
+                product => product.upc === data.upc
             );
             console.log(existingProduct, "existingProduct");
 
             if (existingProduct) {
-                toast.error("Ya existe un producto con el mismo UPC o SKU");
+                toast.error("Ya existe un producto con el mismo UPC");
                 return;
             }
 
