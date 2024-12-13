@@ -39,7 +39,7 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [reloadFlag, setReloadFlag] = useState(false);
+    const [reloadFlag, setReloadFlag] = useState(true);
     const { user } = useAuth();
     const [generatedSKU, setGeneratedSKU] = useState<string>("");
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
@@ -69,7 +69,21 @@ const AddProductPage = () => {
     const formRef = useRef<HTMLFormElement>(null);
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
 
-
+    useEffect(() => {
+        if (reloadFlag){
+            const getProductView = async () => {
+                try {
+                    const resp = await fetch("/api/apiMongo/getProduct");
+                    const data = await resp.json();
+                    setProductsData(data.result);
+                } catch (error) {
+                    console.error("Error in get [id_circular]:", error);
+                }
+            };
+            getProductView();
+            setReloadFlag(false)
+        }
+    }, [reloadFlag]);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -274,35 +288,36 @@ const AddProductPage = () => {
             toast.error("Please enter a search term");
             return;
         }
+        if(productsData.length > 0){
+            setIsSearching(true);
+            reset()
+            try {
+                // Filtra los productos que coincidan con el término de búsqueda
+                const filtered = productsData.filter((product: ProductTypes) => {
+                    const searchLower = searchTerm.toLowerCase();
+                    if (product.status_active !== false) {
+                        return (
+                            (product.desc?.toLowerCase().includes(searchLower)) ||
+                            (product.master_brand?.toLowerCase().includes(searchLower)) ||
+                            (product.brand?.toLowerCase().includes(searchLower)) ||
+                            (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
+                            (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
+                            (String(product.upc).includes(searchTerm))
+                        );
+                    }
+                });
 
-        setIsSearching(true);
-        reset()
-        try {
-            // Filtra los productos que coincidan con el término de búsqueda
-            const filtered = productsData.filter((product: ProductTypes) => {
-                const searchLower = searchTerm.toLowerCase();
-                if (product.status_active !== false) {
-                    return (
-                        (product.desc?.toLowerCase().includes(searchLower)) ||
-                        (product.master_brand?.toLowerCase().includes(searchLower)) ||
-                        (product.brand?.toLowerCase().includes(searchLower)) ||
-                        (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
-                        (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
-                        (String(product.upc).includes(searchTerm))
-                    );
+                setSearchResults(filtered);
+                setOpenSearch(true);
+                if (filtered.length === 0) {
+                    toast.info("No se encontraron productos");
                 }
-            });
-
-            setSearchResults(filtered);
-            setOpenSearch(true);
-            if (filtered.length === 0) {
-                toast.info("No se encontraron productos");
+            } catch (error) {
+                console.error('Error al buscar productos:', error);
+                toast.error("Error al buscar productos");
+            } finally {
+                setIsSearching(false);
             }
-        } catch (error) {
-            console.error('Error al buscar productos:', error);
-            toast.error("Error al buscar productos");
-        } finally {
-            setIsSearching(false);
         }
     };
 
@@ -878,8 +893,8 @@ const AddProductPage = () => {
                                     id="imageInput"
                                 />
                                 {previewUrl ? (
-                                    <div 
-                                        className="cursor-pointer" 
+                                    <div
+                                        className="cursor-pointer"
                                         onClick={() => document.getElementById('imageInput')?.click()}
                                         onDragOver={handleDragOver}
                                         onDragLeave={handleDragLeave}
@@ -899,16 +914,16 @@ const AddProductPage = () => {
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
                                     >
-                                        <svg 
-                                            className="w-8 h-8 mb-2 text-gray-400" 
-                                            fill="none" 
-                                            stroke="currentColor" 
+                                        <svg
+                                            className="w-8 h-8 mb-2 text-gray-400"
+                                            fill="none"
+                                            stroke="currentColor"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path 
-                                                strokeLinecap="round" 
-                                                strokeLinejoin="round" 
-                                                strokeWidth={2} 
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
                                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                                             />
                                         </svg>
@@ -946,7 +961,7 @@ const AddProductPage = () => {
             </form>
 
             {/* Resultados de búsqueda */}
-            {openSearch && (
+            {openSearch  && (
                 <div className="fixed col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar h-screen right-0 pb-28 w-80">
                     <h2 className=" text-white text-xl mb-4">{"Search Results " + searchResults.length + " products"}</h2>
                     <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[15vh]  bg-red-500 text-white p-2 rounded-md z-50">Close</button>
