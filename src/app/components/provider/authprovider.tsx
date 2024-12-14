@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter();
     const pathname = usePathname();
     const [circulars, setCirculars] = useState<any[]>([]);
+    const [reloadCircular, setReloadCircular] = useState<boolean>(true);
     const [idCircular, setIdCircular] = useState<number | null>(null);
     useLayoutEffect(() => {
         const checkAuth = async () => {
@@ -102,25 +103,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
     useEffect(() => {
-        const getProductView = async () => {
-            if (!user?.userData?.id_client) return;
-            
-            try {
-                const body = {
-                    "id_client": user.userData.id_client,
-                }
-                if (circulars.length === 0) {
-                    const resp = await getCircularByClient(body);
-                    if (resp.status === 200) {
-                        setCirculars(resp.result);
-                    }
-                }
-            } catch (error) {
-                console.error("Error al obtener las categorías:", error);
-            }
-        };
-        getProductView();
-    }, [user]);
+       if(reloadCircular){
+           const getProductView = async () => {
+               if (!user?.userData?.id_client) return;
+
+               try {
+                   const body = {
+                       "id_client": user.userData.id_client,
+                   }
+                   if (circulars.length === 0) {
+                       const resp = await getCircularByClient(body);
+                       if (resp.status === 200) {
+                           setCirculars(resp.result);
+                       }
+                   }
+               } catch (error) {
+                   console.error("Error al obtener las categorías:", error);
+               }
+           };
+           getProductView();
+           setReloadCircular(false)
+       }
+    }, [user,reloadCircular]);
 
     const setCircularId = (id: number | null) => {
         setIdCircular(id);
@@ -142,6 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUpdate,
             circulars,
             idCircular,
+            setReloadCircular,
             setIdCircular: setCircularId
         }}>
             {children}
