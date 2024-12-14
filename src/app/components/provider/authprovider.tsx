@@ -8,6 +8,7 @@ interface AuthContextProps {
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     loading: boolean;
+    setReloadCircular:(reload:boolean)=>void;
     update: any;
     setUpdate: (update: any) => void;
     circulars: Array<{
