@@ -37,7 +37,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
     const filteredProducts = productsData.filter((product) =>
         productsSameCategory.includes(product) &&
-        product.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        product.desc?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -55,7 +55,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                     </div>
 
                     <input type="text" 
-                        placeholder="Buscar Producto"
+                        placeholder="Find Product"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="text-black w-full p-2 mb-3 border border-gray-300 rounded"

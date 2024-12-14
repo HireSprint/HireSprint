@@ -9,6 +9,7 @@ import { useAuth } from "./provider/authprovider";
 import { getProductsByCircular } from "@/pages/api/apiMongo/getProductsByCircular";
 
 
+
 interface ImageGridProps {
     onGridCellClick: (gridId: number, idCategory: number | undefined,  event: React.MouseEvent) => void;
     onDragAndDropCell: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
@@ -21,7 +22,7 @@ export const ImageGrid = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { productsData, selectedProducts, setSelectedProducts, productDragging } = useProductContext();
+    const { productsData, selectedProducts, updateGridProducts, productDragging } = useProductContext();
     const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const initialGridCells: cellTypes[] = [
         //meats
@@ -88,11 +89,13 @@ export const ImageGrid = ({
         { id: 1049, top: "top-[75.5%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
         { id: 1050, top: "top-[83.4%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
         { id: 1051, top: "top-[91.2%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
+        //{ id: 1501, top: "top-[91.5%]", left: "left-[92%]", width: "8%", height: "3%", category: "Produce" },
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const { idCircular, user } = useAuth();
     const [loading, setLoading] = useState(true);
+    const {panningOnPage1} = useProductContext();
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -125,61 +128,28 @@ export const ImageGrid = ({
     }, [idCircular, user]);
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
-            const productsMap = new Map(
-                productsData.map(product => [product.upc.toString(), product])
+        if (productsData.length && circularProducts?.length > 0) {
+            updateGridProducts(
+                { min: 1001, max: 1999 }, 
+                circularProducts
             );
-    
-            // Filtrar solo productos para el grid 1 (1001-1999)
-            const gridFilled = circularProducts
-                .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;
-                    const isInRange = gridId >= 1001 && gridId <= 1999;
-                    return isInRange && productsMap.has(circularProduct.upc.toString());
-                })
-                .map(circularProduct => {
-                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
-                    return {
-                        ...baseProduct,
-                        id_grid: circularProduct.id_grid,
-                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
-                        burst: circularProduct.burst,
-                        addl: circularProduct.addl,
-                        limit: circularProduct.limit,
-                        must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
-                    };
-                });
-    
-            // Actualizar selectedProducts manteniendo solo los productos de este grid
-            setSelectedProducts(prevProducts => {
-                // Mantener productos de otros grids
-                const otherGridProducts = prevProducts.filter(p => {
-                    const gridId = Number(p.id_grid) || 0;
-                    return gridId < 1001 || gridId > 1999;
-                });
-    
-                // Combinar con los nuevos productos de este grid
-                return [...otherGridProducts, ...gridFilled];
-            });
         }
-    }, [productsData, gridCells, circularProducts]);
+    }, [productsData, circularProducts]);
 
 
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
-            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false}/>
+            <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false} />
             {gridCells.map((cell) => {
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
 
-                return (
+                return (                  
                     <GridCardProduct
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnPage1 ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}
@@ -199,9 +169,10 @@ export const ImageGrid2 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, user } = useAuth();
-    const {  productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
+    const {  productsData, selectedProducts, updateGridProducts, productDragging, panningOnSubPage, setGroupedProducts} = useProductContext();
     const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
     const [loading, setLoading] = useState(true);
+
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -284,7 +255,6 @@ export const ImageGrid2 = ({
 
 
 
-
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -317,47 +287,13 @@ export const ImageGrid2 = ({
     }, [idCircular, user]);
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
-            const productsMap = new Map(
-                productsData.map(product => [product.upc.toString(), product])
+        if (productsData.length && circularProducts?.length > 0) {
+            updateGridProducts(
+                { min: 2001, max: 2999 }, 
+                circularProducts
             );
-    
-            // Filtrar solo productos para el grid 2 (2001-2999)
-            const gridFilled = circularProducts
-                .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;
-                    const isInRange = gridId >= 2001 && gridId <= 2999;
-                    return isInRange && productsMap.has(circularProduct.upc.toString());
-                })
-                .map(circularProduct => {
-                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
-                    return {
-                        ...baseProduct,
-                        id_grid: circularProduct.id_grid,
-                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
-                        burst: circularProduct.burst,
-                        addl: circularProduct.addl,
-                        limit: circularProduct.limit,
-                        must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
-                    };
-                });
-    
-            // Actualizar selectedProducts manteniendo solo los productos de este grid
-            setSelectedProducts(prevProducts => {
-                // Mantener productos de otros grids
-                const otherGridProducts = prevProducts.filter(p => {
-                    const gridId = Number(p.id_grid) || 0;
-                    return gridId < 2001 || gridId > 2999;
-                });
-    
-                // Combinar con los nuevos productos de este grid
-                return [...otherGridProducts, ...gridFilled];
-            });
         }
-    }, [productsData, gridCells, circularProducts]);
-
+    }, [productsData, circularProducts]);
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
@@ -372,7 +308,7 @@ export const ImageGrid2 = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnSubPage ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}
@@ -391,8 +327,7 @@ export const ImageGrid3 = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
-    const [ hasFilledGrid, setHasFilledGrid ] = useState(false);
+    const { productsData, selectedProducts, updateGridProducts, productDragging} = useProductContext();
     const { idCircular, user } = useAuth();
     const initialGridCells: cellTypes[] = [
         // Dairy
@@ -516,6 +451,7 @@ export const ImageGrid3 = ({
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
+    const {panningOnSubPage} = useProductContext();
     const [loading, setLoading] = useState(true);
 
 
@@ -551,46 +487,13 @@ export const ImageGrid3 = ({
 
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
-            const productsMap = new Map(
-                productsData.map(product => [product.upc.toString(), product])
+        if (productsData.length && circularProducts?.length > 0) {
+            updateGridProducts(
+                { min: 3001, max: 3999 }, 
+                circularProducts
             );
-    
-            // Filtrar solo productos para el grid 1 (1001-1999)
-            const gridFilled = circularProducts
-                .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;
-                    const isInRange = gridId >= 3001 && gridId <= 3999;
-                    return isInRange && productsMap.has(circularProduct.upc.toString());
-                })
-                .map(circularProduct => {
-                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
-                    return {
-                        ...baseProduct,
-                        id_grid: circularProduct.id_grid,
-                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
-                        burst: circularProduct.burst,
-                        addl: circularProduct.addl,
-                        limit: circularProduct.limit,
-                        must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
-                    };
-                });
-    
-            // Actualizar selectedProducts manteniendo solo los productos de este grid
-            setSelectedProducts(prevProducts => {
-                // Mantener productos de otros grids
-                const otherGridProducts = prevProducts.filter(p => {
-                    const gridId = Number(p.id_grid) || 0;
-                    return gridId < 3001 || gridId > 3999;
-                });
-    
-                // Combinar con los nuevos productos de este grid
-                return [...otherGridProducts, ...gridFilled];
-            });
         }
-    }, [productsData, gridCells, circularProducts]);
+    }, [productsData, circularProducts]);
 
 
 
@@ -615,7 +518,7 @@ export const ImageGrid3 = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnSubPage ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}
@@ -635,8 +538,7 @@ export const ImageGrid4 = ({
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
     const { idCircular, user } = useAuth();
-    const { productsData, selectedProducts, setSelectedProducts, productDragging, currentPage } = useProductContext();
-    const [hasFilledGrid, setHasFilledGrid] = useState(false);
+    const { productsData, selectedProducts, productDragging, updateGridProducts } = useProductContext();
     const initialGridCells: cellTypes[] = [
         // Meat
         { id: 4001, top: "top-[1.5%]", left: "left-[21.6%]", width: "26.3%", height: "8.2%", category: "Meat" },
@@ -708,11 +610,10 @@ export const ImageGrid4 = ({
         { id: 4057, top: "top-[35.7%]", left: "left-[0%]", width: "22%", height: "9.9%", category: "Liquor-Beer" },
         { id: 4058, top: "top-[45.3%]", left: "left-[0%]", width: "22%", height: "9.9%", category: "Liquor-Beer" },
         { id: 4059, top: "top-[55%]", left: "left-[0%]", width: "22%", height: "9.9%", category: "Liquor-Beer" },
-
     ];
-
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
+    const {panningOnSubPage} = useProductContext();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -747,46 +648,13 @@ export const ImageGrid4 = ({
 
 
     useEffect(() => {
-        if (productsData.length && gridCells.length && circularProducts?.length > 0) {
-            const productsMap = new Map(
-                productsData.map(product => [product.upc.toString(), product])
+        if (productsData.length && circularProducts?.length > 0) {
+            updateGridProducts(
+                { min: 4001, max: 4999 }, 
+                circularProducts
             );
-    
-            // Filtrar solo productos para el grid 1 (1001-1999)
-            const gridFilled = circularProducts
-                .filter(circularProduct => {
-                    const gridId = Number(circularProduct.id_grid) || 0;
-                    const isInRange = gridId >= 4001 && gridId <= 4999;
-                    return isInRange && productsMap.has(circularProduct.upc.toString());
-                })
-                .map(circularProduct => {
-                    const baseProduct = productsMap.get(circularProduct.upc.toString())!;
-                    return {
-                        ...baseProduct,
-                        id_grid: circularProduct.id_grid,
-                        price: circularProduct.price || baseProduct.price, // Mantener el precio del circular o usar el precio base
-                        conditions: circularProduct.conditions,
-                        burst: circularProduct.burst,
-                        addl: circularProduct.addl,
-                        limit: circularProduct.limit,
-                        must_buy: circularProduct.must_buy,
-                        with_cart: circularProduct.with_cart
-                    };
-                });
-    
-            // Actualizar selectedProducts manteniendo solo los productos de este grid
-            setSelectedProducts(prevProducts => {
-                // Mantener productos de otros grids
-                const otherGridProducts = prevProducts.filter(p => {
-                    const gridId = Number(p.id_grid) || 0;
-                    return gridId < 4001 || gridId > 4999;
-                });
-    
-                // Combinar con los nuevos productos de este grid
-                return [...otherGridProducts, ...gridFilled];
-            });
         }
-    }, [productsData, gridCells, circularProducts]);
+    }, [productsData, circularProducts]);
 
 
 
@@ -804,7 +672,7 @@ export const ImageGrid4 = ({
                         key={cell?.id}
                         product={selectedProduct!}
                         cell={cell}
-                        onGridCellClick={onGridCellClick}
+                        onGridCellClick={panningOnSubPage ? onGridCellClick : undefined}
                         isLoading={isLoadingCategories}
                         onDragAndDropCell={onDragAndDropCell}
                         setShowProductCardBrand={setShowProductCardBrand}

@@ -1,34 +1,17 @@
 export interface ProductTypes {
     id_category: number,
-    name: string,
     brand: string,
     upc: string,
     size?: string,
     variety?: [string],
     price: string,
-    conditions?: string,
-    sku?: string,
     desc?: string,
-    main?: string,
     addl?: string,
-    burst?: string,
-    sale_price?: number,
-    price_text?: string,
-    reg_price?: number,
-    save_up_to?: string,
-    item_code?: number,
-    group_code?: number,
-    burst2?: string,
-    burst3?: string,
-    burst4?: string,
-    with_cart?: boolean,
+    burst?: number,
+    with_card?: boolean,
     id_product?: number,
     id_grid?: number,
     notes?: string,
-    buyer_notes?: string,
-    effective?: string,
-    unit_price?: string,
-    color?: string,
     url_image?: string
     image?:any
     type_of_meat?: string
@@ -41,7 +24,12 @@ export interface ProductTypes {
     limit?: string
     must_buy?: string,
     status_active?:boolean
-
+    limit_type: string
+    per: string,
+    pack: number,
+    count: number,
+    w_simbol: string,
+    embase: string,
 }
 
 export interface ProductDraggingType {

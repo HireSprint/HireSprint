@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ProductAddedModal } from "../components/card"
 import { useAuth } from "../components/provider/authprovider"
 import Image from "next/image"
-import {disableProduct} from "@/pages/api/apiMongo/disableProduct";
+import { disableProduct } from "@/pages/api/apiMongo/disableProduct";
 
 const AddProductPage = () => {
     const {
@@ -39,24 +39,29 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [reloadFlag, setReloadFlag] = useState(true);
     const { user } = useAuth();
-
-
-
+    const [generatedSKU, setGeneratedSKU] = useState<string>("");
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
             { name: "type_of_meat", placeholder: "Type of meat" },
             { name: "type_of_cut", placeholder: "Type OF cut" },
             { name: "quality_cf", placeholder: "Quality CF" },
-            { name: "size", placeholder: "Size / Pack" },
-            { name: "sku", placeholder: "SKU" },
+            { name: "size", placeholder: "Size" },
+            { name: "pack", placeholder: "Pack" },
+            { name: "count", placeholder: "Count" },
+            { name: "w_simbol", placeholder: "Weight Simbol" },
+            { name: "emabase", placeholder: "Emabase" },
         ],
         "16": [
             { name: "type_of_meat", placeholder: "Type of meat" },
             { name: "type_of_cut", placeholder: "Type OF cut" },
             { name: "quality_cf", placeholder: "Quality CF" },
-            { name: "size", placeholder: "Size / Pack" },
-            { name: "sku", placeholder: "SKU" },
+            { name: "size", placeholder: "Size" },
+            { name: "pack", placeholder: "Pack" },
+            { name: "count", placeholder: "Count" },
+            { name: "w_simbol", placeholder: "Weight Simbol" },
+            { name: "emabase", placeholder: "Emabase" },
         ]
     };
     const [selectedProduct, setSelectedProduct] = useState<ProductTypes | null>(null);
@@ -65,17 +70,20 @@ const AddProductPage = () => {
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getProduct");
-                const data = await resp.json();
-                setProductsData(data.result);
-            } catch (error) {
-                console.error("Error in get [id_circular]:", error);
-            }
-        };
-        getProductView();
-    }, []);
+        if (reloadFlag){
+            const getProductView = async () => {
+                try {
+                    const resp = await fetch("/api/apiMongo/getProduct");
+                    const data = await resp.json();
+                    setProductsData(data.result);
+                } catch (error) {
+                    console.error("Error in get [id_circular]:", error);
+                }
+            };
+            getProductView();
+            setReloadFlag(false)
+        }
+    }, [reloadFlag]);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -97,12 +105,11 @@ const AddProductPage = () => {
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
             const existingProduct = productsData.find(
-                product => product.upc === data.upc || product.sku === data.sku
+                product => product.upc === data.upc
             );
-            console.log(existingProduct, "existingProduct");
 
             if (existingProduct) {
-                toast.error("Ya existe un producto con el mismo UPC o SKU");
+                toast.error("Ya existe un producto con el mismo UPC");
                 return;
             }
 
@@ -110,35 +117,23 @@ const AddProductPage = () => {
             const formData = new FormData();
 
             // Campos básicos
-            formData.append('name', data.name || "");
+            formData.append('name', data.desc || "");
             formData.append('brand', data.brand || "");
             formData.append('upc', data.upc);
-            formData.append('sku', data.sku || "");
             formData.append('price', '0');
-            formData.append('sale_price', "0");
-            formData.append('reg_price', '0');
-            formData.append('unit_price', "0");
             formData.append('size', String(data.size) || "");
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
-            formData.append('color', data.color || "");
-            formData.append('conditions', data.conditions || "");
             formData.append('id_category', String(data.id_category));
+            formData.append('pack', String(data.pack) || "");
+            formData.append('count', String(data.count) || "");
+            formData.append('w_simbol', data.w_simbol || "");
+            formData.append('embase', data.embase || "");
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
-            formData.append('main', data.main || "");
             formData.append('addl', data.addl || "");
-            formData.append('burst', data.burst || "");
-            formData.append('price_text', data.price_text || "");
-            formData.append('save_up_to', data.save_up_to || "");
-            formData.append('item_code', '0');
-            formData.append('group_code', '0');
-            formData.append('burst2', data.burst2 || "");
-            formData.append('burst3', data.burst3 || "");
-            formData.append('burst4', data.burst4 || "");
+            formData.append('burst', (data.burst || 0).toString());
             formData.append('notes', data.notes || "");
-            formData.append('buyer_notes', data.buyer_notes || "");
-            formData.append('effective', data.effective || "");
             formData.append('type_of_meat', data.type_of_meat || "");
             formData.append('quantity', data.quantity || "");
             formData.append('master_brand', data.master_brand || "");
@@ -155,12 +150,14 @@ const AddProductPage = () => {
             });
 
             if (response.ok) {
+                const dataResponse = await response.json();
+                setProductsData(prevData => [...prevData, { ...data, id_product: dataResponse.id_product }]);
                 setAddProduct([...addProduct, data]);
                 setShowModal(true);
                 toast.success("¡Product created successfully!");
                 setPreviewUrl(null);
+                setReloadFlag(true)
                 reset();
-                setValue("sku", "");
             }
 
             if (!response.ok) {
@@ -173,6 +170,8 @@ const AddProductPage = () => {
             console.error('Error al crear producto:', error);
         }
     };
+
+
 
     useEffect(() => {
         if (imageFile && imageFile[0]) {
@@ -213,7 +212,6 @@ const AddProductPage = () => {
             }
         } catch (error) {
             toast.error("Error in create category");
-            console.log(error)
             setIsCreatingCategory(false);
         }
     };
@@ -228,8 +226,6 @@ const AddProductPage = () => {
             // Verificar y agregar la imagen solo si existe
             if (dataUpdate?.image && dataUpdate.image.length > 0) {
                 formData.append('image', dataUpdate.image[0]);
-            } else {
-                console.log(dataUpdate?.image, "no image",);
             }
 
             // Campos básicos con validación estricta
@@ -243,8 +239,11 @@ const AddProductPage = () => {
             formData.append('type_of_meat', dataUpdate?.type_of_meat || '');
             formData.append('type_of_cut', dataUpdate?.type_of_cut || '');
             formData.append('quality_cf', dataUpdate?.quality_cf || '');
-            formData.append('condition', dataUpdate?.conditions || '');
             formData.append('id_category', String(dataUpdate?.id_category || ''));
+            formData.append('pack', String(dataUpdate?.pack || 0));
+            formData.append('count', String(dataUpdate?.count || 0));
+            formData.append('w_simbol', dataUpdate?.w_simbol || "");
+            formData.append('embase', dataUpdate?.embase || "");
             // Agregar logs para depuración
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
@@ -289,35 +288,36 @@ const AddProductPage = () => {
             toast.error("Please enter a search term");
             return;
         }
+        if(productsData.length > 0){
+            setIsSearching(true);
+            reset()
+            try {
+                // Filtra los productos que coincidan con el término de búsqueda
+                const filtered = productsData.filter((product: ProductTypes) => {
+                    const searchLower = searchTerm.toLowerCase();
+                    if (product.status_active !== false) {
+                        return (
+                            (product.desc?.toLowerCase().includes(searchLower)) ||
+                            (product.master_brand?.toLowerCase().includes(searchLower)) ||
+                            (product.brand?.toLowerCase().includes(searchLower)) ||
+                            (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
+                            (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
+                            (String(product.upc).includes(searchTerm))
+                        );
+                    }
+                });
 
-        setIsSearching(true);
-        reset()
-        try {
-            // Filtra los productos que coincidan con el término de búsqueda
-            const filtered = productsData.filter((product: ProductTypes) => {
-                const searchLower = searchTerm.toLowerCase();
-                if(product.status_active !== false){
-                    return (
-                        (product.desc?.toLowerCase().includes(searchLower)) ||
-                        (product.master_brand?.toLowerCase().includes(searchLower)) ||
-                        (product.brand?.toLowerCase().includes(searchLower)) ||
-                        (String(product.upc).includes(searchTerm)) ||
-                        (String(product.sku).includes(searchTerm))
-                    );
+                setSearchResults(filtered);
+                setOpenSearch(true);
+                if (filtered.length === 0) {
+                    toast.info("No se encontraron productos");
                 }
-            });
-
-            setSearchResults(filtered);
-            setOpenSearch(true);
-
-            if (filtered.length === 0) {
-                toast.info("No se encontraron productos");
+            } catch (error) {
+                console.error('Error al buscar productos:', error);
+                toast.error("Error al buscar productos");
+            } finally {
+                setIsSearching(false);
             }
-        } catch (error) {
-            console.error('Error al buscar productos:', error);
-            toast.error("Error al buscar productos");
-        } finally {
-            setIsSearching(false);
         }
     };
 
@@ -339,7 +339,7 @@ const AddProductPage = () => {
 
         // Verificar si el SKU ya existe
         const newSKU = `SKU${generateRandomDigits()}`;
-        const skuExists = productsData.some(product => product.sku === newSKU);
+        const skuExists = productsData.some(product => product.upc === newSKU);
 
         // Si existe, generar otro
         if (skuExists) {
@@ -360,9 +360,9 @@ const AddProductPage = () => {
         const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
         const matchCategory = (listCategory: categoriesInterface[], id: number) => {
             const categoryMatch = listCategory.find((item: categoriesInterface) => item.id_category === id);
-            if(categoryMatch){
+            if (categoryMatch) {
                 return categoryMatch;
-            }else {
+            } else {
                 return null;
             }
         }
@@ -394,9 +394,9 @@ const AddProductPage = () => {
             }
         };
 
-        const handleDisable = async (idProduct:number) => {
+        const handleDisable = async (idProduct: number) => {
             const body = {
-                "id_product":idProduct
+                "id_product": idProduct
             }
             const resp = await disableProduct(body)
             setIsEditModalOpen(false)
@@ -409,7 +409,7 @@ const AddProductPage = () => {
                         <div className="flex items-center justify-between py-4">
                             <div className={"flex flex-row"}>
                                 <h2 className="text-xl text-white font-bold text-center">Edit Product</h2>
-                                <div className={`px-4 py-2 bg-gray-600 text-white rounded`}>{editedProduct.status_active?"Active":"Disable"}</div>
+                                <div className={`px-4 py-2 bg-gray-600 text-white rounded`}>{editedProduct.status_active ? "Active" : "Disable"}</div>
                             </div>
                             <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
                         </div>
@@ -446,24 +446,6 @@ const AddProductPage = () => {
                                     placeholder="UPC"
                                 />
                             </div>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="sku" style={labelStyle}>SKU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.sku || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
-                                    placeholder="SKU"
-                                />
-                            </div>
-                           { /*<div style={inputContainerStyle}>
-                                <label htmlFor="plu" style={labelStyle}>PLU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.plu || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, plu: e.target.value })}
-                                    placeholder="PLU"
-                                />
-                            </div> */}
                             <div style={inputContainerStyle}>
                                 <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                                 <input
@@ -510,25 +492,64 @@ const AddProductPage = () => {
                                 />
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="id_category" style={labelStyle}>Category</label>
-                            <select
-                            name="selectCategory"
-                            id="selectCategory"
-                            className=" bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                            onChange={e => setEditedProduct({ ...editedProduct, id_category: Number(e.target.value) })}
-                        >
-                            <option value="" disabled selected>
-                                {matchCategory(categories,editedProduct.id_category)?.name_category}
-                            </option>
-                            {categories.map((cat: categoriesInterface) => (
-                                <option key={cat.id_category} value={cat.id_category}>
-                                    {cat.name_category}
-                                </option>
-                                ))}
-                            </select>
+                                <label htmlFor="pack" style={labelStyle}>Pack</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.pack || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, pack: Number(e.target.value) })}
+                                    placeholder="Pack"
+                                />
                             </div>
                             <div style={inputContainerStyle}>
-                                <label htmlFor="type_of_meat" style={labelStyle}>Type of Meat</label>
+                                <label htmlFor="count" style={labelStyle}>Count</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.count || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, count: Number(e.target.value) })}
+                                    placeholder="Count"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.w_simbol || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, w_simbol: e.target.value })}
+                                    placeholder="Weight Simbol"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="embase" style={labelStyle}>Embase</label>
+                                <input
+                                    className="bg-gray-700 text-white p-2 rounded w-full"
+                                    value={editedProduct.embase || ''}
+                                    onChange={e => setEditedProduct({ ...editedProduct, embase: e.target.value })}
+                                    placeholder="Embase"
+                                />
+                            </div>
+                            <div style={inputContainerStyle}>
+                                <label htmlFor="id_category" style={labelStyle}>Category</label>
+                                <select
+                                    name="selectCategory"
+                                    id="selectCategory"
+                                    className=" bg-gray-700 text-gray-200 rounded-lg w-full h-10 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                    onChange={e => setEditedProduct({ ...editedProduct, id_category: Number(e.target.value) })}
+                                >
+                                    <option value="" disabled selected>
+                                        {matchCategory(categories, editedProduct.id_category)?.name_category}
+                                    </option>
+                                    {categories.map((cat: categoriesInterface) => (
+                                        <option key={cat.id_category} value={cat.id_category}>
+                                            {cat.name_category}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {editedProduct.id_category === 5 || editedProduct.id_category === 16
+                            ? (
+                                <>
+                                    <div style={inputContainerStyle}>
+                                        <label htmlFor="type_of_meat" style={labelStyle}>Type of Meat</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.type_of_meat || ''}
@@ -552,13 +573,12 @@ const AddProductPage = () => {
                                     value={editedProduct.quality_cf || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, quality_cf: e.target.value })}
                                     placeholder="Quality CF"
-                                />
-                            </div>
-
-
-                            {/* ... resto de los campos ... */}
-
-                            {/* Sección de carga de nueva imagen */}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <></>
+                            )}
                             <div className="col-span-2">
                                 <input
                                     type="file"
@@ -627,6 +647,57 @@ const AddProductPage = () => {
         fontSize: '0.875rem'
     };
 
+    // Añadir un useEffect para manejar el evento de teclado
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                handleSearch();
+            }
+        };
+
+        // Añadir el evento al documento
+        document.addEventListener('keydown', handleKeyDown);
+
+        // Limpiar el evento al desmontar el componente
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [searchTerm, productsData]);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.add('border-blue-500'); // Resalta el área cuando se arrastra sobre ella
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.remove('border-blue-500');
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.remove('border-blue-500');
+
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                const input = document.getElementById('imageInput') as HTMLInputElement;
+                if (input) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } else {
+                toast.error("Por favor, arrastra solo archivos de imagen");
+            }
+        }
+    };
+
     return (
         <div className="flex p-2 bg-[#121212] h-screen overflow-y-auto no-scrollbar ">
             {showModal && addProduct && (
@@ -636,7 +707,7 @@ const AddProductPage = () => {
             <form
                 ref={formRef}
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-6xl mx-auto"
+                className={`grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-4xl  ${openSearch ? "ml-28" : "mx-auto"}`}
             >
                 {/* Información básica del producto */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
@@ -687,30 +758,30 @@ const AddProductPage = () => {
                         <div style={inputContainerStyle}>
                             <label htmlFor="upc" style={labelStyle}>UPC</label>
                             <input {...register("upc", { required: true })}
-                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
 
                         <div style={inputContainerStyle}>
                             <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                             <input {...register("master_brand")}
-                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
 
                         <div style={inputContainerStyle}>
                             <label htmlFor="brand" style={labelStyle}>Brand</label>
                             <input {...register("brand")}
-                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
 
                         <div style={inputContainerStyle}>
                             <label htmlFor="desc" style={labelStyle}>Description</label>
                             <input {...register("desc", { required: true })}
-                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
                         <div style={inputContainerStyle}>
                             <label htmlFor="plu" style={labelStyle}>PLU</label>
                             <input {...register("plu")}
-                                   className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
                     </div>
                 </div>
@@ -718,32 +789,50 @@ const AddProductPage = () => {
                 {/* Detalles del producto */}
                 <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Details</h2>
-                    <div className="space-y-4">
+                    <div className="space-y-4 ">
                         {(String(selectedCategory) === "5" || String(selectedCategory) === "16")
-                            ? categoryFields[selectedCategory]?.map((field) => (
-                                <input
-                                    key={field.name}
-                                    {...register(field.name as keyof ProductTypes)}
-                                    placeholder={field.placeholder}
-                                    className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                />
-                            ))
-                            : <>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="size" style={labelStyle}>Size</label>
-                                <input {...register("size")}  className="w-full bg-gray-500 text-white p-2 rounded-md" />
-                            </div>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="variety" style={labelStyle}>Variety</label>
-                                <input {...register("variety")}  className="w-full bg-gray-500 text-white p-2 rounded-md" />
-                            </div>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="conditions" style={labelStyle}>Condition</label>
-                                <input {...register("conditions")}  className="w-full bg-gray-500 text-white p-2 rounded-md" />
-                            </div>
-
-                            </>
-                        }
+                            ? (
+                                <div className="grid grid-cols-2 gap-4">
+                                {categoryFields[selectedCategory]?.map((field) => (
+                                    <div key={field.name}>
+                                        <input
+                                            {...register(field.name as keyof ProductTypes)}
+                                            placeholder={field.placeholder}
+                                            className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                        />
+                                    </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div style={inputContainerStyle}>
+                                            <label htmlFor="size" style={labelStyle}>Size</label>
+                                            <input {...register("size")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                        </div>
+                                        <div style={inputContainerStyle}>
+                                            <label htmlFor="variety" style={labelStyle}>Variety</label>
+                                            <input {...register("variety")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                        </div>
+                                        <div style={inputContainerStyle}>
+                                            <label htmlFor="pack" style={labelStyle}>Pack</label>
+                                            <input {...register("pack")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                        </div>
+                                        <div style={inputContainerStyle}>
+                                            <label htmlFor="count" style={labelStyle}>Count</label>
+                                            <input {...register("count")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                        </div>
+                                        <div style={inputContainerStyle}>
+                                            <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
+                                            <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                        </div>
+                                        <div style={inputContainerStyle}>
+                                            <label htmlFor="embase" style={labelStyle}>Embase</label>
+                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                     </div>
                 </div>
 
@@ -767,32 +856,29 @@ const AddProductPage = () => {
                         </button>
                     </div>
                     <div className=" bg-gray-800  rounded-lg mt-4">
-                    <h2 className="text-white text-xl mb-4">SKU Generator</h2>
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={watch("sku") || ""}
-                            readOnly
-                            placeholder="SKU generado"
-                            className="p-2 border rounded text-black flex-1 "
-                        />
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const newSKU = generateSKU();
-                                // Actualizar el valor del campo SKU en el formulario
-                                setValue("sku", newSKU);
-                            }}
-                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-                        >
-                            Generate SKU
-                        </button>
+                        <h2 className="text-white text-xl mb-4">SKU Generator</h2>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={generatedSKU}
+                                readOnly
+                                placeholder="SKU generado"
+                                className="p-2 border rounded text-black flex-1"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const newSKU = generateSKU();
+                                    setGeneratedSKU(newSKU);
+                                    setValue("upc", newSKU);
+                                }}
+                                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                            >
+                                Generate SKU
+                            </button>
                         </div>
                     </div>
                 </div>
-
-
-
                 {/* Imagen y categoría */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-white text-xl mb-4">Image </h2>
@@ -807,7 +893,13 @@ const AddProductPage = () => {
                                     id="imageInput"
                                 />
                                 {previewUrl ? (
-                                    <div className="cursor-pointer" onClick={() => document.getElementById('imageInput')?.click()}>
+                                    <div
+                                        className="cursor-pointer"
+                                        onClick={() => document.getElementById('imageInput')?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
                                         <img
                                             src={previewUrl}
                                             alt="Vista previa"
@@ -816,10 +908,26 @@ const AddProductPage = () => {
                                     </div>
                                 ) : (
                                     <div
-                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
                                         onClick={() => document.getElementById('imageInput')?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
                                     >
-                                        <span className="text-gray-400">Click to add an image</span>
+                                        <svg
+                                            className="w-8 h-8 mb-2 text-gray-400"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                            />
+                                        </svg>
+                                        <span className="text-gray-400">Drag an image here or click to select</span>
                                     </div>
                                 )}
                             </div>
@@ -836,27 +944,27 @@ const AddProductPage = () => {
                 </div>
                 <div className="h-32 mb-10">
                     <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="h-10 col-span-2 md:col-span-3 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center"
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="h-10 col-span-2 md:col-span-3 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center"
                     >
-                    {isSubmitting ? (
-                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    ) : (
-                        'Submit'
-                    )}
+                        {isSubmitting ? (
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        ) : (
+                            'Submit'
+                        )}
                     </button>
                 </div>
             </form>
 
             {/* Resultados de búsqueda */}
-            {openSearch && (
-                <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar pb-24">
-                    <h2 className=" text-white text-xl mb-4">Search Results</h2>
-                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[12vh] z-50 bg-red-500 text-white p-2 rounded-md">Close</button>
+            {openSearch  && (
+                <div className="fixed col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar h-screen right-0 pb-28 w-80">
+                    <h2 className=" text-white text-xl mb-4">{"Search Results " + searchResults.length + " products"}</h2>
+                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[15vh]  bg-red-500 text-white p-2 rounded-md z-50">Close</button>
 
                     {searchResults.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
@@ -864,11 +972,14 @@ const AddProductPage = () => {
                                 <div key={product.id_product} className="bg-gray-700 p-4 rounded-lg">
                                     <div className="relative">
                                         {product.url_image && (
-                                            <img
-                                                src={product.url_image}
-                                                alt={product.desc || ""}
-                                                className="w-full h-48 object-contain rounded"
-                                            />
+                                            <div className="flex flex-col justify-center items-center">
+                                                <p className="text-white text-center">{product.desc}</p>
+                                                <img
+                                                    src={product.url_image}
+                                                    alt={product.desc || ""}
+                                                    className="w-full h-32 object-contain rounded"
+                                                />
+                                            </div>
                                         )}
                                         <button
                                             onClick={() => handleEditClick(product)}

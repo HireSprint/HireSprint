@@ -8,7 +8,6 @@ export const disableProduct = async (reqBody:object) => {
             body: JSON.stringify(reqBody),
         });
         const data = await resp.json();
-        console.log("response",data);
         if (data.status === 200) {
             return data;
         }

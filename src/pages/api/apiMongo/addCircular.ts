@@ -1,3 +1,5 @@
+
+
 export const addCircular = async (reqBody:object) => {
     try {
         const resp = await fetch(`https://hiresprintcanvas.dreamhosters.com/createCircular`, {
@@ -10,6 +12,10 @@ export const addCircular = async (reqBody:object) => {
         const data = await resp.json();
         if (data.status === 201) {
             return data;
+        }else if (data.status === 409) {
+            return data;
+        }else if(resp.status === 500) {
+            return {message:"A type error occurred",status:500};
         }
     }catch (e: unknown) {
         console.error(e);
