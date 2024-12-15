@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
     useEffect(() => {
-       if(reloadCircular){
+       if(reloadCircular || circulars.length <= 0) {
            const getProductView = async () => {
                if (!user?.userData?.id_client) return;
 
