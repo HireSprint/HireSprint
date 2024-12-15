@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { ProductTypes } from "@/types/product";
 import { categoriesInterface } from "@/types/category";
 import Image from "next/image";
@@ -103,6 +103,24 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
         setVarietyType(type);
     };
 
+    // Primero, añade una referencia para el contenedor de la lista
+    const varietyListRef = useRef<HTMLDivElement>(null);
+
+    // Modifica el useEffect para manejar los clics fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (varietyListRef.current && 
+                !varietyListRef.current.contains(event.target as Node) &&
+                showVarietyList) {
+                setShowVarietyList(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showVarietyList]);
 
     useEffect(() => {
         setBurstOption([{ value: 1, text: "Mix & Match" }, { value: 2, text: "1/2 Price" }, { value: 3, text: "Your Choice" }])
@@ -148,7 +166,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     return (
         <React.Fragment>
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100" onClick={() => setShowVarietyList(!showVarietyList)}>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100" >
                 <div className="relative max-w-[95%]" >
                     {/* Contenido del Modal */}
                     <div className="absolute -right-5 -top-5 ">
@@ -161,7 +179,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </svg>
                         </button>
                     </div>
-                    <div className="bg-gray-300 p-4 rounded-lg shadow-lg flex justify-between ">
+                    <div className="bg-gray-300 p-4 rounded-lg shadow-lg flex justify-between " >
                         <div className="flex flex-col gap-2">
                             <div className="grid grid-cols-1 gap-2">
                                 <div className="w-full h-64 bg-white rounded-lg p-2">
@@ -436,7 +454,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             </div>
 
                                             {showVarietyList && (
-                                                <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-md shadow-lg text-black">
+                                                <div ref={varietyListRef} className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-md shadow-lg text-black">
                                                     <div className="h-48  overflow-y-auto">
                                                         <div className="flex gap-2 mb-2 items-end justify-end w-full p-2 text-wrap">
                                                             <div className="flex items-center gap-2">
