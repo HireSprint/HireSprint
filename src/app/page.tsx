@@ -7,7 +7,7 @@ import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "./components/imageG
 import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import {Cursor3, FocusIn, GrapIconClose, GrapIconOpen, ZoomInIcon, ZoomOutIcon} from "@/app/components/icons";
+import {Cursor3, FocusIn, GrapIconOpen, ZoomInIcon, ZoomOutIcon} from "@/app/components/icons";
 import {ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
 import {ToastContainer, toast} from 'react-toastify'
@@ -16,7 +16,6 @@ import {Message} from "primereact/message";
 import {categoriesInterface} from "@/types/category";
 import {useCategoryContext} from "./context/categoryContext";
 import {ProductTypes} from "@/types/product";
-import {min} from "@floating-ui/utils";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -29,6 +28,8 @@ export default function HomePage() {
         productDragging,
         productReadyDrag,
         setIsLoadingProducts,
+        groupedProducts,
+        setGroupedProducts,
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -50,14 +51,12 @@ export default function HomePage() {
     const {zoomScaleSubPagines, setZoomScaleSubPagines} = useProductContext();
     const {panningOnPage1, setPanningOnPage1} = useProductContext();
     const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
-    const [panelScale1, setPanelScale1] = useState(true);
-    const [panelScale2, setPanelScale2] = useState(true);
     const [resetScale, setResetScale] = useState(false);
     const [maxScale, setMaxScale] = useState(3);
     const [minScale, setMinScale] = useState(1);
     const [firsTimeOpen, setFistTimeOpen] = useState(true);
-    const divRef = useRef<HTMLDivElement | null>(null); // Ref para el div contenedor
-    const [initialX, setInitialX] = useState(0); // Estado para almacenar el cálculo
+    const divRef = useRef<HTMLDivElement | null>(null);
+    const [initialX, setInitialX] = useState(0); 
     const containerRefPage1 = useRef<ReactZoomPanPinchContentRef>(null);
     const containerRefPage2 = useRef<ReactZoomPanPinchContentRef>(null);
     const [firstDrag, setFirstDrag] = useState(false);
@@ -224,6 +223,7 @@ export default function HomePage() {
             const data = await response.json();
             if (data.success) {
                 setUpdateCircular(data.result);
+                console.log(data.result)
             } else {
                 throw new Error(data.message || "Error al actualizar circular");
             }
@@ -346,9 +346,29 @@ export default function HomePage() {
                 }
                 return product;
             });
+            //@ts-ignore
+            setGroupedProducts(prevGrouped => {
+                const newGrouped = {...prevGrouped};
+                
+                const newSourceProducts = updatedProducts.filter(p => p.id_grid === sourceGridId);
+                const newTargetProducts = updatedProducts.filter(p => p.id_grid === targetGridId);
+                
+                if (newSourceProducts.length > 1) {
+                    newGrouped[sourceGridId.toString()] = newSourceProducts;
+                } else {
+                    delete newGrouped[sourceGridId.toString()];
+                }
+                
+                if (newTargetProducts.length > 1) {
+                    newGrouped[targetGridId.toString()] = newTargetProducts;
+                } else {
+                    delete newGrouped[targetGridId.toString()];
+                }
+
+                return newGrouped;
+            });
 
             updateCircularInServer(updatedProducts);
-
             return updatedProducts;
         });
     };
@@ -409,14 +429,16 @@ export default function HomePage() {
         mustBuy: string,
         withCard: boolean,
         limit_type: string,
-        per: string
+        per: string,
+        selectedDesc: string[],
+        selectedSizes: string[]
     ) => {
         if (gridID === undefined) return;
 
         setSelectedProducts(prevProducts => {
             const updatedProducts = prevProducts.map(product => {
                 if (product.id_grid === gridID) {
-                    const updatedProduct = {
+                    return {
                         ...product,
                         price,
                         notes,
@@ -427,9 +449,9 @@ export default function HomePage() {
                         with_card: withCard,
                         limit_type,
                         per,
-
-                    };
-                    return updatedProduct;
+                        variety: selectedDesc,
+                        size: selectedSizes
+                    } as ProductTypes;
                 }
                 return product;
             });

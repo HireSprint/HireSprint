@@ -370,7 +370,7 @@ export const GridCardProduct = ({
                                             className="text-red-500 truncate text-left w-full"
                                             style={{ fontSize: '1.1em' }}
                                         >
-                                            ${product.price}
+                                           ${product?.price?.replace(/"/g, '') || '0'}
                                         </span>
 
 
