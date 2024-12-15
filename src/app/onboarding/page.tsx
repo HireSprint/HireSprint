@@ -70,7 +70,7 @@ const OnboardingPage = () => {
     };
 
     return (
-        <div className="text-black text-2xl pt-10 flex flex-col h-[calc(100vh-100px)]">
+        <div className="text-black bg-gray-100 text-2xl py-5 flex flex-col h-[calc(100vh)]">
             <ToastContainer
                 position="top-right"
                 autoClose={3000}

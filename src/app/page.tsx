@@ -138,11 +138,11 @@ export default function HomePage() {
         const gridProductWidth = gridProductDimensions.width ?? 0
         const gridProductHeight = gridProductDimensions.height ?? 0
 
-        setProductSelectionPosition({ 
+        setProductSelectionPosition({
             top: gridProductHeight + (mousePosition.y + 25) > window.innerHeight ? ((window.innerHeight - gridProductHeight) - 15) : mousePosition.y + 25,
             left:  gridProductWidth + (mousePosition.x + 25) > window.innerWidth ? ((window.innerWidth - gridProductWidth) - 15) : (mousePosition.x + 25),
         });
-        
+
         const handleResize = () => {
             if (window.innerWidth < 800) {
                 setProductSelectionPosition((prev) => ({
@@ -176,10 +176,10 @@ export default function HomePage() {
         if (showProducts  && productSelectionRef.current) {
             const resizeObserver = new ResizeObserver(updateGrideProductDimensions);
             if (productSelectionRef.current) resizeObserver.observe(productSelectionRef.current);
-    
+
             // Llamar a la función para establecer las dimensiones iniciales
             updateGrideProductDimensions();
-    
+
             return () => {
                 if (productSelectionRef.current) {
                     resizeObserver.unobserve(productSelectionRef.current);
@@ -399,16 +399,16 @@ export default function HomePage() {
             setShowProducts(true);
         }
     };
-    
+
     const commonGridProps = {
         onGridCellClick: handleGridClick,
         onDragAndDropCell: handleDragAndDropGridCell,
         setShowProductCardBrand: setShowProductCardBrand
     };
-    
-    
+
+
     let productoShowForce: boolean = true;
-    
+
     const handleChangeProductForOther = (gridId: number | undefined) => {
         if (gridId === undefined)
             return;
@@ -500,7 +500,7 @@ export default function HomePage() {
                 setZoomScalePage1(1);
             }
         }
-    };    
+    };
     const handleZoomOutPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
             if (zoomScalePage1 > minScale) {
@@ -537,16 +537,16 @@ export default function HomePage() {
             }
         }
     }
-    const handleZoomOutSubPages = () => {        
+    const handleZoomOutSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
             if (zoomScaleSubPagines > minScale) {
                 const newScale = zoomScaleSubPagines - 0.25;
                 setZoomScaleSubPagines(newScale);
                 setFistTimeOpen(false)
                 containerRefPage2.current.zoomOut(0.25);
-            }            
+            }
         }
-    }       
+    }
     const handleFullPage2 = () => {
         if (containerRefPage2 && containerRefPage2.current) {
             if (zoomScaleSubPagines > 0.5) {
@@ -572,7 +572,7 @@ export default function HomePage() {
             }
             console.log(dynamicFullSize, 'tamanio del full size', width, height);
         }
-       
+
     }, [zoomScaleSubPagines, productsData]);
 
     useEffect(() => {
@@ -664,12 +664,12 @@ export default function HomePage() {
         setIsClearAllPopupOpen(false);
     };
 
-    
+
 
     return (
 
         <div
-            className={`grid grid-rows-[1fr_min-content] max-h-screen overflow-hidden `}>
+            className={`grid bg-gray-100 grid-rows-[1fr_min-content] max-h-screen overflow-hidden `}>
             <div
                 className={`relative grid grid-cols-2 items-center  ${productDragging ? 'overflow-x-visible' : ''} `}>
                 <AnimatePresence>
@@ -814,14 +814,14 @@ export default function HomePage() {
                                         }}
                                         className="  justify-center items-center">
                                         <ZoomInIcon/>
-                                    </button>                                   
+                                    </button>
                                         <button
                                             onClick={() => {
                                                 handleZoomOutSubPages();
                                             }}
                                         >
                                             <ZoomOutIcon/>
-                                        </button>                                    
+                                        </button>
                                         <button
                                             onClick={() => {
                                                 handleFullPage2();
@@ -836,7 +836,7 @@ export default function HomePage() {
                                         >
                                             {/* Renderiza el icono según el estado de panningOnPage1 */}
                                             {panningOnSubPage ? <GrapIconOpen/> : <Cursor3/>}
-                                        </button>                                   
+                                        </button>
 
                                 </div>
                                 <motion.div
@@ -915,7 +915,7 @@ export default function HomePage() {
                             className="absolute z-[100]"
                             style={{ top: productSelectionPosition.top, left: productSelectionPosition.left, }}
                         >
-                            <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels} initialCategory={gridCategory} />   
+                            <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels} initialCategory={gridCategory} />
                         </motion.div>
                     )}
                 </AnimatePresence>
