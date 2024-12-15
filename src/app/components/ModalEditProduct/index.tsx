@@ -13,7 +13,20 @@ interface ModalEditProductInterface {
     GridID?: number
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
-    SaveFC?: (idGrid: number | undefined, priceValue: string, noteUser: string, burst: number, addl: string, limit: string, mustBuy: string, withCard: boolean, limit_type: string, per: string) => void,
+    SaveFC?: (
+        idGrid: number | undefined,
+        priceValue: string,
+        noteUser: string,
+        burst: number,
+        addl: string,
+        limit: string,
+        mustBuy: string,
+        withCard: boolean,
+        limit_type: string,
+        per: string,
+        varieties: string[],
+        size: string[]
+    ) => void,
     setIsOpen: (isOpen: boolean) => void
 }
 
@@ -21,6 +34,27 @@ interface burstType {
     value: number,
     text: string,
 }
+
+const updateSizeRange = (sizes: string[]) => {
+    const numericSizes = sizes
+        .map(size => parseFloat(size.replace(/[^\d.]/g, '')))
+        .filter(size => !isNaN(size));
+    
+    if (numericSizes.length === 0) return [];
+    if (numericSizes.length === 1) return [sizes[0]];
+    
+    const min = Math.min(...numericSizes);
+    const max = Math.max(...numericSizes);
+    
+    const minString = sizes.find(size => 
+        parseFloat(size.replace(/[^\d.]/g, '')) === min
+    );
+    const maxString = sizes.find(size => 
+        parseFloat(size.replace(/[^\d.]/g, '')) === max
+    );
+    
+    return [minString, maxString].filter(Boolean) as string[];
+};
 
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
@@ -46,10 +80,28 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
 
 
-    // Agregar nuevos estados
     const [selectedVarieties, setSelectedVarieties] = useState<ProductTypes[]>([]);
-    const [selectedDesc, setSelectedDesc] = useState<string[]>([]);
-    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+    const [selectedDesc, setSelectedDesc] = useState<string[]>(() => {
+        const cleanVarieties = product?.variety
+            ? product.variety.map(v => v.trim().replace(/['"]+/g, ''))
+            : [];
+        return cleanVarieties;
+    });
+    const [selectedSizes, setSelectedSizes] = useState<string[]>(() => {
+        if (typeof product?.size === 'string') {
+            return [product.size];
+        }
+        if (Array.isArray(product?.size)) {
+            return product.size;
+        }
+        return [];
+    });
+
+    const [varietyType, setVarietyType] = useState<'Selected' | 'Assorted' | null>(null);
+
+    const onVarietyTypeChange = (type: 'Selected' | 'Assorted' | null) => {
+        setVarietyType(type);
+    };
 
 
     useEffect(() => {
@@ -86,6 +138,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     }, [categories, product]);
 
+
     const handledSelectedBurst = (item: burstType) => {
         setSelectedBurst(item);
         setBurst(item.value)
@@ -95,7 +148,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     return (
         <React.Fragment>
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100" onClick={() => setShowVarietyList(!showVarietyList)}>
                 <div className="relative max-w-[95%]" >
                     {/* Contenido del Modal */}
                     <div className="absolute -right-5 -top-5 ">
@@ -190,20 +243,31 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
                                     <div className="flex items-center">
                                         <h1 className="text-black font-bold w-32">Variety:</h1>
-                                        <h1 className="text-black uppercase">
-                                            {selectedDesc.length > 0
-                                                ? selectedDesc.join(', ')
-                                                : product?.variety}
+                                        <h1 className="text-black uppercase text-balance w-48">
+                                            {!varietyType
+                                                ? selectedDesc.map((variety, index) => (
+                                                    <span key={index}>
+                                                        {variety.trim().replace(/['"]+/g, '')}
+                                                        {index < selectedDesc.length - 1 ? ', ' : ''}
+                                                    </span>
+                                                ))
+                                                : varietyType === 'Selected'
+                                                    ? 'Selected Varieties'
+                                                    : 'Assorted Varieties'
+                                            }
                                         </h1>
                                     </div>
 
-                                    <div className="flex items-center">
+                                    <div className="flex items-center gap-1">
                                         <h1 className="text-black font-bold w-32">Size:</h1>
                                         <h1 className="text-black uppercase">
                                             {selectedSizes.length > 0
-                                                ? selectedSizes.join(', ')
-                                                : product?.size || 'No size'}
+                                                ? selectedSizes.length === 1 
+                                                    ? selectedSizes[0]
+                                                    : `${selectedSizes[0]} - ${selectedSizes[selectedSizes.length - 1]}`
+                                                : 'No size'}
                                         </h1>
+                                        <h1 className="text-black uppercase">{product?.w_simbol}</h1>
                                     </div>
                                     <div>
                                         <div className="flex flex-row items-center gap-5">
@@ -372,29 +436,119 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             </div>
 
                                             {showVarietyList && (
-                                                <div className="absolute z-50 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg text-black">
-                                                    <div className="max-h-48 overflow-y-auto">
+                                                <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-md shadow-lg text-black">
+                                                    <div className="h-48  overflow-y-auto">
+                                                        <div className="flex gap-2 mb-2 items-end justify-end w-full p-2 text-wrap">
+                                                            <div className="flex items-center gap-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={varietyType === 'Selected'}
+                                                                    onChange={() => onVarietyTypeChange(varietyType === 'Selected' ? null : 'Selected')}
+                                                                    className="w-3 h-3"
+                                                                />
+                                                                <span className="text-sm text-black whitespace-nowrap">Selected Varieties</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={varietyType === 'Assorted'}
+                                                                    onChange={() => onVarietyTypeChange(varietyType === 'Assorted' ? null : 'Assorted')}
+                                                                    className="w-3 h-3"
+                                                                />
+                                                                <span className="text-sm text-black whitespace-nowrap">Assorted Varieties</span>
+                                                            </div>
+                                                        </div>
+
                                                         {groupedProducts[GridID].map((item: ProductTypes, index: number) => (
                                                             <div
                                                                 key={index}
-                                                                className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                                                                className="cursor-pointer hover:bg-red-100 gap-2 overflow-hidden"
                                                                 onClick={() => {
-                                                                    setSelectedVarieties(prev => [...prev, item]);
-                                                                    setSelectedDesc(prev => [...prev, item.desc || "No hay descripción"]);
-                                                                    setSelectedSizes(prev => [...prev, item.size || '']);
-                                                                    setShowVarietyList(false);
+                                                                    const variety = (item.variety?.[0] || "Sin variedad")
+                                                                        .trim().replace(/['"]+/g, '');
+
+                                                                    if (!selectedDesc.includes(variety)) {
+                                                                        setSelectedVarieties(prev => [...prev, item]);
+                                                                        setSelectedDesc(prev => {
+                                                                            const newVarieties = [...prev, variety];
+                                                                            return newVarieties;
+                                                                        });
+
+                                                                        if (item.size) {
+                                                                            const sizeToAdd = Array.isArray(item.size) ? item.size[0] : item.size;
+                                                                            if (typeof sizeToAdd === 'string' && !selectedSizes.includes(sizeToAdd)) {
+                                                                                setSelectedSizes(prevSizes => [...prevSizes, sizeToAdd]);
+                                                                            }
+                                                                        }
+                                                                    }
                                                                 }}
                                                             >
-                                                                {item.url_image && (
-                                                                    <Image
-                                                                        src={item.url_image}
-                                                                        alt={item.desc || "No hay descripción"}
-                                                                        width={30}
-                                                                        height={30}
-                                                                        className="rounded-sm"
-                                                                    />
-                                                                )}
-                                                                <span className="text-sm text-black">{item.desc || "No hay descripción"}</span>
+                                                                <div className="flex items-center gap-4 p-2 hover:bg-red-100">
+                                                                    {item.url_image && (
+                                                                        <Image
+                                                                            src={item.url_image}
+                                                                            alt={item.desc || "No hay descripción"}
+                                                                            width={50}
+                                                                            height={50}
+                                                                            className="rounded-sm"
+                                                                            draggable={false}
+                                                                        />
+                                                                    )}
+                                                                    <div className="flex flex-col">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={selectedDesc.includes(item.variety?.[0]?.trim().replace(/['"]+/g, '') || '')}
+                                                                                onChange={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    const variety = (item.variety?.[0] || "Sin variedad").trim().replace(/['"]+/g, '');
+                                                                                    if (selectedDesc.includes(variety)) {
+                                                                                        setSelectedDesc(prev => prev.filter(v => v !== variety));
+                                                                                        setSelectedVarieties(prev => prev.filter(v => v.variety?.[0] !== item.variety?.[0]));
+                                                                                        
+                                                                                        setSelectedSizes(prevSizes => {
+                                                                                            const remainingVarieties = selectedVarieties.filter(v => v.variety?.[0] !== item.variety?.[0]);
+                                                                                            const remainingSizes = remainingVarieties.map(v => 
+                                                                                                Array.isArray(v.size) ? v.size[0] : v.size
+                                                                                            ).filter((size): size is string => typeof size === 'string');
+                                                                                            
+                                                                                            return Array.from(new Set(remainingSizes));
+                                                                                        });
+                                                                                    } else {
+                                                                                        setSelectedDesc(prev => {
+                                                                                            const newVarieties = Array.from(new Set([...prev, variety]));
+                                                                                            return newVarieties;
+                                                                                        });
+                                                                                        
+                                                                                        setSelectedVarieties(prev => {
+                                                                                            const newSelected = Array.from(new Set([...prev, item]));
+                                                                                            return newSelected;
+                                                                                        });
+                                                                                    }
+                                                                                    if (item.size) {
+                                                                                        const sizeToAdd = Array.isArray(item.size) ? item.size[0] : item.size;
+                                                                                        if (typeof sizeToAdd === 'string') {
+                                                                                            setSelectedSizes(prevSizes => {
+                                                                                                const newSizesArray = selectedDesc.includes(variety)
+                                                                                                    ? prevSizes.filter(s => s !== sizeToAdd)
+                                                                                                    : [...prevSizes, sizeToAdd];
+                                                                                                
+                                                                                                return updateSizeRange(newSizesArray);
+                                                                                            });
+                                                                                        }
+                                                                                    }
+                                                                                }}
+                                                                                className="w-4 h-4"
+                                                                                disabled={!!varietyType}
+                                                                            />
+                                                                            <span className="text-sm font-medium text-black">{item?.variety}</span>
+                                                                        </div>
+                                                                        <div className="flex gap-1 items-center ml-6">
+                                                                            <span className="text-xs text-gray-600">{item?.size || "0"}</span>
+                                                                            <span className="text-xs text-gray-600">{item?.w_simbol || "0"}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -425,7 +579,20 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                 <button
                                     className="p-2 text-black  bg-lime-500 rounded-md "
                                     onClick={() => {
-                                        SaveFC?.(GridID, price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer);
+                                        SaveFC?.(
+                                            GridID,
+                                            price,
+                                            notes,
+                                            burst,
+                                            addl,
+                                            limit,
+                                            mustBuy,
+                                            withCard,
+                                            limit_type,
+                                            selectedPer,
+                                            selectedDesc,
+                                            selectedSizes
+                                        );
                                     }}>
                                     <div className="flex gap-2">
                                         <SaveIcon />
