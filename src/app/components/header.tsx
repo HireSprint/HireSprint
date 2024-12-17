@@ -8,8 +8,7 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
-import { formatDate } from './formaDate';
-
+ 
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
     const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen, productsData } = useProductContext();
@@ -40,16 +39,17 @@ export default function Header() {
         getCircularDate();
     }, [idCircular, pathname, user]);
 
+
+
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
         
         if (showDropdown) {
             timeoutId = setTimeout(() => {
                 setShowDropdown(false);
-            }, 5000); // 5000 ms = 5 segundos
+            }, 5000);
         }
 
-        // Limpieza del timeout cuando el componente se desmonta o showDropdown cambia
         return () => {
             if (timeoutId) {
                 clearTimeout(timeoutId);

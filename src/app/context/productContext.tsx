@@ -3,6 +3,8 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import {ProductDraggingType, ProductReadyToDrag, ProductTypes} from '@/types/product';
 import {categoriesInterface} from '@/types/category';
+import { getProductsByCircular } from '@/pages/api/apiMongo/getProductsByCircular';
+import { useAuth } from '../components/provider/authprovider';
 
 interface GroupedProducts {
   [key: string]: ProductTypes[];
@@ -63,21 +65,27 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
     const [zoomScalePage1, setZoomScalePage1] = useState(1);
     const [zoomScaleSubPagines, setZoomScaleSubPagines] = useState(1);
     const [groupedProducts, setGroupedProducts] = useState<GroupedProducts>({});
+    const {idCircular, user} = useAuth();
+
 
     useEffect(() => {
-      const getProductView = async () => {
+      const getProductByCircular = async () => {
           try {
-              const resp = await fetch("/api/apiMongo/getProduct");
-              const data = await resp.json();
-              const activeProducts = data.result.filter((product: ProductTypes) => product.status_active);
-              setProductsData(activeProducts);
+              const reqBody = {
+                  "id_circular":Number(idCircular),
+                  "id_client":user.userData.id_client
+              }
+              const resp = await getProductsByCircular(reqBody)
+              setProductsData(resp.result)
+              setIsLoadingProducts(false)
           } catch (error) {
               console.error("Error al obtener los productos:", error);
           }
       };
-  
-      getProductView();
-  }, []);
+
+      getProductByCircular();
+  }, [idCircular, user]);
+
   
     const updateGridProducts = (gridRange: { min: number; max: number }, circularProducts: ProductTypes[]) => {
       if (productsData.length && circularProducts?.length > 0) {
@@ -127,6 +135,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
         setGroupedProducts(multipleProducts);
       }
     };
+
+
 
 
     return (
