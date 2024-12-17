@@ -9,6 +9,7 @@ import { ProductAddedModal } from "../components/card"
 import { useAuth } from "../components/provider/authprovider"
 import Image from "next/image"
 import { disableProduct } from "@/pages/api/apiMongo/disableProduct";
+import EditableProductTable from '@/app/components/EditableProductTable';
 
 const AddProductPage = () => {
     const {
@@ -68,6 +69,9 @@ const AddProductPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
+
+    //edittableProductModal
+    const [openProductModalTable, setOpenProductModalTable] = useState<boolean>(false);
 
     useEffect(() => {
         if (reloadFlag){
@@ -852,7 +856,7 @@ const AddProductPage = () => {
                             disabled={isSearching}
                             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
                         >
-                            {isSearching ? "Searching..." : "Search"}
+                            {isSearching ? 'Searching...' : 'Search'}
                         </button>
                     </div>
                     <div className=" bg-gray-800  rounded-lg mt-4">
@@ -870,11 +874,23 @@ const AddProductPage = () => {
                                 onClick={() => {
                                     const newSKU = generateSKU();
                                     setGeneratedSKU(newSKU);
-                                    setValue("upc", newSKU);
+                                    setValue('upc', newSKU);
                                 }}
                                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                             >
                                 Generate SKU
+                            </button>
+                        </div>
+                    </div>
+                    <div className=" w-full bg-gray-800  rounded-lg mt-4  ">
+                        <h2 className="text-white text-xl text-center mb-4">Edit All Product</h2>
+                        <div className="flex w-full justify-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setOpenProductModalTable(true)}
+                                className="bg-green-500 text-white px-8 py-2 rounded-md hover:bg-green-600"
+                            >
+                                Open Modal
                             </button>
                         </div>
                     </div>
@@ -886,7 +902,7 @@ const AddProductPage = () => {
                         <div className="flex gap-4 items-start">
                             <div className="flex-1">
                                 <input
-                                    {...register("image")}
+                                    {...register('image')}
                                     className="hidden"
                                     type="file"
                                     accept="image/*"
@@ -1008,6 +1024,9 @@ const AddProductPage = () => {
                     }}
                     onUpdate={handleUpdateProduct}
                 />
+            )}
+            {openProductModalTable && productsData.length >= 0 && (
+                <EditableProductTable  products={productsData}  openModal={openProductModalTable} categories={categories} closeModal={setOpenProductModalTable} />
             )}
         </div>
     )
