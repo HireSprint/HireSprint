@@ -85,9 +85,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 masterBrand: product.master_brand,
                 brand: product.brand,
                 description: product.desc,
-                category: categoriesData.find((category: categoriesInterface) => 
-                    category.id_category === product.id_category)?.name_category,
-                variety: Array.isArray(product.variety) ? product.variety.join(', ') : '',
+                category: categoriesData.find((category: categoriesInterface) => category.id_category === product.id_category)?.name_category,
+                variety: Array.isArray(product.variety) ? product.variety.includes('Selected Varieties') ? 'Selected Varieties' : product.variety.includes('Assorted Varieties') ? 'Assorted Varieties' : product.variety.length > 4 ? 'Selected Varieties' : product.variety.join(', ')             : '',
                 pack_Size: Array.isArray(product.size) ? product.size.join(', ') : product.size,
                 qualityCf: product.quality_cf,
                 typeOfMeat: product.type_of_meat,

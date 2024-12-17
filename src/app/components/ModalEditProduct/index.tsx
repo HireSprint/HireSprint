@@ -85,6 +85,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
         const cleanVarieties = product?.variety
             ? product.variety.map(v => v.trim().replace(/['"]+/g, ''))
             : [];
+        console.log(cleanVarieties, ' productos variedades')
         return cleanVarieties;
     });
     const [selectedSizes, setSelectedSizes] = useState<string[]>(() => {
@@ -101,6 +102,31 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     const onVarietyTypeChange = (type: 'Selected' | 'Assorted' | null) => {
         setVarietyType(type);
+
+        setSelectedDesc((prev) => {
+            let newVarieties = [...prev];
+
+            if (type === 'Selected') {
+                // Agregar "Selected Varieties" si no está en la lista
+                if (!newVarieties.includes('Selected Varieties')) {
+                    newVarieties = [...newVarieties, 'Selected Varieties'];
+                }
+                // Eliminar "Assorted Varieties" si ya está
+                newVarieties = newVarieties.filter(v => v !== 'Assorted Varieties');
+            } else if (type === 'Assorted') {
+                // Agregar "Assorted Varieties" si no está en la lista
+                if (!newVarieties.includes('Assorted Varieties')) {
+                    newVarieties = [...newVarieties, 'Assorted Varieties'];
+                }
+                // Eliminar "Selected Varieties" si ya está
+                newVarieties = newVarieties.filter(v => v !== 'Selected Varieties');
+            } else {
+                // Si se desmarca, eliminar ambos
+                newVarieties = newVarieties.filter(v => v !== 'Selected Varieties' && v !== 'Assorted Varieties');
+            }
+
+            return newVarieties; // Actualiza el estado final
+        });
     };
 
     // Primero, añade una referencia para el contenedor de la lista
@@ -262,25 +288,26 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                     <div className="flex items-center">
                                         <h1 className="text-black font-bold w-32">Variety:</h1>
                                         <h1 className="text-black uppercase text-balance w-48">
-                                            {!varietyType
-                                                ? selectedDesc.map((variety, index) => (
-                                                    <span key={index}>
-                                                        {variety.trim().replace(/['"]+/g, '')}
-                                                        {index < selectedDesc.length - 1 ? ', ' : ''}
-                                                    </span>
-                                                ))
-                                                : varietyType === 'Selected'
-                                                    ? 'Selected Varieties'
-                                                    : 'Assorted Varieties'
+                                            {selectedDesc.includes("Selected Varieties")
+                                                ? "Selected Varieties"
+                                                : selectedDesc.includes("Assorted Varieties")
+                                                    ? "Assorted Varieties"
+                                                    : selectedDesc.map((variety, index) => (
+                                                     <span key={index}>
+                                                     {variety.trim().replace(/['"]+/g, '')}
+                                                     {index < selectedDesc.length - 1 ? ', ' : ''}
+                                                      </span>
+                                                    ))
                                             }
                                         </h1>
                                     </div>
+
 
                                     <div className="flex items-center gap-1">
                                         <h1 className="text-black font-bold w-32">Size:</h1>
                                         <h1 className="text-black uppercase">
                                             {selectedSizes.length > 0
-                                                ? selectedSizes.length === 1 
+                                                ? selectedSizes.length === 1
                                                     ? selectedSizes[0]
                                                     : `${selectedSizes[0]} - ${selectedSizes[selectedSizes.length - 1]}`
                                                 : 'No size'}
@@ -335,20 +362,23 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                     <div className="flex items-center gap-1">
                                         <h3 className="font-bold text-black">Burst:</h3>
                                         <div className="flex flex-col items-center gap-1">
-                                            <button onClick={() => setOpenDropdown(!openDropdown)} className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
+                                            <button onClick={() => setOpenDropdown(!openDropdown)}
+                                                    className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
                                                 {!selectedBurst ? "Select Burst" : "Change burst"}
                                             </button>
 
                                             {openDropdown && (
-                                                <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
+                                                <div
+                                                    className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
                                                     {burstOption.map((item, index) => (
                                                         <button
                                                             key={index}
                                                             onClick={() => handledSelectedBurst(item)}
                                                             className="text-left py-1 shadow gap-2 hover:bg-gray-100"
                                                         >
-                                                            {item?.value === 1 ? <Burst1 /> : item?.value === 2 ? <Burst2 /> :
-                                                                <Burst3 />}
+                                                            {item?.value === 1 ? <Burst1/> : item?.value === 2 ?
+                                                                <Burst2/> :
+                                                                <Burst3/>}
                                                         </button>
                                                     ))}
                                                 </div>
@@ -356,7 +386,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         </div>
                                         {
                                             selectedBurst !== null && (
-                                                selectedBurst?.value === 1 ? <Burst1 /> : selectedBurst?.value === 2 ? <Burst2 /> : <Burst3 />)
+                                                selectedBurst?.value === 1 ? <Burst1/> : selectedBurst?.value === 2 ?
+                                                    <Burst2/> : <Burst3/>)
                                         }
                                     </div>
                                 </div>
