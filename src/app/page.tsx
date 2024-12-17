@@ -16,8 +16,6 @@ import { Message } from "primereact/message";
 import { categoriesInterface } from "@/types/category";
 import { useCategoryContext } from "./context/categoryContext";
 import { ProductTypes } from "@/types/product";
-import { getProductsByCategory } from "@/pages/api/apiMongo/getProductByCategory";
-import { getProductLimit } from "@/pages/getProductLimit";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -25,12 +23,9 @@ export default function HomePage() {
         selectedProducts,
         setSelectedProducts,
         productsData,
-        setProductsData,
         currentPage,
         productDragging,
         productReadyDrag,
-        setIsLoadingProducts,
-        groupedProducts,
         setGroupedProducts,
     } = useProductContext();
     const [direction, setDirection] = useState(0);
