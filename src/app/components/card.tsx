@@ -228,8 +228,7 @@ export const GridCardProduct = ({
 
         // Verificar si el clic es con el botón izquierdo
         if (e.button === 0) {
-            timeoutRef.current = setTimeout(() => {
-                console.log(tmpVAlue ,'paginas selecionadas y valida' , page)
+            timeoutRef.current = setTimeout(() => {            
                 if (product && (!productReadyDrag && page !== tmpVAlue)) {
                     setProductReadyDrag({
                         from: 'grid',
