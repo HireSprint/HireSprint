@@ -215,18 +215,16 @@ export const GridCardProduct = ({
   
          const tmpVAlue =
             (!panningOnPage1 || zoomScalePage1 > 1.25) && (!panningOnSubPage || zoomScaleSubPagines > 1.25)
-                ? 5 // Ambas páginas inválidas
+                ? 5 
                 : !panningOnPage1 || zoomScalePage1 > 1.25
-                    ? 1 // Página 1 inválida
+                    ? 1 
                     : !panningOnSubPage || zoomScaleSubPagines > 1.25
-                        ? 2 // Subpágina inválida
-                        : 0; // Ambas páginas válidas
+                        ? 2 
+                        : 0; 
             
         setPageValidity(tmpVAlue);
-        // Si las páginas no son válidas (1, 2 o 3), salir
         if (tmpVAlue === 5) return;
 
-        // Verificar si el clic es con el botón izquierdo
         if (e.button === 0) {
             timeoutRef.current = setTimeout(() => {
                 console.log(tmpVAlue ,'paginas selecionadas y valida' , page)
@@ -548,7 +546,7 @@ export const CardShowSide = ({
                             <p className="text-center text-gray-950 font-bold">{product.master_brand}</p>
                             <p className={`text-center text-gray-950 ${product.master_brand ? 'font-medium' : 'font-bold'}`}>{product.brand}</p>
                             <p className="text-center text-gray-900 font-medium leading-tight">{product.desc}</p>
-                            <p className="text-center text-gray-500 text-xs">{product.variety?.[0].trim().replaceAll('"', '')}</p>
+                            <p className="text-center text-gray-500 text-xs">{product.variety?.[0]?.trim().replaceAll('"', '') || ''}</p>
                             <p className="text-center text-gray-500 text-xs">
                                 <span> {product?.size || ''} </span>
                                 <span> {product?.pack || ''} </span>
