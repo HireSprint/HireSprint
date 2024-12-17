@@ -1036,11 +1036,18 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             setHasMore(true);
             fetchProductsByCategory(1, true);
         }
+
+    }, [category?.id_category]);
+
+    useEffect(() => {
         if (currentPage > 1) {
             fetchProductsByCategory(currentPage);
         }
+    }, [currentPage]);
+
+    useEffect(() => {
         setDebouncedSearchTerm(searchTerm);
-    }, [category?.id_category, currentPage, searchTerm, productsData]);
+    }, [searchTerm]);
 
 
 
