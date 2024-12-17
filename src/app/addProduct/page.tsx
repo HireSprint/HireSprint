@@ -1025,7 +1025,7 @@ const AddProductPage = () => {
                     onUpdate={handleUpdateProduct}
                 />
             )}
-            {openProductModalTable && productsData.length >= 0 && (
+            {openProductModalTable && productsData.length > 0 && (
                 <EditableProductTable  products={productsData}  openModal={openProductModalTable} categories={categories} closeModal={setOpenProductModalTable} />
             )}
         </div>

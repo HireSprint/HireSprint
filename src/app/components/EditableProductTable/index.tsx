@@ -16,9 +16,10 @@ const EditableProductTable = ({
                                   closeModal,
                                   categories,
                               }: EditableProductTableInterface) => {
-    const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products);
+    const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products.sort((a, b) => a.brand.localeCompare(b.brand)));
     const [modifiedData, setModifiedData] = useState<any[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products);
+    const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products.sort((a, b) => a.brand.localeCompare(b.brand)).slice(0,100));
+    const [filters, setFilters] = useState({ id_category: "", upc: "", brand:"",desc:"" });
     const [step, setStep] = useState<number>(1);
     const [columns] = useState([
         {
@@ -26,7 +27,7 @@ const EditableProductTable = ({
             header: 'UPC',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -39,7 +40,7 @@ const EditableProductTable = ({
             header: 'Master Brand',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -52,7 +53,7 @@ const EditableProductTable = ({
             header: 'Brand',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -65,7 +66,7 @@ const EditableProductTable = ({
             header: 'Description',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -78,7 +79,7 @@ const EditableProductTable = ({
             header: 'Variety',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -92,7 +93,7 @@ const EditableProductTable = ({
             cell: ({ getValue, row, column }: any) => (
                 <input
                     type="number"
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -105,7 +106,7 @@ const EditableProductTable = ({
             header: 'Pack',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -118,7 +119,7 @@ const EditableProductTable = ({
             header: 'Weight Symbol',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -131,7 +132,7 @@ const EditableProductTable = ({
             header: 'Embase',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -144,7 +145,7 @@ const EditableProductTable = ({
             header: 'Category',
             cell: ({ getValue, row, column }: any) => (
                 <select
-                    className="border border-gray-300 rounded p-1 text-black"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta.updateData(row.index, column.id, e.target.value)
@@ -237,13 +238,32 @@ const EditableProductTable = ({
     });
 
     useEffect(() => {
-        setFilteredProducts(products.slice(step,step + 100))
-    }, [step]);
+        const start = (step - 1) * 100; // Índice inicial
+        const end = start + 100; // Índice final
+        setFilteredProducts(LocalProducts.slice(start, end));
+    }, [step, products]);
+
+    useEffect(() => {
+        if (LocalProducts && filteredProducts.length > 0) {
+            let newProduct = LocalProducts
+            if(filters.id_category !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.id_category === Number(filters.id_category)
+                ))
+            }
+            if(filters.upc !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.upc.includes(filters.upc) // Coincidencia parcial
+                ));
+            }
+            setFilteredProducts(newProduct)
+        }
+    }, [filters]);
 
     return openModal ? (
         <React.Fragment>
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100">
-                <div className="relative w-4/5   h-[75vh] ">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+                <div className="relative w-full h-[85vh] ">
                     <div className="absolute -right-5 -top-5 ">
                         <button onClick={() => closeModal(false)}
                                 className=" bg-gray-500 p-4 rounded-full border-2">
@@ -254,7 +274,32 @@ const EditableProductTable = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="bg-gray-900 w-full h-full rounded-lg shadow-md p-6 overflow-y-auto scrollBar-none">
+                    <div className="w-full flex p-8 bg-gray-900 gap-2">
+                        <div className="justify-start">
+                            <label className={"text-start text-white"}>Count</label>
+                            <input  className="w-full bg-gray-500 text-white p-2 rounded-md" onChange={(e)=> setFilters({...filters, id_category: e.target.value})}/>
+                        </div>
+                        <div className="justify-start">
+                            <label className={"text-start text-white"}>Category</label>
+                            <select
+                                name=""
+                                id=""
+                                onChange={(e) => setFilters({ ...filters, id_category: e.target.value })}
+                                className={'w-full bg-gray-500 text-white p-2 rounded-md'}
+                                defaultValue=""
+                            >
+                                <option value="">
+                                    Seleccionar una Categoría
+                                </option>
+                                {categories.map((client: categoriesInterface) => (
+                                    <option key={client.id_category} value={client.id_category}>
+                                        {client.name_category}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="bg-gray-900 w-full h-4/5  shadow-md p-4 overflow-y-auto scrollBar-none">
                         <table
                             className="min-w-full bg-gray-800 text-white table-auto border-collapse rounded-lg overflow-hidden">
                             <thead>
