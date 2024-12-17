@@ -61,7 +61,7 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
 
   // division de los botones para mostrar los productos default y los que se muestran al presionar ver mas categorias
   const generateBottomBarButtons = (): BottomBarButton[] => {
-    if (!categoriesData.length || !productsData.length) return [];
+    if (!categoriesData?.length || !productsData?.length) return [];
 
     const orderedCategories = orderCategoriesByProductCount(productsData);
     const orderedCategoryMap = new Map(orderedCategories.map((id, index) => [id, index]));
@@ -82,11 +82,9 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
 
   
 
-  // seteo de los botones del bottomBar
   useEffect(() => (setBottomBarButtons(generateBottomBarButtons())), [categoriesData, productsData]);
 
 
-  // filtrado de las categorias
   const filteredButtons = bottomBarButtons.filter(({ label }) =>
     label.toLowerCase().includes(searchTerm.toLowerCase())
   );
