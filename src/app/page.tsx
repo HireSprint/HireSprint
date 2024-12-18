@@ -563,7 +563,6 @@ export default function HomePage() {
 
                     });
                 }
-                //containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
                 containerRefPage2.current.centerView(dynamicFullSize, 2, "easeOut");
             } else if (zoomScaleSubPagines <= minScale) {
                 setFullPage2(false);
@@ -727,7 +726,7 @@ export default function HomePage() {
                         centerOnInit={true}
                         doubleClick={{ disabled: true }}
                         wheel={{ disabled: true }}
-                        panning={{ disabled: panningOnPage1 }}
+                        panning={{ disabled: panningOnPage1, velocityDisabled: true }}
                     >
                         {({ zoomIn, zoomOut, setTransform, resetTransform }) => (
                             <>
@@ -801,7 +800,7 @@ export default function HomePage() {
                                     >
                                         <div
                                             ref={divRef1}
-                                            className={"  border-2 border-red-600 "}>
+                                            >
                                             {/* @ts-ignore */}
 
                                             <ImageGrid {...commonGridProps} />
@@ -824,7 +823,7 @@ export default function HomePage() {
                         centerOnInit={true}
                         doubleClick={{ disabled: true }}
                         wheel={{ disabled: true }}
-                        panning={{ disabled: panningOnSubPage }}
+                        panning={{ disabled: panningOnSubPage, velocityDisabled: true }}
                     >
                         {({ zoomIn, zoomOut, setTransform, resetTransform }) => (
                             <>
