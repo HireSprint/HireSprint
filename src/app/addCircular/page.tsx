@@ -8,6 +8,7 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {useForm} from "react-hook-form";
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
+import { useAuth } from '@/app/components/provider/authprovider';
 
 interface DataRow {
     [key: string]: string | number;
@@ -25,6 +26,7 @@ const AddCircular = () => {
     });
 
     const [csvFile, setCsvFile] = useState<object[]>([]);
+    const { setReloadCircular } = useAuth();
     const [clientes, setClientes] = useState<clientType[] | []>([]);
     const [isReadyToSend, setIsReadyToSend] = useState(false);
     const [columns, setColumns] = useState<any>(null)
@@ -165,6 +167,7 @@ const AddCircular = () => {
                 toast.success("¡Circular created successfully!");
                 reset();
                 setCsvFile([]);
+                setReloadCircular(true);
             } else if (resp.status === 409) {
                 toast.error("Date of the circular already exists!!");
             } else if (resp.status === 500) {

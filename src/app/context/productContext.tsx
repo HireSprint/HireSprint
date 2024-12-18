@@ -3,6 +3,8 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import {ProductDraggingType, ProductReadyToDrag, ProductTypes} from '@/types/product';
 import {categoriesInterface} from '@/types/category';
+import { getProductsByCircular } from '@/pages/api/apiMongo/getProductsByCircular';
+import { useAuth } from '../components/provider/authprovider';
 
 interface GroupedProducts {
   [key: string]: ProductTypes[];
@@ -63,70 +65,82 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
     const [zoomScalePage1, setZoomScalePage1] = useState(1);
     const [zoomScaleSubPagines, setZoomScaleSubPagines] = useState(1);
     const [groupedProducts, setGroupedProducts] = useState<GroupedProducts>({});
+    const {idCircular, user} = useAuth();
+
 
     useEffect(() => {
-      const getProductView = async () => {
-          try {
-              const resp = await fetch("/api/apiMongo/getProduct");
-              const data = await resp.json();
-              const activeProducts = data.result.filter((product: ProductTypes) => product.status_active);
-              setProductsData(activeProducts);
+      const getProductByCircular = async () => {
+        if (!idCircular && !user) {
+          return
+        }
+        try {
+              const reqBody = {
+                  "id_circular":Number(idCircular),
+                  "id_client":user.userData.id_client
+              }
+              const resp = await getProductsByCircular(reqBody)
+              setSelectedProducts(resp.result)
+              setIsLoadingProducts(false)
           } catch (error) {
               console.error("Error al obtener los productos:", error);
           }
       };
-  
-      getProductView();
-  }, []);
+
+      getProductByCircular();
+    }, [idCircular, user]);
+    
+    console.log(selectedProducts, "selectedProducts")
   
     const updateGridProducts = (gridRange: { min: number; max: number }, circularProducts: ProductTypes[]) => {
-      if (productsData.length && circularProducts?.length > 0) {
-        const productsMap = new Map(
-          productsData.map(product => [product.upc.toString(), product])
-        );
-  
-        const gridFilled = circularProducts
-          .filter(circularProduct => {
-            const gridId = Number(circularProduct.id_grid) || 0;
-            const isInRange = gridId >= gridRange.min && gridId <= gridRange.max;
-            return isInRange && productsMap.has(circularProduct.upc.toString());
-          })
-          .map(circularProduct => {
-            const baseProduct = productsMap.get(circularProduct.upc.toString())!;
-            return {
-              ...baseProduct,
-              id_grid: circularProduct.id_grid,
-              price: circularProduct.price || baseProduct.price,
-              burst: circularProduct.burst,
-              addl: circularProduct.addl,
-              limit: circularProduct.limit,
-              must_buy: circularProduct.must_buy,
-              with_card: circularProduct.with_card
-            };
-          });
-  
-        setSelectedProducts(prevProducts => {
-          const otherGridProducts = prevProducts.filter(p => {
-            const gridId = Number(p.id_grid) || 0;
-            return gridId < gridRange.min || gridId > gridRange.max;
-          });
-          return [...otherGridProducts, ...gridFilled];
-        });
-  
-        // Para productos múltiples (como en ImageGrid2)
-        const multipleProducts: { [key: string]: ProductTypes[] } = {};
-        gridFilled.forEach(product => {
-          const gridId = product.id_grid?.toString();
-          if (gridId && gridFilled.filter(p => p.id_grid === product.id_grid).length > 1) {
-            if (!multipleProducts[gridId]) {
-              multipleProducts[gridId] = [];
-            }
-            multipleProducts[gridId].push(product);
-          }
-        });
-        setGroupedProducts(multipleProducts);
+      if (!selectedProducts.length || !circularProducts?.length) {
+        console.log('No hay datos suficientes para procesar');
+        return;
       }
+
+      const productsMap = new Map(
+        selectedProducts.map(product => [product.upc.toString(), product])
+      );
+
+      const groupsByGrid: { [key: string]: ProductTypes[] } = {};
+      
+      circularProducts.forEach(product => {
+        const gridId = product.id_grid?.toString();
+        if (!gridId) return;
+
+        
+        const numericGridId = Number(gridId);
+        if (numericGridId < gridRange.min || numericGridId > gridRange.max) return;
+        
+        if (!productsMap.has(product.upc.toString())) return;
+        
+        if (!groupsByGrid[gridId]) {
+          groupsByGrid[gridId] = [];
+        }
+        
+        groupsByGrid[gridId].push(product);
+      });
+      
+      console.log(groupsByGrid, "groupsByGrid")
+      
+      const multipleProducts = Object.entries(groupsByGrid)
+        .filter(([_, products]) => products.length > 1)
+        .reduce((acc, [gridId, products]) => {
+          acc[gridId] = products;
+          return acc;
+        }, {} as { [key: string]: ProductTypes[] });
+
+      console.log('Grupos encontrados:', {
+        totalGrupos: Object.keys(multipleProducts).length,
+        detalleGrupos: multipleProducts
+      });
+
+      setGroupedProducts(multipleProducts);
     };
+
+    
+
+
+    console.log(groupedProducts, "groupedProducts")
 
 
     return (
