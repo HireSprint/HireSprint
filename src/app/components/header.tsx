@@ -11,7 +11,7 @@ import ModalProductsTable from "@/app/components/ModalProductsTable";
  
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen, productsData } = useProductContext();
+    const { currentPage, setCurrentPage, setIsSendModalOpen } = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);

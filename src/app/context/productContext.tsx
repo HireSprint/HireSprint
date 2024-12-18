@@ -70,13 +70,16 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
 
     useEffect(() => {
       const getProductByCircular = async () => {
-          try {
+        if (!idCircular && !user) {
+          return
+        }
+        try {
               const reqBody = {
                   "id_circular":Number(idCircular),
                   "id_client":user.userData.id_client
               }
               const resp = await getProductsByCircular(reqBody)
-              setProductsData(resp.result)
+              setSelectedProducts(resp.result)
               setIsLoadingProducts(false)
           } catch (error) {
               console.error("Error al obtener los productos:", error);

@@ -2,7 +2,7 @@
 import { CardShowSide } from "./components/card";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import BottomBar from "./components/bottomBar";
-import { AnimatePresence, motion } from "framer-motion"; // Para animaciones
+import { AnimatePresence, motion } from "framer-motion"; 
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
@@ -27,6 +27,15 @@ export default function HomePage() {
         productDragging,
         productReadyDrag,
         setGroupedProducts,
+        setProductsData,
+        zoomScalePage1,
+        setZoomScalePage1,
+        zoomScaleSubPagines,
+        setZoomScaleSubPagines,
+        panningOnPage1,
+        setPanningOnPage1,
+        panningOnSubPage,
+        setPanningOnSubPage
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -39,15 +48,12 @@ export default function HomePage() {
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
     const [updateCircular, setUpdateCircular] = useState();
     const { idCircular, user } = useAuth();
-    const { categoriesData } = useCategoryContext();
+    const { categoriesData, selectedProductCategory } = useCategoryContext();
 
     //
     const [showProducts, setShowProducts] = useState(false);
     //var zoom
-    const { zoomScalePage1, setZoomScalePage1 } = useProductContext();
-    const { zoomScaleSubPagines, setZoomScaleSubPagines } = useProductContext();
-    const { panningOnPage1, setPanningOnPage1 } = useProductContext();
-    const { panningOnSubPage, setPanningOnSubPage } = useProductContext();
+
     const [resetScale, setResetScale] = useState(false);
     const [maxScale, setMaxScale] = useState(3);
     const [minScale, setMinScale] = useState(1);
@@ -150,13 +156,14 @@ export default function HomePage() {
                     }))
                 })
             });
-
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             const data = await response.json();
             if (data.success) {
                 setUpdateCircular(data.result);
+                setSelectedProducts(data.result)
+                setProductsData(data.result)
             } else {
                 throw new Error(data.message || "Error al actualizar circular");
             }
@@ -174,12 +181,9 @@ export default function HomePage() {
         setSelectedProducts((prev) => {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
-
             updateCircularInServer(updatedProducts);
-
             return updatedProducts;
         });
-
         setIsModalOpen(false)
         setShowProducts(false);
     };
@@ -233,6 +237,7 @@ export default function HomePage() {
             const htmlElementId = htmlElement && htmlElement.id
             const cellId = htmlElementId && Number(htmlElementId.replace(prefix, ''))
             return cellId
+            
         }
 
         const findGridCellTarget = (parentElement: any, count = 0) => {
@@ -245,8 +250,16 @@ export default function HomePage() {
 
         const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
 
+        console.log(selectedProductCategory, "selectedProductCategory")
+
         if (productIdToSelect) {
-            const productSelected = productsData.find((prod) => prod.id_product === productIdToSelect)
+            const productSelected = selectedProductCategory?.find((prod: ProductTypes) => {
+                return prod.id_product === productIdToSelect || 
+                       prod.id_grid === productIdToSelect ||
+                       prod.upc === String(productIdToSelect)
+            });
+            
+            console.log("Resultado de búsqueda:", productSelected);
 
             if (productSelected) {
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
@@ -900,8 +913,8 @@ interface GridProductProps {
 
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const { categoriesData } = useCategoryContext();
-    const { productsData, selectedProducts } = useProductContext();
+    const { selectedProducts } = useProductContext();
+    const { getProductsByCategory, isLoadingProducts, categoriesData } = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
@@ -927,26 +940,15 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
         }
 
         try {
-            const response = await fetch('https://hiresprintcanvas.dreamhosters.com/getProductsByCategory', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    category: category.id_category,
-                    page: pageNum
-                })
-            });
+            const data = await getProductsByCategory(category.id_category, pageNum);
 
-            const data = await response.json();
-
-            if (data.result.length === 0) {
+            if (!data || data.length === 0) {
                 setHasMore(false);
                 return;
             }
 
             setProductsByCategory(prev => {
-                const newProducts = isNewCategory ? data.result : [...prev, ...data.result];
+                const newProducts = isNewCategory ? data : [...prev, ...data];
                 return newProducts;
             });
 
@@ -968,7 +970,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                 const activeProducts = data.result.filter((product: ProductTypes) => product.status_active);
                 setProductsAllData(activeProducts);
             } catch (error) {
-                console.error("Error in get products]:", error);
+                console.error("Error in get products", error);
             }
         };
         getProductView();
@@ -1032,6 +1034,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     useEffect(() => {
         if (category?.id_category) {
             setLoading(true);
+            setProductsByCategory([]);
             setCurrentPage(1);
             setHasMore(true);
             fetchProductsByCategory(1, true);
@@ -1062,7 +1065,8 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
         }
 
         return productsByCategory;
-    }, [isSearching, searchResults, productsByCategory, activeTab, productsData, category, selectedProducts]);
+        
+    }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
 
     return (
         <div className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">

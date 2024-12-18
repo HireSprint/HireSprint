@@ -47,7 +47,6 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     { label: "Snack", Icon: SnackIcon },
   ];
 
-  // ordenamiento de las categorias dependiendo del numero de productos que haya registrado en cada categoria
   const orderCategoriesByProductCount = (products: ProductTypes[]): number[] => {
     const categoryCounts = products.reduce((acc, product) => {
       acc[product.id_category] = (acc[product.id_category] || 0) + 1;
@@ -59,9 +58,8 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
       .map(([categoryId]) => parseInt(categoryId));
   };
 
-  // division de los botones para mostrar los productos default y los que se muestran al presionar ver mas categorias
   const generateBottomBarButtons = (): BottomBarButton[] => {
-    if (!categoriesData?.length || !productsData?.length) return [];
+    if (!categoriesData?.length) return [];
 
     const orderedCategories = orderCategoriesByProductCount(productsData);
     const orderedCategoryMap = new Map(orderedCategories.map((id, index) => [id, index]));

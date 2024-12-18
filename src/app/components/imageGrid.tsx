@@ -2,11 +2,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { GridCardProduct } from "./card";
 import { useProductContext } from "../context/productContext";
-import { ProductTypes } from "@/types/product";
 import { cellTypes } from "@/types/cell";
 import { useCategoryContext } from "../context/categoryContext";
-import { useAuth } from "./provider/authprovider";
-import { getProductsByCircular } from "@/pages/api/apiMongo/getProductsByCircular";
 
 
 
@@ -102,7 +99,7 @@ export const ImageGrid = ({
                 })
             );
         }
-    }, [categoriesData, productsData])
+    }, [categoriesData])
 
 
     useEffect(() => {
@@ -239,7 +236,7 @@ export const ImageGrid2 = ({
                 })
             );
         }
-    }, [categoriesData, productsData])
+    }, [categoriesData])
 
     useEffect(() => {
         if ( productsData?.length > 0) {
@@ -414,13 +411,13 @@ export const ImageGrid3 = ({
                 })
             );
         }
-    }, [categoriesData, productsData])
+    }, [categoriesData])
 
 
 
 
     useEffect(() => {
-        if (productsData?.length > 0) {
+        if (productsData?.length > 0 && selectedProducts?.length > 0) {
             updateGridProducts(
                 { min: 3001, max: 3999 }, 
                 productsData
@@ -556,7 +553,7 @@ export const ImageGrid4 = ({
                 })
             );
         }
-    }, [categoriesData, productsData])
+    }, [categoriesData])
 
 
 

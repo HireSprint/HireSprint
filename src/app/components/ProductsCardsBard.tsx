@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { CardShowSide } from './card';
 import { ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
 import { useProductContext } from '../context/productContext';
 import { Message } from "primereact/message";
+import { useCategoryContext } from '../context/categoryContext';
 
 interface ProductContainerProps { 
     category: categoriesInterface | null, 
@@ -15,30 +16,59 @@ interface ProductContainerProps {
 
 const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCategory, onProductSelect, onDragAndDropCell, setShowProductCardBrand }) => {
     const [activeTab, setActiveTab] = useState('all');
-    const [loading, setLoading] = useState(true); 
-    const { productsData } = useProductContext();
+    const [loading, setLoading] = useState(true);
+    const [productsByCategory, setProductsByCategory] = useState<ProductTypes[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const { getProductsByCategory, isLoadingProducts } = useCategoryContext();
+    const { selectedProducts } = useProductContext();
+    const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
 
     useEffect(() => {
-        if (productsData.length) setLoading(false);
-    }, [productsData]);
-    
-
-    useEffect(() => {
-        if (productsData.length) {
+        const loadProducts = async () => {
             setLoading(true);
-            setTimeout(() => setLoading(false) , 250);
-        }
-        
-    }, [category]);
-        
+            if (category?.id_category) {
+                try {
+                    const products = await getProductsByCategory(category.id_category, currentPage);
+                    setCircularProducts(selectedProducts.filter(p => p.id_category === category.id_category));
+                    setProductsByCategory(prev => 
+                        currentPage === 1 ? products : [...prev, ...products]
+                    );
+                    setHasMore(products.length > 0);
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
 
-    const productsSameCategory = productsData.filter(product => product.id_category === category?.id_category);
+        loadProducts();
+    }, [category?.id_category, currentPage, selectedProducts]);
+
+    const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+        if (scrollHeight - scrollTop <= clientHeight * 1.5) {
+            if (!loading && hasMore) {
+                setCurrentPage(prev => prev + 1);
+                if (category?.id_category) {
+                    getProductsByCategory(category.id_category, currentPage + 1);
+                }
+            }
+        }
+    }, [loading, hasMore, currentPage, category?.id_category, getProductsByCategory]);
+
     const [searchTerm, setSearchTerm] = useState("");
 
-    const filteredProducts = productsData.filter((product) =>
-        productsSameCategory.includes(product) &&
-        product.desc?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = productsByCategory.filter((product) => {
+        const matchesSearch = product.desc?.toLowerCase().includes(searchTerm.toLowerCase());
+        if (activeTab === 'circular') {
+            return matchesSearch && circularProducts.some(cp => cp.id_product === product.id_product);
+        }
+        return matchesSearch;
+    });
+
+
 
     return (
         <div className="@container flex h-[74vh] w-[28vw] bg-white bg-opacity-[.96] rounded-lg shadow-md overflow-hidden">
@@ -81,7 +111,10 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
                 {/* Subcategorías */}
                 {activeTab === 'all' && (
-                    <div className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div 
+                        className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                        onScroll={handleScroll}
+                    >
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">Sub
@@ -122,12 +155,20 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                     }
                                 </div>
                             }
+                            {loading && hasMore && (
+                                <div className="flex justify-center p-4">
+                                    <p className="text-gray-500">Loading more products...</p>
+                                </div>
+                            )}
                     </div>
                 )}
 
                 {/* Subcategorías */}
                 {activeTab === 'circular' && (
-                    <div className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div 
+                        className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                        onScroll={handleScroll}
+                    >
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
@@ -173,6 +214,11 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                     }
                                 </div>
                             }
+                            {loading && hasMore && (
+                                <div className="flex justify-center p-4">
+                                    <p className="text-gray-500">Cargando más productos...</p>
+                                </div>
+                            )}
                     </div>
                 )}
             </div>
