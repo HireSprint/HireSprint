@@ -2,12 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
+import { toast, ToastContainer } from 'react-toastify';
+import { updateProduct } from '@/pages/api/apiMongo/updateProduct';
+import ignore from 'ignore';
 
 interface EditableProductTableInterface {
     products: ProductTypes[];
     categories: categoriesInterface[]
     openModal: boolean;
     closeModal: (status: boolean) => void;
+    reloadData: (status: boolean) => void;
 }
 
 const EditableProductTable = ({
@@ -15,12 +19,15 @@ const EditableProductTable = ({
                                   openModal,
                                   closeModal,
                                   categories,
+                                  reloadData
                               }: EditableProductTableInterface) => {
-    const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products.sort((a, b) => a.brand.localeCompare(b.brand)));
+    const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products.filter((item)=>item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()));
     const [modifiedData, setModifiedData] = useState<any[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products.sort((a, b) => a.brand.localeCompare(b.brand)).slice(0,100));
-    const [filters, setFilters] = useState({ id_category: "", upc: "", brand:"",desc:"" });
+    const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products.filter((item)=>item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()).slice(0,100));
+    const [filters, setFilters] = useState({ id_category: "", upc: "", brand:"",master_brand:"",desc:"",variety:"",orden:"true" });
     const [step, setStep] = useState<number>(1);
+    const [reload, setReload] = useState(false);
+    // @ts-ignore
     const [columns] = useState([
         {
             accessorKey: 'upc',
@@ -30,7 +37,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -43,7 +51,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -56,7 +65,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -69,7 +79,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -82,7 +93,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -96,7 +108,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -109,7 +122,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -122,7 +136,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -135,7 +150,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -148,7 +164,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 >
                     <option value=""> Select category</option>
@@ -170,7 +187,8 @@ const EditableProductTable = ({
                     className="border border-gray-300 rounded p-1 text-black"
                     value={getValue() || ''}
                     onChange={(e) =>
-                        table.options.meta.updateData(row.index, column.id, e.target.value)
+                        // @ts-ignore
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
             ),
@@ -201,6 +219,7 @@ const EditableProductTable = ({
         columns,
         getCoreRowModel: getCoreRowModel(),
         meta: {
+            // @ts-ignore
             updateData: (rowIndex: number, columnId: string, value: unknown) => {
                 setFilteredProducts((old: any) =>
                     old.map((row: any, index: number) => {
@@ -238,34 +257,173 @@ const EditableProductTable = ({
     });
 
     useEffect(() => {
-        const start = (step - 1) * 100; // Índice inicial
-        const end = start + 100; // Índice final
-        setFilteredProducts(LocalProducts.slice(start, end));
-    }, [step, products]);
+        if (LocalProducts && LocalProducts.length > 0) {
+            console.log("filtering");
+            let newProduct = LocalProducts;
 
-    useEffect(() => {
-        if (LocalProducts && filteredProducts.length > 0) {
-            let newProduct = LocalProducts
-            if(filters.id_category !== "") {
+            if (filters.id_category !== "") {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     item.id_category === Number(filters.id_category)
-                ))
-            }
-            if(filters.upc !== "") {
-                newProduct = newProduct.filter((item: ProductTypes) => (
-                    item.upc.includes(filters.upc) // Coincidencia parcial
                 ));
             }
-            setFilteredProducts(newProduct)
+
+            if (filters.upc !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.upc?.toLowerCase().includes(filters.upc.toLowerCase())
+                ));
+            }
+
+            if (filters.brand !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.brand?.toLowerCase().includes(filters.brand.toLowerCase())
+                ));
+            }
+
+            if (filters.master_brand !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.master_brand?.toLowerCase().includes(filters.master_brand.toLowerCase())
+                ));
+            }
+
+            if (filters.desc !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.desc?.toLowerCase().includes(filters.desc.toLowerCase())
+                ));
+            }
+
+            if (filters.variety !== "") {
+                newProduct = newProduct.filter((item: ProductTypes) => (
+                    item.variety?.includes(filters.variety.toLowerCase())
+                ));
+            }
+
+
+            if (filters.orden === "true") {
+                newProduct = newProduct.sort((a, b) => new Date(String(a?.createdAt)).getTime() - new Date(String(b?.createdAt)).getTime());
+                console.log("orden ascendente", filters.orden, newProduct);
+            } else {
+                newProduct = newProduct.sort((a, b) => new Date(String(b?.createdAt)).getTime() - new Date(String(a?.createdAt)).getTime());
+                console.log("orden descendente", filters.orden, newProduct);
+            }
+
+
+            if(newProduct.length < 100){
+                setStep(1)
+            }else {
+                const start = (step - 1) * 100;
+                const end = start + 100;
+                newProduct = newProduct.slice(start, end);
+
+               return setFilteredProducts(newProduct);
+            }
         }
-    }, [filters]);
+    }, [step, filters, LocalProducts,reload]);
+
+    const isEdited = (targetItem:any) => {
+        const isItemInList = modifiedData.some(
+            (item) => item._id === targetItem._id && item.upc === targetItem.upc
+        );
+        return isItemInList;
+    };
+
+    const handledUpdate = async (item:ProductTypes[]) => {
+        console.log("update", item);
+        // @ts-ignore
+        const sendItem:ProductTypes = item[0] ? item[0] : item
+
+        const body = {
+            "id_product":Number(sendItem.id_product),
+            "upc":sendItem.upc,
+            "master_brand":sendItem.master_brand,
+            "brand":sendItem.brand,
+            "desc":sendItem.desc,
+            "size":sendItem.size,
+            "pack":sendItem.pack,
+            "w_simbol":sendItem.w_simbol,
+            "embase":sendItem.embase,
+            "id_category":sendItem.id_category,
+            "type_of_meat":sendItem.type_of_meat
+        }
+        const resp = await updateProduct(body);
+        if(resp.status === 200){
+            const lista_update = LocalProducts.map((item:ProductTypes) => item.id_product === sendItem.id_product ? sendItem : item)
+            const lista_filtered = filteredProducts.map((item:ProductTypes) => item.id_product === sendItem.id_product ? sendItem : item)
+            setLocalProducts(lista_update)
+            setFilteredProducts(lista_filtered)
+            setModifiedData(modifiedData.filter((item:ProductTypes) => item.id_product !== sendItem.id_product))
+            toast.success(`Product ${sendItem.upc} updated successfully.`);
+            return true
+        } else {
+            toast.error(`Product ${sendItem.upc} updated unsuccessfully.`);
+            return false;
+        }
+    };
+
+    const updateAllChange = async () => {
+        // Copiar los datos modificados
+        const tempDataModified = [...modifiedData];
+
+        const listaDeActualizada = await Promise.all(
+            tempDataModified.map(async (sendItem: ProductTypes) => {
+                const body = {
+                    id_product: Number(sendItem.id_product),
+                    upc: sendItem.upc,
+                    master_brand: sendItem.master_brand,
+                    brand: sendItem.brand,
+                    desc: sendItem.desc,
+                    size: sendItem.size,
+                    pack: sendItem.pack,
+                    w_simbol: sendItem.w_simbol,
+                    embase: sendItem.embase,
+                    id_category: sendItem.id_category,
+                    type_of_meat: sendItem.type_of_meat,
+                };
+
+                try {
+                    const resp = await updateProduct(body);
+                    if (resp.status === 200) {
+                        toast.success(`Product ${sendItem.upc} updated successfully.`);
+                        return { success: true, sendItem };
+                    } else {
+                        toast.error(`Product ${sendItem.upc} updated unsuccessfully.`);
+                        return { success: false, sendItem };
+                    }
+                } catch (error) {
+                    toast.error(`Error updating product ${sendItem.upc}`);
+                    return { success: false, sendItem };
+                }
+            })
+        );
+
+        const updatedProducts = listaDeActualizada
+            .filter(item => item.success)
+            .map(item => item.sendItem);
+
+        const lista_update = LocalProducts.map((item: ProductTypes) =>
+            updatedProducts.find(updated => updated.id_product === item.id_product) || item
+        );
+
+        const lista_filtered = filteredProducts.map((item: ProductTypes) =>
+            updatedProducts.find(updated => updated.id_product === item.id_product) || item
+        );
+
+        setLocalProducts(lista_update);
+        setFilteredProducts(lista_filtered);
+
+        const idsUpdated = updatedProducts.map(item => item.id_product);
+        setModifiedData(modifiedData.filter((item: ProductTypes) => !idsUpdated.includes(item.id_product)));
+
+        console.log("Lista de subida:", listaDeActualizada);
+
+        setReload(!reload);
+    };
 
     return openModal ? (
         <React.Fragment>
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
                 <div className="relative w-full h-[85vh] ">
                     <div className="absolute -right-5 -top-5 ">
-                        <button onClick={() => closeModal(false)}
+                        <button onClick={() => (closeModal(false),reloadData(true))}
                                 className=" bg-gray-500 p-4 rounded-full border-2">
                             <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28"
                                  viewBox="0 0 384 512">
@@ -274,13 +432,44 @@ const EditableProductTable = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="w-full flex p-8 bg-gray-900 gap-2">
+                    <div className="w-full flex p-4 bg-gray-900 gap-5">
                         <div className="justify-start">
-                            <label className={"text-start text-white"}>Count</label>
-                            <input  className="w-full bg-gray-500 text-white p-2 rounded-md" onChange={(e)=> setFilters({...filters, id_category: e.target.value})}/>
+                            <label className="text-start text-white">Fecha</label>
+                            <select
+                                onChange={(e) => setFilters({
+                                    ...filters,
+                                    orden: e.target.value === 'true' ? 'true' : 'false',
+                                })}
+                                className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                defaultValue="false"
+                            >
+
+                                <option value="false" >Descendente</option>
+                                <option value="true" selected >Ascendente</option>
+                            </select>
                         </div>
                         <div className="justify-start">
-                            <label className={"text-start text-white"}>Category</label>
+                            <label className={'text-start text-white'}>Master Brand</label>
+                            <input className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                   onChange={(e) => setFilters({ ...filters, master_brand: e.target.value })} />
+                        </div>
+                        <div className="justify-start">
+                            <label className={'text-start text-white'}>Brand</label>
+                            <input className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                   onChange={(e) => setFilters({ ...filters, brand: e.target.value })} />
+                        </div>
+                        <div className="justify-start">
+                            <label className={'text-start text-white'}>Description </label>
+                            <input className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                   onChange={(e) => setFilters({ ...filters, desc: e.target.value })} />
+                        </div>
+                        <div className="justify-start">
+                            <label className={'text-start text-white'}>Variety</label>
+                            <input className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                   onChange={(e) => setFilters({ ...filters, variety: e.target.value })} />
+                        </div>
+                        <div className="justify-start">
+                            <label className={'text-start text-white'}>Category</label>
                             <select
                                 name=""
                                 id=""
@@ -297,6 +486,16 @@ const EditableProductTable = ({
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                        <div className="justify-start mx-10">
+                            <label className={'text-start text-white'}>save</label>
+                            <button
+                                disabled={!(modifiedData.length > 0)}
+                                onClick={() => updateAllChange()}
+                                className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 "
+                            >
+                                Update All
+                            </button>
                         </div>
                     </div>
                     <div className="bg-gray-900 w-full h-4/5  shadow-md p-4 overflow-y-auto scrollBar-none">
@@ -330,17 +529,18 @@ const EditableProductTable = ({
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     ))}
-                                    <td className="px-2 py-2 text-md text-black">
+                                    <td className="px-2 py-2 text-md text-black items-center">
                                         <button
+                                            disabled={!isEdited(row.original)}
                                             onClick={() => {
-                                                const filteredProducts = products.filter(
-                                                    (_, index) => index !== row.index,
+                                                const filteredProduct = filteredProducts.filter(
+                                                    (_, index) => index === row.index,
                                                 );
-                                                updateProducts(filteredProducts);
+                                                handledUpdate(filteredProduct);
                                             }}
-                                            className="px-2 py-1 text-sm font-bold text-red-500 rounded hover:bg-red-600 hover:text-white"
+                                            className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
                                         >
-                                            Delete
+                                            save
                                         </button>
                                     </td>
                                 </tr>
@@ -354,10 +554,18 @@ const EditableProductTable = ({
                         </button>
                         <h1 className={"text-white text-4xl font-bold"}>{step}</h1>
                         <button className={"py-2 px-4 text-white bg-lime-600 rounded-md"}
-                                onClick={() => setStep(step + 1)}>Next
+                                onClick={() => filteredProducts.length > 99 && setStep(step + 1)}>Next
                         </button>
                     </div>
                 </div>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    closeOnClick
+                    pauseOnHover
+                    theme="light"
+                />
             </div>
         </React.Fragment>
     ) : null;

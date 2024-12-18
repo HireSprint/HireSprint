@@ -74,7 +74,7 @@ const AddProductPage = () => {
     const [openProductModalTable, setOpenProductModalTable] = useState<boolean>(false);
 
     useEffect(() => {
-        if (reloadFlag){
+        if (reloadFlag || !openProductModalTable) {
             const getProductView = async () => {
                 try {
                     const resp = await fetch("/api/apiMongo/getProduct");
@@ -84,10 +84,9 @@ const AddProductPage = () => {
                     console.error("Error in get [id_circular]:", error);
                 }
             };
-            getProductView();
-            setReloadFlag(false)
+            getProductView().finally(()=>setReloadFlag(false));
         }
-    }, [reloadFlag]);
+    }, [reloadFlag,openProductModalTable]);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -1026,8 +1025,28 @@ const AddProductPage = () => {
                 />
             )}
             {openProductModalTable && productsData.length > 0 && (
-                <EditableProductTable  products={productsData}  openModal={openProductModalTable} categories={categories} closeModal={setOpenProductModalTable} />
+                <EditableProductTable  products={productsData}  openModal={openProductModalTable} categories={categories} closeModal={setOpenProductModalTable} reloadData={setReloadFlag} />
             )}
+            {
+                openProductModalTable === true && productsData.length <= 0 && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+                        <div className="flex items-center justify-center h-screen">
+                            <div
+                                className="w-16 h-16 border-4 border-blue-500 border-solid rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                openProductModalTable === false && reloadFlag === true && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+                        <div className="flex items-center justify-center h-screen">
+                            <div
+                                className="w-16 h-16 border-4 border-blue-500 border-solid rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 }
