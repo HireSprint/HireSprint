@@ -107,32 +107,25 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
             let newVarieties = [...prev];
 
             if (type === 'Selected') {
-                // Agregar "Selected Varieties" si no está en la lista
                 if (!newVarieties.includes('Selected Varieties')) {
                     newVarieties = [...newVarieties, 'Selected Varieties'];
                 }
-                // Eliminar "Assorted Varieties" si ya está
                 newVarieties = newVarieties.filter(v => v !== 'Assorted Varieties');
             } else if (type === 'Assorted') {
-                // Agregar "Assorted Varieties" si no está en la lista
                 if (!newVarieties.includes('Assorted Varieties')) {
                     newVarieties = [...newVarieties, 'Assorted Varieties'];
                 }
-                // Eliminar "Selected Varieties" si ya está
                 newVarieties = newVarieties.filter(v => v !== 'Selected Varieties');
             } else {
-                // Si se desmarca, eliminar ambos
                 newVarieties = newVarieties.filter(v => v !== 'Selected Varieties' && v !== 'Assorted Varieties');
             }
 
-            return newVarieties; // Actualiza el estado final
+            return newVarieties;
         });
     };
 
-    // Primero, añade una referencia para el contenedor de la lista
     const varietyListRef = useRef<HTMLDivElement>(null);
-
-    // Modifica el useEffect para manejar los clics fuera
+    
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (varietyListRef.current && 

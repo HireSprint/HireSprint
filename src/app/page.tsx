@@ -40,14 +40,12 @@ export default function HomePage() {
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
     const [showProductCardBrand, setShowProductCardBrand] = useState<boolean>(true);
-    //states modal for grids with [id_circular] selected AlexSM
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [productByApi, setProductByApi] = useState<[] | null>([])
     const [productSelected, setProductSelected] = useState<ProductTypes | undefined>(undefined)
     const [mousePosition, setMousePosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
     const [gridCategory, setGridCategory] = useState<categoriesInterface | null>(null);
     const [updateCircular, setUpdateCircular] = useState();
-    const { idCircular, user } = useAuth();
+    const { idCircular } = useAuth();
     const { categoriesData, selectedProductCategory } = useCategoryContext();
 
     //
@@ -565,7 +563,8 @@ export default function HomePage() {
         setDynamicHeightSubpages("85dvh")
         setZoomScaleSubPagines(1);
         setResetScale(true);
-
+        setShowProducts(false);
+        setIsModalOpen(false);
     }, [currentPage]);
 
 
@@ -795,7 +794,7 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             width: "100%",
-                                            height: dynamicHeightSubpages,
+                                                                            height: dynamicHeightSubpages,
                                             overflowY: "scroll",
                                             overflow: productDragging ? 'visible' : "scroll",
                                         }}
@@ -914,7 +913,7 @@ interface GridProductProps {
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const { selectedProducts } = useProductContext();
-    const { getProductsByCategory, isLoadingProducts, categoriesData } = useCategoryContext();
+    const { getProductsByCategory, categoriesData } = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);

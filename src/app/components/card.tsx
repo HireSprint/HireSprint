@@ -172,11 +172,7 @@ export const GridCardProduct = ({
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const elementRef = useRef(null);
     const timeoutRef = useRef<any>(null);
-    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag } = useProductContext();
-    const {panningOnPage1} = useProductContext();
-    const {panningOnSubPage} = useProductContext();
-    const {zoomScalePage1} = useProductContext();
-    const {zoomScaleSubPagines} = useProductContext();
+    const { productDragging, setProductDragging, productReadyDrag, setProductReadyDrag, panningOnSubPage, panningOnPage1, zoomScalePage1, zoomScaleSubPagines } = useProductContext();
     const startDragging = (e: any, data: any) => {
         setProductDragging && setProductDragging({
             from: 'grid',
@@ -209,25 +205,25 @@ export const GridCardProduct = ({
             setProductReadyDrag(null)
         }, 250);
     }
-    
+
     const [pageValidity, setPageValidity] = useState<number>(0);
     const handleMouseDown = (e: any) => {
-  
-         const tmpVAlue =
+
+        const tmpVAlue =
             (!panningOnPage1 || zoomScalePage1 > 1.25) && (!panningOnSubPage || zoomScaleSubPagines > 1.25)
-                ? 5 
+                ? 5
                 : !panningOnPage1 || zoomScalePage1 > 1.25
-                    ? 1 
+                    ? 1
                     : !panningOnSubPage || zoomScaleSubPagines > 1.25
-                        ? 2 
-                        : 0; 
-            
+                        ? 2
+                        : 0;
+
         setPageValidity(tmpVAlue);
         if (tmpVAlue === 5) return;
 
         if (e.button === 0) {
             timeoutRef.current = setTimeout(() => {
-                console.log(tmpVAlue ,'paginas selecionadas y valida' , page)
+                console.log(tmpVAlue, 'paginas selecionadas y valida', page)
                 if (product && (!productReadyDrag && page !== tmpVAlue)) {
                     setProductReadyDrag({
                         from: 'grid',
@@ -256,11 +252,27 @@ export const GridCardProduct = ({
 
 
     useEffect(() => {
-        if (divRef.current) {
-            const { offsetWidth, offsetHeight } = divRef.current;
-            setDivDimensions({ width: offsetWidth, height: offsetHeight });
-        }
-    }, [product]);
+        const updateDimensions = () => {
+            if (divRef.current) {
+                const { offsetWidth, offsetHeight } = divRef.current;
+                setDivDimensions({ width: offsetWidth, height: offsetHeight });
+            }
+        };
+
+        // Ejecutar inmediatamente
+        updateDimensions();
+
+        // Agregar un pequeño retraso para asegurar que el DOM esté completamente renderizado
+        const timer = setTimeout(updateDimensions, 100);
+
+        // Opcional: agregar un listener para cambios de tamaño
+        window.addEventListener('resize', updateDimensions);
+
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('resize', updateDimensions);
+        };
+    }, [product, divRef.current]); // Agregamos divRef.current como dependencia
 
 
     return (
@@ -330,7 +342,7 @@ export const GridCardProduct = ({
                                     ...textShadowWhite,
                                     width: '100%',
                                     height: '100%',
-                                    fontSize: `calc(1 * ${Math.min(divDimensions.width, divDimensions.height) * 0.12}px)`,
+                                    fontSize: divDimensions.width > 0 ? `calc(1 * ${Math.min(divDimensions.width, divDimensions.height) * 0.12}px)` : '12px',
                                     lineHeight: '1.2',
                                 }}
                             >
@@ -351,8 +363,8 @@ export const GridCardProduct = ({
                                             {product.desc}
                                         </span>
 
-                                        
-                                        <span 
+
+                                        <span
                                             className="text-purple-600 uppercase truncate text-left w-full"
                                             style={{ fontSize: '1em' }}
                                         >
@@ -368,7 +380,7 @@ export const GridCardProduct = ({
                                             className="text-red-500 truncate text-left w-full"
                                             style={{ fontSize: '1.1em' }}
                                         >
-                                           ${product?.price?.replace(/"/g, '') || '0'}
+                                            ${product?.price?.replace(/"/g, '') || '0'}
                                         </span>
 
 
@@ -520,20 +532,20 @@ export const CardShowSide = ({
                             <div className=" flex w-28 h-28 items-center justify-center">
                                 {
                                     product.url_image && !imageError ? (
-                                            <Image
-                                                src={product.url_image}
-                                                alt={product.desc || "No hay descripción"}
-                                                width={100}
-                                                height={100}
-                                                draggable={false}
-                                                style={{objectFit: 'cover'}}
-                                                className="rounded-lg"
-                                                onError={() => setImageError(true)}
-                                                loading="lazy"
-                                                placeholder="blur"
-                                                blurDataURL={product.url_image}
-                                            />
-                                        )
+                                        <Image
+                                            src={product.url_image}
+                                            alt={product.desc || "No hay descripción"}
+                                            width={100}
+                                            height={100}
+                                            draggable={false}
+                                            style={{ objectFit: 'cover' }}
+                                            className="rounded-lg"
+                                            onError={() => setImageError(true)}
+                                            loading="lazy"
+                                            placeholder="blur"
+                                            blurDataURL={product.url_image}
+                                        />
+                                    )
                                         :
                                         (
                                             <div
@@ -550,8 +562,8 @@ export const CardShowSide = ({
                             <p className="text-center text-gray-500 text-xs">
                                 <span> {product?.size || ''} </span>
                                 <span> {product?.pack || ''} </span>
-                                <span> {product?.w_simbol || ''} </span> 
-                                <span> {product?.count || ''} </span> 
+                                <span> {product?.w_simbol || ''} </span>
+                                <span> {product?.count || ''} </span>
                                 <span> {product?.embase || ''} </span>
                             </p>
                         </div>

@@ -242,10 +242,10 @@ export const ImageGrid2 = ({
         if ( productsData?.length > 0) {
             updateGridProducts(
                 { min: 2001, max: 2999 }, 
-                productsData
+                selectedProducts
             );
         }
-    }, [productsData]);
+    }, [productsData, selectedProducts]);
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
@@ -420,10 +420,10 @@ export const ImageGrid3 = ({
         if (productsData?.length > 0 && selectedProducts?.length > 0) {
             updateGridProducts(
                 { min: 3001, max: 3999 }, 
-                productsData
+                selectedProducts
             );
         }
-    }, [productsData]);
+    }, [productsData, selectedProducts]);
 
 
 
@@ -562,10 +562,10 @@ export const ImageGrid4 = ({
         if (productsData?.length > 0) {
             updateGridProducts(
                 { min: 4001, max: 4999 }, 
-                productsData
+                selectedProducts
             );
         }
-    }, [productsData]);
+    }, [productsData, selectedProducts]);
 
 
 
