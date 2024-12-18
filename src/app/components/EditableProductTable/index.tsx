@@ -27,6 +27,7 @@ const EditableProductTable = ({
     const [filters, setFilters] = useState({ id_category: "", upc: "", brand:"",master_brand:"",desc:"",variety:"",orden:"true" });
     const [step, setStep] = useState<number>(1);
     const [reload, setReload] = useState(false);
+    const [loadingScreen, setLoadingScreen] = useState(true);
     // @ts-ignore
     const [columns] = useState([
         {
@@ -313,7 +314,7 @@ const EditableProductTable = ({
                 const start = (step - 1) * 100;
                 const end = start + 100;
                 newProduct = newProduct.slice(start, end);
-
+                setTimeout(() => setLoadingScreen(false),1000);
                return setFilteredProducts(newProduct);
             }
         }
@@ -423,7 +424,7 @@ const EditableProductTable = ({
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
                 <div className="relative w-full h-[85vh] ">
                     <div className="absolute -right-5 -top-5 ">
-                        <button onClick={() => (closeModal(false),reloadData(true))}
+                        <button onClick={() => (closeModal(false), reloadData(true))}
                                 className=" bg-gray-500 p-4 rounded-full border-2">
                             <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28"
                                  viewBox="0 0 384 512">
@@ -444,8 +445,8 @@ const EditableProductTable = ({
                                 defaultValue="false"
                             >
 
-                                <option value="false" >Descendente</option>
-                                <option value="true" selected >Ascendente</option>
+                                <option value="false">Descendente</option>
+                                <option value="true" selected>Ascendente</option>
                             </select>
                         </div>
                         <div className="justify-start">
@@ -498,63 +499,92 @@ const EditableProductTable = ({
                             </button>
                         </div>
                     </div>
-                    <div className="bg-gray-900 w-full h-4/5  shadow-md p-4 overflow-y-auto scrollBar-none">
-                        <table
-                            className="min-w-full bg-gray-800 text-white table-auto border-collapse rounded-lg overflow-hidden">
-                            <thead>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <tr key={headerGroup.id} className="bg-gray-900">
-                                    {headerGroup.headers.map((header) => (
-                                        <th
-                                            key={header.id}
-                                            className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
-                                        >
-                                            {flexRender(header.column.columnDef.header, header.getContext())}
+                    <div className="bg-gray-900 w-full h-4/5 shadow-md p-4 overflow-y-auto scrollBar-none">
+                        {loadingScreen ? (
+                            <div className="space-y-4">
+                                {/* Header Skeleton */}
+                                <div
+                                    className="bg-gray-800 text-white table-auto border-collapse rounded-lg overflow-hidden">
+                                    <div className="bg-gray-900">
+                                        <div
+                                            className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider h-8 bg-gray-700 animate-pulse"></div>
+                                        <div
+                                            className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider h-8 bg-gray-700 animate-pulse"></div>
+                                    </div>
+                                </div>
+
+                                {/* Rows Skeleton */}
+                                <div className="space-y-2">
+                                    {Array(5)
+                                        .fill(0)
+                                        .map((_, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center justify-between py-2 px-4 bg-gray-800 border-t border-gray-700 animate-pulse"
+                                            >
+                                                <div className="w-1/3 h-6 bg-gray-700 rounded"></div>
+                                                <div className="w-1/3 h-6 bg-gray-700 rounded"></div>
+                                                <div className="w-1/3 h-6 bg-gray-700 rounded"></div>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <table
+                                className="min-w-full bg-gray-800 text-white table-auto border-collapse rounded-lg overflow-hidden">
+                                <thead>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <tr key={headerGroup.id} className="bg-gray-900">
+                                        {headerGroup.headers.map((header) => (
+                                            <th
+                                                key={header.id}
+                                                className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
+                                            >
+                                                {flexRender(header.column.columnDef.header, header.getContext())}
+                                            </th>
+                                        ))}
+                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                            Acción
                                         </th>
-                                    ))}
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
-                                        Acción
-                                    </th>
-                                </tr>
-                            ))}
-                            </thead>
-                            <tbody>
-                            {table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td
-                                            key={cell.id}
-                                            className="px-2 py-2 text-md text-black"
-                                        >
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </tr>
+                                ))}
+                                </thead>
+                                <tbody>
+                                {table.getRowModel().rows.map((row) => (
+                                    <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
+                                        {row.getVisibleCells().map((cell) => (
+                                            <td key={cell.id} className="px-2 py-2 text-md text-black">
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </td>
+                                        ))}
+                                        <td className="px-2 py-2 text-md text-black items-center">
+                                            <button
+                                                disabled={!isEdited(row.original)}
+                                                onClick={() => {
+                                                    const filteredProduct = filteredProducts.filter(
+                                                        (_, index) => index === row.index
+                                                    );
+                                                    handledUpdate(filteredProduct);
+                                                }}
+                                                className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
+                                            >
+                                                save
+                                            </button>
                                         </td>
-                                    ))}
-                                    <td className="px-2 py-2 text-md text-black items-center">
-                                        <button
-                                            disabled={!isEdited(row.original)}
-                                            onClick={() => {
-                                                const filteredProduct = filteredProducts.filter(
-                                                    (_, index) => index === row.index,
-                                                );
-                                                handledUpdate(filteredProduct);
-                                            }}
-                                            className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
-                                        >
-                                            save
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
+
                     <div className="w-full flex justify-between text-center p-8 bg-gray-900">
                         <button className={"py-2 px-4 text-white bg-lime-600 rounded-md"}
-                                onClick={() => step > 1 ? setStep(step - 1) : setStep(step)}>Back
+                                onClick={() => {step > 1 ? (setStep(step - 1), setLoadingScreen(true)) : setStep(step);}}>Back
                         </button>
                         <h1 className={"text-white text-4xl font-bold"}>{step}</h1>
                         <button className={"py-2 px-4 text-white bg-lime-600 rounded-md"}
-                                onClick={() => filteredProducts.length > 99 && setStep(step + 1)}>Next
+                                onClick={() => {filteredProducts.length > 99 && (setStep(step + 1),setLoadingScreen(true))}}>Next
                         </button>
                     </div>
                 </div>
