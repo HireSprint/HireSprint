@@ -2,11 +2,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { GridCardProduct } from "./card";
 import { useProductContext } from "../context/productContext";
-import { ProductTypes } from "@/types/product";
 import { cellTypes } from "@/types/cell";
 import { useCategoryContext } from "../context/categoryContext";
-import { useAuth } from "./provider/authprovider";
-import { getProductsByCircular } from "@/pages/api/apiMongo/getProductsByCircular";
 
 
 
@@ -22,8 +19,7 @@ export const ImageGrid = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { productsData, selectedProducts, updateGridProducts, productDragging } = useProductContext();
-    const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
+    const { productsData, selectedProducts, updateGridProducts, productDragging, panningOnPage1 } = useProductContext();
     const initialGridCells: cellTypes[] = [
         //meats
         { id: 1001, top: "top-[20.8%]", left: "left-[0%]", width: "24.2%", height: "6.9%", category: "Meat"},
@@ -93,9 +89,6 @@ export const ImageGrid = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const { idCircular, user } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const {panningOnPage1} = useProductContext();
     useEffect(() => {
         if (!isLoadingCategories) {
             setGridCells((initialCells) =>
@@ -108,33 +101,15 @@ export const ImageGrid = ({
         }
     }, [categoriesData])
 
-    useEffect(() => {
-        const getProductByCircular = async () => {
-            try {
-                const reqBody = {
-                    "id_circular":Number(idCircular),
-                    "id_client":user.userData.id_client
-                }
-                const resp = await getProductsByCircular(reqBody)
-                
-                if(resp && resp.result) setCircularProducts(resp.result)
-                setLoading(false)
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
-
-        getProductByCircular();
-    }, [idCircular, user]);
 
     useEffect(() => {
-        if (productsData.length && circularProducts?.length > 0) {
+        if (productsData?.length > 0) {
             updateGridProducts(
                 { min: 1001, max: 1999 }, 
-                circularProducts
+                productsData
             );
         }
-    }, [productsData, circularProducts]);
+    }, [productsData]);
 
 
 
@@ -168,11 +143,7 @@ export const ImageGrid2 = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { idCircular, user } = useAuth();
-    const {  productsData, selectedProducts, updateGridProducts, productDragging, panningOnSubPage, setGroupedProducts} = useProductContext();
-    const [ circularProducts, setCircularProducts ] = useState<ProductTypes[]>([]);
-    const [loading, setLoading] = useState(true);
-
+    const {  productsData, selectedProducts, updateGridProducts, productDragging, panningOnSubPage} = useProductContext();
     const initialGridCells: cellTypes[] = [
         // Grocery
         { id: 2001, top: "top-[1%]", left: "left-[0%]", width: "20.2%", height: "5.5%", category: "Grocery" },
@@ -268,32 +239,13 @@ export const ImageGrid2 = ({
     }, [categoriesData])
 
     useEffect(() => {
-        const getProductByCircular = async () => {
-            try {
-                const reqBody = {
-                    "id_circular":Number(idCircular),
-                    "id_client":user.userData.id_client
-                }
-                const resp = await getProductsByCircular(reqBody)
-                
-                if(resp && resp.result) setCircularProducts(resp.result)
-                setLoading(false)
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
-
-        getProductByCircular();
-    }, [idCircular, user]);
-
-    useEffect(() => {
-        if (productsData.length && circularProducts?.length > 0) {
+        if ( productsData?.length > 0) {
             updateGridProducts(
                 { min: 2001, max: 2999 }, 
-                circularProducts
+                selectedProducts
             );
         }
-    }, [productsData, circularProducts]);
+    }, [productsData, selectedProducts]);
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
@@ -301,8 +253,6 @@ export const ImageGrid2 = ({
             {gridCells.map((cell) => {
 
                 const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
-
-
                 return (
                     <GridCardProduct
                         key={cell?.id}
@@ -327,8 +277,7 @@ export const ImageGrid3 = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData,} = useCategoryContext()
-    const { productsData, selectedProducts, updateGridProducts, productDragging} = useProductContext();
-    const { idCircular, user } = useAuth();
+    const { productsData, selectedProducts, updateGridProducts, productDragging, panningOnSubPage} = useProductContext();
     const initialGridCells: cellTypes[] = [
         // Dairy
         { id: 3001, top: "top-[1.6%]", left: "left-[0%]", width: "16.1%", height: "5.5%", category: "Dairy" },
@@ -450,9 +399,6 @@ export const ImageGrid3 = ({
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
-    const {panningOnSubPage} = useProductContext();
-    const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
@@ -467,33 +413,17 @@ export const ImageGrid3 = ({
         }
     }, [categoriesData])
 
-    useEffect(() => {
-        const getProductByCircular = async () => {
-            try {
-                const reqBody = {
-                    "id_circular":Number(idCircular),
-                    "id_client":user.userData.id_client
-                }
-                const resp = await getProductsByCircular(reqBody)
-                setCircularProducts(resp.result)
-                setLoading(false)
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
 
-        getProductByCircular();
-    }, [idCircular, user]);
 
 
     useEffect(() => {
-        if (productsData.length && circularProducts?.length > 0) {
+        if (productsData?.length > 0 && selectedProducts?.length > 0) {
             updateGridProducts(
                 { min: 3001, max: 3999 }, 
-                circularProducts
+                selectedProducts
             );
         }
-    }, [productsData, circularProducts]);
+    }, [productsData, selectedProducts]);
 
 
 
@@ -537,7 +467,6 @@ export const ImageGrid4 = ({
     setShowProductCardBrand
 }: ImageGridProps) => {
     const { getCategoryByName, isLoadingCategories, categoriesData } = useCategoryContext()
-    const { idCircular, user } = useAuth();
     const { productsData, selectedProducts, productDragging, updateGridProducts } = useProductContext();
     const initialGridCells: cellTypes[] = [
         // Meat
@@ -612,9 +541,7 @@ export const ImageGrid4 = ({
         { id: 4059, top: "top-[55%]", left: "left-[0%]", width: "22%", height: "9.9%", category: "Liquor-Beer" },
     ];
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
-    const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
     const {panningOnSubPage} = useProductContext();
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!isLoadingCategories) {
@@ -628,33 +555,17 @@ export const ImageGrid4 = ({
         }
     }, [categoriesData])
 
-    useEffect(() => {
-        const getProductByCircular = async () => {
-            try {
-                const reqBody = {
-                    "id_circular":Number(idCircular),
-                    "id_client":user.userData.id_client
-                }
-                const resp = await getProductsByCircular(reqBody)
-                setCircularProducts(resp.result)
-                setLoading(false)
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
 
-        getProductByCircular();
-    }, [idCircular, user]);
 
 
     useEffect(() => {
-        if (productsData.length && circularProducts?.length > 0) {
+        if (productsData?.length > 0) {
             updateGridProducts(
                 { min: 4001, max: 4999 }, 
-                circularProducts
+                selectedProducts
             );
         }
-    }, [productsData, circularProducts]);
+    }, [productsData, selectedProducts]);
 
 
 

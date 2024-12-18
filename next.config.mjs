@@ -3,7 +3,7 @@ const nextConfig = {
   i18n: {
     locales: ['en', 'es'],
     defaultLocale: 'en',
-    localeDetection: false // Desactiva la detección automática del idioma
+    localeDetection: false 
   },
   eslint: {
     ignoreDuringBuilds: true,
