@@ -7,7 +7,7 @@ import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imag
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { Cursor3, FocusIn, GrapIconOpen, ZoomInIcon, ZoomOutIcon } from "@/app/components/icons";
+import {Cursor3,FocusIn,GrapIconOpen,ResetPageZoom,ZoomInIcon,ZoomOutIcon} from "@/app/components/icons";
 import { ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer, toast } from 'react-toastify'
@@ -54,7 +54,7 @@ export default function HomePage() {
 
     const [resetScale, setResetScale] = useState(false);
     const [maxScale, setMaxScale] = useState(3);
-    const [minScale, setMinScale] = useState(1);
+    const [minScale, setMinScale] = useState(0.75);
     const [firsTimeOpen, setFistTimeOpen] = useState(true);
     const divRef = useRef<HTMLDivElement | null>(null);
     const [initialX, setInitialX] = useState(0);
@@ -65,11 +65,17 @@ export default function HomePage() {
     const [useZoomSubPages, setUseZoomSubPages] = useState(false);
     const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
-    const [dynamicFullSize, setDynamicFullSize] = useState(0.45);
+    const [dynamicFullSize, setDynamicFullSize] = useState(0.5);
     const productSelectionRef = useRef<HTMLDivElement | null>(null);
-    const [gridProductDimensions, setGridProductDimensions] = useState({ width: 0, height: 0 });
-    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({ top: 0, left: 0 });
-
+    const [gridProductDimensions, setGridProductDimensions] = useState({width: 0, height: 0});    
+    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({  
+        top: 0,
+        left: 0
+    });
+    const [fullPage1, setFullPage1] = useState<boolean>(false);
+    const [fullPage2, setFullPage2] = useState<boolean>(false);
+    const divRef1 = useRef<HTMLDivElement | null>(null);
+    const divRef2 = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         // Inicializar la posición
@@ -106,7 +112,10 @@ export default function HomePage() {
 
     const updateGrideProductDimensions = () => {
         if (productSelectionRef.current) {
-            setGridProductDimensions({ width: productSelectionRef.current.clientWidth, height: productSelectionRef.current.clientHeight, });
+            setGridProductDimensions({
+                width: productSelectionRef.current.clientWidth,
+                height: productSelectionRef.current.clientHeight,
+            });
         }
     };
 
@@ -423,12 +432,31 @@ export default function HomePage() {
 
 
     const handleButtonClickPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current && panningOnPage1) {
+            const wrapperElement = containerRefPage1.current.instance.wrapperComponent;
+            if (wrapperElement && wrapperElement.scrollTop) {
+                wrapperElement.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                });
+            }
+        }
         setPanningOnPage1(!panningOnPage1);
         setFistTimeOpen(false)
     }
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
         setFistTimeOpen(false)
+    }
+
+    const handleResetPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            containerRefPage1.current.resetTransform()
+            setPanningOnPage1(true);
+            setZoomScalePage1(1);
+            setFullPage1(false);
+        }
+        
     }
     const handleZoomInPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
@@ -437,10 +465,15 @@ export default function HomePage() {
                 const newScale = zoomScalePage1 + 0.25;
                 setZoomScalePage1(newScale);
                 containerRefPage1.current.setTransform(0, 0, newScale);
+
+                setFullPage1(false);
+
             }
-            if (zoomScalePage1 <= 0.75) {
+            if (zoomScalePage1 <= minScale) {
                 containerRefPage1.current.resetTransform();
                 setZoomScalePage1(1);
+                setFullPage1(false);
+
             }
         }
     };
@@ -451,30 +484,54 @@ export default function HomePage() {
                 setZoomScalePage1(newScale);
                 setFistTimeOpen(false)
                 containerRefPage1.current.zoomOut(0.25);
-            }
+                setFullPage1(false);
+            }          
+
         }
     }
     const handleFullPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
-            if (zoomScalePage1 > 0.5) {
-                setZoomScalePage1(0.5)
+            if (zoomScalePage1 > minScale) {
+                setFullPage1(true);
+                setZoomScalePage1(minScale)
                 setFistTimeOpen(false)
-                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-            } else if (zoomScalePage1 <= 0.75) {
+
+                const wrapperElement = containerRefPage1.current.instance.wrapperComponent;
+                if (wrapperElement) {
+                    wrapperElement.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: "smooth",
+                    });
+                }
+                containerRefPage1.current.centerView(dynamicFullSize, 2, "easeOut");
+            } else if (zoomScalePage1 <= minScale) {
                 setZoomScalePage1(1)
+                setFullPage1(false);
                 containerRefPage1.current.resetTransform();
             }
         }
     }
+    const handleResetSubPage = () => {
+        if (containerRefPage2 && containerRefPage2.current) {
+            containerRefPage2.current.resetTransform()
+            setPanningOnSubPage(true);
+            setZoomScaleSubPagines(1);
+            setFullPage2(false);
+        }
+
+    }
+    
     const handleZoomInSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
+            setFullPage2(false);
             if (zoomScaleSubPagines < maxScale) {
                 const newScale = zoomScaleSubPagines + 0.25;
                 setZoomScaleSubPagines(newScale);
                 setFistTimeOpen(false)
                 containerRefPage2.current.setTransform(0, 0, newScale);
             }
-            if (zoomScaleSubPagines <= 0.75) {
+            if (zoomScaleSubPagines <= minScale) {
                 containerRefPage2.current.resetTransform();
                 setZoomScaleSubPagines(1);
             }
@@ -482,6 +539,7 @@ export default function HomePage() {
     }
     const handleZoomOutSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
+            setFullPage2(false);
             if (zoomScaleSubPagines > minScale) {
                 const newScale = zoomScaleSubPagines - 0.25;
                 setZoomScaleSubPagines(newScale);
@@ -492,11 +550,23 @@ export default function HomePage() {
     }
     const handleFullPage2 = () => {
         if (containerRefPage2 && containerRefPage2.current) {
-            if (zoomScaleSubPagines > 0.5) {
-                setZoomScaleSubPagines(0.5)
+            if (zoomScaleSubPagines > minScale) {
+                setFullPage2(true);
+                setZoomScaleSubPagines(minScale)
                 setFistTimeOpen(false)
-                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-            } else if (zoomScaleSubPagines <= 0.75) {
+                const wrapperElement = containerRefPage2.current.instance.wrapperComponent;
+                if (wrapperElement) {
+                    wrapperElement.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: "smooth",
+
+                    });
+                }
+                //containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                containerRefPage2.current.centerView(dynamicFullSize, 2, "easeOut");
+            } else if (zoomScaleSubPagines <= minScale) {
+                setFullPage2(false);
                 setZoomScaleSubPagines(1)
                 containerRefPage2.current.resetTransform();
             }
@@ -508,55 +578,65 @@ export default function HomePage() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             setInitialX(width2 / 2);
-            if (width <= 1920 || height <= 1080) {
+            if(height <= 720){
+                setDynamicFullSize(0.27); // Valor específico para menor que hd
+            }
+            else if ( height <= 900  && height > 720) {
                 setDynamicFullSize(0.35); // Valor específico para HD
-            } else if (width >= 1920 || height >= 1080) {
+            } else if ( height > 900) {
                 setDynamicFullSize(0.45); // Valor específico para Full HD
             }
+            setMinScale(dynamicFullSize);
         }
 
     }, [zoomScaleSubPagines, productsData]);
-
+   
     useEffect(() => {
-        if (productReadyDrag === null && firstDrag) {
-            if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
-                containerRefPage2.current.resetTransform(zoomScaleSubPagines)
-                setUseZoomPage1(false);
-                setUseZoomSubPages(false);
+            if (productReadyDrag === null && firstDrag) {
+                if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
+                    containerRefPage2.current.resetTransform(zoomScaleSubPagines)
+                    setUseZoomPage1(false);
+                    setUseZoomSubPages(false);
+                }
+                if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
+                    containerRefPage1.current.resetTransform(zoomScalePage1)
+                    setUseZoomPage1(false);
+                    setUseZoomSubPages(false);
+                }
+                setDynamicHeightpage1("85vh")
+                setDynamicHeightSubpages("85vh")
             }
-            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
-                containerRefPage1.current.resetTransform(zoomScalePage1)
-                setUseZoomPage1(false);
-                setUseZoomSubPages(false);
+
+            if (productReadyDrag?.page === 1) {
+
+                if (containerRefPage2 && containerRefPage2.current && productDragging) {
+                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                    setFirstDrag(true)
+                    setFistTimeOpen(false)
+                    setUseZoomPage1(true);
+                    setUseZoomSubPages(false);
+                    setDynamicHeightSubpages("100%")
+                }
             }
-            setDynamicHeightpage1("100vh")
-            setDynamicHeightSubpages("100vh")
+            if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
+
+                if (containerRefPage1 && containerRefPage1.current) {
+                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                    if (containerRefPage2 && containerRefPage2.current && productDragging) {
+                        containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                    }
+                    setFirstDrag(true)
+                    setFistTimeOpen(false)
+                    setUseZoomPage1(false);
+                    setUseZoomSubPages(true);
+                    setDynamicHeightpage1("100%")
+                }
+            }
         }
-
-        if (productReadyDrag?.page === 1) {
-
-            if (containerRefPage2 && containerRefPage2.current && productDragging) {
-                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                setFirstDrag(true)
-                setFistTimeOpen(false)
-                setUseZoomPage1(true);
-                setUseZoomSubPages(false);
-                setDynamicHeightSubpages("100%")
-            }
-        }
-
-        if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
-
-            if (containerRefPage1 && containerRefPage1.current) {
-                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                setFirstDrag(true)
-                setFistTimeOpen(false)
-                setUseZoomPage1(false);
-                setUseZoomSubPages(true);
-                setDynamicHeightpage1("100%")
-            }
-        }
-    }, [productReadyDrag, productDragging]);
+        ,
+        [productReadyDrag, productDragging]
+    )
+    ;
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
         setDynamicHeightpage1("85dvh")
@@ -606,7 +686,6 @@ export default function HomePage() {
 
         setIsClearAllPopupOpen(false);
     };
-
 
 
     return (
@@ -696,6 +775,12 @@ export default function HomePage() {
                                         {/* Renderiza el icono según el estado de panningOnPage1 */}
                                         {panningOnPage1 ? <GrapIconOpen /> : <Cursor3 />}
                                     </button>
+                                    <button
+                                        onClick={handleResetPage1}
+                                        className=" justify-center items-center"
+                                        >
+                                        <ResetPageZoom/>
+                                    </button>
 
                                 </div>
                                 <motion.div
@@ -709,13 +794,16 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             width: "100%",
                                             height: dynamicHeightpage1,
-                                            overflow: productDragging ? 'visible' : "scroll",
-                                            overflowY: "scroll",
+                                            overflow:  productDragging ? 'visible' : "auto",
+                                            overflowY: !panningOnPage1 || fullPage1 ? 'hidden' : "scroll",
 
                                         }}
                                     >
-                                        <div>
+                                        <div
+                                            ref={divRef1}
+                                            className={"  border-2 border-red-600 "}>
                                             {/* @ts-ignore */}
+
                                             <ImageGrid {...commonGridProps} />
                                         </div>
                                     </TransformComponent>
@@ -780,6 +868,12 @@ export default function HomePage() {
                                         {/* Renderiza el icono según el estado de panningOnPage1 */}
                                         {panningOnSubPage ? <GrapIconOpen /> : <Cursor3 />}
                                     </button>
+                                    <button
+                                        onClick={handleResetSubPage}
+                                    className={`  justify-center items-center`}
+                                    >                                      
+                                        <ResetPageZoom/>
+                                    </button>
 
                                 </div>
                                 <motion.div
@@ -793,10 +887,10 @@ export default function HomePage() {
                                     <TransformComponent
                                         wrapperStyle={{
                                             // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
-                                            width: "100%",
-                                                                            height: dynamicHeightSubpages,
-                                            overflowY: "scroll",
-                                            overflow: productDragging ? 'visible' : "scroll",
+                                            overflow: productDragging ? 'visible' : "auto",
+                                            width: "100%",                                            
+                                            height: dynamicHeightSubpages,
+                                            overflowY: fullPage2 ? "hidden" : "scroll",
                                         }}
                                     >
                                         <div className={`flex flex-col  w-full  item-center`}>
@@ -851,14 +945,15 @@ export default function HomePage() {
                     {showProducts && mousePosition && (
                         <motion.div
                             ref={productSelectionRef}
-                            initial={{ opacity: 0, y: 20 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
+                            initial={{opacity: 0, y: 20}}
+                            exit={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.5}}
                             className="absolute z-[100]"
-                            style={{ top: productSelectionPosition.top, left: productSelectionPosition.left, }}
+                            style={{top: productSelectionPosition.top, left: productSelectionPosition.left,}}
                         >
-                            <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels} initialCategory={gridCategory} />
+                            <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels}
+                                         initialCategory={gridCategory}/>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -1068,8 +1163,11 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
 
     return (
-        <div className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
-            <button className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50" onClick={onHideProducts}>
+        <div
+            className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
+            <button
+                className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50"
+                onClick={onHideProducts}>
                 X
             </button>
             <div className="grid grid-rows-[min-content_1fr] h-full">
