@@ -85,7 +85,7 @@ export const ImageGrid = ({
         { id: 1049, top: "top-[75.5%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
         { id: 1050, top: "top-[83.4%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
         { id: 1051, top: "top-[91.2%]", left: "left-[72%]", width: "27%", height: "8%", category: "Produce" },
-        //{ id: 1501, top: "top-[91.5%]", left: "left-[92%]", width: "8%", height: "3%", category: "Produce" },
+        //{ id: 1501, top: "top-[91.5%]", left: "left-[87.5%]", width: "12%", height: "5%", category: "Produce" },
     ];
 
     const [gridCells, setGridCells] = useState<cellTypes[]>(initialGridCells);
