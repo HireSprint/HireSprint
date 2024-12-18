@@ -24,6 +24,7 @@ export interface ProductTypes {
     limit?: string
     must_buy?: string,
     status_active?:boolean
+    createdAt?:string
     limit_type: string
     per: string,
     pack: number,
