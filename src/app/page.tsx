@@ -7,7 +7,7 @@ import {ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4} from "./components/imageG
 import {useProductContext} from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import {Cursor3, FocusIn, GrapIconOpen, ZoomInIcon, ZoomOutIcon} from "@/app/components/icons";
+import {Cursor3,FocusIn,GrapIconOpen,ResetPageZoom,ZoomInIcon,ZoomOutIcon} from "@/app/components/icons";
 import {ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
 import {ToastContainer, toast} from 'react-toastify'
@@ -16,6 +16,9 @@ import {Message} from "primereact/message";
 import {categoriesInterface} from "@/types/category";
 import {useCategoryContext} from "./context/categoryContext";
 import {ProductTypes} from "@/types/product";
+import {Time} from "@internationalized/date";
+import {min} from "@floating-ui/utils";
+import {RefreshIcon} from "primereact/icons/refresh";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -53,7 +56,7 @@ export default function HomePage() {
     const {panningOnSubPage, setPanningOnSubPage} = useProductContext();
     const [resetScale, setResetScale] = useState(false);
     const [maxScale, setMaxScale] = useState(3);
-    const [minScale, setMinScale] = useState(0.7);
+    const [minScale, setMinScale] = useState(0.75);
     const [firsTimeOpen, setFistTimeOpen] = useState(true);
     const divRef = useRef<HTMLDivElement | null>(null);
     const [initialX, setInitialX] = useState(0);
@@ -64,16 +67,19 @@ export default function HomePage() {
     const [useZoomSubPages, setUseZoomSubPages] = useState(false);
     const [dynamicHeightpage1, setDynamicHeightpage1] = useState("47%");
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
-    const [dynamicFullSize, setDynamicFullSize] = useState(0.45);
+    const [dynamicFullSize, setDynamicFullSize] = useState(0.5);
     const productSelectionRef = useRef<HTMLDivElement | null>(null);
     const [gridProductDimensions, setGridProductDimensions] = useState({width: 0, height: 0});
+    const [grid, setGrid] = useState({x: 0, y: 0});
     const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({
         top: 0,
         left: 0
     });
     const [fullPage1, setFullPage1] = useState<boolean>(false);
     const [fullPage2, setFullPage2] = useState<boolean>(false);
-    
+    const divRef1 = useRef<HTMLDivElement | null>(null);
+    const divRef2 = useRef<HTMLDivElement | null>(null);
+
     useEffect(() => {
         const getProductView = async () => {
             try {
@@ -179,7 +185,7 @@ export default function HomePage() {
                 height: productSelectionRef.current.clientHeight,
             });
         }
-    };    
+    };
 
     useEffect(() => {
         if (showProducts && productSelectionRef.current) {
@@ -489,12 +495,31 @@ export default function HomePage() {
 
 
     const handleButtonClickPage1 = () => {
-        setPanningOnPage1(!panningOnPage1);        
+        if (containerRefPage1 && containerRefPage1.current && panningOnPage1) {
+            const wrapperElement = containerRefPage1.current.instance.wrapperComponent;
+            if (wrapperElement && wrapperElement.scrollTop) {
+                wrapperElement.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                });
+            }
+        }
+        setPanningOnPage1(!panningOnPage1);
         setFistTimeOpen(false)
     }
     const handleButtonClickPage2 = () => {
         setPanningOnSubPage(!panningOnSubPage);
         setFistTimeOpen(false)
+    }
+
+    const handleResetPage1 = () => {
+        if (containerRefPage1 && containerRefPage1.current) {
+            containerRefPage1.current.resetTransform()
+            setPanningOnPage1(true);
+            setZoomScalePage1(1);
+            setFullPage1(false);
+        }
+        
     }
     const handleZoomInPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
@@ -503,11 +528,11 @@ export default function HomePage() {
                 const newScale = zoomScalePage1 + 0.25;
                 setZoomScalePage1(newScale);
                 containerRefPage1.current.setTransform(0, 0, newScale);
-                
+
                 setFullPage1(false);
 
             }
-            if (zoomScalePage1 <= 0.75) {
+            if (zoomScalePage1 <= minScale) {
                 containerRefPage1.current.resetTransform();
                 setZoomScalePage1(1);
                 setFullPage1(false);
@@ -523,42 +548,53 @@ export default function HomePage() {
                 setFistTimeOpen(false)
                 containerRefPage1.current.zoomOut(0.25);
                 setFullPage1(false);
-            }
+            }          
+
         }
     }
     const handleFullPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
-            if (zoomScalePage1 > 0.5) {
+            if (zoomScalePage1 > minScale) {
                 setFullPage1(true);
-                setZoomScalePage1(0.5)
+                setZoomScalePage1(minScale)
                 setFistTimeOpen(false)
-              
-               
+
                 const wrapperElement = containerRefPage1.current.instance.wrapperComponent;
                 if (wrapperElement) {
                     wrapperElement.scrollTo({
-                        top: 0,           
-                        left: 0,         
-                        behavior: "smooth", 
+                        top: 0,
+                        left: 0,
+                        behavior: "smooth",
                     });
                 }
-                containerRefPage1.current.centerView(dynamicFullSize,2,"easeOut");
-            } else if (zoomScalePage1 <= 0.75) {
+                containerRefPage1.current.centerView(dynamicFullSize, 2, "easeOut");
+            } else if (zoomScalePage1 <= minScale) {
                 setZoomScalePage1(1)
                 setFullPage1(false);
                 containerRefPage1.current.resetTransform();
             }
         }
     }
+    const handleResetSubPage = () => {
+        if (containerRefPage2 && containerRefPage2.current) {
+            containerRefPage2.current.resetTransform()
+            setPanningOnSubPage(true);
+            setZoomScaleSubPagines(1);
+            setFullPage2(false);
+        }
+
+    }
+    
     const handleZoomInSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
+            setFullPage2(false);
             if (zoomScaleSubPagines < maxScale) {
                 const newScale = zoomScaleSubPagines + 0.25;
                 setZoomScaleSubPagines(newScale);
                 setFistTimeOpen(false)
                 containerRefPage2.current.setTransform(0, 0, newScale);
             }
-            if (zoomScaleSubPagines <= 0.75) {
+            if (zoomScaleSubPagines <= minScale) {
                 containerRefPage2.current.resetTransform();
                 setZoomScaleSubPagines(1);
             }
@@ -566,6 +602,7 @@ export default function HomePage() {
     }
     const handleZoomOutSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
+            setFullPage2(false);
             if (zoomScaleSubPagines > minScale) {
                 const newScale = zoomScaleSubPagines - 0.25;
                 setZoomScaleSubPagines(newScale);
@@ -576,21 +613,23 @@ export default function HomePage() {
     }
     const handleFullPage2 = () => {
         if (containerRefPage2 && containerRefPage2.current) {
-            if (zoomScaleSubPagines > 0.5) {
-                setZoomScaleSubPagines(0.5)
+            if (zoomScaleSubPagines > minScale) {
+                setFullPage2(true);
+                setZoomScaleSubPagines(minScale)
                 setFistTimeOpen(false)
                 const wrapperElement = containerRefPage2.current.instance.wrapperComponent;
-                if (wrapperElement) {                     
+                if (wrapperElement) {
                     wrapperElement.scrollTo({
                         top: 0,
                         left: 0,
                         behavior: "smooth",
-        
+
                     });
                 }
                 //containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
                 containerRefPage2.current.centerView(dynamicFullSize, 2, "easeOut");
-            } else if (zoomScaleSubPagines <= 0.75) {
+            } else if (zoomScaleSubPagines <= minScale) {
+                setFullPage2(false);
                 setZoomScaleSubPagines(1)
                 containerRefPage2.current.resetTransform();
             }
@@ -602,53 +641,47 @@ export default function HomePage() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             setInitialX(width2 / 2);
-            if (width <= 1920 || height <= 1080) {
+            if(height <= 720){
+                setDynamicFullSize(0.27); // Valor específico para menor que hd
+            }
+            else if ( height <= 900  && height > 720) {
                 setDynamicFullSize(0.35); // Valor específico para HD
-            } else if (width >= 1920 || height >= 1080) {
+            } else if ( height > 900) {
                 setDynamicFullSize(0.45); // Valor específico para Full HD
             }
             console.log(dynamicFullSize, 'tamanio del full size', width, height);
+            setMinScale(dynamicFullSize);
         }
 
     }, [zoomScaleSubPagines, productsData]);
-
+   
     useEffect(() => {
-        if (productReadyDrag === null && firstDrag) {
-            if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
-                containerRefPage2.current.resetTransform(zoomScaleSubPagines)
-                setUseZoomPage1(false);
-                setUseZoomSubPages(false);
+            if (productReadyDrag === null && firstDrag) {
+                if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
+                    containerRefPage2.current.resetTransform(zoomScaleSubPagines)
+                    setUseZoomPage1(false);
+                    setUseZoomSubPages(false);
+                }
+                if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
+                    containerRefPage1.current.resetTransform(zoomScalePage1)
+                    setUseZoomPage1(false);
+                    setUseZoomSubPages(false);
+                }
+                setDynamicHeightpage1("85vh")
+                setDynamicHeightSubpages("85vh")
             }
-            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
-                containerRefPage1.current.resetTransform(zoomScalePage1)
-                setUseZoomPage1(false);
-                setUseZoomSubPages(false);
+
+            if (productReadyDrag?.page === 1) {
+
+                if (containerRefPage2 && containerRefPage2.current && productDragging) {
+                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                    setFirstDrag(true)
+                    setFistTimeOpen(false)
+                    setUseZoomPage1(true);
+                    setUseZoomSubPages(false);
+                    setDynamicHeightSubpages("100%")
+                }
             }
-            setDynamicHeightpage1("70vh")
-            setDynamicHeightSubpages("70vh")
-        }
-
-        // if (productReadyDrag != null) {
-        //     console.log(dynamicFullSize);           
-        //     if (containerRefPage2 && containerRefPage2.current ) {
-        //         containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-        //     }
-        //     if (containerRefPage1 && containerRefPage1.current) {
-        //         containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-        //     }
-        // }
-
-        if (productReadyDrag?.page === 1) {
-
-            if (containerRefPage2 && containerRefPage2.current && productDragging) {
-                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                setFirstDrag(true)
-                setFistTimeOpen(false)
-                setUseZoomPage1(true);
-                setUseZoomSubPages(false);
-                setDynamicHeightSubpages("100%")
-            }
-        }
             if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
 
                 if (containerRefPage1 && containerRefPage1.current) {
@@ -664,484 +697,499 @@ export default function HomePage() {
                 }
             }
         }
-    ,
+        ,
         [productReadyDrag, productDragging]
     )
-        ;
+    ;
 
-        useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
-            setDynamicHeightpage1("85dvh")
-            setDynamicHeightSubpages("85dvh")
-            setZoomScaleSubPagines(1);
-            setResetScale(true);
+    useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
+        setDynamicHeightpage1("85dvh")
+        setDynamicHeightSubpages("85dvh")
+        setZoomScaleSubPagines(1);
+        setResetScale(true);
 
-        }, [currentPage]);
+    }, [currentPage]);
 
 
-        const [isClearAllPopupOpen, setIsClearAllPopupOpen] = useState(false);
-        const [gridIdToClear, setGridIdToClear] = useState<number | null>(null);
-        const handleClearAllConfirmation = (gridId: number | null) => {
+    const [isClearAllPopupOpen, setIsClearAllPopupOpen] = useState(false);
+    const [gridIdToClear, setGridIdToClear] = useState<number | null>(null);
+    const handleClearAllConfirmation = (gridId: number | null) => {
 
-            setGridIdToClear(gridId);
-            setIsClearAllPopupOpen(true);
-        };
+        setGridIdToClear(gridId);
+        setIsClearAllPopupOpen(true);
+    };
 
-        const confirmClearAll = () => {
-            if (gridIdToClear) {
-                setSelectedProducts((prevProducts) => {
-                    const updatedProducts = prevProducts.filter((product) => {
-                        const gridId = Number(product.id_grid);
-                        if (gridIdToClear === 1) {
-                            return gridId < 1001 || gridId > 1999;
-                        } else if (gridIdToClear === 2) {
-                            return gridId < 2001 || gridId > 2999;
-                        } else if (gridIdToClear === 3) {
-                            return gridId < 3001 || gridId > 3999;
-                        } else if (gridIdToClear === 4) {
-                            return gridId < 4001 || gridId > 4999;
-                        }
-                        return true;
-                    });
-                    updateCircularInServer(updatedProducts);
-                    return updatedProducts;
+    const confirmClearAll = () => {
+        if (gridIdToClear) {
+            setSelectedProducts((prevProducts) => {
+                const updatedProducts = prevProducts.filter((product) => {
+                    const gridId = Number(product.id_grid);
+                    if (gridIdToClear === 1) {
+                        return gridId < 1001 || gridId > 1999;
+                    } else if (gridIdToClear === 2) {
+                        return gridId < 2001 || gridId > 2999;
+                    } else if (gridIdToClear === 3) {
+                        return gridId < 3001 || gridId > 3999;
+                    } else if (gridIdToClear === 4) {
+                        return gridId < 4001 || gridId > 4999;
+                    }
+                    return true;
                 });
-                toast.success("Products cleared successfully");
-            } else {
-                toast.error("Didn't select a number");
-            }
-            setIsClearAllPopupOpen(false);
-            setGridIdToClear(null);
-        };
-        const cancelClearAll = () => {
-
-            setIsClearAllPopupOpen(false);
-        };
-
-
-        return (
-
-            <div
-                className={`grid bg-gray-100 grid-rows-[1fr_min-content] max-h-screen overflow-hidden `}>
-                <div
-                    className={`relative grid grid-cols-2 items-center  ${productDragging ? 'overflow-x-visible' : ''} `}>
-                    <AnimatePresence>
-                        {category && (
-                            <motion.div
-                                initial={{y: 1000}}
-                                animate={{y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
-                                exit={{y: 1000}}
-                                transition={{duration: 0.5}}
-                                className="fixed left-[35.5%] top-[155px]"
-                            >
-                                <ProductContainer category={category} setCategory={setCategory}
-                                                  onProductSelect={handleProductSelect}
-                                                  onDragAndDropCell={handleDragAndDropSidebar}
-                                                  setShowProductCardBrand={setShowProductCardBrand}/>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-
-                    <div
-                        className={`flex flex-col   w-full h-full border-r-2 border-black  transform ${panningOnPage1 ? 'cursor-default' : 'cursor-grabbing'} ${productDragging && productDragging.page && productDragging.page > 1
-                            ? "z-0"
-                            : "z-50"
-                        }`}
-                        style={{overflow: "visible"}}
-                    >
-                        <TransformWrapper
-                            ref={containerRefPage1}
-                            initialScale={1}
-                            minScale={minScale}
-                            maxScale={maxScale}
-                            centerOnInit={true}
-                            doubleClick={{disabled: true}}
-                            wheel={{disabled: true}}
-                            panning={{disabled: panningOnPage1 , velocityDisabled : true}}
-                        >
-                            {({zoomIn, zoomOut, setTransform, resetTransform}) => (
-                                <>
-
-                                    {firsTimeOpen && (() => {
-                                        resetTransform();
-                                    })()}
-
-                                    <div
-                                        className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
-                                    >
-
-
-                                        <button
-                                            onClick={() => {
-                                                handleZoomInPage1();
-                                            }}
-                                            className="  justify-center items-center"
-                                        >
-                                            <ZoomInIcon/>
-                                        </button>
-
-
-                                        <button
-                                            onClick={() => {
-                                                handleZoomOutPage1();
-                                            }}
-                                        >
-                                            <ZoomOutIcon/>
-                                        </button>
-
-
-                                        <button
-                                            onClick={() => {
-                                                handleFullPage1();
-                                            }}
-                                            className=" justify-center items-center"
-                                        >
-                                            <FocusIn/>
-                                        </button>
-                                        <button
-                                            onClick={handleButtonClickPage1}
-                                            className=" justify-center items-center"
-                                        >
-                                            {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                            {panningOnPage1 ? <GrapIconOpen/> : <Cursor3/>}
-                                        </button>
-
-                                    </div>
-                                    <motion.div
-                                        initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
-                                        animate={{x: 0, opacity: 1}}
-                                        exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
-                                        transition={{duration: 0.5}}
-                                        //   className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
-                                    >
-                                        <TransformComponent
-                                            wrapperStyle={{
-                                                width: "100%",
-                                                height:  dynamicHeightpage1,
-                                                overflow: productDragging ? 'visible' : "auto",
-                                                overflowY: !panningOnPage1 || fullPage1 ? 'hidden' : "scroll",           
-                                                background: "red",
-                                            }}
-                                        >
-                                            <div >
-                                                {/* @ts-ignore */}
-                                                
-                                                <ImageGrid {...commonGridProps} />
-                                            </div>
-                                        </TransformComponent>
-                                    </motion.div>
-                                </>
-                            )}
-                        </TransformWrapper>
-                    </div>
-
-                    <div
-                        ref={divRef}
-                        className={`flex flex-col h-full w-full p-align-center`}>
-                        <TransformWrapper
-                            ref={containerRefPage2}
-                            initialScale={1}
-                            minScale={minScale}
-                            maxScale={maxScale}
-                            centerOnInit={true}
-                            doubleClick={{disabled: true}}
-                            wheel={{disabled: true}}
-                            panning={{disabled: panningOnSubPage, velocityDisabled : true}}
-                            
-                        >
-                            {({zoomIn, zoomOut, setTransform, resetTransform}) => (
-                                <>
-                                    {resetScale && (() => {
-                                        if (productDragging === null) {
-                                            resetTransform();
-                                            setPanningOnSubPage(true);
-                                            setResetScale(false);
-                                        }
-
-                                    })()}
-                                    <div
-                                        className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
-                                    >
-                                        <button
-                                            onClick={() => {
-                                                handleZoomInSubPages();
-                                            }}
-                                            className="  justify-center items-center">
-                                            <ZoomInIcon/>
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                handleZoomOutSubPages();
-                                            }}
-                                        >
-                                            <ZoomOutIcon/>
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                handleFullPage2();
-                                            }}
-                                            className=" justify-center items-center"
-                                        >
-                                            <FocusIn/>
-                                        </button>
-                                        <button
-                                            onClick={handleButtonClickPage2}
-                                            className=" justify-center items-center"
-                                        >
-                                            {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                            {panningOnSubPage ? <GrapIconOpen/> : <Cursor3/>}
-                                        </button>
-
-                                    </div>
-                                    <motion.div
-                                        key={currentPage}
-                                        initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
-                                        animate={{x: 0, opacity: 1}}
-                                        exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
-                                        transition={{duration: 0.5}}
-                                        className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
-                                    >
-                                        <TransformComponent
-                                            wrapperStyle={{
-                                                // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
-                                                width: "100%",
-                                                height: dynamicHeightSubpages,
-                                                overflowY:  fullPage2 ? "hidden" : "scroll",
-                                                overflow: productDragging ? 'visible' : "scroll",
-                                            }}
-                                        >
-                                            <div className={`flex flex-col  w-full  item-center`}>
-                                                <div
-                                                    className={`h-full  w-full `}>
-                                                    {currentPage === 2 && <ImageGrid2 {...commonGridProps} />}
-                                                    {currentPage === 3 && <ImageGrid3 {...commonGridProps} />}
-                                                    {currentPage === 4 && <ImageGrid4 {...commonGridProps} />}
-                                                </div>
-                                                <p className="justify-center text-black text-md mt-4">Page {currentPage}</p>
-                                            </div>
-                                        </TransformComponent>
-                                    </motion.div>
-                                </>
-                            )}
-                        </TransformWrapper>
-                    </div>
-                    <ToastContainer
-                        position="top-right"
-                        autoClose={3000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        theme="light"
-                    />
-                </div>
-
-
-                {/*//fin*/}
-                <section className="z-[52]">
-                    {/* @ts-ignore */}
-                    <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect}/>
-                </section>
-
-                {/* Mostrar / Ocultar productos */}
-                <div className="flex ">
-                    {isModalOpen && productSelected && !showProducts && (
-                        <ModalEditProduct
-                            setIsOpen={setIsModalOpen}
-                            product={productSelected as ProductTypes}
-                            GridID={selectedGridId || 0}
-                            SaveFC={handleSaveChangeProduct}
-                            ChangeFC={() => {
-                                handleChangeProductForOther(selectedGridId || 0);
-                            }}
-                            DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
-                        />
-                    )}
-
-                    {/* Mostrar el panel de selección de productos (GridProduct) */}
-                    <AnimatePresence>
-                        {showProducts && mousePosition && (
-                            <motion.div
-                                ref={productSelectionRef}
-                                initial={{opacity: 0, y: 20}}
-                                exit={{opacity: 0, y: 20}}
-                                animate={{opacity: 1, y: 0}}
-                                transition={{duration: 0.5}}
-                                className="absolute z-[100]"
-                                style={{top: productSelectionPosition.top, left: productSelectionPosition.left,}}
-                            >
-                                <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels} initialCategory={gridCategory}/>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-                <button
-                    onClick={() => handleClearAllConfirmation(gridIdToClear ?? null)}
-                    className="bg-red-500 text-white p-2 rounded-md mb-4 w-fit z-50 ml-4 absolute bottom-0"
-                >
-                    Clear
-                </button>
-
-                {/* Pop-up de confirmación */}
-                {isClearAllPopupOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                        <div className="bg-white p-4 rounded-lg shadow-lg text-center space-y-2">
-                            <h2 className="text-lg font-bold text-black">Confirm Clear All</h2>
-                            <p className="text-black">¿Are you sure you want to clear all products?</p>
-                            <p className="text-black">¿Which Page do you want to clear?</p>
-                            <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
-                                    onClick={() => handleClearAllConfirmation(1)}> 1
-                            </button>
-                            <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
-                                    onClick={() => handleClearAllConfirmation(2)}> 2
-                            </button>
-                            <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
-                                    onClick={() => handleClearAllConfirmation(3)}> 3
-                            </button>
-                            <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
-                                    onClick={() => handleClearAllConfirmation(4)}> 4
-                            </button>
-                            <div className="flex justify-end mt-4">
-                                <button onClick={cancelClearAll}
-                                        className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel
-                                </button>
-                                <button onClick={confirmClearAll}
-                                        className="bg-green-500 text-white p-2 rounded-md">Confirm
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    interface GridProductProps {
-        onProductSelect: (product: ProductTypes) => void;
-        onHideProducts?: () => void;
-        initialCategory: categoriesInterface | null;
-    }
-
-    const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProducts, initialCategory}) => {
-        const {productsData} = useProductContext();
-        const [searchTerm, setSearchTerm] = useState("");
-        const {categoriesData} = useCategoryContext();
-        const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
-        const [activeTab, setActiveTab] = useState('all');
-        const [loading, setLoading] = useState(true);
-        const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-
-
-        useEffect(() => {
-            setLoading(true)
-            setTimeout(() => setLoading(false), 500);
-        }, [initialCategory]);
-
-        useEffect(() => {
-            if (initialCategory) setCategory(initialCategory);
-        }, [initialCategory]);
-
-        useEffect(() => {
-            const timer = setTimeout(() => {
-                setDebouncedSearchTerm(searchTerm);
-            }, 300);
-
-            return () => clearTimeout(timer);
-        }, [searchTerm]);
-
-
-        const filteredProducts = useMemo(() => {
-            return productsData?.filter((product) => {
-                if (debouncedSearchTerm) {
-                    const searchLower = debouncedSearchTerm.toLowerCase();
-                    return (
-                        product.desc?.toLowerCase().includes(searchLower) ||
-                        product.master_brand?.toLowerCase().includes(searchLower) ||
-                        product.brand?.toLowerCase().includes(searchLower) ||
-                        product.upc?.toString().includes(debouncedSearchTerm) ||
-                        product.variety?.includes(debouncedSearchTerm)
-                    );
-                }
-                return product.id_category === category?.id_category;
+                updateCircularInServer(updatedProducts);
+                return updatedProducts;
             });
-        }, [debouncedSearchTerm, productsData, category?.id_category]);
+            toast.success("Products cleared successfully");
+        } else {
+            toast.error("Didn't select a number");
+        }
+        setIsClearAllPopupOpen(false);
+        setGridIdToClear(null);
+    };
+    const cancelClearAll = () => {
 
-        return (
+        setIsClearAllPopupOpen(false);
+    };
+
+
+    return (
+
+        <div
+            className={`grid bg-gray-100 grid-rows-[1fr_min-content] max-h-screen overflow-hidden `}>
             <div
-                className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
-                <button
-                    className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50"
-                    onClick={onHideProducts}>
-                    X
-                </button>
-                <div className="grid grid-rows-[min-content_1fr] h-full">
-                    <div className="flex flex-wrap bg-white items-center justify-between relative rounded-md p-2 gap-3">
-                        <div>
-                            <select
-                                className="text-black w-36 font-bold p-2"
-                                value={category?.name_category || ''}
-                                onChange={(e) => {
-                                    const selectedCategory = categoriesData.find(
-                                        cat => cat.name_category === e.target.value
-                                    );
-                                    if (selectedCategory) {
-                                        setCategory(selectedCategory);
-                                    }
-                                }}
-                            >
-                                {categoriesData.map((cat) => (
-                                    <option key={cat.id_category} value={cat.name_category}>
-                                        {cat.name_category}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                className={`relative grid grid-cols-2 items-center  ${productDragging ? 'overflow-x-visible' : ''} `}>
+                <AnimatePresence>
+                    {category && (
+                        <motion.div
+                            initial={{y: 1000}}
+                            animate={{y: showProductCardBrand ? 0 : 1000, zIndex: 51}}
+                            exit={{y: 1000}}
+                            transition={{duration: 0.5}}
+                            className="fixed left-[35.5%] top-[155px]"
+                        >
+                            <ProductContainer category={category} setCategory={setCategory}
+                                              onProductSelect={handleProductSelect}
+                                              onDragAndDropCell={handleDragAndDropSidebar}
+                                              setShowProductCardBrand={setShowProductCardBrand}/>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                        <input type="text" placeholder="Search Products" value={searchTerm}
-                               onChange={(e) => setSearchTerm(e.target.value)}
-                               className=" p-2 border rounded text-black sm:text-sm"/>
 
-                        <div className="flex flex-wrap gap-2 mb-1">
-                            <button
-                                className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'}`}
-                                onClick={() => setActiveTab('all')}>
-                                All Products
-                            </button>
-                            <button
-                                className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'}`}
-                                onClick={() => setActiveTab('circular')}>
-                                In Circular
-                            </button>
-                        </div>
+                <div
+                    className={`flex flex-col   w-full h-full border-r-2 border-black  transform ${panningOnPage1 ? 'cursor-default' : 'cursor-grabbing'} ${productDragging && productDragging.page && productDragging.page > 1
+                        ? "z-0"
+                        : "z-50"
+                    }`}
+                    style={{overflow: "visible"}}
+                >
+                    <TransformWrapper
+                        ref={containerRefPage1}
+                        initialScale={1}
+                        minScale={minScale}
+                        maxScale={maxScale}
+                        centerOnInit={true}
+                        doubleClick={{disabled: true}}
+                        wheel={{disabled: true}}
+                        panning={{disabled: panningOnPage1, velocityDisabled: true}}
+                    >
+                        {({zoomIn, zoomOut, setTransform, resetTransform}) => (
+                            <>
 
-                    </div>
-                    <div className="overflow-y-auto no-scrollbar h-full">
+                                {firsTimeOpen && (() => {
+                                    resetTransform();
+                                })()}
 
-                        {
-                            filteredProducts.length === 0 ?
-                                (
-                                    <div className='py-3'>
-                                        <Message
-                                            style={{borderLeft: "6px solid #b91c1c", color: "#b91c1c"}}
-                                            className="w-full"
-                                            severity="error"
-                                            text={searchTerm ? "Products not found" : "There are no products of this category"}
-                                        />
-                                    </div>
-                                )
-                                :
                                 <div
-                                    className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
-                                    {
-                                        (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
-                                            <CardShowSide key={product?.id_product || index} product={product}
-                                                          onProductSelect={onProductSelect} isLoading={loading}/>
-                                        ))
-                                    }
+                                    className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
+                                >
+
+
+                                    <button
+                                        onClick={() => {
+                                            handleZoomInPage1();
+                                        }}
+                                        className="  justify-center items-center"
+                                    >
+                                        <ZoomInIcon/>
+                                    </button>
+
+
+                                    <button
+                                        onClick={() => {
+                                            handleZoomOutPage1();
+                                        }}
+                                    >
+                                        <ZoomOutIcon/>
+                                    </button>
+
+
+                                    <button
+                                        onClick={() => {
+                                            handleFullPage1();
+                                        }}
+                                        className=" justify-center items-center"
+                                    >
+                                        <FocusIn/>
+                                    </button>
+                                    <button
+                                        onClick={handleButtonClickPage1}
+                                        className=" justify-center items-center"
+                                    >
+                                        {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                        {panningOnPage1 ? <GrapIconOpen/> : <Cursor3/>}
+                                    </button>
+                                    <button
+                                        onClick={handleResetPage1}
+                                        className=" justify-center items-center"
+                                        >
+                                        <ResetPageZoom/>
+                                    </button>
+
                                 </div>
-                        }
+                                <motion.div
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
+                                    className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
+                                >
+                                    <TransformComponent
+                                        wrapperStyle={{
+                                            width: "100%",
+                                            height: dynamicHeightpage1,
+                                            overflow:  productDragging ? 'visible' : "auto",
+                                            overflowY: !panningOnPage1 || fullPage1 ? 'hidden' : "scroll",
+
+                                        }}
+                                    >
+                                        <div
+                                            ref={divRef1}
+                                            className={"  border-2 border-red-600 "}>
+                                            {/* @ts-ignore */}
+
+                                            <ImageGrid {...commonGridProps} />
+                                        </div>
+                                    </TransformComponent>
+                                </motion.div>
+                            </>
+                        )}
+                    </TransformWrapper>
+                </div>
+
+                <div
+                    ref={divRef}
+                    className={`flex flex-col h-full w-full p-align-center`}>
+                    <TransformWrapper
+                        ref={containerRefPage2}
+                        initialScale={1}
+                        minScale={minScale}
+                        maxScale={maxScale}
+                        centerOnInit={true}
+                        doubleClick={{disabled: true}}
+                        wheel={{disabled: true}}
+                        panning={{disabled: panningOnSubPage, velocityDisabled: true}}
+
+                    >
+                        {({zoomIn, zoomOut, setTransform, resetTransform}) => (
+                            <>
+                                {resetScale && (() => {
+                                    if (productDragging === null) {
+                                        resetTransform();
+                                        setPanningOnSubPage(true);
+                                        setResetScale(false);
+                                    }
+
+                                })()}
+                                <div
+                                    className=" sticky top-4 justify-between items-center space-x-2 p-2 z-50"
+                                >
+                                    <button
+                                        onClick={() => {
+                                            handleZoomInSubPages();
+                                        }}
+                                        className="  justify-center items-center">
+                                        <ZoomInIcon/>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            handleZoomOutSubPages();
+                                        }}
+                                    >
+                                        <ZoomOutIcon/>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            handleFullPage2();
+                                        }}
+                                        className=" justify-center items-center"
+                                    >
+                                        <FocusIn/>
+                                    </button>
+                                    <button
+                                        onClick={handleButtonClickPage2}
+                                        className=" justify-center items-center"
+                                    >
+                                        {/* Renderiza el icono según el estado de panningOnPage1 */}
+                                        {panningOnSubPage ? <GrapIconOpen/> : <Cursor3/>}
+                                    </button>
+                                    <button
+                                        onClick={handleResetSubPage}
+                                        className=" justify-center items-center"
+                                    >
+                                        <ResetPageZoom/>
+                                    </button>
+
+                                </div>
+                                <motion.div
+                                    key={currentPage}
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0}}
+                                    transition={{duration: 0.5}}
+                                    className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
+                                >
+                                    <TransformComponent
+                                        wrapperStyle={{
+                                            // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
+                                            overflow: productDragging ? 'visible' : "auto",
+                                            width: "100%",                                            
+                                            height: dynamicHeightSubpages,
+                                            overflowY: fullPage2 ? "hidden" : "scroll",
+                                        }}
+                                    >
+                                        <div className={`flex flex-col  w-full  item-center`}>
+                                            <div
+                                                className={`h-full  w-full `}>
+                                                {currentPage === 2 && <ImageGrid2 {...commonGridProps} />}
+                                                {currentPage === 3 && <ImageGrid3 {...commonGridProps} />}
+                                                {currentPage === 4 && <ImageGrid4 {...commonGridProps} />}
+                                            </div>
+                                            <p className="justify-center text-black text-md mt-4">Page {currentPage}</p>
+                                        </div>
+                                    </TransformComponent>
+                                </motion.div>
+                            </>
+                        )}
+                    </TransformWrapper>
+                </div>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    closeOnClick
+                    pauseOnHover
+                    theme="light"
+                />
+            </div>
+
+
+            {/*//fin*/}
+            <section className="z-[52]">
+                {/* @ts-ignore */}
+                <BottomBar onCategorySelect={handleCategorySelect} categorySelected={category} onClick={handleCategorySelect}/>
+            </section>
+
+            {/* Mostrar / Ocultar productos */}
+            <div className="flex ">
+                {isModalOpen && productSelected && !showProducts && (
+                    <ModalEditProduct
+                        setIsOpen={setIsModalOpen}
+                        product={productSelected as ProductTypes}
+                        GridID={selectedGridId || 0}
+                        SaveFC={handleSaveChangeProduct}
+                        ChangeFC={() => {
+                            handleChangeProductForOther(selectedGridId || 0);
+                        }}
+                        DeleteFC={() => handleRemoveProduct(selectedGridId || 0)}
+                    />
+                )}
+
+                {/* Mostrar el panel de selección de productos (GridProduct) */}
+                <AnimatePresence>
+                    {showProducts && mousePosition && (
+                        <motion.div
+                            ref={productSelectionRef}
+                            initial={{opacity: 0, y: 20}}
+                            exit={{opacity: 0, y: 20}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.5}}
+                            className="absolute z-[100]"
+                            style={{top: productSelectionPosition.top, left: productSelectionPosition.left,}}
+                        >
+                            <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels}
+                                         initialCategory={gridCategory}/>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+            <button
+                onClick={() => handleClearAllConfirmation(gridIdToClear ?? null)}
+                className="bg-red-500 text-white p-2 rounded-md mb-4 w-fit z-50 ml-4 absolute bottom-0"
+            >
+                Clear
+            </button>
+
+            {/* Pop-up de confirmación */}
+            {isClearAllPopupOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-4 rounded-lg shadow-lg text-center space-y-2">
+                        <h2 className="text-lg font-bold text-black">Confirm Clear All</h2>
+                        <p className="text-black">¿Are you sure you want to clear all products?</p>
+                        <p className="text-black">¿Which Page do you want to clear?</p>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(1)}> 1
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(2)}> 2
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(3)}> 3
+                        </button>
+                        <button className="bg-gray-400 w-8 h-8 rounded-md mr-2 text-white focus:bg-gray-600"
+                                onClick={() => handleClearAllConfirmation(4)}> 4
+                        </button>
+                        <div className="flex justify-end mt-4">
+                            <button onClick={cancelClearAll}
+                                    className="bg-gray-400 p-2 rounded-md mr-2 text-white">Cancel
+                            </button>
+                            <button onClick={confirmClearAll}
+                                    className="bg-green-500 text-white p-2 rounded-md">Confirm
+                            </button>
+                        </div>
                     </div>
                 </div>
+            )}
+        </div>
+    );
+}
+
+interface GridProductProps {
+    onProductSelect: (product: ProductTypes) => void;
+    onHideProducts?: () => void;
+    initialCategory: categoriesInterface | null;
+}
+
+const GridProduct: React.FC<GridProductProps> = ({onProductSelect, onHideProducts, initialCategory}) => {
+    const {productsData} = useProductContext();
+    const [searchTerm, setSearchTerm] = useState("");
+    const {categoriesData} = useCategoryContext();
+    const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
+    const [activeTab, setActiveTab] = useState('all');
+    const [loading, setLoading] = useState(true);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+
+    useEffect(() => {
+        setLoading(true)
+        setTimeout(() => setLoading(false), 500);
+    }, [initialCategory]);
+
+    useEffect(() => {
+        if (initialCategory) setCategory(initialCategory);
+    }, [initialCategory]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+
+    const filteredProducts = useMemo(() => {
+        return productsData?.filter((product) => {
+            if (debouncedSearchTerm) {
+                const searchLower = debouncedSearchTerm.toLowerCase();
+                return (
+                    product.desc?.toLowerCase().includes(searchLower) ||
+                    product.master_brand?.toLowerCase().includes(searchLower) ||
+                    product.brand?.toLowerCase().includes(searchLower) ||
+                    product.upc?.toString().includes(debouncedSearchTerm) ||
+                    product.variety?.includes(debouncedSearchTerm)
+                );
+            }
+            return product.id_category === category?.id_category;
+        });
+    }, [debouncedSearchTerm, productsData, category?.id_category]);
+
+    return (
+        <div
+            className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
+            <button
+                className="absolute -top-2 -right-2 bg-black rounded-full w-8 h-8 text-white hover:bg-gray-800 z-50"
+                onClick={onHideProducts}>
+                X
+            </button>
+            <div className="grid grid-rows-[min-content_1fr] h-full">
+                <div className="flex flex-wrap bg-white items-center justify-between relative rounded-md p-2 gap-3">
+                    <div>
+                        <select
+                            className="text-black w-36 font-bold p-2"
+                            value={category?.name_category || ''}
+                            onChange={(e) => {
+                                const selectedCategory = categoriesData.find(
+                                    cat => cat.name_category === e.target.value
+                                );
+                                if (selectedCategory) {
+                                    setCategory(selectedCategory);
+                                }
+                            }}
+                        >
+                            {categoriesData.map((cat) => (
+                                <option key={cat.id_category} value={cat.name_category}>
+                                    {cat.name_category}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <input type="text" placeholder="Search Products" value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                           className=" p-2 border rounded text-black sm:text-sm"/>
+
+                    <div className="flex flex-wrap gap-2 mb-1">
+                        <button
+                            className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'}`}
+                            onClick={() => setActiveTab('all')}>
+                            All Products
+                        </button>
+                        <button
+                            className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'}`}
+                            onClick={() => setActiveTab('circular')}>
+                            In Circular
+                        </button>
+                    </div>
+
+                </div>
+                <div className="overflow-y-auto no-scrollbar h-full">
+
+                    {
+                        filteredProducts.length === 0 ?
+                            (
+                                <div className='py-3'>
+                                    <Message
+                                        style={{borderLeft: "6px solid #b91c1c", color: "#b91c1c"}}
+                                        className="w-full"
+                                        severity="error"
+                                        text={searchTerm ? "Products not found" : "There are no products of this category"}
+                                    />
+                                </div>
+                            )
+                            :
+                            <div
+                                className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
+                                {
+                                    (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
+                                        <CardShowSide key={product?.id_product || index} product={product}
+                                                      onProductSelect={onProductSelect} isLoading={loading}/>
+                                    ))
+                                }
+                            </div>
+                    }
+                </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
 
