@@ -67,17 +67,15 @@ export default function HomePage() {
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
     const [dynamicFullSize, setDynamicFullSize] = useState(0.5);
     const productSelectionRef = useRef<HTMLDivElement | null>(null);
-    const [gridProductDimensions, setGridProductDimensions] = useState({width: 0, height: 0});
-    const [grid, setGrid] = useState({x: 0, y: 0});
-    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({
+    const [gridProductDimensions, setGridProductDimensions] = useState({width: 0, height: 0});    
+    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({  
+        top: 0,
+        left: 0
+    });
     const [fullPage1, setFullPage1] = useState<boolean>(false);
     const [fullPage2, setFullPage2] = useState<boolean>(false);
     const divRef1 = useRef<HTMLDivElement | null>(null);
     const divRef2 = useRef<HTMLDivElement | null>(null);
-        top: 0,
-        left: 0
-    });
-
 
     useEffect(() => {
         // Inicializar la posición
@@ -872,8 +870,8 @@ export default function HomePage() {
                                     </button>
                                     <button
                                         onClick={handleResetSubPage}
-                                    >
-                                        className=" justify-center items-center"
+                                    className={`  justify-center items-center`}
+                                    >                                      
                                         <ResetPageZoom/>
                                     </button>
 
