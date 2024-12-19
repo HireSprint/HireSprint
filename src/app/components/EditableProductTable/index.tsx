@@ -411,7 +411,7 @@ const EditableProductTable = ({
                                 Date Circular
                             </label>
                             <input
-                                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                                onChange={(e) => (setFilters({ ...filters, date: e.target.value }),setLoadingScreen(true))}
                                 type="date"
                                 className="w-full bg-gray-500 text-white p-2 rounded-md"
                             />
@@ -419,29 +419,29 @@ const EditableProductTable = ({
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Master Brand</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                   onChange={(e) => setFilters({ ...filters, master_brand: e.target.value })} />
+                                   onChange={(e) => (setFilters({ ...filters, master_brand: e.target.value }),setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Brand</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                   onChange={(e) => setFilters({ ...filters, brand: e.target.value })} />
+                                   onChange={(e) => (setFilters({ ...filters, brand: e.target.value }),setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Description </label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                onChange={(e) => setFilters({ ...filters, desc: e.target.value })} />
+                                onChange={(e) => (setFilters({ ...filters, desc: e.target.value }),setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Variety</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                onChange={(e) => setFilters({ ...filters, variety: e.target.value })} />
+                                onChange={(e) => (setFilters({ ...filters, variety: e.target.value }),setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Category</label>
                             <select
                                 name=""
                                 id=""
-                                onChange={(e) => setFilters({ ...filters, id_category: e.target.value })}
+                                onChange={(e) => (setFilters({ ...filters, id_category: e.target.value }),setLoadingScreen(true))}
                                 className={'w-full bg-gray-500 text-white p-2 rounded-md'}
                                 defaultValue=""
                             >
