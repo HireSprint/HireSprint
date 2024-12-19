@@ -83,6 +83,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
               }
               const resp = await getProductsByCircular(reqBody)
               setSelectedProducts(resp.result)
+              setProductsData(resp.result)
               setIsLoadingProducts(false)
           } catch (error) {
               console.error("Error al obtener los productos:", error);
@@ -95,6 +96,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
     console.log(selectedProducts, "selectedProducts")
   
     const updateGridProducts = (gridRange: { min: number; max: number }, circularProducts: ProductTypes[]) => {
+      console.log('Datos de entrada:', {
+        gridRange,
+        totalCircularProducts: circularProducts?.length,
+        totalSelectedProducts: selectedProducts.length
+      });
+
       if (!selectedProducts.length || !circularProducts?.length) {
         console.log('No hay datos suficientes para procesar');
         return;
@@ -103,27 +110,41 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
       const productsMap = new Map(
         selectedProducts.map(product => [product.upc.toString(), product])
       );
+      console.log('Total productos en productsMap:', productsMap.size);
 
       const groupsByGrid: { [key: string]: ProductTypes[] } = {};
       
       circularProducts.forEach(product => {
         const gridId = product.id_grid?.toString();
-        if (!gridId) return;
+        if (!gridId) {
+          console.log('Producto sin gridId:', product);
+          return;
+        }
 
-        
         const numericGridId = Number(gridId);
-        if (numericGridId < gridRange.min || numericGridId > gridRange.max) return;
+        if (numericGridId < gridRange.min || numericGridId > gridRange.max) {
+          console.log(`Producto fuera de rango (${gridId}):`, product);
+          return;
+        }
         
-        if (!productsMap.has(product.upc.toString())) return;
+        if (!productsMap.has(product.upc.toString())) {
+          console.log(`Producto no encontrado en productsMap (UPC: ${product.upc}):`, product);
+          return;
+        }
         
         if (!groupsByGrid[gridId]) {
           groupsByGrid[gridId] = [];
         }
         
         groupsByGrid[gridId].push(product);
+        console.log(`Producto agregado al grid ${gridId}:`, product);
       });
       
-      console.log(groupsByGrid, "groupsByGrid")
+      console.log('Resumen de grupos antes del filtrado:', Object.entries(groupsByGrid).map(([gridId, products]) => ({
+        gridId,
+        cantidad: products.length,
+        upcs: products.map(p => p.upc)
+      })));
       
       const multipleProducts = Object.entries(groupsByGrid)
         .filter(([_, products]) => products.length > 1)
@@ -132,9 +153,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
           return acc;
         }, {} as { [key: string]: ProductTypes[] });
 
-      console.log('Grupos encontrados:', {
+      console.log('Grupos con múltiples productos:', {
         totalGrupos: Object.keys(multipleProducts).length,
-        detalleGrupos: multipleProducts
+        detalleGrupos: Object.entries(multipleProducts).map(([gridId, products]) => ({
+          gridId,
+          cantidad: products.length,
+          productos: products
+        }))
       });
 
       setGroupedProducts(multipleProducts);
