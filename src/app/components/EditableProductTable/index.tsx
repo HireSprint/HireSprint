@@ -129,8 +129,21 @@ const EditableProductTable = ({
             ),
         },
         {
-            accessorKey: 'weight_symbol',
+            accessorKey: 'w_simbol',
             header: 'Weight Symbol',
+            cell: ({ getValue, row, column }: any) => (
+                <input
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
+                    value={getValue() || ''}
+                    onChange={(e) =>
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
+                    }
+                />
+            ),
+        },
+        {
+            accessorKey: 'count',
+            header: 'Count',
             cell: ({ getValue, row, column }: any) => (
                 <input
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
