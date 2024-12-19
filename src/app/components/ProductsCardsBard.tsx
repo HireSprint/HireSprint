@@ -21,7 +21,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const { getProductsByCategory, isLoadingProducts } = useCategoryContext();
-    const { selectedProducts } = useProductContext();
+    const { selectedProducts, panelShowCategoriesOpen, setPanelShowCategoriesOpen } = useProductContext();
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
 
     useEffect(() => {
@@ -79,7 +79,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                     <div className='flex justify-between items-center'>
                         <p className='text-gray-500 font-bold uppercase'>{category?.name_category}</p>
 
-                        <button className='text-white font-bold bg-red-500 rounded-md p-2 mb-4' onClick={() => { setCategory(null) }}>
+                        <button className='text-white font-bold bg-red-500 rounded-md p-2 mb-4' onClick={() => { setCategory(null); setPanelShowCategoriesOpen(false); }}>
                             Cerrar
                         </button>
                     </div>

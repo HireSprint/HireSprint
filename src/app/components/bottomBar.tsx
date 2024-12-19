@@ -23,7 +23,7 @@ interface BottomBarButton {
 
 const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarProps) => {
   const { categoriesData } = useCategoryContext();
-  const { productsData } = useProductContext();
+  const { productsData, panelShowCategoriesOpen, setPanelShowCategoriesOpen  } = useProductContext();
   const [bottomBarButtons, setBottomBarButtons] = useState< BottomBarButton[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCategories, setShowCategories] = useState(false);
@@ -93,6 +93,7 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowCategories(false);
+        setPanelShowCategoriesOpen(false);
       }
     };
 
@@ -114,6 +115,7 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
         className="bg-white text-black px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-2"
         onClick={() => {
           setShowCategories(!showCategories);
+          setPanelShowCategoriesOpen(!panelShowCategoriesOpen);
           onClick?.();
         }}
       >
