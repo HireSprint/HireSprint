@@ -590,11 +590,7 @@ export default function HomePage() {
             setMinScale(dynamicFullSize);
         }
 
-    }, [zoomScaleSubPagines, productsData]);
-
-    useEffect(() => {
-        console.log(showProducts,' panelcito on off')
-    }, [showProducts]);
+    }, [zoomScaleSubPagines, productsData]);   
     
     useEffect(() => {
         // reposicionamiento de las paginas 
@@ -636,7 +632,7 @@ export default function HomePage() {
                     setDynamicHeightpage1("100%")
                 }
             }
-            console.log('drga desde el panel', panelShowCategoriesOpen , productReadyDrag?.page);
+            
             if(!panelShowCategoriesOpen && productReadyDrag?.page === undefined && productReadyDrag !== null) {
                 if (containerRefPage2 && containerRefPage2.current) {
                     containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                   
@@ -649,10 +645,8 @@ export default function HomePage() {
                 setUseZoomPage1(true);
                 setUseZoomSubPages(true);
                 setDynamicHeightSubpages("100%")
-            }
-            
-            
-          //  if(panelShowCategoriesOpen && )
+            }        
+       
         }
         ,[productReadyDrag, productDragging, panelShowCategoriesOpen]);
 

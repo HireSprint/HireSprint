@@ -21,17 +21,19 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const { getProductsByCategory, isLoadingProducts } = useCategoryContext();
-    const { selectedProducts, panelShowCategoriesOpen, setPanelShowCategoriesOpen } = useProductContext();
+    const { selectedProducts, panelShowCategoriesOpen, setPanelShowCategoriesOpen ,productReadyDrag,setProductReadyDrag} = useProductContext();
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
 
     useEffect(() => {
         const loadProducts = async () => {
+            if(activeTab === 'circular')
+                return;
             setLoading(true);
             if (category?.id_category) {
                 try {
                     const products = await getProductsByCategory(category.id_category, currentPage);
                     setCircularProducts(selectedProducts.filter(p => p.id_category === category.id_category));
-                    setProductsByCategory(prev => 
+                    setProductsByCategory(prev =>
                         currentPage === 1 ? products : [...prev, ...products]
                     );
                     setHasMore(products.length > 0);
@@ -47,6 +49,8 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
     }, [category?.id_category, currentPage, selectedProducts]);
 
     const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        if(activeTab === 'circular')
+            return
         const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
         if (scrollHeight - scrollTop <= clientHeight * 1.5) {
             if (!loading && hasMore) {
@@ -56,7 +60,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                 }
             }
         }
-    }, [loading, hasMore, currentPage, category?.id_category, getProductsByCategory]);
+    }, [ hasMore, currentPage, category?.id_category, getProductsByCategory]);
 
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -68,42 +72,52 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
         return matchesSearch;
     });
 
-
+    console.log(loading,'loading');
 
     return (
-        <div className="@container flex h-[74vh] w-[28vw] bg-white bg-opacity-[.96] rounded-lg shadow-md overflow-hidden">
+        <div
+            className="@container flex h-[74vh] w-[28vw] bg-white bg-opacity-[.96] rounded-lg shadow-md overflow-hidden">
             {/* Sección de Productos */}
             <div className="grid grid-rows-[min-content_auto] gap-3 p-3 w-full">
-                
+
                 <div className='flex flex-col w-full'>
                     <div className='flex justify-between items-center'>
                         <p className='text-gray-500 font-bold uppercase'>{category?.name_category}</p>
 
-                        <button className='text-white font-bold bg-red-500 rounded-md p-2 mb-4' onClick={() => { setCategory(null); setPanelShowCategoriesOpen(false); }}>
+                        <button className='text-white font-bold bg-red-500 rounded-md p-2 mb-4' onClick={() => {
+                            if (!productReadyDrag) {
+                                setCategory(null);
+                                setPanelShowCategoriesOpen(false);
+                            }
+                        }}>
                             Cerrar
                         </button>
                     </div>
 
-                    <input type="text" 
-                        placeholder="Find Product"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="text-black w-full p-2 mb-3 border border-gray-300 rounded"
+                    <input type="text"
+                           placeholder="Find Product"
+                           value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                           className="text-black w-full p-2 mb-3 border border-gray-300 rounded"
                     />
 
                     {/* Pestañas Superiores */}
                     <div className="flex gap-2 mb-1">
                         <button
-                            className={`px-3 bg-transparent text-sm ${ activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400' }`}
-                            onClick={() => setActiveTab('all')}
-                        >
+                            className={`px-3 bg-transparent text-sm ${activeTab === 'all' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'}`}
+                            onClick={() => {
+                                setActiveTab('all');
+                                setProductReadyDrag(null);
+                            }}>
                             All Products
                         </button>
 
                         <button
-                            className={`px-3 bg-transparent text-sm ${ activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400' }`}
-                            onClick={() => setActiveTab('circular')}
-                        >
+                            className={`px-3 bg-transparent text-sm ${activeTab === 'circular' ? 'border-b-2 border-green-400 text-black' : 'text-gray-400'}`}
+                            onClick={() => {
+                                setActiveTab('circular');
+                                setProductReadyDrag(null);
+                            }}>
                             En Circular
                         </button>
                     </div>
@@ -155,7 +169,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                     }
                                 </div>
                             }
-                            {loading && hasMore && (
+                            {loading && hasMore && activeTab === 'all' && (
                                 <div className="flex justify-center p-4">
                                     <p className="text-gray-500">Loading more products...</p>
                                 </div>
@@ -167,7 +181,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                 {activeTab === 'circular' && (
                     <div 
                         className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-                        onScroll={handleScroll}
+                     //   onScroll={handleScroll}
                     >
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
@@ -205,20 +219,21 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                         />
                                     </div>
                                 ) 
-                                : 
-                                <div className="grid grid-cols-2 gap-3">
-                                    {
-                                        (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
-                                            <CardShowSide key={product.id_product || index} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory} isLoading={loading}/>
-                                        ))
-                                    }
-                                </div>
+                                :
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {
+                                            (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
+                                                <CardShowSide key={product.id_product || index} product={product}
+                                                              enableDragAndDrop={true}
+                                                              onDragAndDropCell={onDragAndDropCell}
+                                                              setShowProductCardBrand={setShowProductCardBrand}
+                                                              setCategory={setCategory} isLoading={loading}/>
+
+                                            ))
+                                        }                                    
+                                    </div>
                             }
-                            {loading && hasMore && (
-                                <div className="flex justify-center p-4">
-                                    <p className="text-gray-500">Cargando más productos...</p>
-                                </div>
-                            )}
+
                     </div>
                 )}
             </div>
