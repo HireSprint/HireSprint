@@ -29,12 +29,12 @@ const EditableProductTable = ({
     const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products?.filter((item) => item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()));
     const [modifiedData, setModifiedData] = useState<any[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products?.filter((item) => item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()).slice(0, 100));
-    const [filters, setFilters] = useState({ id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", orden: "true" });
+    const [filters, setFilters] = useState({ id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "" });
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
     const [step, setStep] = useState<number>(1);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
-    
+
     const [columns] = useState([
         {
             accessorKey: 'upc',
@@ -232,36 +232,42 @@ const EditableProductTable = ({
 
     useEffect(() => {
         if (!LocalProducts?.length) return;
-    
+
         const filterMap = {
-            id_category: (item: ProductTypes, value: string) => 
+            id_category: (item: ProductTypes, value: string) =>
                 value === "" || item.id_category === Number(value),
-            upc: (item: ProductTypes, value: string) => 
+            upc: (item: ProductTypes, value: string) =>
                 value.length < 3 || item.upc?.toLowerCase().includes(value.toLowerCase()),
-            brand: (item: ProductTypes, value: string) => 
+            brand: (item: ProductTypes, value: string) =>
                 value.length < 3 || item.brand?.toLowerCase().includes(value.toLowerCase()),
-            master_brand: (item: ProductTypes, value: string) => 
+            master_brand: (item: ProductTypes, value: string) =>
                 value.length < 3 || item.master_brand?.toLowerCase().includes(value.toLowerCase()),
-            desc: (item: ProductTypes, value: string) => 
+            desc: (item: ProductTypes, value: string) =>
                 value.length < 3 || item.desc?.toLowerCase().includes(value.toLowerCase()),
-            variety: (item: ProductTypes, value: string) => 
-                value.length < 3 || item.variety?.includes(value.toLowerCase())
+            variety: (item: ProductTypes, value: string) =>
+                value.length < 3 || item.variety?.includes(value.toLowerCase()),
+            date: (item: ProductTypes, value: string) => {
+                if (value === "") return true; // No filtrar si el valor está vacío
+                const itemDate = new Date(String(item.createdAt).split("T")[0]).toString(); // Asegúrate de obtener solo la fecha
+                const filterDate = new Date(value).toString();
+                return itemDate === filterDate;
+            },
         };
 
-        
+
         let newProduct = LocalProducts;
-        
-        newProduct = LocalProducts?.filter(item => 
-            Object.entries(filterMap).every(([key, filterFn]) => 
+
+        newProduct = LocalProducts?.filter(item =>
+            Object.entries(filterMap).every(([key, filterFn]) =>
                 filterFn(item, debouncedFilters[key as keyof typeof debouncedFilters])
             )
         );
 
-        newProduct.sort((a, b) => {
-            const comparison = new Date(String(a?.createdAt)).getTime() - new Date(String(b?.createdAt)).getTime();
-            return debouncedFilters.orden === "true" ? comparison : -comparison;
-        });
-    
+        // newProduct.sort((a, b) => {
+        //     const comparison = new Date(String(a?.createdAt)).getTime() - new Date(String(b?.createdAt)).getTime();
+        //     return debouncedFilters.orden === "true" ? comparison : -comparison;
+        // });
+
         if (newProduct?.length < 100) {
             setStep(1);
             setFilteredProducts(newProduct);
@@ -270,7 +276,7 @@ const EditableProductTable = ({
             const end = start + 100;
             setFilteredProducts(newProduct.slice(start, end));
         }
-    
+
         setTimeout(() => setLoadingScreen(false), 1000);
     }, [step, debouncedFilters, LocalProducts, reload]);
 
@@ -378,6 +384,10 @@ const EditableProductTable = ({
         setReload(!reload);
     };
 
+    useEffect(() => {
+        console.log("filtros",filters)
+    }, [filters]);
+
     return openModal ? (
         <React.Fragment>
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
@@ -394,29 +404,27 @@ const EditableProductTable = ({
                     </div>
                     <div className="w-full flex p-4 bg-gray-900 gap-5">
                         <div className="justify-start">
-                            <label className="text-start text-white">Fecha</label>
-                            <select
-                                onChange={(e) => setFilters({
-                                    ...filters,
-                                    orden: e.target.value === 'true' ? 'true' : 'false',
-                                })}
-                                className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                defaultValue="false"
+                            <label
+                                htmlFor="dateInput"
+                                className='text-start text-white'
                             >
-
-                                <option value="false">Descendente</option>
-                                <option value="true" selected>Ascendente</option>
-                            </select>
+                                Date Circular
+                            </label>
+                            <input
+                                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                                type="date"
+                                className="w-full bg-gray-500 text-white p-2 rounded-md"
+                            />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Master Brand</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                onChange={(e) => setFilters({ ...filters, master_brand: e.target.value })} />
+                                   onChange={(e) => setFilters({ ...filters, master_brand: e.target.value })} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Brand</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                onChange={(e) => setFilters({ ...filters, brand: e.target.value })} />
+                                   onChange={(e) => setFilters({ ...filters, brand: e.target.value })} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Description </label>
