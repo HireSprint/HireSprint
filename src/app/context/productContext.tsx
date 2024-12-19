@@ -44,6 +44,8 @@ interface ProductContextType {
     groupedProducts: GroupedProducts;
     setGroupedProducts: (groupedProducts: GroupedProducts) => void;
     updateGridProducts: (gridRange: { min: number; max: number }, circularProducts: ProductTypes[]) => void;
+    panelShowCategoriesOpen: boolean;
+    setPanelShowCategoriesOpen: (showCategories: boolean) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -66,6 +68,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
     const [zoomScaleSubPagines, setZoomScaleSubPagines] = useState(1);
     const [groupedProducts, setGroupedProducts] = useState<GroupedProducts>({});
     const {idCircular, user} = useAuth();
+    const [panelShowCategoriesOpen, setPanelShowCategoriesOpen] = useState(false);
 
 
     useEffect(() => {
@@ -177,7 +180,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({childr
             setPanningOnSubPage,
             updateGridProducts,
             groupedProducts,
-            setGroupedProducts
+            setGroupedProducts,
+            panelShowCategoriesOpen,
+            setPanelShowCategoriesOpen
         }}>
             {children}
         </ProductContext.Provider>

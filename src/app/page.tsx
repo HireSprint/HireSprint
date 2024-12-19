@@ -35,7 +35,9 @@ export default function HomePage() {
         panningOnPage1,
         setPanningOnPage1,
         panningOnSubPage,
-        setPanningOnSubPage
+        setPanningOnSubPage,
+        panelShowCategoriesOpen,
+        setPanelShowCategoriesOpen,
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -417,7 +419,7 @@ export default function HomePage() {
         ClosetPanels();
     };
 
-    const handleCategorySelect = (category: categoriesInterface) => {
+    const handleCategorySelect = (category: categoriesInterface) => {       
         if (isModalOpen || showProducts) {
             setShowProducts(false);
             setIsModalOpen(false);
@@ -590,9 +592,14 @@ export default function HomePage() {
         }
 
     }, [zoomScaleSubPagines, productsData]);
-   
+
     useEffect(() => {
-            if (productReadyDrag === null && firstDrag) {
+        console.log(showProducts,' panelcito on off')
+    }, [showProducts]);
+    
+    useEffect(() => {
+        // reposicionamiento de las paginas 
+            if (productReadyDrag === null && firstDrag ) {
                 if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
                     containerRefPage2.current.resetTransform(zoomScaleSubPagines)
                     setUseZoomPage1(false);
@@ -606,7 +613,7 @@ export default function HomePage() {
                 setDynamicHeightpage1("85vh")
                 setDynamicHeightSubpages("85vh")
             }
-
+            // reducion de la pagina 2
             if (productReadyDrag?.page === 1) {
 
                 if (containerRefPage2 && containerRefPage2.current && productDragging) {
@@ -618,13 +625,11 @@ export default function HomePage() {
                     setDynamicHeightSubpages("100%")
                 }
             }
+            // reducion de la pagina  1,
             if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
 
                 if (containerRefPage1 && containerRefPage1.current) {
-                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                    if (containerRefPage2 && containerRefPage2.current && productDragging) {
-                        containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                    }
+                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                 
                     setFirstDrag(true)
                     setFistTimeOpen(false)
                     setUseZoomPage1(false);
@@ -632,11 +637,25 @@ export default function HomePage() {
                     setDynamicHeightpage1("100%")
                 }
             }
+            console.log('drga desde el panel', panelShowCategoriesOpen , productReadyDrag?.page);
+            if(!panelShowCategoriesOpen && productReadyDrag?.page === undefined && productReadyDrag !== null) {
+                if (containerRefPage2 && containerRefPage2.current) {
+                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                   
+                }
+                if (containerRefPage1 && containerRefPage1.current) {
+                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                 
+                }
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(true);
+                setUseZoomSubPages(true);
+                setDynamicHeightSubpages("100%")
+            }
+            
+            
+          //  if(panelShowCategoriesOpen && )
         }
-        ,
-        [productReadyDrag, productDragging]
-    )
-    ;
+        ,[productReadyDrag, productDragging, panelShowCategoriesOpen]);
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
         setDynamicHeightpage1("85dvh")
@@ -824,7 +843,7 @@ export default function HomePage() {
                         centerOnInit={true}
                         doubleClick={{ disabled: true }}
                         wheel={{ disabled: true }}
-                        panning={{ disabled: panningOnSubPage }}
+                        panning={{ disabled: panningOnSubPage ,velocityDisabled: true }}
                     >
                         {({ zoomIn, zoomOut, setTransform, resetTransform }) => (
                             <>
