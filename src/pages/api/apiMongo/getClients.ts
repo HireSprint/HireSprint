@@ -1,7 +1,7 @@
 export const getClients = async () => {
     try {
         const resp = await fetch(`https://hiresprintcanvas.dreamhosters.com/getClients`, {
-            method: "Get",
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
             }
