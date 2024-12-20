@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CardShowSide } from './card';
 import { ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
@@ -6,12 +6,12 @@ import { useProductContext } from '../context/productContext';
 import { Message } from "primereact/message";
 import { useCategoryContext } from '../context/categoryContext';
 
-interface ProductContainerProps { 
-    category: categoriesInterface | null, 
+interface ProductContainerProps {
+    category: categoriesInterface | null,
     setCategory: (category: categoriesInterface | null) => void,
-    onProductSelect: (product: ProductTypes) => void 
+    onProductSelect: (product: ProductTypes) => void
     onDragAndDropCell?: (gridCellToMove: any, stopDragEvent: MouseEvent) => void;
-    setShowProductCardBrand?:(arg:boolean) => void;
+    setShowProductCardBrand?: (arg: boolean) => void;
 }
 
 const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCategory, onProductSelect, onDragAndDropCell, setShowProductCardBrand }) => {
@@ -21,12 +21,12 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const { getProductsByCategory, isLoadingProducts } = useCategoryContext();
-    const { selectedProducts, panelShowCategoriesOpen, setPanelShowCategoriesOpen ,productReadyDrag,setProductReadyDrag} = useProductContext();
+    const { selectedProducts, panelShowCategoriesOpen, setPanelShowCategoriesOpen, productReadyDrag, setProductReadyDrag } = useProductContext();
     const [circularProducts, setCircularProducts] = useState<ProductTypes[]>([]);
 
     useEffect(() => {
         const loadProducts = async () => {
-            if(activeTab === 'circular')
+            if (activeTab === 'circular')
                 return;
             setLoading(true);
             if (category?.id_category) {
@@ -49,7 +49,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
     }, [category?.id_category, currentPage, selectedProducts]);
 
     const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-        if(activeTab === 'circular')
+        if (activeTab === 'circular')
             return
         const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
         if (scrollHeight - scrollTop <= clientHeight * 1.5) {
@@ -60,7 +60,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                 }
             }
         }
-    }, [ hasMore, currentPage, category?.id_category, getProductsByCategory]);
+    }, [hasMore, currentPage, category?.id_category, getProductsByCategory]);
 
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -72,7 +72,6 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
         return matchesSearch;
     });   
 
-  
 
     return (
         <div
@@ -95,10 +94,10 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                     </div>
 
                     <input type="text"
-                           placeholder="Find Product"
-                           value={searchTerm}
-                           onChange={(e) => setSearchTerm(e.target.value)}
-                           className="text-black w-full p-2 mb-3 border border-gray-300 rounded"
+                        placeholder="Find Product"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="text-black w-full p-2 mb-3 border border-gray-300 rounded"
                     />
 
                     {/* Pestañas Superiores */}
@@ -125,7 +124,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
                 {/* Subcategorías */}
                 {activeTab === 'all' && (
-                    <div 
+                    <div
                         className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
                         onScroll={handleScroll}
                     >
@@ -147,9 +146,9 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                 Categoría 4
                             </button>
                         </div>
-                        
-                            {
-                                filteredProducts.length === 0 ? 
+
+                        {
+                            filteredProducts.length === 0 ?
                                 (
                                     <div className='py-4'>
                                         <Message
@@ -159,56 +158,56 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                             text={searchTerm ? "Products not found" : "There are no products of this category"}
                                         />
                                     </div>
-                                ) 
-                                : 
+                                )
+                                :
                                 <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-3 gap-2">
                                     {
-                                        (loading ? Array.from({length: 9}).fill({} as ProductTypes) : filteredProducts ).map((product: any, index) => (
-                                            <CardShowSide key={product.id_product || index} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory} isLoading={loading}/>
+                                        (loading ? Array.from({ length: 9 }).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
+                                            <CardShowSide key={product.id_product || index} product={product} enableDragAndDrop={true} onDragAndDropCell={onDragAndDropCell} setShowProductCardBrand={setShowProductCardBrand} setCategory={setCategory} isLoading={loading} />
                                         ))
                                     }
                                 </div>
-                            }
-                            {loading && hasMore && activeTab === 'all' && (
-                                <div className="flex justify-center p-4">
-                                    <p className="text-gray-500">Loading more products...</p>
-                                </div>
-                            )}
+                        }
+                        {loading && hasMore && activeTab === 'all' && (
+                            <div className="flex justify-center p-4">
+                                <p className="text-gray-500">Loading more products...</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* Subcategorías */}
                 {activeTab === 'circular' && (
-                    <div 
+                    <div
                         className="flex-grow overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-                     //   onScroll={handleScroll}
+                    //   onScroll={handleScroll}
                     >
                         <div className="flex justify-center items-center flex-wrap gap-2 mb-3">
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
-                                    Sub
+                                Sub
                                 Categoría 1
                             </button>
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
-                                    Sub
+                                Sub
                                 Categoría 2
                             </button>
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
-                                    Sub
+                                Sub
                                 Categoría 3
                             </button>
                             <button
                                 className="p-1.5 bg-white rounded border-2 border-gray-200 text-xs text-black w-[90px] h-[50px]">
-                                    Sub
+                                Sub
                                 Categoría 4
                             </button>
                         </div>
 
-                        
-                            {
-                                filteredProducts.length === 0 ? 
+
+                        {
+                            filteredProducts.length === 0 ?
                                 (
                                     <div className='py-4'>
                                         <Message
@@ -218,7 +217,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                             text={searchTerm ? "Products not found" : "There are no products of this category"}
                                         />
                                     </div>
-                                ) 
+                                )
                                 :
                                     <div className="grid grid-cols-2 gap-3">
                                         {
