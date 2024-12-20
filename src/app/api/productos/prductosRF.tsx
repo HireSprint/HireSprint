@@ -42,7 +42,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     desc: '',
                     id_category: 0,
                     variety: undefined,
-                    size: '',
+                    size: [""],
                     quality_cf: '',
                     type_of_meat: '',
                     type_of_cut: '',
