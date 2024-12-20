@@ -19,6 +19,7 @@ interface AuthContextProps {
     }>;
     idCircular: number | null;
     setIdCircular: (id: number | null) => void;
+    setLoading: (loading: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -143,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             login,
             logout,
             loading,
+            setLoading,
             update,
             setUpdate,
             circulars,

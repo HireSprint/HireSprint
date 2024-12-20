@@ -38,7 +38,7 @@ interface burstType {
 
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
-    const { groupedProducts } = useProductContext();
+    const { groupedProducts, isLoadingGridProducts } = useProductContext();
    // const [categories, setCategories] = useState<[]>()
    // const [categoria, setCategoria] = useState<categoriesInterface>()
     const per = ["Ea", "Lb", "POUND", "HEAD", "BUNCH", "BAG", "PKG", "PK"]
@@ -57,7 +57,14 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [burstOption, setBurstOption] = useState<burstType[] | []>([])
     const [selectedBurst, setSelectedBurst] = useState<burstType | null>(null)
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
-    const [varietyType, setVarietyType] = useState<'Selected' | 'Assorted' | null>(null);
+    const [varietyType, setVarietyType] = useState<'Selected' | 'Assorted' | null>(() => {
+        if (product.variety?.includes('Selected Varieties')) {
+            return 'Selected';
+        } else if (product.variety?.includes('Assorted Varieties')) {
+            return 'Assorted';
+        }
+        return null;
+    });
     const [size, setSize] = useState<string[]>(product.size || []);
     const [variety, setVariety] = useState<string[]>(product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
@@ -99,12 +106,15 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
 
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
-            const allVarieties = groupedProducts[GridID].map(
-                (item: ProductTypes) => item?.variety?.[0]?.trim().replace(/['"]+/g, '') || ''
-            ).filter(Boolean);
-            setVariety(allVarieties);
+            if (varietyType) {
+                setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
+            } else {
+                const allVarieties = groupedProducts[GridID]
+                    .map((item: ProductTypes) => item?.variety?.[0]?.trim().replace(/['"]+/g, '') || '')
+                    .filter(Boolean);
+                setVariety(allVarieties);
+            }
         }
-        console.log(varietyType)
     }, [GridID, groupedProducts, varietyType]);
 
     useEffect(() => {
@@ -517,7 +527,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                                                                 className="w-4 h-4 cursor-pointer"
                                                                                 disabled={!!varietyType}
                                                                             />
-                                                                            <span className="font-medium">{item?.variety?.[0]?.trim().replace(/['"]+/g, '')}</span>
+                                                                            {isLoadingGridProducts ? <span className="font-medium">Loading...</span> :
+                                                                            <span className="font-medium">{item?.variety?.[0]?.trim().replace(/['"]+/g, '')}</span>}
                                                                         </div>
                                                                         <div className="text-sm text-gray-500 mt-1">
                                                                             {item?.size} {item?.w_simbol}
@@ -562,6 +573,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             finalVariety = variety.filter(v => v !== 'Selected Varieties' && v !== 'Assorted Varieties');
                                         }
                                         
+                                        
                                         SaveFC?.(
                                             GridID,
                                             price,
@@ -578,6 +590,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         );
                                         console.log('Final variety:', finalVariety); 
                                         console.log('Size:', size);
+                                        console.log('Variety:', variety);
                                     }}>
                                     <div className="flex gap-2">
                                         <SaveIcon />

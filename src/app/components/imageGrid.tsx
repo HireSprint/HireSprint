@@ -103,13 +103,13 @@ export const ImageGrid = ({
 
 
     useEffect(() => {
-        if (productsData?.length > 0) {
+        if (selectedProducts?.length > 0) {
             updateGridProducts(
                 { min: 1001, max: 1999 }, 
-                productsData
+                selectedProducts
             );
         }
-    }, [productsData]);
+    }, [selectedProducts]);
 
 
 
@@ -239,13 +239,13 @@ export const ImageGrid2 = ({
     }, [categoriesData])
 
     useEffect(() => {
-        if ( productsData?.length > 0) {
+        if ( selectedProducts?.length > 0) {
             updateGridProducts(
                 { min: 2001, max: 2999 }, 
                 selectedProducts
             );
         }
-    }, [productsData, selectedProducts]);
+    }, [selectedProducts]);
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >
