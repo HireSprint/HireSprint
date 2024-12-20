@@ -391,11 +391,8 @@ export default function HomePage() {
         size: string[]
     ) => {
         if (gridID === undefined) return;
-        console.log('Variedades a guardar:', finalVariety);
-        console.log('Sizes a guardar:', size);
-//@ts-ignore
         setSelectedProducts(prevProducts => {
-            const updatedProducts= prevProducts.map(product => {
+            const updatedProducts = prevProducts.map(product => {
                 if (product.id_grid === gridID) {
                     const baseUpdate = {
                         ...product,
@@ -408,33 +405,30 @@ export default function HomePage() {
                         with_card: withCard,
                         limit_type,
                         per,
+                        variety_set: finalVariety,
+                        size: size
                     };
-
-                    if (product === groupedProducts[gridID][0]) {
+                    console.log(baseUpdate, "baseUpdate")
+                    updateCircularInServer([baseUpdate]);
+                    if (groupedProducts[gridID] && product === groupedProducts[gridID][0]) {
                         return {
                             ...baseUpdate,
-                            variety: finalVariety, 
-                            size: size, 
+                            variety: finalVariety,
+                            size: size,
                         };
                     }
+
+                    return baseUpdate;
                 }
                 return product;
             });
-
-            const formattedProducts = updatedProducts.map(product => ({
-                ...product,
-                variety: product.id_grid === gridID ? finalVariety : product.variety,
-                size: product.id_grid === gridID ? size : product.size,
-            }));
-
-            console.log('Productos antes de enviar al servidor:', formattedProducts);
-            //@ts-ignore
-            updateCircularInServer(formattedProducts);
-            return formattedProducts;
+            return updatedProducts;
         });
 
         ClosetPanels();
     };
+
+
     const handleCategorySelect = (category: categoriesInterface) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);

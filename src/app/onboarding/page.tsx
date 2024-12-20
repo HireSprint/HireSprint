@@ -27,7 +27,7 @@ const OnboardingPage = () => {
             router.push('/');
         } else {
             console.error("No se encontró un ID de circular válido");
-            // Aquí podrías mostrar un mensaje de error al usuario
+            toast.error("Not Valid Circular Id");
         }
     };
 
@@ -36,16 +36,12 @@ const OnboardingPage = () => {
     const handleDateSelect = (e: any) => {
         const selectedDate = e.target.value;
         setIsLoading(true);
-
-        // Encontrar el circular correspondiente
         const circular = circulars?.find((circular: any) =>
             circular.date_circular === selectedDate
         );
 
-        // Limpiar el circular seleccionado primero
         setSelectedCircular(null);
 
-        // Simular loading
         setTimeout(() => {
             setSelectedCircular(circular || null);
             setIsLoading(false);
@@ -88,13 +84,13 @@ const OnboardingPage = () => {
                             <select
                                 id="date"
                                 {...register("date")}
-                                className="mt-1 block w-1/3 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                className="mt-1 block w-1/3 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md cursor-pointer "
                                 onChange={handleDateSelect}
                             >
                                 <option
-                                    value="">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
+                                    value="" className="cursor-pointer">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
                                 {circularOptions.map((circular: any) => (
-                                    <option key={circular.date_circular} value={circular.date_circular}>
+                                    <option key={circular.date_circular} value={circular.date_circular} className="cursor-pointer">
                                         {formatDate(circular.date_circular)}
                                     </option>
                                 ))}

@@ -2,8 +2,8 @@ export interface ProductTypes {
     id_category: number,
     brand: string,
     upc: string,
-    size?: [string],
-    variety?: [string],
+    size?: string[],
+    variety?: string[],
     price: string,
     desc?: string,
     addl?: string,
@@ -31,6 +31,7 @@ export interface ProductTypes {
     count: number,
     w_simbol: string,
     embase: string,
+    variety_set:string[]
 }
 
 export interface ProductDraggingType {
