@@ -48,7 +48,7 @@ const BottomBar = ({ onCategorySelect, categorySelected, onClick }: BottomBarPro
   ];
 
   const orderCategoriesByProductCount = (products: ProductTypes[]): number[] => {
-    const categoryCounts = products.reduce((acc, product) => {
+    const categoryCounts = products?.reduce((acc, product) => {
       acc[product.id_category] = (acc[product.id_category] || 0) + 1;
       return acc;
     }, {} as Record<number, number>);
