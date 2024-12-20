@@ -1175,6 +1175,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             return searchResults;
         }
         if (activeTab === 'circular') {
+           
             return selectedProducts.filter(product =>
                 product.id_category === category.id_category
             );
@@ -1260,12 +1261,19 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                         <>
                             <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
                                 {displayedProducts.map((product: any, index) => (
-                                    <CardShowSide
-                                        key={product?.id_product || index}
-                                        product={product}
-                                        onProductSelect={onProductSelect}
-                                        isLoading={false}
-                                    />
+                                    <div key={product?.id_product || index} className="relative">                                       
+                                        {activeTab === 'circular' && (
+                                            <div
+                                                className="left-0 text-sm text-black ">
+                                                {"Page-" + product?.id_grid?.toString().charAt(0) || 'N/A'}
+                                            </div>
+                                        )}
+                                        <CardShowSide
+                                            product={product}
+                                            onProductSelect={onProductSelect}
+                                            isLoading={false}
+                                        />
+                                    </div>
                                 ))}
                             </div>
 
