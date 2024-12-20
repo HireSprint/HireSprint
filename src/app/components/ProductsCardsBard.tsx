@@ -66,11 +66,11 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
 
     const filteredProducts = productsByCategory.filter((product) => {
         const matchesSearch = product.desc?.toLowerCase().includes(searchTerm.toLowerCase());
-        if (activeTab === 'circular') {
+        if (activeTab === 'circular') {       
             return matchesSearch && circularProducts.some(cp => cp.id_product === product.id_product);
         }
         return matchesSearch;
-    });
+    });   
 
 
     return (
@@ -219,18 +219,41 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                     </div>
                                 )
                                 :
-                                <div className="grid grid-cols-2 gap-3">
-                                    {
-                                        (loading ? Array.from({ length: 8 }).fill({} as ProductTypes) : filteredProducts).map((product: any, index) => (
-                                            <CardShowSide key={product.id_product || index} product={product}
-                                                enableDragAndDrop={true}
-                                                onDragAndDropCell={onDragAndDropCell}
-                                                setShowProductCardBrand={setShowProductCardBrand}
-                                                setCategory={setCategory} isLoading={loading} />
-                                        ))
-                                    }
-                                </div>
-                        }
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {
+                                            (loading ? Array.from({length: 8}).fill({} as ProductTypes) : filteredProducts).map((product: any, index) =>
+                                            {
+                                                const pageDataList = circularProducts.filter(item => item.id_product === product.id_product).map(item => item.id_grid?.toString().charAt(0));
+                                                const uniquePageDataList = Array.from(new Set(pageDataList)).filter(value => value !== undefined).sort((a, b) => parseInt(a || '0') - parseInt(b || '0'));
+                                                const pageDataString = uniquePageDataList.join(',');
+                                                
+                                                return (
+                                                
+                                                <div key={product.id_product || index} className="relative">
+                                                    {/* Mostrar el número encima */}
+                                                    <div
+                                                        className=" button-0 left-0 text-sm  text-black z-50 ">                                                        
+                                                         {"Page:" + pageDataString}
+                                                    </div>
+                                                    {/* Componente hijo */}
+                                                    <CardShowSide
+                                                        product={product}
+                                                        enableDragAndDrop={true}
+                                                        onDragAndDropCell={onDragAndDropCell}
+                                                        setShowProductCardBrand={setShowProductCardBrand}
+                                                        setCategory={setCategory}
+                                                        isLoading={loading}
+                                                    />
+                                                   
+                                                </div>
+                                            )
+                                        }
+                                        )
+
+                                        }
+
+                                    </div>
+                            }
 
                     </div>
                 )}
