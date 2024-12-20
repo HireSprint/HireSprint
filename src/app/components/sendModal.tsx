@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { addGoogleSheet3 } from "../api/productos/prductosRF";
+import { addGoogleSheet3 } from "../api/GoogleSheet/prductosRF";
 import { useCategoryContext } from "../context/categoryContext";
 import { useAuth } from "./provider/authprovider";
 import { useProductContext } from "../context/productContext";

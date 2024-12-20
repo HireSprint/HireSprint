@@ -233,7 +233,7 @@ const ProductContainer: React.FC<ProductContainerProps> = ({ category, setCatego
                                                     {/* Mostrar el número encima */}
                                                     <div
                                                         className=" button-0 left-0 text-sm  text-black z-50 ">                                                        
-                                                         {"Page:" + pageDataString}
+                                                         {"Page-" + pageDataString}
                                                     </div>
                                                     {/* Componente hijo */}
                                                     <CardShowSide
