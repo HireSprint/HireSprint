@@ -5,6 +5,7 @@ import { categoriesInterface } from '@/types/category';
 import { toast, ToastContainer } from 'react-toastify';
 import { updateProduct } from '@/pages/api/apiMongo/updateProduct';
 
+
 declare module '@tanstack/react-table' {
     interface TableMeta<TData extends unknown> {
         updateData: (rowIndex: number, columnId: string, value: unknown) => void;
@@ -34,6 +35,12 @@ const EditableProductTable = ({
     const [step, setStep] = useState<number>(1);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
+
+    //images states
+    const [imageUpdateModal, setImageUpdateModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<ProductTypes|null>(null);
+    const [newImage, setNewImage] = useState<File|null>(null);
+    const [isUpdatingImage, setIsUpdatingImage] = useState(false);
 
     const [columns] = useState([
         {
@@ -102,20 +109,6 @@ const EditableProductTable = ({
             ),
         },
         {
-            accessorKey: 'size',
-            header: 'Size',
-            cell: ({ getValue, row, column }: any) => (
-                <input
-                    type="number"
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
-                    value={getValue() || ''}
-                    onChange={(e) =>
-                        table.options.meta?.updateData(row.index, column.id, e.target.value)
-                    }
-                />
-            ),
-        },
-        {
             accessorKey: 'pack',
             header: 'Pack',
             cell: ({ getValue, row, column }: any) => (
@@ -129,8 +122,8 @@ const EditableProductTable = ({
             ),
         },
         {
-            accessorKey: 'w_simbol',
-            header: 'Weight Symbol',
+            accessorKey: 'pack',
+            header: 'Pack',
             cell: ({ getValue, row, column }: any) => (
                 <input
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
@@ -155,6 +148,33 @@ const EditableProductTable = ({
             ),
         },
         {
+            accessorKey: 'size',
+            header: 'Size',
+            cell: ({ getValue, row, column }: any) => (
+                <input
+                    type="number"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
+                    value={getValue() || ''}
+                    onChange={(e) =>
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
+                    }
+                />
+            ),
+        },
+        {
+            accessorKey: 'w_simbol',
+            header: 'Weight Symbol',
+            cell: ({ getValue, row, column }: any) => (
+                <input
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
+                    value={getValue() || ''}
+                    onChange={(e) =>
+                        table.options.meta?.updateData(row.index, column.id, e.target.value)
+                    }
+                />
+            ),
+        },
+        {
             accessorKey: 'embase',
             header: 'Embase',
             cell: ({ getValue, row, column }: any) => (
@@ -166,6 +186,20 @@ const EditableProductTable = ({
                     }
                 />
             ),
+        },
+        {
+            accessorKey: 'type_of_meat',
+            header: 'Type of Meat',
+            cell:
+                ({ getValue, row, column }: any) => (
+                    <input
+                        className="border border-gray-300 rounded p-1 text-black"
+                        value={getValue() || ''}
+                        onChange={(e) =>
+                            table.options.meta?.updateData(row.index, column.id, e.target.value)
+                        }
+                    />
+                ),
         },
         {
             accessorKey: 'id_category',
@@ -187,21 +221,7 @@ const EditableProductTable = ({
                     <option value="create">+ Add new category</option>
                 </select>
             ),
-        },
-        {
-            accessorKey: 'type_of_meat',
-            header: 'Type of Meat',
-            cell:
-                ({ getValue, row, column }: any) => (
-                    <input
-                        className="border border-gray-300 rounded p-1 text-black"
-                        value={getValue() || ''}
-                        onChange={(e) =>
-                            table.options.meta?.updateData(row.index, column.id, e.target.value)
-                        }
-                    />
-                ),
-        },
+        }
     ]);
 
 
@@ -401,17 +421,85 @@ const EditableProductTable = ({
         console.log("filtros",filters)
     }, [filters]);
 
+
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setNewImage(file);
+        }
+    };
+
+    const handleClick = () => {
+        document.getElementById("imageInputModal")?.click();
+    };
+
+    const handleUpdateImage = async () => {
+        setIsUpdatingImage(true);
+        try {
+            const formData = new FormData();
+
+            // Verificar y agregar la imagen solo si existe
+            if (newImage !== null) {
+                formData.append('image', newImage);
+            }
+
+            formData.append('id_product', String(selectedProduct?.id_product || ''));
+
+            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.status !== 200) {
+                const errorData = await data.message;
+                throw new Error(`Error del servidor: ${response.status} ${errorData}`);
+            } else {
+                const lista_update = LocalProducts.map((item: ProductTypes) => {
+                    if (item.id_product === selectedProduct?.id_product) {
+                        return { ...item, url_image: data.result.url_image };
+                    }
+                    return item;
+                });
+
+                const lista_filtered = filteredProducts.map((item: ProductTypes) => {
+                    if (item.id_product === selectedProduct?.id_product) {
+                        return { ...item, url_image: data.result.url_image };
+                    }
+                    return item;
+                });
+
+                setLocalProducts(lista_update);
+                setFilteredProducts(lista_filtered);
+            }
+
+        } catch (error) {
+            console.error('Error al actualizar producto:', error);
+            toast.error("Error al actualizar el producto");
+        } finally {
+            toast.success("Imagen del producto actualizada");
+            setImageUpdateModal(false)
+            setIsUpdatingImage(false);
+            setSelectedProduct(null);
+            setNewImage(null)
+        }
+    };
+
+
+
     return openModal ? (
         <React.Fragment>
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+            <div
+                className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
                 <div className="relative w-full h-[85vh] ">
                     <div className="absolute -right-5 -top-5 ">
                         <button onClick={() => (closeModal(false), reloadData(true))}
-                            className=" bg-gray-500 p-4 rounded-full border-2">
+                                className=" bg-gray-500 p-4 rounded-full border-2">
                             <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28"
-                                viewBox="0 0 384 512">
+                                 viewBox="0 0 384 512">
                                 <path fill="#ffffff"
-                                    d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+                                      d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
                             </svg>
                         </button>
                     </div>
@@ -424,7 +512,10 @@ const EditableProductTable = ({
                                 Date Circular
                             </label>
                             <input
-                                onChange={(e) => (setFilters({ ...filters, date: e.target.value }),setLoadingScreen(true))}
+                                onChange={(e) => (setFilters({
+                                    ...filters,
+                                    date: e.target.value
+                                }), setLoadingScreen(true))}
                                 type="date"
                                 className="w-full bg-gray-500 text-white p-2 rounded-md"
                             />
@@ -432,29 +523,44 @@ const EditableProductTable = ({
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Master Brand</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                   onChange={(e) => (setFilters({ ...filters, master_brand: e.target.value }),setLoadingScreen(true))} />
+                                   onChange={(e) => (setFilters({
+                                       ...filters,
+                                       master_brand: e.target.value
+                                   }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Brand</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                   onChange={(e) => (setFilters({ ...filters, brand: e.target.value }),setLoadingScreen(true))} />
+                                   onChange={(e) => (setFilters({
+                                       ...filters,
+                                       brand: e.target.value
+                                   }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Description </label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                onChange={(e) => (setFilters({ ...filters, desc: e.target.value }),setLoadingScreen(true))} />
+                                   onChange={(e) => (setFilters({
+                                       ...filters,
+                                       desc: e.target.value
+                                   }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Variety</label>
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
-                                onChange={(e) => (setFilters({ ...filters, variety: e.target.value }),setLoadingScreen(true))} />
+                                   onChange={(e) => (setFilters({
+                                       ...filters,
+                                       variety: e.target.value
+                                   }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
                             <label className={'text-start text-white'}>Category</label>
                             <select
                                 name=""
                                 id=""
-                                onChange={(e) => (setFilters({ ...filters, id_category: e.target.value }),setLoadingScreen(true))}
+                                onChange={(e) => (setFilters({
+                                    ...filters,
+                                    id_category: e.target.value
+                                }), setLoadingScreen(true))}
                                 className={'w-full bg-gray-500 text-white p-2 rounded-md'}
                                 defaultValue=""
                             >
@@ -513,58 +619,80 @@ const EditableProductTable = ({
                             <table
                                 className="min-w-full bg-gray-800 text-white table-auto border-collapse rounded-lg overflow-hidden">
                                 <thead>
-                                    {table.getHeaderGroups().map((headerGroup) => (
-                                        <tr key={headerGroup.id} className="bg-gray-900">
-                                            {headerGroup.headers.map((header) => (
-                                                <th
-                                                    key={header.id}
-                                                    className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
-                                                >
-                                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                                </th>
-                                            ))}
-                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
-                                                Acción
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <tr key={headerGroup.id} className="bg-gray-900">
+                                        {headerGroup.headers.map((header) => (
+                                            <th
+                                                key={header.id}
+                                                className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
+                                            >
+                                                {flexRender(header.column.columnDef.header, header.getContext())}
                                             </th>
-                                        </tr>
-                                    ))}
+                                        ))}
+                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                            Action
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                            Image
+                                        </th>
+                                    </tr>
+                                ))}
                                 </thead>
                                 <tbody>
-                                    {table.getRowModel().rows.map((row) => (
-                                        <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
-                                            {row.getVisibleCells().map((cell) => (
-                                                <td key={cell.id} className="px-2 py-2 text-md text-black">
-                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                </td>
-                                            ))}
-                                            <td className="px-2 py-2 text-md text-black items-center">
-                                                <button
-                                                    disabled={!isEdited(row.original)}
-                                                    onClick={() => {
-                                                        const filteredProduct = filteredProducts.filter(
-                                                            (_, index) => index === row.index
-                                                        );
-                                                        handledUpdate(filteredProduct);
-                                                    }}
-                                                    className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
-                                                >
-                                                    save
-                                                </button>
+                                {table.getRowModel().rows.map((row) => (
+                                    <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
+                                        {row.getVisibleCells().map((cell) => (
+                                            <td key={cell.id} className="px-2 py-2 text-md text-black">
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </td>
-                                        </tr>
-                                    ))}
+                                        ))}
+                                        <td className="px-2 py-2 text-md text-black items-center">
+                                            <button
+                                                disabled={!isEdited(row.original)}
+                                                onClick={() => {
+                                                    const filteredProduct = filteredProducts.filter(
+                                                        (_, index) => index === row.index,
+                                                    );
+                                                    handledUpdate(filteredProduct);
+
+                                                }}
+                                                className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
+                                            >
+                                                Save
+                                            </button>
+                                        </td>
+                                        <td className="px-2 py-2 text-md text-black items-center">
+                                            <button
+                                                onClick={() => {
+                                                    const filteredProduct = filteredProducts.filter(
+                                                        (_, index) => index === row.index,
+                                                    );
+                                                    setSelectedProduct(filteredProduct[0]);
+                                                    setImageUpdateModal(true);
+                                                }}
+                                                className="px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
+                                            >
+                                                Image
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         )}
                     </div>
 
                     <div className="w-full flex justify-between text-center p-8 bg-gray-900">
-                        <button className={"py-2 px-4 text-white bg-lime-600 rounded-md"}
-                            onClick={() => { step > 1 ? (setStep(step - 1), setLoadingScreen(true)) : setStep(step); }}>Back
+                        <button className={'py-2 px-4 text-white bg-lime-600 rounded-md'}
+                                onClick={() => {
+                                    step > 1 ? (setStep(step - 1), setLoadingScreen(true)) : setStep(step);
+                                }}>Back
                         </button>
-                        <h1 className={"text-white text-4xl font-bold"}>{step}</h1>
-                        <button className={"py-2 px-4 text-white bg-lime-600 rounded-md"}
-                            onClick={() => { filteredProducts.length > 99 && (setStep(step + 1), setLoadingScreen(true)) }}>Next
+                        <h1 className={'text-white text-4xl font-bold'}>{step}</h1>
+                        <button className={'py-2 px-4 text-white bg-lime-600 rounded-md'}
+                                onClick={() => {
+                                    filteredProducts.length > 99 && (setStep(step + 1), setLoadingScreen(true));
+                                }}>Next
                         </button>
                     </div>
                 </div>
@@ -576,6 +704,73 @@ const EditableProductTable = ({
                     pauseOnHover
                     theme="light"
                 />
+                { imageUpdateModal && (
+                    <div
+                        className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-110 p-5">
+                        <div className="w-1/3 flex flex-col p-4 bg-gray-900 gap-5">
+                            <div className="w-full flex flex-col justify-between p-2 bg-gray-900">
+                                <h1 className={'text-white text-2xl font-bold'}>{selectedProduct?.desc}</h1>
+                                <h2 className={'text-white text-lg '}>{selectedProduct?.brand}</h2>
+                                <h2 className={'text-white text-lg '}>{selectedProduct?.size}{selectedProduct?.w_simbol}</h2>
+                            </div>
+                            <div>
+                                <img
+                                    src={newImage !== null ? URL.createObjectURL(newImage) : selectedProduct?.url_image}
+                                    alt={selectedProduct?.desc || ''}
+                                    className="w-full h-64 object-contain rounded"
+                                />
+                                <div>
+                                    <h1>Change the picture here</h1>
+                                    <input
+                                        className="hidden"
+                                        type="file"
+                                        accept="image/*"
+                                        id="imageInputModal"
+                                        onChange={handleImageChange}
+                                    />
+                                    <div
+                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                        onClick={handleClick}
+                                    >
+                                        <>
+                                            <svg
+                                                className="w-8 h-8 mb-2 text-gray-400"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                                />
+                                            </svg>
+                                            <span className="text-gray-400">
+                                                Drag an image here or click to select
+                                            </span>
+                                        </>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w-full flex justify-around text-center p-4 bg-gray-900 gap-5">
+                                <button className={'w-full py-2 px-3 text-red-500 border-red-500 border-2 rounded-md hover:bg-red-600 hover:text-white'}
+                                        onClick={() => {
+                                            setImageUpdateModal(false)
+                                        }}>
+                                    Cancelar
+                                </button>
+                                <button className={' w-full  py-2 px-3 text-white bg-lime-600 rounded-md hover:scale-110'}
+                                        onClick={() => {
+                                            handleUpdateImage()
+                                        }}>
+                                    Actualizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+                }
             </div>
         </React.Fragment>
     ) : null;
