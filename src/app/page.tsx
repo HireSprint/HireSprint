@@ -2,12 +2,12 @@
 import { CardShowSide } from "./components/card";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import BottomBar from "./components/bottomBar";
-import { AnimatePresence, motion } from "framer-motion"; 
+import { AnimatePresence, motion } from "framer-motion";
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import {Cursor3,FocusIn,GrapIconOpen,ResetPageZoom,ZoomInIcon,ZoomOutIcon} from "@/app/components/icons";
+import { Cursor3, FocusIn, GrapIconOpen, ResetPageZoom, ZoomInIcon, ZoomOutIcon } from "@/app/components/icons";
 import { ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer, toast } from 'react-toastify'
@@ -37,7 +37,7 @@ export default function HomePage() {
         panningOnSubPage,
         setPanningOnSubPage,
         panelShowCategoriesOpen,
-        setPanelShowCategoriesOpen,
+        groupedProducts
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -69,8 +69,8 @@ export default function HomePage() {
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
     const [dynamicFullSize, setDynamicFullSize] = useState(0.5);
     const productSelectionRef = useRef<HTMLDivElement | null>(null);
-    const [gridProductDimensions, setGridProductDimensions] = useState({width: 0, height: 0});    
-    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({  
+    const [gridProductDimensions, setGridProductDimensions] = useState({ width: 0, height: 0 });
+    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({
         top: 0,
         left: 0
     });
@@ -161,7 +161,9 @@ export default function HomePage() {
                         limit: product.limit,
                         must_buy: product.must_buy,
                         with_card: product.with_card,
-                        limit_type: product.limit_type
+                        limit_type: product.limit_type,
+                        variety: product.variety,
+                        size: product.size
                     }))
                 })
             });
@@ -246,7 +248,7 @@ export default function HomePage() {
             const htmlElementId = htmlElement && htmlElement.id
             const cellId = htmlElementId && Number(htmlElementId.replace(prefix, ''))
             return cellId
-            
+
         }
 
         const findGridCellTarget = (parentElement: any, count = 0) => {
@@ -263,11 +265,11 @@ export default function HomePage() {
 
         if (productIdToSelect) {
             const productSelected = selectedProductCategory?.find((prod: ProductTypes) => {
-                return prod.id_product === productIdToSelect || 
-                       prod.id_grid === productIdToSelect ||
-                       prod.upc === String(productIdToSelect)
+                return prod.id_product === productIdToSelect ||
+                    prod.id_grid === productIdToSelect ||
+                    prod.upc === String(productIdToSelect)
             });
-            
+
             console.log("Resultado de búsqueda:", productSelected);
 
             if (productSelected) {
@@ -385,15 +387,17 @@ export default function HomePage() {
         withCard: boolean,
         limit_type: string,
         per: string,
-        selectedDesc: string[],
-        selectedSizes: string[]
+        finalVariety: string[],
+        size: string[]
     ) => {
         if (gridID === undefined) return;
-
+        console.log('Variedades a guardar:', finalVariety);
+        console.log('Sizes a guardar:', size);
+//@ts-ignore
         setSelectedProducts(prevProducts => {
-            const updatedProducts = prevProducts.map(product => {
+            const updatedProducts= prevProducts.map(product => {
                 if (product.id_grid === gridID) {
-                    return {
+                    const baseUpdate = {
                         ...product,
                         price,
                         notes,
@@ -404,22 +408,34 @@ export default function HomePage() {
                         with_card: withCard,
                         limit_type,
                         per,
-                        variety: selectedDesc,
-                        size: selectedSizes
-                    } as ProductTypes;
+                    };
+
+                    if (product === groupedProducts[gridID][0]) {
+                        return {
+                            ...baseUpdate,
+                            variety: finalVariety, 
+                            size: size, 
+                        };
+                    }
                 }
                 return product;
             });
 
-            updateCircularInServer(updatedProducts);
+            const formattedProducts = updatedProducts.map(product => ({
+                ...product,
+                variety: product.id_grid === gridID ? finalVariety : product.variety,
+                size: product.id_grid === gridID ? size : product.size,
+            }));
 
-            return updatedProducts;
+            console.log('Productos antes de enviar al servidor:', formattedProducts);
+            //@ts-ignore
+            updateCircularInServer(formattedProducts);
+            return formattedProducts;
         });
 
         ClosetPanels();
     };
-
-    const handleCategorySelect = (category: categoriesInterface) => {       
+    const handleCategorySelect = (category: categoriesInterface) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);
             setIsModalOpen(false);
@@ -458,7 +474,7 @@ export default function HomePage() {
             setZoomScalePage1(1);
             setFullPage1(false);
         }
-        
+
     }
     const handleZoomInPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
@@ -487,7 +503,7 @@ export default function HomePage() {
                 setFistTimeOpen(false)
                 containerRefPage1.current.zoomOut(0.25);
                 setFullPage1(false);
-            }          
+            }
 
         }
     }
@@ -523,7 +539,7 @@ export default function HomePage() {
         }
 
     }
-    
+
     const handleZoomInSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
             setFullPage2(false);
@@ -579,76 +595,76 @@ export default function HomePage() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             setInitialX(width2 / 2);
-            if(height <= 720){
+            if (height <= 720) {
                 setDynamicFullSize(0.27); // Valor específico para menor que hd
             }
-            else if ( height <= 900  && height > 720) {
+            else if (height <= 900 && height > 720) {
                 setDynamicFullSize(0.35); // Valor específico para HD
-            } else if ( height > 900) {
+            } else if (height > 900) {
                 setDynamicFullSize(0.45); // Valor específico para Full HD
             }
             setMinScale(dynamicFullSize);
         }
 
-    }, [zoomScaleSubPagines, productsData]);   
-    
+    }, [zoomScaleSubPagines, productsData]);
+
     useEffect(() => {
         // reposicionamiento de las paginas 
-            if (productReadyDrag === null && firstDrag ) {
-                if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
-                    containerRefPage2.current.resetTransform(zoomScaleSubPagines)
-                    setUseZoomPage1(false);
-                    setUseZoomSubPages(false);
-                }
-                if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
-                    containerRefPage1.current.resetTransform(zoomScalePage1)
-                    setUseZoomPage1(false);
-                    setUseZoomSubPages(false);
-                }
-                setDynamicHeightpage1("85vh")
-                setDynamicHeightSubpages("85vh")
+        if (productReadyDrag === null && firstDrag) {
+            if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
+                containerRefPage2.current.resetTransform(zoomScaleSubPagines)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
             }
-            // reducion de la pagina 2
-            if (productReadyDrag?.page === 1) {
+            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
+                containerRefPage1.current.resetTransform(zoomScalePage1)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
+            }
+            setDynamicHeightpage1("85vh")
+            setDynamicHeightSubpages("85vh")
+        }
+        // reducion de la pagina 2
+        if (productReadyDrag?.page === 1) {
 
-                if (containerRefPage2 && containerRefPage2.current && productDragging) {
-                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                    setFirstDrag(true)
-                    setFistTimeOpen(false)
-                    setUseZoomPage1(true);
-                    setUseZoomSubPages(false);
-                    setDynamicHeightSubpages("100%")
-                }
-            }
-            // reducion de la pagina  1,
-            if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
-
-                if (containerRefPage1 && containerRefPage1.current) {
-                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                 
-                    setFirstDrag(true)
-                    setFistTimeOpen(false)
-                    setUseZoomPage1(false);
-                    setUseZoomSubPages(true);
-                    setDynamicHeightpage1("100%")
-                }
-            }
-            
-            if(!panelShowCategoriesOpen && productReadyDrag?.page === undefined && productReadyDrag !== null) {
-                if (containerRefPage2 && containerRefPage2.current) {
-                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                   
-                }
-                if (containerRefPage1 && containerRefPage1.current) {
-                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                 
-                }
+            if (containerRefPage2 && containerRefPage2.current && productDragging) {
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
                 setFirstDrag(true)
                 setFistTimeOpen(false)
                 setUseZoomPage1(true);
-                setUseZoomSubPages(true);
+                setUseZoomSubPages(false);
                 setDynamicHeightSubpages("100%")
-            }        
-       
+            }
         }
-        ,[productReadyDrag, productDragging, panelShowCategoriesOpen]);
+        // reducion de la pagina  1,
+        if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
+
+            if (containerRefPage1 && containerRefPage1.current) {
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(true);
+                setDynamicHeightpage1("100%")
+            }
+        }
+
+        if (!panelShowCategoriesOpen && productReadyDrag?.page === undefined && productReadyDrag !== null) {
+            if (containerRefPage2 && containerRefPage2.current) {
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+            }
+            if (containerRefPage1 && containerRefPage1.current) {
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+            }
+            setFirstDrag(true)
+            setFistTimeOpen(false)
+            setUseZoomPage1(true);
+            setUseZoomSubPages(true);
+            setDynamicHeightSubpages("100%")
+        }
+
+    }
+        , [productReadyDrag, productDragging, panelShowCategoriesOpen]);
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
         setDynamicHeightpage1("85dvh")
@@ -790,8 +806,8 @@ export default function HomePage() {
                                     <button
                                         onClick={handleResetPage1}
                                         className=" justify-center items-center"
-                                        >
-                                        <ResetPageZoom/>
+                                    >
+                                        <ResetPageZoom />
                                     </button>
 
                                 </div>
@@ -806,14 +822,14 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             width: "100%",
                                             height: dynamicHeightpage1,
-                                            overflow:  productDragging ? 'visible' : "auto",
+                                            overflow: productDragging ? 'visible' : "auto",
                                             overflowY: !panningOnPage1 || fullPage1 ? 'hidden' : "scroll",
 
                                         }}
                                     >
                                         <div
                                             ref={divRef1}
-                                            >
+                                        >
                                             {/* @ts-ignore */}
 
                                             <ImageGrid {...commonGridProps} />
@@ -882,9 +898,9 @@ export default function HomePage() {
                                     </button>
                                     <button
                                         onClick={handleResetSubPage}
-                                    className={`  justify-center items-center`}
-                                    >                                      
-                                        <ResetPageZoom/>
+                                        className={`  justify-center items-center`}
+                                    >
+                                        <ResetPageZoom />
                                     </button>
 
                                 </div>
@@ -900,7 +916,7 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             overflow: productDragging ? 'visible' : "auto",
-                                            width: "100%",                                            
+                                            width: "100%",
                                             height: dynamicHeightSubpages,
                                             overflowY: fullPage2 ? "hidden" : "scroll",
                                         }}
@@ -957,15 +973,15 @@ export default function HomePage() {
                     {showProducts && mousePosition && (
                         <motion.div
                             ref={productSelectionRef}
-                            initial={{opacity: 0, y: 20}}
-                            exit={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5}}
+                            initial={{ opacity: 0, y: 20 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
                             className="absolute z-[100]"
-                            style={{top: productSelectionPosition.top, left: productSelectionPosition.left,}}
+                            style={{ top: productSelectionPosition.top, left: productSelectionPosition.left, }}
                         >
                             <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels}
-                                         initialCategory={gridCategory}/>
+                                initialCategory={gridCategory} />
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -1165,13 +1181,13 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             return searchResults;
         }
         if (activeTab === 'circular') {
-            return selectedProducts.filter(product => 
+            return selectedProducts.filter(product =>
                 product.id_category === category.id_category
             );
         }
 
         return productsByCategory;
-        
+
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
 
     return (
