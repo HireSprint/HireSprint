@@ -910,7 +910,7 @@ export default function HomePage() {
                                             overflow: productDragging ? 'visible' : "auto",
                                             width: "100%",
                                             height: dynamicHeightSubpages,
-                                            overflowY: fullPage2 ? "hidden" : "scroll",
+                                            overflowY: !panningOnSubPage || fullPage2 ? "hidden" : "scroll",
                                         }}
                                     >
                                         <div className={`flex flex-col  w-full  item-center`}>
@@ -1258,21 +1258,36 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     ) : (
                         <>
                             <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
-                                {displayedProducts.map((product: any, index) => (
-                                    <div key={product?.id_product || index} className="relative">                                       
-                                        {activeTab === 'circular' && (
-                                            <div
-                                                className="left-0 text-sm text-black ">
+                                {activeTab === 'all' && (
+                                    displayedProducts.map((product: any, index) => (
+                                            <CardShowSide
+                                                product={product}
+                                                onProductSelect={onProductSelect}
+                                                isLoading={false}
+                                            />                                      
+                                    ))
+                                )}
+
+                                {activeTab === 'circular' && (
+                                    Array.from(
+                                        new Map(
+                                            displayedProducts.map((product: any) => [product?.id_grid, product])
+                                        ).values()
+                                    ).map((product: any, index) => (
+                                        <div key={product?.id_product || index} className="relative">
+                                            <div className="left-0 text-sm text-black">
                                                 {"Page-" + product?.id_grid?.toString().charAt(0) || 'N/A'}
                                             </div>
-                                        )}
-                                        <CardShowSide
-                                            product={product}
-                                            onProductSelect={onProductSelect}
-                                            isLoading={false}
-                                        />
-                                    </div>
-                                ))}
+                                            <CardShowSide
+                                                product={product}
+                                                onProductSelect={onProductSelect}
+                                                isLoading={false}
+                                            />
+                                        </div>
+                                    ))
+                                )}
+                                
+                               
                             </div>
 
                             {!isSearching && activeTab === 'all' && (
