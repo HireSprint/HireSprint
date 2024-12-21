@@ -144,37 +144,54 @@ export default function HomePage() {
         }
 
         try {
+            console.log('Enviando productos al servidor:', products);
+
+            const requestBody = {
+                id_circular: idCircular,
+                circular_products_upc: products.map(product => ({
+                    grid_id: product.id_grid,
+                    upc: product.upc,
+                    price: product.price || "0",
+                    notes: product.notes || "",
+                    burst: product.burst || 0,
+                    addl: product.addl || "",
+                    limit: product.limit || "",
+                    must_buy: product.must_buy || "",
+                    with_card: product.with_card || false,
+                    limit_type: product.limit_type || "",
+                    per: product.per || "",
+                    variety_set: product.variety || [],
+                    size: product.size || ""
+                }))
+            };
+    
+            console.log('Request body:', requestBody);
+
             const response = await fetch("https://hiresprintcanvas.dreamhosters.com/updateCircular", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    id_circular: idCircular,
-                    circular_products_upc: products.map(product => ({
-                        grid_id: product.id_grid,
-                        upc: product.upc,
-                        price: product.price,
-                        notes: product.notes,
-                        burst: product.burst,
-                        addl: product.addl,
-                        limit: product.limit,
-                        must_buy: product.must_buy,
-                        with_card: product.with_card,
-                        limit_type: product.limit_type,
-                        variety: product.variety,
-                        size: product.size
-                    }))
-                })
+                body: JSON.stringify(requestBody)
             });
+
+            console.log(response.status, "response")
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             const data = await response.json();
+            console.log(data.result, "data")
             if (data.success) {
-                setUpdateCircular(data.result);
-                setSelectedProducts(data.result)
-                setProductsData(data.result)
+
+                const updatedProducts = data.result.circular_products_upc.map((serverProduct: any) => ({
+                    ...serverProduct,
+                    id_grid: serverProduct.grid_id,
+                    variety: serverProduct.variety_set || []
+                }));
+
+                setUpdateCircular(updatedProducts);
+                setSelectedProducts(updatedProducts)
+                setProductsData(updatedProducts)
             } else {
                 throw new Error(data.message || "Error al actualizar circular");
             }
@@ -193,6 +210,12 @@ export default function HomePage() {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
             updateCircularInServer(updatedProducts);
+            return updatedProducts;
+        });
+        //@ts-ignore
+        setProductsData((prev) => {
+            const newProducts = prev.filter((p: ProductTypes) => p.id_grid !== selectedGridId);
+            const updatedProducts = [...newProducts, productWithGrid];
             return updatedProducts;
         });
         setIsModalOpen(false)
@@ -261,7 +284,6 @@ export default function HomePage() {
 
         const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
 
-        console.log(selectedProductCategory, "selectedProductCategory")
 
         if (productIdToSelect) {
             const productSelected = selectedProductCategory?.find((prod: ProductTypes) => {
@@ -270,7 +292,6 @@ export default function HomePage() {
                     prod.upc === String(productIdToSelect)
             });
 
-            console.log("Resultado de búsqueda:", productSelected);
 
             if (productSelected) {
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
@@ -285,6 +306,12 @@ export default function HomePage() {
 
                         updateCircularInServer(updatedProducts);
 
+                        return updatedProducts;
+                    });
+                    //@ts-ignore
+                    setProductsData((prev) => {
+                        const newProducts = prev.filter((p: ProductTypes) => p.id_grid !== cellIdTarget);
+                        const updatedProducts = [...newProducts, productWithGrid];
                         return updatedProducts;
                     });
                 }
@@ -390,6 +417,7 @@ export default function HomePage() {
         finalVariety: string[],
         size: string[]
     ) => {
+<<<<<<< Updated upstream
         if (gridID === undefined) return;
         setSelectedProducts(prevProducts => {
             const updatedProducts = prevProducts.map(product => {
@@ -422,13 +450,75 @@ export default function HomePage() {
                 }
                 return product;
             });
+=======
+        if (idGrid === undefined) return;
+
+        console.log('Iniciando actualización del producto:', {
+            idGrid,
+            priceValue,
+            noteUser,
+            burst,
+            addl,
+            limit,
+            mustBuy,
+            withCard,
+            limit_type,
+            per,
+            variety,
+            size
+        });
+        
+
+        setSelectedProducts((prevProducts: ProductTypes[]) => {
+            console.log(prevProducts, "prevProducts")
+            const updatedProducts = prevProducts.map(product => {
+                if (product.id_grid === idGrid) {
+                    const updatedProducts = {
+                        ...product,
+                        price: priceValue,
+                        notes: noteUser,
+                        burst: burst,
+                        addl: addl,
+                        limit: limit,
+                        must_buy: mustBuy,
+                        with_card: withCard,
+                        limit_type: limit_type,
+                        per: per,
+                        variety_set: variety,
+                        size: size
+                    };
+                    if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
+                        return {
+                            ...updatedProducts,
+                            variety: variety,
+                            size: size
+                        }
+                    }
+                    //@ts-ignore
+                    setProductsData(prevData => 
+                        prevData.map((p: ProductTypes) => 
+                            p.id_grid === idGrid ? updatedProducts : p
+                        )
+                    );
+    
+                    return updatedProducts;
+                }
+                return product;
+            });
+    
+            updateCircularInServer(updatedProducts);
+>>>>>>> Stashed changes
             return updatedProducts;
         });
-
+    
         ClosetPanels();
     };
+<<<<<<< Updated upstream
 
 
+=======
+    
+>>>>>>> Stashed changes
     const handleCategorySelect = (category: categoriesInterface) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);
@@ -708,6 +798,7 @@ export default function HomePage() {
 
         setIsClearAllPopupOpen(false);
     };
+
 
 
     return (
@@ -1029,7 +1120,7 @@ interface GridProductProps {
 
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const { selectedProducts } = useProductContext();
+    const { selectedProducts, setSelectedProducts } = useProductContext();
     const { getProductsByCategory, categoriesData } = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
@@ -1066,6 +1157,17 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             setProductsByCategory(prev => {
                 const newProducts = isNewCategory ? data : [...prev, ...data];
                 return newProducts;
+            });
+
+            setSelectedProducts(prevData => {
+                const updatedData = [...prevData] as ProductTypes[];
+                data.forEach(newProduct => {
+                    const index = updatedData.findIndex(p => p.id_product === newProduct.id_product);
+                    if (index !== -1) {
+                        updatedData[index] = { ...updatedData[index], ...newProduct } as ProductTypes;
+                    }
+                });
+                return updatedData;
             });
 
         } catch (error) {
