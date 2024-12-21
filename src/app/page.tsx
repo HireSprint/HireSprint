@@ -1225,22 +1225,20 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
         if (isSearching) {
             return searchResults;
         }
-        if (activeTab === 'circular') {
-            // Filtrar por id_category y asegurarse de que no se repitan por id_grid
+        if (activeTab === 'circular') {            
             const seenGrids = new Set();
-            return selectedProducts
-                .filter(product => product.id_category === category.id_category)
-                .filter(product => {
+            return selectedProducts.filter(product => product.id_category === category.id_category).filter(product => {
                     if (seenGrids.has(product.id_grid)) {
-                        return false; // Si ya hemos visto este id_grid, descartar el producto
+                        return false; 
                     }
-                    seenGrids.add(product.id_grid); // Registrar el id_grid como visto
-                    return true; // Mantener el producto en el resultado
+                    seenGrids.add(product.id_grid);
+                    return true; 
                 });
         }
 
         return productsByCategory;
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
+    
     return (
         <div
             className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
