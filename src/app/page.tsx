@@ -404,9 +404,9 @@ export default function HomePage() {
     }
 
     const handleSaveChangeProduct = (
-        gridID: number | undefined,
-        price: string,
-        notes: string,
+        idGrid: number | undefined,
+        priceValue: string,
+        noteUser: string,
         burst: number,
         addl: string,
         limit: string,
@@ -414,61 +414,11 @@ export default function HomePage() {
         withCard: boolean,
         limit_type: string,
         per: string,
-        finalVariety: string[],
+        variety: string[],
         size: string[]
     ) => {
-<<<<<<< Updated upstream
-        if (gridID === undefined) return;
-        setSelectedProducts(prevProducts => {
-            const updatedProducts = prevProducts.map(product => {
-                if (product.id_grid === gridID) {
-                    const baseUpdate = {
-                        ...product,
-                        price,
-                        notes,
-                        burst,
-                        addl,
-                        limit,
-                        must_buy: mustBuy,
-                        with_card: withCard,
-                        limit_type,
-                        per,
-                        variety_set: finalVariety,
-                        size: size
-                    };
-                    console.log(baseUpdate, "baseUpdate")
-                    updateCircularInServer([baseUpdate]);
-                    if (groupedProducts[gridID] && product === groupedProducts[gridID][0]) {
-                        return {
-                            ...baseUpdate,
-                            variety: finalVariety,
-                            size: size,
-                        };
-                    }
-
-                    return baseUpdate;
-                }
-                return product;
-            });
-=======
         if (idGrid === undefined) return;
-
-        console.log('Iniciando actualización del producto:', {
-            idGrid,
-            priceValue,
-            noteUser,
-            burst,
-            addl,
-            limit,
-            mustBuy,
-            withCard,
-            limit_type,
-            per,
-            variety,
-            size
-        });
-        
-
+    
         setSelectedProducts((prevProducts: ProductTypes[]) => {
             console.log(prevProducts, "prevProducts")
             const updatedProducts = prevProducts.map(product => {
@@ -507,18 +457,12 @@ export default function HomePage() {
             });
     
             updateCircularInServer(updatedProducts);
->>>>>>> Stashed changes
             return updatedProducts;
         });
     
         ClosetPanels();
     };
-<<<<<<< Updated upstream
-
-
-=======
     
->>>>>>> Stashed changes
     const handleCategorySelect = (category: categoriesInterface) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);
