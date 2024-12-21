@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {useForm} from "react-hook-form";
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import { useAuth } from '@/app/components/provider/authprovider';
+import { number } from 'prop-types';
 
 interface DataRow {
     [key: string]: string | number;
@@ -30,6 +31,9 @@ const AddCircular = () => {
     const [clientes, setClientes] = useState<clientType[] | []>([]);
     const [isReadyToSend, setIsReadyToSend] = useState(false);
     const [columns, setColumns] = useState<any>(null)
+
+
+    const [gridPage, setGridPage] = useState([{page: 1, size: 1051},{page: 2, size: 2067},{page: 3, size: 3107},{page: 3, size: 3107},{page: 4, size: 4059}]);
 
     useEffect(() => {
         const gettingClients = async () => {
@@ -54,6 +58,36 @@ const AddCircular = () => {
             setIsReadyToSend(false);
         }
     }, [watch()]);
+
+    useEffect(() => {
+        if (csvFile.length > 0) {
+            const exceededGrids: typeof csvFile = [];
+
+            csvFile.forEach((item) => {
+                const pageN = numberPage(Number(item.grid_id));
+                const findPage = gridPage.find((gridItem) => gridItem.page === pageN);
+
+                console.log("idGrid:", item.grid_id, "size:", findPage?.size, "page:", pageN);
+
+                if (findPage && item.grid_id > findPage.size) {
+                    exceededGrids.push(item);
+                }
+            });
+
+            if (exceededGrids.length > 0) {
+                toast.warning(
+                    "Some items have grid identifiers that do not match any defined page. Please check the data and try again."
+                );
+            }
+        }
+    }, [csvFile, gridPage]);
+
+    const numberPage = (grid_id: number | undefined) => {
+        if (grid_id !== undefined) {
+            return Math.floor(grid_id / 1000);
+        }
+        return 0;
+    };
 
     //@ts-ignore
     const table = useReactTable({
