@@ -569,7 +569,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         if (varietyType) {
                                             finalVariety = [varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties'];
                                         } else {
-                                            // Asegurarnos de que las variedades individuales estén en el formato correcto
                                             finalVariety = variety.filter(v => v !== 'Selected Varieties' && v !== 'Assorted Varieties');
                                         }
                                         

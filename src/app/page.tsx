@@ -377,9 +377,9 @@ export default function HomePage() {
     }
 
     const handleSaveChangeProduct = (
-        gridID: number | undefined,
-        price: string,
-        notes: string,
+        idGrid: number | undefined,
+        priceValue: string, 
+        noteUser: string,
         burst: number,
         addl: string,
         limit: string,
@@ -387,17 +387,18 @@ export default function HomePage() {
         withCard: boolean,
         limit_type: string,
         per: string,
-        finalVariety: string[],
+        variety: string[],
         size: string[]
     ) => {
-        if (gridID === undefined) return;
+        if (idGrid === undefined) return;
+
         setSelectedProducts(prevProducts => {
             const updatedProducts = prevProducts.map(product => {
-                if (product.id_grid === gridID) {
+                if (product.id_grid === idGrid) {
                     const baseUpdate = {
                         ...product,
-                        price,
-                        notes,
+                        price: priceValue,
+                        notes: noteUser,
                         burst,
                         addl,
                         limit,
@@ -405,30 +406,27 @@ export default function HomePage() {
                         with_card: withCard,
                         limit_type,
                         per,
-                        variety_set: finalVariety,
+                        variety_set: variety,
                         size: size
                     };
-                    console.log(baseUpdate, "baseUpdate")
-                    updateCircularInServer([baseUpdate]);
-                    if (groupedProducts[gridID] && product === groupedProducts[gridID][0]) {
+
+                    if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
                         return {
                             ...baseUpdate,
-                            variety: finalVariety,
-                            size: size,
-                        };
+                            variety: variety,
+                            size: size
+                        }
                     }
-
-                    return baseUpdate;
                 }
                 return product;
             });
+
+            updateCircularInServer(updatedProducts);
             return updatedProducts;
         });
 
         ClosetPanels();
     };
-
-
     const handleCategorySelect = (category: categoriesInterface) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);
