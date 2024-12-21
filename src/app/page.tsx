@@ -1167,22 +1167,26 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     }, [searchTerm]);
 
 
-
     const displayedProducts = useMemo(() => {
         if (isSearching) {
             return searchResults;
         }
         if (activeTab === 'circular') {
-           
-            return selectedProducts.filter(product =>
-                product.id_category === category.id_category
-            );
+            // Filtrar por id_category y asegurarse de que no se repitan por id_grid
+            const seenGrids = new Set();
+            return selectedProducts
+                .filter(product => product.id_category === category.id_category)
+                .filter(product => {
+                    if (seenGrids.has(product.id_grid)) {
+                        return false; // Si ya hemos visto este id_grid, descartar el producto
+                    }
+                    seenGrids.add(product.id_grid); // Registrar el id_grid como visto
+                    return true; // Mantener el producto en el resultado
+                });
         }
 
         return productsByCategory;
-
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
-
     return (
         <div
             className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
@@ -1269,11 +1273,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                                 )}
 
                                 {activeTab === 'circular' && (
-                                    Array.from(
-                                        new Map(
-                                            displayedProducts.map((product: any) => [product?.id_grid, product])
-                                        ).values()
-                                    ).map((product: any, index) => (
+                                    displayedProducts.map((product: any, index) => (
                                         <div key={product?.id_product || index} className="relative">
                                             <div className="left-0 text-sm text-black">
                                                 {"Page-" + product?.id_grid?.toString().charAt(0) || 'N/A'}
