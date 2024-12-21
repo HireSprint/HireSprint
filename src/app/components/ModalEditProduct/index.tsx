@@ -33,9 +33,6 @@ interface burstType {
     value: number,
     text: string,
 }
-
-
-
 const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
 
     const { groupedProducts, isLoadingGridProducts } = useProductContext();
@@ -65,7 +62,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
         }
         return null;
     });
-    const [size, setSize] = useState<string[]>(product.size || []);
+    const [size, setSize] = useState<string[]>(Array.isArray(product.size) ? product.size : [product.size || '']);
     const [variety, setVariety] = useState<string[]>(product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
 
@@ -109,55 +106,74 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
             if (varietyType) {
                 setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
             } else {
-                const allVarieties = groupedProducts[GridID]
-                    .map((item: ProductTypes) => item?.variety?.[0]?.trim().replace(/['"]+/g, '') || '')
-                    .filter(Boolean);
-                setVariety(allVarieties);
+                if (variety.length === 0 && groupedProducts[GridID][0]) {
+                    const mainVariety = groupedProducts[GridID][0]?.variety?.[0]?.trim().replace(/['"]+/g, '') || '';
+                    setVariety([mainVariety]);
+                } else {
+                    const allVarieties = groupedProducts[GridID]
+                        .map((item: ProductTypes) => item?.variety?.[0]?.trim().replace(/['"]+/g, '') || '')
+                        .filter(Boolean);
+                    setVariety(allVarieties);
+                }
             }
         }
     }, [GridID, groupedProducts, varietyType]);
 
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
-            const allSizes = groupedProducts[GridID]
-                .map((item: ProductTypes) => 
-                    Array.isArray(item?.size) ? item.size : [item?.size || '']
-                )
-                .flat()
-                .map(size => size?.trim())
-                .filter(Boolean);
-            
-            const uniqueSizes = Array.from(new Set(
-                allSizes.map(size => size.trim())
-            )).filter(Boolean);
-            
-            setSize(uniqueSizes);
-        }
-    }, [GridID, groupedProducts]);
+            if (variety.length === 0 || variety.length === 1) {
+                const mainProduct = groupedProducts[GridID][0];
+                const mainSize = Array.isArray(mainProduct?.size) 
+                    ? mainProduct.size[0]?.trim() 
+                    : mainProduct?.size?.trim() || '';
+                setSize([mainSize]);
+            } else {
+                const selectedSizes = groupedProducts[GridID]
+                    .filter(item => {
+                        const itemVariety = item?.variety?.[0]?.trim().replace(/['"]+/g, '') || '';
+                        return variety.includes(itemVariety);
+                    })
+                    .map((item: ProductTypes) => {
+                        const itemSize = Array.isArray(item?.size) 
+                            ? item.size[0]?.trim() 
+                            : item?.size?.trim() || '';
+                        return itemSize;
+                    })
+                    .filter(Boolean);
 
-    const updateSizeRange = (sizes: string[]) => {
-        const numericSizes = sizes
-            .map(size => size?.trim())
-            .filter((size): size is string => typeof size === 'string' && size !== '')
+                const numericSizes = selectedSizes
+                    .map(size => parseFloat(size.replace(/[^\d.]/g, '')))
+                    .filter(size => !isNaN(size));
+
+                const uniqueSortedSizes = Array.from(new Set(numericSizes))
+                    .sort((a, b) => a - b)
+                    .map(String);
+
+                setSize(uniqueSortedSizes);
+            }
+        }
+    }, [GridID, groupedProducts, variety]);
+
+    const updateSizeRange = (sizes: string[] | string | undefined) => {
+        if (!sizes) return [];
+        
+        // Convertir a array si es string
+        const sizesArray = Array.isArray(sizes) ? sizes : [sizes];
+        if (sizesArray.length === 0) return [];
+        if (sizesArray.length === 1) return sizesArray;
+
+        const numericSizes = sizesArray
             .map(size => ({
                 original: size,
                 numeric: parseFloat(size.replace(/[^\d.]/g, ''))
             }))
             .filter(size => !isNaN(size.numeric));
-    
-        if (numericSizes.length === 0) return [];
+
+        if (numericSizes.length === 0) return sizesArray;
         if (numericSizes.length === 1) return [numericSizes[0].original];
-    
+
         numericSizes.sort((a, b) => a.numeric - b.numeric);
-    
-        const min = numericSizes[0];
-        const max = numericSizes[numericSizes.length - 1];
-    
-        if (min.numeric === max.numeric) {
-            return [min.original];
-        }
-    
-        return [min.original, max.original];
+        return [numericSizes[0].original, numericSizes[numericSizes.length - 1].original];
     };
 
 
@@ -290,7 +306,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                         <h1 className="text-black font-bold w-32">Size:</h1>
                                         <h1 className="text-black uppercase">
                                             {GridID && groupedProducts[GridID]
-                                                ? updateSizeRange(groupedProducts[GridID].map((item: ProductTypes) => Array.isArray(item?.size) ? item.size[0] : (item?.size || ''))).join(' - ')
+                                                ? updateSizeRange(size).join(' - ')
                                                 : updateSizeRange(Array.isArray(product?.size) ? product.size : [product?.size || '']).join(' - ')}
                                         </h1>
                                         <h1 className="text-black uppercase">{product?.w_simbol}</h1>
@@ -587,9 +603,9 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             finalVariety,
                                             size,
                                         );
-                                        console.log('Final variety:', finalVariety); 
                                         console.log('Size:', size);
                                         console.log('Variety:', variety);
+                                        console.log(price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer, finalVariety, size)
                                     }}>
                                     <div className="flex gap-2">
                                         <SaveIcon />

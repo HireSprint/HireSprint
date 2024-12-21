@@ -103,7 +103,7 @@ export const ImageGrid = ({
 
 
     useEffect(() => {
-        if (selectedProducts?.length > 0) {
+        if (selectedProducts?.length > 0 ) {
             updateGridProducts(
                 { min: 1001, max: 1999 }, 
                 selectedProducts
@@ -117,7 +117,7 @@ export const ImageGrid = ({
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false} />
             {gridCells.map((cell) => {
-                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id)    
 
                 return (                  
                     <GridCardProduct
