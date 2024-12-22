@@ -1205,10 +1205,17 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             setProductsByCategory([]);
             setCurrentPage(1);
             setHasMore(true);
-            fetchProductsByCategory(1, true);
+            setIsSearching(false);
+            
+            setTimeout(() => {
+                if (activeTab === 'all') {
+                    fetchProductsByCategory(1, true);
+                } else {
+                    setLoading(false);
+                }
+            }, 300);
         }
-
-    }, [category?.id_category]);
+    }, [category?.id_category, activeTab]);
 
     useEffect(() => {
         if (currentPage > 1) {
@@ -1221,22 +1228,29 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     }, [searchTerm]);
 
 
-
     const displayedProducts = useMemo(() => {
         if (isSearching) {
             return searchResults;
         }
-        if (activeTab === 'circular') {
-           
-            return selectedProducts.filter(product =>
-                product.id_category === category.id_category
-            );
+        if (activeTab === 'circular') {            
+            const seenGrids = new Set();
+            const productsInCircular = selectedProducts
+                .filter(product => product.id_category === category.id_category)
+                .filter(product => {
+                    if (seenGrids.has(product.id_grid)) {
+                        return false; 
+                    }
+                    seenGrids.add(product.id_grid);
+                    return true; 
+                });
+            
+            console.log('Productos en circular para categoría', category.name_category, ':', productsInCircular);
+            return productsInCircular;
         }
-
+    
         return productsByCategory;
-
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
-
+    
     return (
         <div
             className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
@@ -1323,11 +1337,7 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                                 )}
 
                                 {activeTab === 'circular' && (
-                                    Array.from(
-                                        new Map(
-                                            displayedProducts.map((product: any) => [product?.id_grid, product])
-                                        ).values()
-                                    ).map((product: any, index) => (
+                                    displayedProducts.map((product: any, index) => (
                                         <div key={product?.id_product || index} className="relative">
                                             <div className="left-0 text-sm text-black">
                                                 {"Page-" + product?.id_grid?.toString().charAt(0) || 'N/A'}
