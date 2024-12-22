@@ -249,7 +249,7 @@ export const GridCardProduct = ({
 
     const divRef = useRef<HTMLDivElement>(null);
     const [divDimensions, setDivDimensions] = useState({ width: 0, height: 0 });
-   
+
     useEffect(() => {
         const updateDimensions = () => {
             if (divRef.current) {
@@ -258,40 +258,18 @@ export const GridCardProduct = ({
             }
         };
 
-        // Ejecutar inmediatamente
         updateDimensions();
 
-        // Agregar un pequeño retraso para asegurar que el DOM esté completamente renderizado
         const timer = setTimeout(updateDimensions, 100);
 
-        // Opcional: agregar un listener para cambios de tamaño
         window.addEventListener('resize', updateDimensions);
 
         return () => {
             clearTimeout(timer);
             window.removeEventListener('resize', updateDimensions);
         };
-    }, [product, divRef.current]); // Agregamos divRef.current como dependencia
+    }, [product, divRef.current]);
 
-    const [imageSrc, setImageSrc] = useState<string>("/no-image-1734115532067.png");
-
-    useEffect(() => {
-        const checkImage = async () => {
-            try {
-                const url = product?.url_image || "/no-image-1734115532067.png";
-                const response = await fetch(url, {method: "HEAD"});
-                if (!response.ok) {
-                    setImageSrc("/no-image-1734115532067.png");
-                } else {
-                    setImageSrc(url);
-                }
-            } catch (error) {
-                setImageSrc("/no-image-1734115532067.png");
-            }
-        };
-
-        checkImage();
-    }, [product?.url_image]);
 
 
     return (
@@ -339,19 +317,19 @@ export const GridCardProduct = ({
                         <div className="@container h-full w-full relative grid overflow-hidden">
                             {
 
-                              
-                                    product && (
-                                        <div className="absolute justify-self-end self-center w-[70%] h-[70%] -right-[5%]">
-                                            <Image
-                                                src={imageSrc}
-                                                alt={product?.desc || "No hay descripción"}
-                                                width={100} // Ajustado a la resolución necesaria
-                                                height={100} // Compatible con el tamaño máximo
-                                                className="w-full h-full object-contain"
-                                                draggable={false}
-                                            />
-                                        </div>
-                                    )
+
+                                product && (
+                                    <div className="absolute justify-self-end self-center w-[70%] h-[70%] -right-[5%]">
+                                        <Image
+                                            src={product?.url_image ? product?.url_image : "/no-image.png"}
+                                            alt={product?.desc || "No hay descripción"}
+                                            width={100}
+                                            height={100}
+                                            className="w-full h-full object-contain"
+                                            draggable={false}
+                                        />
+                                    </div>
+                                )
                             }
                             <div
                                 ref={divRef}
