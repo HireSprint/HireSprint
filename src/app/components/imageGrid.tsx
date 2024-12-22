@@ -103,13 +103,13 @@ export const ImageGrid = ({
 
 
     useEffect(() => {
-        if (productsData?.length > 0) {
+        if (selectedProducts?.length > 0 ) {
             updateGridProducts(
                 { min: 1001, max: 1999 }, 
-                productsData
+                selectedProducts
             );
         }
-    }, [productsData]);
+    }, [selectedProducts]);
 
 
 
@@ -117,7 +117,7 @@ export const ImageGrid = ({
         <div className={`relative no-scrollbar ${ productDragging ? 'overflow-visible' : 'overflow-auto' }`} >
             <Image src="/pages/page01.jpg" alt="PDF" width={700} height={700} priority draggable={false} />
             {gridCells.map((cell) => {
-                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id);
+                const selectedProduct = selectedProducts?.find((p) => p.id_grid === cell.id)    
 
                 return (                  
                     <GridCardProduct
@@ -239,13 +239,13 @@ export const ImageGrid2 = ({
     }, [categoriesData])
 
     useEffect(() => {
-        if ( productsData?.length > 0) {
+        if ( selectedProducts?.length > 0) {
             updateGridProducts(
                 { min: 2001, max: 2999 }, 
                 selectedProducts
             );
         }
-    }, [productsData, selectedProducts]);
+    }, [selectedProducts]);
 
     return (
         <div className={`relative no-scrollbar ${ productDragging ? '' : 'overflow-auto' }`} >

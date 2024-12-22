@@ -490,7 +490,7 @@ const AddProductPage = () => {
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.size || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, size: e.target.value })}
+                                    onChange={e => setEditedProduct({ ...editedProduct, size: [e.target.value] })}
                                     placeholder="Size"
                                 />
                             </div>

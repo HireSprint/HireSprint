@@ -26,7 +26,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycby2pDrtASzSikiPtF0rMsW1qU571uF1ULN-NKVQ2bQAAJ338atx7onnv_xQKyFsIVo1/exec";
+    const url = "https://script.google.com/macros/s/AKfycbwmXiZLIm203JiNbtI64DBT4KbledsSqQpGkE3XmoQDo0G78Iajv08MfTRfk-mikf7P/exec";
 
 
     try {
@@ -41,8 +41,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     brand: '',
                     desc: '',
                     id_category: 0,
-                    variety: undefined,
-                    size: '',
+                    variety_set: [],
+                    size: [""],
                     quality_cf: '',
                     type_of_meat: '',
                     type_of_cut: '',
@@ -58,7 +58,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     pack: 0,
                     count: 0,
                     w_simbol: '',
-                    embase: ''
+                    embase: '',
+                    variety: []
                   
                 });
             }
@@ -86,7 +87,25 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 brand: product.brand,
                 description: product.desc,
                 category: categoriesData.find((category: categoriesInterface) => category.id_category === product.id_category)?.name_category,
-                variety: Array.isArray(product.variety) ? product.variety.includes('Selected Varieties') ? 'Selected Varieties' : product.variety.includes('Assorted Varieties') ? 'Assorted Varieties' : product.variety.length > 4 ? 'Selected Varieties' : product.variety.join(', ')             : '',
+                variety: (() => {
+                    if (Array.isArray(product?.variety_set)) {
+                        if (product.variety_set.length === 0) {
+                            return product.variety;
+                        }
+                        if (product.variety_set.includes('Selected Varieties')) {
+                            return 'Selected Varieties';
+                        }
+                        if (product.variety_set.includes('Assorted Varieties')) {
+                            return 'Assorted Varieties';
+                        }
+                        if (product.variety_set.length > 4) {
+                            return 'Selected Varieties';
+                        }
+                        return product.variety_set.join(', ');
+                    }
+                    
+                    return product.variety;
+                })(),
                 pack_Size: Array.isArray(product.size) ? product.size.join(', ') : product.size,
                 qualityCf: product.quality_cf,
                 typeOfMeat: product.type_of_meat,
@@ -94,7 +113,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 price: product.price,
                 notes: product.notes,
                 burst: Number(product.burst),
-                addl: product.addl,
+                addl: product.addl !== '0' && product.addl !== '' ? `with add'l $${product.addl} purchase or more` : '',
                 limit: product.limit ? `Limit ${product.limit}` : '',
                 must_buy: product.must_buy ? `Must Buy ${product.must_buy}` : '',
                 with_cart: product.with_card,

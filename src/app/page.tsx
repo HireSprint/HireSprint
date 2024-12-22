@@ -2,12 +2,12 @@
 import { CardShowSide } from "./components/card";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import BottomBar from "./components/bottomBar";
-import { AnimatePresence, motion } from "framer-motion"; 
+import { AnimatePresence, motion } from "framer-motion";
 import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imageGrid";
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import {Cursor3,FocusIn,GrapIconOpen,ResetPageZoom,ZoomInIcon,ZoomOutIcon} from "@/app/components/icons";
+import { Cursor3, FocusIn, GrapIconOpen, ResetPageZoom, ZoomInIcon, ZoomOutIcon } from "@/app/components/icons";
 import { ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer, toast } from 'react-toastify'
@@ -37,7 +37,7 @@ export default function HomePage() {
         panningOnSubPage,
         setPanningOnSubPage,
         panelShowCategoriesOpen,
-        setPanelShowCategoriesOpen,
+        groupedProducts
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -69,8 +69,8 @@ export default function HomePage() {
     const [dynamicHeightSubpages, setDynamicHeightSubpages] = useState("47%");
     const [dynamicFullSize, setDynamicFullSize] = useState(0.5);
     const productSelectionRef = useRef<HTMLDivElement | null>(null);
-    const [gridProductDimensions, setGridProductDimensions] = useState({width: 0, height: 0});    
-    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({  
+    const [gridProductDimensions, setGridProductDimensions] = useState({ width: 0, height: 0 });
+    const [productSelectionPosition, setProductSelectionPosition] = useState<{ top: number; left: number; }>({
         top: 0,
         left: 0
     });
@@ -144,35 +144,54 @@ export default function HomePage() {
         }
 
         try {
+            console.log('Enviando productos al servidor:', products);
+
+            const requestBody = {
+                id_circular: idCircular,
+                circular_products_upc: products.map(product => ({
+                    grid_id: product.id_grid,
+                    upc: product.upc,
+                    price: product.price || "0",
+                    notes: product.notes || "",
+                    burst: product.burst || 0,
+                    addl: product.addl || "",
+                    limit: product.limit || "",
+                    must_buy: product.must_buy || "",
+                    with_card: product.with_card || false,
+                    limit_type: product.limit_type || "",
+                    per: product.per || "",
+                    variety_set: product.variety || [],
+                    size: product.size || ""
+                }))
+            };
+    
+            console.log('Request body:', requestBody);
+
             const response = await fetch("https://hiresprintcanvas.dreamhosters.com/updateCircular", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    id_circular: idCircular,
-                    circular_products_upc: products.map(product => ({
-                        grid_id: product.id_grid,
-                        upc: product.upc,
-                        price: product.price,
-                        notes: product.notes,
-                        burst: product.burst,
-                        addl: product.addl,
-                        limit: product.limit,
-                        must_buy: product.must_buy,
-                        with_card: product.with_card,
-                        limit_type: product.limit_type
-                    }))
-                })
+                body: JSON.stringify(requestBody)
             });
+
+            console.log(response.status, "response")
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             const data = await response.json();
+            console.log(data.result, "data")
             if (data.success) {
-                setUpdateCircular(data.result);
-                setSelectedProducts(data.result)
-                setProductsData(data.result)
+
+                const updatedProducts = data.result.circular_products_upc.map((serverProduct: any) => ({
+                    ...serverProduct,
+                    id_grid: serverProduct.grid_id,
+                    variety: serverProduct.variety_set || []
+                }));
+
+                setUpdateCircular(updatedProducts);
+                setSelectedProducts(updatedProducts)
+                setProductsData(updatedProducts)
             } else {
                 throw new Error(data.message || "Error al actualizar circular");
             }
@@ -191,6 +210,12 @@ export default function HomePage() {
             const newProducts = prev.filter((p) => p.id_grid !== selectedGridId);
             const updatedProducts = [...newProducts, productWithGrid];
             updateCircularInServer(updatedProducts);
+            return updatedProducts;
+        });
+        //@ts-ignore
+        setProductsData((prev) => {
+            const newProducts = prev.filter((p: ProductTypes) => p.id_grid !== selectedGridId);
+            const updatedProducts = [...newProducts, productWithGrid];
             return updatedProducts;
         });
         setIsModalOpen(false)
@@ -246,7 +271,7 @@ export default function HomePage() {
             const htmlElementId = htmlElement && htmlElement.id
             const cellId = htmlElementId && Number(htmlElementId.replace(prefix, ''))
             return cellId
-            
+
         }
 
         const findGridCellTarget = (parentElement: any, count = 0) => {
@@ -259,16 +284,14 @@ export default function HomePage() {
 
         const productIdToSelect = getCellId(gridCellToMove.node, 'sidebar-card-product-')
 
-        console.log(selectedProductCategory, "selectedProductCategory")
 
         if (productIdToSelect) {
             const productSelected = selectedProductCategory?.find((prod: ProductTypes) => {
-                return prod.id_product === productIdToSelect || 
-                       prod.id_grid === productIdToSelect ||
-                       prod.upc === String(productIdToSelect)
+                return prod.id_product === productIdToSelect ||
+                    prod.id_grid === productIdToSelect ||
+                    prod.upc === String(productIdToSelect)
             });
-            
-            console.log("Resultado de búsqueda:", productSelected);
+
 
             if (productSelected) {
                 const gridCellTarget = findGridCellTarget(stopDragEvent.target);
@@ -283,6 +306,12 @@ export default function HomePage() {
 
                         updateCircularInServer(updatedProducts);
 
+                        return updatedProducts;
+                    });
+                    //@ts-ignore
+                    setProductsData((prev) => {
+                        const newProducts = prev.filter((p: ProductTypes) => p.id_grid !== cellIdTarget);
+                        const updatedProducts = [...newProducts, productWithGrid];
                         return updatedProducts;
                     });
                 }
@@ -375,9 +404,11 @@ export default function HomePage() {
     }
 
     const handleSaveChangeProduct = (
-        gridID: number | undefined,
-        price: string,
-        notes: string,
+        idGrid: number | undefined,
+
+        priceValue: string,
+
+        noteUser: string,
         burst: number,
         addl: string,
         limit: string,
@@ -385,41 +416,60 @@ export default function HomePage() {
         withCard: boolean,
         limit_type: string,
         per: string,
-        selectedDesc: string[],
-        selectedSizes: string[]
+        variety: string[],
+        size: string[]
     ) => {
-        if (gridID === undefined) return;
+        if (idGrid === undefined) return;
 
-        setSelectedProducts(prevProducts => {
+    
+        setSelectedProducts((prevProducts: ProductTypes[]) => {
+            console.log(prevProducts, "prevProducts")
             const updatedProducts = prevProducts.map(product => {
-                if (product.id_grid === gridID) {
-                    return {
+                if (product.id_grid === idGrid) {
+                    const updatedProducts = {
                         ...product,
-                        price,
-                        notes,
-                        burst,
-                        addl,
-                        limit,
+                        price: priceValue,
+                        notes: noteUser,
+                        burst: burst,
+                        addl: addl,
+                        limit: limit,
                         must_buy: mustBuy,
                         with_card: withCard,
-                        limit_type,
-                        per,
-                        variety: selectedDesc,
-                        size: selectedSizes
-                    } as ProductTypes;
+                        limit_type: limit_type,
+                        per: per,
+                        variety_set: variety,
+                        size: size
+                    };
+                    if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
+                        return {
+                            ...updatedProducts,
+
+                            variety: variety,
+                            size: size
+                        }
+                    }
+
+                    //@ts-ignore
+                    setProductsData(prevData => 
+                        prevData.map((p: ProductTypes) => 
+                            p.id_grid === idGrid ? updatedProducts : p
+                        )
+                    );
+    
+                    return updatedProducts;
                 }
                 return product;
             });
+    
 
             updateCircularInServer(updatedProducts);
-
             return updatedProducts;
         });
-
+    
         ClosetPanels();
     };
 
-    const handleCategorySelect = (category: categoriesInterface) => {       
+    const handleCategorySelect = (category: categoriesInterface) => {
         if (isModalOpen || showProducts) {
             setShowProducts(false);
             setIsModalOpen(false);
@@ -458,7 +508,7 @@ export default function HomePage() {
             setZoomScalePage1(1);
             setFullPage1(false);
         }
-        
+
     }
     const handleZoomInPage1 = () => {
         if (containerRefPage1 && containerRefPage1.current) {
@@ -487,7 +537,7 @@ export default function HomePage() {
                 setFistTimeOpen(false)
                 containerRefPage1.current.zoomOut(0.25);
                 setFullPage1(false);
-            }          
+            }
 
         }
     }
@@ -523,7 +573,7 @@ export default function HomePage() {
         }
 
     }
-    
+
     const handleZoomInSubPages = () => {
         if (containerRefPage2 && containerRefPage2.current) {
             setFullPage2(false);
@@ -579,12 +629,12 @@ export default function HomePage() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             setInitialX(width2 / 2);
-            if(height <= 720){
+            if (height <= 720) {
                 setDynamicFullSize(0.27); // Valor específico para menor que hd
             }
-            else if ( height <= 900  && height > 720) {
+            else if (height <= 900 && height > 720) {
                 setDynamicFullSize(0.35); // Valor específico para HD
-            } else if ( height > 900) {
+            } else if (height > 900) {
                 setDynamicFullSize(0.45); // Valor específico para Full HD
             }
             setMinScale(dynamicFullSize);
@@ -593,68 +643,62 @@ export default function HomePage() {
     }, [zoomScaleSubPagines, productsData]);
 
     useEffect(() => {
-        console.log(showProducts,' panelcito on off')
-    }, [showProducts]);
-    
-    useEffect(() => {
         // reposicionamiento de las paginas 
-            if (productReadyDrag === null && firstDrag ) {
-                if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
-                    containerRefPage2.current.resetTransform(zoomScaleSubPagines)
-                    setUseZoomPage1(false);
-                    setUseZoomSubPages(false);
-                }
-                if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
-                    containerRefPage1.current.resetTransform(zoomScalePage1)
-                    setUseZoomPage1(false);
-                    setUseZoomSubPages(false);
-                }
-                setDynamicHeightpage1("85vh")
-                setDynamicHeightSubpages("85vh")
+        if (productReadyDrag === null && firstDrag) {
+            if (containerRefPage2 && containerRefPage2.current && useZoomPage1) {
+                containerRefPage2.current.resetTransform(zoomScaleSubPagines)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
             }
-            // reducion de la pagina 2
-            if (productReadyDrag?.page === 1) {
+            if (containerRefPage1 && containerRefPage1.current && useZoomSubPages) {
+                containerRefPage1.current.resetTransform(zoomScalePage1)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(false);
+            }
+            setDynamicHeightpage1("85vh")
+            setDynamicHeightSubpages("85vh")
+        }
+        // reducion de la pagina 2
+        if (productReadyDrag?.page === 1) {
 
-                if (containerRefPage2 && containerRefPage2.current && productDragging) {
-                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
-                    setFirstDrag(true)
-                    setFistTimeOpen(false)
-                    setUseZoomPage1(true);
-                    setUseZoomSubPages(false);
-                    setDynamicHeightSubpages("100%")
-                }
-            }
-            // reducion de la pagina  1,
-            if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
-
-                if (containerRefPage1 && containerRefPage1.current) {
-                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                 
-                    setFirstDrag(true)
-                    setFistTimeOpen(false)
-                    setUseZoomPage1(false);
-                    setUseZoomSubPages(true);
-                    setDynamicHeightpage1("100%")
-                }
-            }
-            console.log('drga desde el panel', panelShowCategoriesOpen , productReadyDrag?.page);
-            if(!panelShowCategoriesOpen && productReadyDrag?.page === undefined && productReadyDrag !== null) {
-                if (containerRefPage2 && containerRefPage2.current) {
-                    containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                   
-                }
-                if (containerRefPage1 && containerRefPage1.current) {
-                    containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)                 
-                }
+            if (containerRefPage2 && containerRefPage2.current && productDragging) {
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
                 setFirstDrag(true)
                 setFistTimeOpen(false)
                 setUseZoomPage1(true);
-                setUseZoomSubPages(true);
+                setUseZoomSubPages(false);
                 setDynamicHeightSubpages("100%")
             }
-            
-            
-          //  if(panelShowCategoriesOpen && )
         }
-        ,[productReadyDrag, productDragging, panelShowCategoriesOpen]);
+        // reducion de la pagina  1,
+        if ((productReadyDrag?.page === 2 || productReadyDrag?.page === 3 || productReadyDrag?.page === 4) && productDragging) {
+
+            if (containerRefPage1 && containerRefPage1.current) {
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+                setFirstDrag(true)
+                setFistTimeOpen(false)
+                setUseZoomPage1(false);
+                setUseZoomSubPages(true);
+                setDynamicHeightpage1("100%")
+            }
+        }
+
+        if (!panelShowCategoriesOpen && productReadyDrag?.page === undefined && productReadyDrag !== null) {
+            if (containerRefPage2 && containerRefPage2.current) {
+                containerRefPage2.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+            }
+            if (containerRefPage1 && containerRefPage1.current) {
+                containerRefPage1.current.setTransform(initialX / 1.5, 0, dynamicFullSize)
+            }
+            setFirstDrag(true)
+            setFistTimeOpen(false)
+            setUseZoomPage1(true);
+            setUseZoomSubPages(true);
+            setDynamicHeightSubpages("100%")
+        }
+
+    }
+        , [productReadyDrag, productDragging, panelShowCategoriesOpen]);
 
     useEffect(() => { // Cuando currentPage cambie, reiniciamos los valores
         setDynamicHeightpage1("85dvh")
@@ -704,6 +748,7 @@ export default function HomePage() {
 
         setIsClearAllPopupOpen(false);
     };
+
 
 
     return (
@@ -796,8 +841,8 @@ export default function HomePage() {
                                     <button
                                         onClick={handleResetPage1}
                                         className=" justify-center items-center"
-                                        >
-                                        <ResetPageZoom/>
+                                    >
+                                        <ResetPageZoom />
                                     </button>
 
                                 </div>
@@ -812,14 +857,14 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             width: "100%",
                                             height: dynamicHeightpage1,
-                                            overflow:  productDragging ? 'visible' : "auto",
+                                            overflow: productDragging ? 'visible' : "auto",
                                             overflowY: !panningOnPage1 || fullPage1 ? 'hidden' : "scroll",
 
                                         }}
                                     >
                                         <div
                                             ref={divRef1}
-                                            >
+                                        >
                                             {/* @ts-ignore */}
 
                                             <ImageGrid {...commonGridProps} />
@@ -888,9 +933,9 @@ export default function HomePage() {
                                     </button>
                                     <button
                                         onClick={handleResetSubPage}
-                                    className={`  justify-center items-center`}
-                                    >                                      
-                                        <ResetPageZoom/>
+                                        className={`  justify-center items-center`}
+                                    >
+                                        <ResetPageZoom />
                                     </button>
 
                                 </div>
@@ -906,9 +951,9 @@ export default function HomePage() {
                                         wrapperStyle={{
                                             // overflow: scaleSubPagines > 0.9 ? "auto" : "visible",
                                             overflow: productDragging ? 'visible' : "auto",
-                                            width: "100%",                                            
+                                            width: "100%",
                                             height: dynamicHeightSubpages,
-                                            overflowY: fullPage2 ? "hidden" : "scroll",
+                                            overflowY: !panningOnSubPage || fullPage2 ? "hidden" : "scroll",
                                         }}
                                     >
                                         <div className={`flex flex-col  w-full  item-center`}>
@@ -963,15 +1008,15 @@ export default function HomePage() {
                     {showProducts && mousePosition && (
                         <motion.div
                             ref={productSelectionRef}
-                            initial={{opacity: 0, y: 20}}
-                            exit={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5}}
+                            initial={{ opacity: 0, y: 20 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
                             className="absolute z-[100]"
-                            style={{top: productSelectionPosition.top, left: productSelectionPosition.left,}}
+                            style={{ top: productSelectionPosition.top, left: productSelectionPosition.left, }}
                         >
                             <GridProduct onProductSelect={handleProductSelect} onHideProducts={ClosetPanels}
-                                         initialCategory={gridCategory}/>
+                                initialCategory={gridCategory} />
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -1025,7 +1070,7 @@ interface GridProductProps {
 
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const { selectedProducts } = useProductContext();
+    const { selectedProducts, setSelectedProducts } = useProductContext();
     const { getProductsByCategory, categoriesData } = useCategoryContext();
     const [category, setCategory] = useState<categoriesInterface>(initialCategory || categoriesData[0]);
     const [activeTab, setActiveTab] = useState('all');
@@ -1062,6 +1107,17 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             setProductsByCategory(prev => {
                 const newProducts = isNewCategory ? data : [...prev, ...data];
                 return newProducts;
+            });
+
+            setSelectedProducts(prevData => {
+                const updatedData = [...prevData] as ProductTypes[];
+                data.forEach(newProduct => {
+                    const index = updatedData.findIndex(p => p.id_product === newProduct.id_product);
+                    if (index !== -1) {
+                        updatedData[index] = { ...updatedData[index], ...newProduct } as ProductTypes;
+                    }
+                });
+                return updatedData;
             });
 
         } catch (error) {
@@ -1149,10 +1205,17 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
             setProductsByCategory([]);
             setCurrentPage(1);
             setHasMore(true);
-            fetchProductsByCategory(1, true);
+            setIsSearching(false);
+            
+            setTimeout(() => {
+                if (activeTab === 'all') {
+                    fetchProductsByCategory(1, true);
+                } else {
+                    setLoading(false);
+                }
+            }, 300);
         }
-
-    }, [category?.id_category]);
+    }, [category?.id_category, activeTab]);
 
     useEffect(() => {
         if (currentPage > 1) {
@@ -1165,21 +1228,29 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     }, [searchTerm]);
 
 
-
     const displayedProducts = useMemo(() => {
         if (isSearching) {
             return searchResults;
         }
-        if (activeTab === 'circular') {
-            return selectedProducts.filter(product => 
-                product.id_category === category.id_category
-            );
+        if (activeTab === 'circular') {            
+            const seenGrids = new Set();
+            const productsInCircular = selectedProducts
+                .filter(product => product.id_category === category.id_category)
+                .filter(product => {
+                    if (seenGrids.has(product.id_grid)) {
+                        return false; 
+                    }
+                    seenGrids.add(product.id_grid);
+                    return true; 
+                });
+            
+            console.log('Productos en circular para categoría', category.name_category, ':', productsInCircular);
+            return productsInCircular;
         }
-
+    
         return productsByCategory;
-        
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
-
+    
     return (
         <div
             className="@container relative bg-[#f5f5f5] p-4 h-[40vh] w-[800px] max-w-[95vw] rounded-lg shadow-xl overflow-visible">
@@ -1255,14 +1326,32 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     ) : (
                         <>
                             <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
-                                {displayedProducts.map((product: any, index) => (
-                                    <CardShowSide
-                                        key={product?.id_product || index}
-                                        product={product}
-                                        onProductSelect={onProductSelect}
-                                        isLoading={false}
-                                    />
-                                ))}
+                                {activeTab === 'all' && (
+                                    displayedProducts.map((product: any, index) => (
+                                            <CardShowSide
+                                                product={product}
+                                                onProductSelect={onProductSelect}
+                                                isLoading={false}
+                                            />                                      
+                                    ))
+                                )}
+
+                                {activeTab === 'circular' && (
+                                    displayedProducts.map((product: any, index) => (
+                                        <div key={product?.id_product || index} className="relative">
+                                            <div className="left-0 text-sm text-black">
+                                                {"Page-" + product?.id_grid?.toString().charAt(0) || 'N/A'}
+                                            </div>
+                                            <CardShowSide
+                                                product={product}
+                                                onProductSelect={onProductSelect}
+                                                isLoading={false}
+                                            />
+                                        </div>
+                                    ))
+                                )}
+                                
+                               
                             </div>
 
                             {!isSearching && activeTab === 'all' && (
