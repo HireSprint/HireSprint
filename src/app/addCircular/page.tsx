@@ -83,18 +83,51 @@ const AddCircular = () => {
         }
     }, [csvFile, gridPage]);
 
+    const sendToDiscord = async (invalidUpcs: string[]) => {
+        const webhookUrl = "https://discordapp.com/api/webhooks/1320767862679404616/xfjoTxLs1GiElTvNXlvTZ3v5mshze7fsc_VSioY-k-7YpshTS9Hg0h8favT1_ye3lPtX";
+        
+        const message = {
+            content: "⚠️ UPCs Inválidos Detectados:",
+            embeds: [{
+                title: "Lista de UPCs no encontrados",
+                description: invalidUpcs.join('\n'),
+                color: 15158332, // Color rojo
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        try {
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message)
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al enviar mensaje a Discord');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Error al enviar notificación a Discord');
+        }
+    };
+
     useEffect(() => {
-        const fncValidateUpc = async ()=>{
+        const fncValidateUpc = async () => {
             const body = {
                 circular_products_upc: csvFile,
             };
             const resp = await validateUpc(body);
-            console.log("no match",resp);
-            if(resp.notFound.length > 0){
-                setNotFoundUpc(resp.notFound.map((item:any)=>item?.upc))
+            console.log("no match", resp);
+            if (resp.notFound.length > 0) {
+                const invalidUpcs = resp.notFound.map((item: any) => item?.upc);
+                setNotFoundUpc(invalidUpcs);
+                await sendToDiscord(invalidUpcs);
             }
         }
-        if(csvFile.length > 0){
+        if (csvFile.length > 0) {
             fncValidateUpc();
         }
     }, [csvFile]);
