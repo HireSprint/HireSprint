@@ -9,8 +9,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import {useForm} from "react-hook-form";
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import { useAuth } from '@/app/components/provider/authprovider';
-import { number } from 'prop-types';
+import { any, number } from 'prop-types';
 import { validateUpc } from '@/pages/api/apiMongo/validateUpc';
+import { ProductTypes } from '@/types/product';
+import ignore from 'ignore';
 
 interface DataRow {
     [key: string]: string | number;
@@ -32,7 +34,7 @@ const AddCircular = () => {
     const [clientes, setClientes] = useState<clientType[] | []>([]);
     const [isReadyToSend, setIsReadyToSend] = useState(false);
     const [columns, setColumns] = useState<any>(null)
-    const [notFoundUpc, setNotFoundUpc] = useState<object[]>([]);
+    const [notFoundUpc, setNotFoundUpc] = useState<any[]>([]);
 
 
     const [gridPage, setGridPage] = useState([{page: 1, size: 1051},{page: 2, size: 2067},{page: 3, size: 3107},{page: 3, size: 3107},{page: 4, size: 4059}]);
@@ -65,13 +67,11 @@ const AddCircular = () => {
         if (csvFile.length > 0) {
             const exceededGrids: typeof csvFile = [];
 
-            csvFile.forEach((item) => {
-                const pageN = numberPage(Number(item.grid_id));
-                const findPage = gridPage.find((gridItem) => gridItem.page === pageN);
+            csvFile.forEach((item:any) => {
+                const pageN = numberPage(Number(item?.grid_id));
+                const findPage = gridPage.find((gridItem:any) => gridItem.page === pageN);
 
-                console.log("idGrid:", item.grid_id, "size:", findPage?.size, "page:", pageN);
-
-                if (findPage && item.grid_id > findPage.size) {
+                if (findPage && item?.grid_id > findPage.size) {
                     exceededGrids.push(item);
                 }
             });
@@ -92,7 +92,7 @@ const AddCircular = () => {
             const resp = await validateUpc(body);
             console.log("no match",resp);
             if(resp.notFound.length > 0){
-                setNotFoundUpc(resp.notFound.map((item)=>item.upc))
+                setNotFoundUpc(resp.notFound.map((item:any)=>item?.upc))
             }
         }
         if(csvFile.length > 0){
@@ -140,7 +140,6 @@ const AddCircular = () => {
             if (typeof text === "string") {
                 const [header, ...rows] = text.split("\n").map((row) => row.split(","));
 
-                // Crear columnas dinámicamente
                 const parsedColumns = header.map((col) => ({
                     accessorKey: col.trim(),
                     header: col.trim(),
@@ -374,8 +373,11 @@ const AddCircular = () => {
                                     </thead>
                                     <tbody>
                                     {table.getRowModel().rows.map((row) => {
-                                        const filteredProduct = csvFile.find((_, index) => index === row.index);
-                                        const isInvalid = filteredProduct && notFoundUpc.includes(filteredProduct.upc);
+                                        const filteredProduct = csvFile.find((_: any, index: number) => index === row.index);
+                                        console.log("tipo de dato",filteredProduct)
+
+                                        // @ts-ignore
+                                        const isInvalid =filteredProduct !== undefined && notFoundUpc.includes(filteredProduct?.upc);
 
                                         return (
                                             <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
