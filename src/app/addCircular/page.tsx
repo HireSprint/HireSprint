@@ -85,13 +85,23 @@ const AddCircular = () => {
 
     const sendToDiscord = async (invalidUpcs: string[]) => {
         const webhookUrl = "https://discordapp.com/api/webhooks/1320767862679404616/xfjoTxLs1GiElTvNXlvTZ3v5mshze7fsc_VSioY-k-7YpshTS9Hg0h8favT1_ye3lPtX";
-        
+
+        const formData = watch();
+
+        const clientDatos = clientes.find((item:clientType) => Number(formData?.idClient) === item.id_client) as clientType;
+
         const message = {
-            content: "⚠️ UPCs Inválidos Detectados:",
+            content: `⚠️ Usuario UPCs Inválidos Detectados:`,
             embeds: [{
-                title: "Lista de UPCs no encontrados",
-                description: invalidUpcs.join('\n'),
-                color: 15158332, // Color rojo
+                title: `Detalles del Circular`,
+                description: `**Nombre:** ${formData.circularName}\n**Semana:** ${formData.weekCircular}\n**Fecha:** ${formData.dateCircular}\n**Cliente:** ${clientDatos?.client_name}`,
+                fields: [
+                    {
+                        name: "UPCs Inválidos",
+                        value: invalidUpcs.length > 0 ? invalidUpcs.join('\n') : "Ninguno",
+                    },
+                ],
+                color: 15158332, // Rojo
                 timestamp: new Date().toISOString()
             }]
         };
@@ -124,7 +134,6 @@ const AddCircular = () => {
             if (resp.notFound.length > 0) {
                 const invalidUpcs = resp.notFound.map((item: any) => item?.upc);
                 setNotFoundUpc(invalidUpcs);
-                await sendToDiscord(invalidUpcs);
             }
         }
         if (csvFile.length > 0) {
@@ -244,6 +253,8 @@ const AddCircular = () => {
                 toast.error("The date format must be YYYY-MM-DD");
                 return;
             }
+
+            await sendToDiscord(notFoundUpc);
 
             const body = {
                 id_client: Number(data.idClient),
