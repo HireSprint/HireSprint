@@ -1,6 +1,5 @@
 'use client';
 import React, {useEffect, useState} from "react";
-import {parse} from "csv";
 import {getClients} from "@/pages/api/apiMongo/getClients";
 import {clientType} from "@/types/clients";
 import {addCircular} from "@/pages/api/apiMongo/addCircular";
@@ -9,14 +8,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import {useForm} from "react-hook-form";
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import { useAuth } from '@/app/components/provider/authprovider';
-import { any, number } from 'prop-types';
 import { validateUpc } from '@/pages/api/apiMongo/validateUpc';
-import { ProductTypes } from '@/types/product';
-import ignore from 'ignore';
 
-interface DataRow {
-    [key: string]: string | number;
-}
 
 const AddCircular = () => {
     const {register, handleSubmit, reset, setValue, watch} = useForm({
@@ -37,7 +30,13 @@ const AddCircular = () => {
     const [notFoundUpc, setNotFoundUpc] = useState<any[]>([]);
 
 
-    const [gridPage, setGridPage] = useState([{page: 1, size: 1051},{page: 2, size: 2067},{page: 3, size: 3107},{page: 3, size: 3107},{page: 4, size: 4059}]);
+    const gridPage = [
+        {page: 1, size: 1051},
+        {page: 2, size: 2067},
+        {page: 3, size: 3107},
+        {page: 3, size: 3107},
+        {page: 4, size: 4059}
+    ]
 
     useEffect(() => {
         const gettingClients = async () => {
@@ -108,7 +107,6 @@ const AddCircular = () => {
         return 0;
     };
 
-    //@ts-ignore
     const table = useReactTable({
         data: csvFile,
         columns,
@@ -127,7 +125,6 @@ const AddCircular = () => {
         },
     });
 
-    //@ts-ignore
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -373,11 +370,9 @@ const AddCircular = () => {
                                     </thead>
                                     <tbody>
                                     {table.getRowModel().rows.map((row) => {
-                                        const filteredProduct = csvFile.find((_: any, index: number) => index === row.index);
-                                        console.log("tipo de dato",filteredProduct)
+                                        const filteredProduct = csvFile.find((_: any, index: number) => index === row.index) as { upc: string };
 
-                                        // @ts-ignore
-                                        const isInvalid =filteredProduct !== undefined && notFoundUpc.includes(filteredProduct?.upc);
+                                        const isInvalid = filteredProduct !== undefined && notFoundUpc.includes(filteredProduct.upc);
 
                                         return (
                                             <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
