@@ -19,8 +19,17 @@ const Login = () => {
   } = useForm()
 
   const onSubmit = async (data: any) => {
-    await login(data.email, data.password)
-    reset()
+    try {
+      const loginSuccess = await login(data.email, data.password);
+      if (!loginSuccess) {
+        toast.error("Email o contraseña incorrectos");
+        return;
+      }
+      reset();
+    } catch (error: any) {
+      console.error('Error durante el inicio de sesión:', error);
+      toast.error(error.message || "Error al iniciar sesión");
+    }
   }
 
   const onSubmitRegister: SubmitHandler<any> = async (data) => {

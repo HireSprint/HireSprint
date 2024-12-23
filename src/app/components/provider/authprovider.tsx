@@ -5,7 +5,7 @@ import {getCircularByClient} from "@/pages/api/apiMongo/getCircularByClient";
 
 interface AuthContextProps {
     user: any;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
     loading: boolean;
     setReloadCircular:(reload:boolean)=>void;
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         checkAuth();
     }, [pathname]);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string): Promise<boolean> => {
         setLoading(true);
         try {
             const res = await fetch('https://hiresprintcanvas.dreamhosters.com/login', {
@@ -75,16 +75,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 credentials: 'same-origin',
                 body: JSON.stringify({ email, password }),
             });
-            const data = await res.json()
+            const data = await res.json();
+            
             if (res.ok) {
                 setUser(data.result);
                 localStorage.setItem('user', JSON.stringify(data.result));
                 router.push('/onboarding');
+                return true;
             } else {
-                throw new Error(data.message || 'Error al iniciar sesión');
+                console.error('Error de inicio de sesión:', data.message);
+                return false;
             }
         } catch (error: any) {
             console.error('Error al iniciar sesión:', error);
+            return false;
         } finally {
             setLoading(false);
         }
