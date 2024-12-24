@@ -35,6 +35,8 @@ const EditableProductTable = ({
     const [step, setStep] = useState<number>(1);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
+    const [selectedRowId, setSelectedRowId] = useState(null); // Estado para rastrear la fila seleccionada
+
 
     //images states
     const [imageUpdateModal, setImageUpdateModal] = useState(false);
@@ -98,19 +100,6 @@ const EditableProductTable = ({
         {
             accessorKey: 'variety',
             header: 'Variety',
-            cell: ({ getValue, row, column }: any) => (
-                <input
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200"
-                    value={getValue() || ''}
-                    onChange={(e) =>
-                        table.options.meta?.updateData(row.index, column.id, e.target.value)
-                    }
-                />
-            ),
-        },
-        {
-            accessorKey: 'pack',
-            header: 'Pack',
             cell: ({ getValue, row, column }: any) => (
                 <input
                     className="border border-gray-300 rounded p-1 text-black bg-gray-200"
@@ -505,16 +494,24 @@ const EditableProductTable = ({
                     </div>
                     <div className="w-full flex p-4 bg-gray-900 gap-5">
                         <div className="justify-start">
+                            <label className={'text-start text-white'}>UPC</label>
+                            <input className="w-full bg-gray-500 text-white p-2 rounded-md"
+                                   onChange={(e) => (setFilters({
+                                       ...filters,
+                                       upc: e.target.value,
+                                   }), setLoadingScreen(true))} />
+                        </div>
+                        <div className="justify-start">
                             <label
                                 htmlFor="dateInput"
-                                className='text-start text-white'
+                                className="text-start text-white"
                             >
                                 Date Circular
                             </label>
                             <input
                                 onChange={(e) => (setFilters({
                                     ...filters,
-                                    date: e.target.value
+                                    date: e.target.value,
                                 }), setLoadingScreen(true))}
                                 type="date"
                                 className="w-full bg-gray-500 text-white p-2 rounded-md"
@@ -525,7 +522,7 @@ const EditableProductTable = ({
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
                                    onChange={(e) => (setFilters({
                                        ...filters,
-                                       master_brand: e.target.value
+                                       master_brand: e.target.value,
                                    }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
@@ -533,7 +530,7 @@ const EditableProductTable = ({
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
                                    onChange={(e) => (setFilters({
                                        ...filters,
-                                       brand: e.target.value
+                                       brand: e.target.value,
                                    }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
@@ -541,7 +538,7 @@ const EditableProductTable = ({
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
                                    onChange={(e) => (setFilters({
                                        ...filters,
-                                       desc: e.target.value
+                                       desc: e.target.value,
                                    }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
@@ -549,7 +546,7 @@ const EditableProductTable = ({
                             <input className="w-full bg-gray-500 text-white p-2 rounded-md"
                                    onChange={(e) => (setFilters({
                                        ...filters,
-                                       variety: e.target.value
+                                       variety: e.target.value,
                                    }), setLoadingScreen(true))} />
                         </div>
                         <div className="justify-start">
@@ -559,7 +556,7 @@ const EditableProductTable = ({
                                 id=""
                                 onChange={(e) => (setFilters({
                                     ...filters,
-                                    id_category: e.target.value
+                                    id_category: e.target.value,
                                 }), setLoadingScreen(true))}
                                 className={'w-full bg-gray-500 text-white p-2 rounded-md'}
                                 defaultValue=""
@@ -592,7 +589,7 @@ const EditableProductTable = ({
                                 <div
                                     className="bg-gray-800 text-white table-auto border-collapse rounded-lg overflow-hidden">
                                     <div className="bg-gray-900">
-                                        <div
+                                    <div
                                             className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider h-8 bg-gray-700 animate-pulse"></div>
                                         <div
                                             className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider h-8 bg-gray-700 animate-pulse"></div>
@@ -635,12 +632,21 @@ const EditableProductTable = ({
                                         <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
                                             Image
                                         </th>
+                                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                            Preview
+                                        </th>
                                     </tr>
                                 ))}
                                 </thead>
                                 <tbody>
                                 {table.getRowModel().rows.map((row) => (
-                                    <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
+                                    <tr
+                                        key={row.id}
+                                        className={`hover:bg-gray-700 border-t border-gray-600 ${
+                                            selectedRowId === row.id ? 'bg-gray-700 border-2 border-lime-600' : ''
+                                        }`}
+                                        onClick={() => setSelectedRowId(row.id)} // Establecer la fila seleccionada
+                                    >
                                         {row.getVisibleCells().map((cell) => (
                                             <td key={cell.id} className="px-2 py-2 text-md text-black">
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -654,7 +660,6 @@ const EditableProductTable = ({
                                                         (_, index) => index === row.index,
                                                     );
                                                     handledUpdate(filteredProduct);
-
                                                 }}
                                                 className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
                                             >
@@ -675,10 +680,20 @@ const EditableProductTable = ({
                                                 Image
                                             </button>
                                         </td>
+                                        <td className="px-2 py-2 text-md text-black items-center">
+                                            {row.original.url_image && (
+                                                <img
+                                                    src={row.original.url_image}
+                                                    alt="Preview"
+                                                    className="w-16 h-16 object-cover rounded-lg border border-gray-700"
+                                                />
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                                 </tbody>
                             </table>
+
                         )}
                     </div>
 
@@ -704,7 +719,7 @@ const EditableProductTable = ({
                     pauseOnHover
                     theme="light"
                 />
-                { imageUpdateModal && (
+                {imageUpdateModal && (
                     <div
                         className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-110 p-5">
                         <div className="w-1/3 flex flex-col p-4 bg-gray-900 gap-5">
