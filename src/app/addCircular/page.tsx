@@ -84,6 +84,9 @@ const AddCircular = () => {
     }, [csvFile, gridPage]);
 
     const sendToDiscord = async (invalidUpcs: string[]) => {
+
+        if (!invalidUpcs || invalidUpcs.length === 0) return;
+
         const webhookUrl = "https://discordapp.com/api/webhooks/1320767862679404616/xfjoTxLs1GiElTvNXlvTZ3v5mshze7fsc_VSioY-k-7YpshTS9Hg0h8favT1_ye3lPtX";
 
         const formData = watch();
@@ -98,7 +101,7 @@ const AddCircular = () => {
                 fields: [
                     {
                         name: "UPCs Inválidos",
-                        value: invalidUpcs.length > 0 ? invalidUpcs.join('\n') : "Ninguno",
+                        value: invalidUpcs.join('\n'),
                     },
                 ],
                 color: 15158332, // Rojo
