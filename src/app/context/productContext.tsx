@@ -99,8 +99,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     getProductByCircular();
   }, [idCircular, user]);
 
-  const productWithCard = productsData.filter(product => product.with_card)
-  console.log(productWithCard, "productWithCard")
+
 
 
   const updateGridProducts = async (gridRange: { min: number; max: number }, circularProducts: ProductTypes[]) => {
