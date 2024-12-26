@@ -376,14 +376,14 @@ export const GridCardProduct = ({
                                             className="text-red-500 truncate text-left w-full"
                                             style={{ fontSize: '1.1em' }}
                                         >
-                                            ${product?.price?.replace(/"/g, '') || '0'}
+                                            {product?.price?.replace(/"/g, '') || '0'}
                                         </span>
 
 
                                         {product?.with_card && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '1em' }}
+                                                style={{ fontSize: '0.8em' }}
                                             >With Club Card
                                             </span>
                                         )}
@@ -392,7 +392,7 @@ export const GridCardProduct = ({
                                         {product?.limit && product?.limit.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '1em' }}
+                                                style={{ fontSize: '0.8em' }}
                                             >
                                                 Limit {product?.limit} Offer
                                             </span>
@@ -402,9 +402,18 @@ export const GridCardProduct = ({
                                         {product?.must_buy && product.must_buy.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '1em' }}
+                                                style={{ fontSize: '0.8em' }}
                                             >
                                                 Must Buy {product?.must_buy}
+                                            </span>
+                                        )}
+
+                                        {product?.addl && product?.addl.length > 0 && (
+                                            <span
+                                                className="text-green-600 uppercase truncate text-left w-full"
+                                                style={{ fontSize: '0.8em' }}
+                                            >
+                                                Addl's {product?.addl} 
                                             </span>
                                         )}
                                     </>
