@@ -11,6 +11,10 @@ import Image from "next/image"
 import { disableProduct } from "@/pages/api/apiMongo/disableProduct";
 import EditableProductTable from '@/app/components/EditableProductTable';
 
+const matchCategory = (categories: categoriesInterface[], id_category: number) => {
+    return categories.find(cat => cat.id_category === id_category);
+};
+
 const AddProductPage = () => {
     const {
         register,
@@ -70,8 +74,40 @@ const AddProductPage = () => {
     const formRef = useRef<HTMLFormElement>(null);
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
 
-    //edittableProductModal
     const [openProductModalTable, setOpenProductModalTable] = useState<boolean>(false);
+
+    const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
+    const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+    
+    const getUniqueValues = (fieldName: keyof ProductTypes) => {
+        const values = productsData
+            .map(p => p[fieldName])
+            .filter((value): value is string => 
+                typeof value === 'string' && value.length > 0
+            );
+        return Array.from(new Set(values));
+    };
+
+    const handleInputChangeMain = (fieldName: keyof ProductTypes, value: string) => {
+        setValue(fieldName, value);
+        
+        if (value.length > 0) {
+            const uniqueValues = getUniqueValues(fieldName);
+            const filtered = uniqueValues.filter(item => 
+                item.toLowerCase().startsWith(value.toLowerCase())
+            );
+            setSuggestions({ ...suggestions, [fieldName]: filtered });
+            setShowSuggestions({ ...showSuggestions, [fieldName]: true });
+        } else {
+            setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+        }
+    };
+
+    // Seleccionar una sugerencia
+    const handleSugestionMain = (fieldName: keyof ProductTypes, value: string) => {
+        setValue(fieldName, value);
+        setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+    };
 
     useEffect(() => {
         if (reloadFlag || !openProductModalTable) {
@@ -361,14 +397,38 @@ const AddProductPage = () => {
         const [editedProduct, setEditedProduct] = useState(product);
         const [imageFileEdit, setImageFileEdit] = useState<File | null>(null);
         const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
-        const matchCategory = (listCategory: categoriesInterface[], id: number) => {
-            const categoryMatch = listCategory.find((item: categoriesInterface) => item.id_category === id);
-            if (categoryMatch) {
-                return categoryMatch;
+        const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
+        const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+        
+        const getUniqueValues = (fieldName: keyof ProductTypes) => {
+            const values = productsData
+                .map(p => p[fieldName])
+                .filter((value): value is string => 
+                    typeof value === 'string' && value.length > 0
+                );
+            return Array.from(new Set(values));
+        };
+
+        const handleInputChange = (fieldName: keyof ProductTypes, value: string) => {
+            setEditedProduct({ ...editedProduct, [fieldName]: value });
+            
+            if (value.length > 0) {
+                const uniqueValues = getUniqueValues(fieldName);
+                const filtered = uniqueValues.filter(item => 
+                    item.toLowerCase().startsWith(value.toLowerCase())
+                );
+                setSuggestions({ ...suggestions, [fieldName]: filtered });
+                setShowSuggestions({ ...showSuggestions, [fieldName]: true });
             } else {
-                return null;
+                setShowSuggestions({ ...showSuggestions, [fieldName]: false });
             }
-        }
+        };
+
+        // Seleccionar una sugerencia
+        const handleSuggestionClick = (fieldName: keyof ProductTypes, value: string) => {
+            setEditedProduct({ ...editedProduct, [fieldName]: value });
+            setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+        };
 
 
         useEffect(() => {
@@ -449,23 +509,49 @@ const AddProductPage = () => {
                                     placeholder="UPC"
                                 />
                             </div>
-                            <div style={inputContainerStyle}>
+                            <div style={inputContainerStyle} className="relative">
                                 <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.master_brand || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, master_brand: e.target.value })}
+                                    onChange={e => handleInputChange('master_brand', e.target.value)}
                                     placeholder="Master Brand"
                                 />
+                                {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['master_brand'].map((suggestion, index) => (
+                                            <div 
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('master_brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <div style={inputContainerStyle}>
+                            <div style={inputContainerStyle} className="relative">
                                 <label htmlFor="brand" style={labelStyle}>Brand</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.brand || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, brand: e.target.value })}
+                                    onChange={e => handleInputChange('brand', e.target.value)}
                                     placeholder="Brand"
                                 />
+                                {showSuggestions['brand'] && suggestions['brand']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['brand'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="desc" style={labelStyle}>Description</label>
@@ -475,6 +561,19 @@ const AddProductPage = () => {
                                     onChange={e => setEditedProduct({ ...editedProduct, desc: e.target.value })}
                                     placeholder="Description"
                                 />
+                                {showSuggestions['desc'] && suggestions['desc']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['desc'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('desc', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="variety" style={labelStyle}>Variety</label>
@@ -484,6 +583,19 @@ const AddProductPage = () => {
                                     onChange={e => setEditedProduct({ ...editedProduct, variety: [e.target.value] })}
                                     placeholder="Variety"
                                 />
+                                {showSuggestions['variety'] && suggestions['variety']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['variety'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('variety', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="size" style={labelStyle}>Size</label>
@@ -520,6 +632,19 @@ const AddProductPage = () => {
                                     onChange={e => setEditedProduct({ ...editedProduct, w_simbol: e.target.value })}
                                     placeholder="Weight Simbol"
                                 />
+                                {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['w_simbol'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('w_simbol', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="embase" style={labelStyle}>Embase</label>
@@ -529,6 +654,19 @@ const AddProductPage = () => {
                                     onChange={e => setEditedProduct({ ...editedProduct, embase: e.target.value })}
                                     placeholder="Embase"
                                 />
+                                {showSuggestions['embase'] && suggestions['embase']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['embase'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('embase', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="id_category" style={labelStyle}>Category</label>
@@ -637,7 +775,6 @@ const AddProductPage = () => {
         );
     };
 
-    // Agregar estos estilos CSS en línea o en un archivo CSS separado
     const inputContainerStyle = {
         display: 'flex',
         flexDirection: 'column' as 'column',
@@ -650,7 +787,6 @@ const AddProductPage = () => {
         fontSize: '0.875rem'
     };
 
-    // Añadir un useEffect para manejar el evento de teclado
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Enter') {
@@ -658,10 +794,8 @@ const AddProductPage = () => {
             }
         };
 
-        // Añadir el evento al documento
         document.addEventListener('keydown', handleKeyDown);
 
-        // Limpiar el evento al desmontar el componente
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
@@ -670,7 +804,7 @@ const AddProductPage = () => {
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        e.currentTarget.classList.add('border-blue-500'); // Resalta el área cuando se arrastra sobre ella
+        e.currentTarget.classList.add('border-blue-500');
     };
 
     const handleDragLeave = (e: React.DragEvent) => {
@@ -763,23 +897,71 @@ const AddProductPage = () => {
                             <input {...register("upc", { required: true })}
                                 className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
+                        
 
-                        <div style={inputContainerStyle}>
+                        <div style={inputContainerStyle} className="relative">
                             <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                             <input {...register("master_brand")}
-                                className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" 
+                                onChange={(e) => handleInputChangeMain('master_brand', e.target.value)}
+                                />
+                                      {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['master_brand'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSugestionMain('master_brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                         </div>
 
-                        <div style={inputContainerStyle}>
+                        <div style={inputContainerStyle} className="relative">
                             <label htmlFor="brand" style={labelStyle}>Brand</label>
                             <input {...register("brand")}
-                                className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" 
+                                onChange={(e) => handleInputChangeMain('brand', e.target.value)}
+                                />
+                                    {showSuggestions['brand'] && suggestions['brand']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['brand'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSugestionMain('brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+
                         </div>
 
-                        <div style={inputContainerStyle}>
+                        <div style={inputContainerStyle} className="relative">
                             <label htmlFor="desc" style={labelStyle}>Description</label>
                             <input {...register("desc", { required: true })}
-                                className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" 
+                                onChange={(e) => handleInputChangeMain('desc', e.target.value)}
+                                />
+                                    {showSuggestions['desc'] && suggestions['desc']?.length > 0 && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['desc'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSugestionMain('desc', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                         </div>
                         <div style={inputContainerStyle}>
                             <label htmlFor="plu" style={labelStyle}>PLU</label>
@@ -813,9 +995,18 @@ const AddProductPage = () => {
                                             <label htmlFor="size" style={labelStyle}>Size</label>
                                             <input {...register("size")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
-                                        <div style={inputContainerStyle}>
+                                        <div style={inputContainerStyle} className="relative">
                                             <label htmlFor="variety" style={labelStyle}>Variety</label>
-                                            <input {...register("variety")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <input {...register("variety")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
+                                            onChange={(e) => handleInputChangeMain('variety', e.target.value)}
+                                            />
+                                            {showSuggestions['variety'] && suggestions['variety']?.length > 0 && (
+                                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                                    {suggestions['variety'].map((suggestion, index) => (
+                                                        <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('variety', suggestion)}>{suggestion}</div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         <div style={inputContainerStyle}>
                                             <label htmlFor="pack" style={labelStyle}>Pack</label>
@@ -825,13 +1016,31 @@ const AddProductPage = () => {
                                             <label htmlFor="count" style={labelStyle}>Count</label>
                                             <input {...register("count")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
-                                        <div style={inputContainerStyle}>
+                                        <div style={inputContainerStyle} className="relative">
                                             <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
-                                            <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
+                                            onChange={(e) => handleInputChangeMain('w_simbol', e.target.value)}
+                                            />
+                                            {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && (
+                                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                                    {suggestions['w_simbol'].map((suggestion, index) => (
+                                                        <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('w_simbol', suggestion)}>{suggestion}</div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                        <div style={inputContainerStyle}>
+                                        <div style={inputContainerStyle} className="relative">
                                             <label htmlFor="embase" style={labelStyle}>Embase</label>
-                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
+                                            onChange={(e) => handleInputChangeMain('embase', e.target.value)}
+                                            />
+                                            {showSuggestions['embase'] && suggestions['embase']?.length > 0 && (
+                                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                                    {suggestions['embase'].map((suggestion, index) => (
+                                                        <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('embase', suggestion)}>{suggestion}</div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </>
