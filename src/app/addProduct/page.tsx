@@ -78,6 +78,7 @@ const AddProductPage = () => {
 
     const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
     const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+    const [activeField, setActiveField] = useState<string | null>(null);
     
     const getUniqueValues = (fieldName: keyof ProductTypes) => {
         const values = productsData
@@ -90,7 +91,7 @@ const AddProductPage = () => {
 
     const handleInputChangeMain = (fieldName: keyof ProductTypes, value: string) => {
         setValue(fieldName, value);
-        
+        setActiveField(fieldName);
         if (value.length > 0) {
             const uniqueValues = getUniqueValues(fieldName);
             const filtered = uniqueValues.filter(item => 
@@ -322,41 +323,29 @@ const AddProductPage = () => {
         }
     };
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         if (!searchTerm.trim()) {
-            toast.error("Please enter a search term");
             return;
         }
-        if(productsData.length > 0){
-            setIsSearching(true);
-            reset()
-            try {
-                // Filtra los productos que coincidan con el término de búsqueda
-                const filtered = productsData.filter((product: ProductTypes) => {
-                    const searchLower = searchTerm.toLowerCase();
-                    if (product.status_active !== false) {
-                        return (
-                            (product.desc?.toLowerCase().includes(searchLower)) ||
-                            (product.master_brand?.toLowerCase().includes(searchLower)) ||
-                            (product.brand?.toLowerCase().includes(searchLower)) ||
-                            (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
-                            (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
-                            (String(product.upc).includes(searchTerm))
-                        );
-                    }
-                });
+        
+        if (!productsData?.length) {
+            return;
+        }
 
-                setSearchResults(filtered);
-                setOpenSearch(true);
-                if (filtered.length === 0) {
-                    toast.info("No se encontraron productos");
-                }
-            } catch (error) {
-                console.error('Error al buscar productos:', error);
-                toast.error("Error al buscar productos");
-            } finally {
-                setIsSearching(false);
-            }
+        setIsSearching(true);
+        reset();
+        try {
+            const filteredProducts = productsData.filter((product: ProductTypes) =>
+                Object.values(product).some(value =>
+                    String(value).toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            );
+            setSearchResults(filteredProducts);
+            setOpenSearch(true);
+        } catch (error) {
+            console.error("Error searching products:", error);
+        } finally {
+            setIsSearching(false);
         }
     };
 
@@ -399,7 +388,8 @@ const AddProductPage = () => {
         const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
         const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
         const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
-        
+        const [activeField, setActiveField] = useState<string | null>(null);
+
         const getUniqueValues = (fieldName: keyof ProductTypes) => {
             const values = productsData
                 .map(p => p[fieldName])
@@ -411,7 +401,8 @@ const AddProductPage = () => {
 
         const handleInputChange = (fieldName: keyof ProductTypes, value: string) => {
             setEditedProduct({ ...editedProduct, [fieldName]: value });
-            
+            setActiveField(fieldName);
+
             if (value.length > 0) {
                 const uniqueValues = getUniqueValues(fieldName);
                 const filtered = uniqueValues.filter(item => 
@@ -515,9 +506,11 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.master_brand || ''}
                                     onChange={e => handleInputChange('master_brand', e.target.value)}
+                                    onFocus={() => setActiveField('master_brand')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Master Brand"
                                 />
-                                {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && (
+                                {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && activeField === 'master_brand' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['master_brand'].map((suggestion, index) => (
                                             <div 
@@ -537,9 +530,11 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.brand || ''}
                                     onChange={e => handleInputChange('brand', e.target.value)}
+                                    onFocus={() => setActiveField('brand')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Brand"
                                 />
-                                {showSuggestions['brand'] && suggestions['brand']?.length > 0 && (
+                                {showSuggestions['brand'] && suggestions['brand']?.length > 0 && activeField === 'brand' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['brand'].map((suggestion, index) => (
                                             <div
@@ -559,9 +554,11 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.desc || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, desc: e.target.value })}
+                                    onFocus={() => setActiveField('desc')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Description"
                                 />
-                                {showSuggestions['desc'] && suggestions['desc']?.length > 0 && (
+                                {showSuggestions['desc'] && suggestions['desc']?.length > 0 && activeField === 'desc' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['desc'].map((suggestion, index) => (
                                             <div
@@ -581,9 +578,11 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.variety || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, variety: [e.target.value] })}
+                                    onFocus={() => setActiveField('variety')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Variety"
                                 />
-                                {showSuggestions['variety'] && suggestions['variety']?.length > 0 && (
+                                {showSuggestions['variety'] && suggestions['variety']?.length > 0 && activeField === 'variety' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['variety'].map((suggestion, index) => (
                                             <div
@@ -630,9 +629,11 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.w_simbol || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, w_simbol: e.target.value })}
+                                    onFocus={() => setActiveField('w_simbol')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Weight Simbol"
                                 />
-                                {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && (
+                                {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && activeField === 'w_simbol' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['w_simbol'].map((suggestion, index) => (
                                             <div
@@ -652,9 +653,11 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.embase || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, embase: e.target.value })}
+                                    onFocus={() => setActiveField('embase')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Embase"
                                 />
-                                {showSuggestions['embase'] && suggestions['embase']?.length > 0 && (
+                                {showSuggestions['embase'] && suggestions['embase']?.length > 0 && activeField === 'embase' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['embase'].map((suggestion, index) => (
                                             <div
@@ -904,8 +907,11 @@ const AddProductPage = () => {
                             <input {...register("master_brand")}
                                 className="bg-gray-500 text-white p-2 rounded-md" 
                                 onChange={(e) => handleInputChangeMain('master_brand', e.target.value)}
+                                onFocus={() => setActiveField('master_brand')}
+                                onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                 />
-                                      {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && (
+                                      {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && 
+                                      activeField === 'master_brand' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['master_brand'].map((suggestion, index) => (
                                             <div
@@ -925,8 +931,11 @@ const AddProductPage = () => {
                             <input {...register("brand")}
                                 className="bg-gray-500 text-white p-2 rounded-md" 
                                 onChange={(e) => handleInputChangeMain('brand', e.target.value)}
+                                onFocus={() => setActiveField('brand')}
+                                onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                 />
-                                    {showSuggestions['brand'] && suggestions['brand']?.length > 0 && (
+                                    {showSuggestions['brand'] && suggestions['brand']?.length > 0 && 
+                                    activeField === 'brand' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['brand'].map((suggestion, index) => (
                                             <div
@@ -948,8 +957,11 @@ const AddProductPage = () => {
                             <input {...register("desc", { required: true })}
                                 className="bg-gray-500 text-white p-2 rounded-md" 
                                 onChange={(e) => handleInputChangeMain('desc', e.target.value)}
+                                onFocus={() => setActiveField('desc')}
+                                onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                 />
-                                    {showSuggestions['desc'] && suggestions['desc']?.length > 0 && (
+                                    {showSuggestions['desc'] && suggestions['desc']?.length > 0 && 
+                                    activeField === 'desc' && (
                                     <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                         {suggestions['desc'].map((suggestion, index) => (
                                             <div
@@ -999,8 +1011,11 @@ const AddProductPage = () => {
                                             <label htmlFor="variety" style={labelStyle}>Variety</label>
                                             <input {...register("variety")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
                                             onChange={(e) => handleInputChangeMain('variety', e.target.value)}
+                                            onFocus={() => setActiveField('variety')}
+                                            onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                             />
-                                            {showSuggestions['variety'] && suggestions['variety']?.length > 0 && (
+                                            {showSuggestions['variety'] && suggestions['variety']?.length > 0 && 
+                                            activeField === 'variety' && (
                                                 <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                                     {suggestions['variety'].map((suggestion, index) => (
                                                         <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('variety', suggestion)}>{suggestion}</div>
@@ -1020,8 +1035,11 @@ const AddProductPage = () => {
                                             <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
                                             <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
                                             onChange={(e) => handleInputChangeMain('w_simbol', e.target.value)}
+                                            onFocus={() => setActiveField('w_simbol')}
+                                            onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                             />
-                                            {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && (
+                                            {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && 
+                                            activeField === 'w_simbol' && (
                                                 <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                                     {suggestions['w_simbol'].map((suggestion, index) => (
                                                         <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('w_simbol', suggestion)}>{suggestion}</div>
@@ -1033,8 +1051,11 @@ const AddProductPage = () => {
                                             <label htmlFor="embase" style={labelStyle}>Embase</label>
                                             <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
                                             onChange={(e) => handleInputChangeMain('embase', e.target.value)}
+                                            onFocus={() => setActiveField('embase')}
+                                            onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                             />
-                                            {showSuggestions['embase'] && suggestions['embase']?.length > 0 && (
+                                            {showSuggestions['embase'] && suggestions['embase']?.length > 0 && 
+                                            activeField === 'embase' && (
                                                 <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                                     {suggestions['embase'].map((suggestion, index) => (
                                                         <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('embase', suggestion)}>{suggestion}</div>

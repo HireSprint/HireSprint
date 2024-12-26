@@ -1244,12 +1244,12 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     return true; 
                 });
             
-            console.log('Productos en circular para categoría', category.name_category, ':', productsInCircular);
             return productsInCircular;
         }
     
         return productsByCategory;
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
+
     
     return (
         <div
