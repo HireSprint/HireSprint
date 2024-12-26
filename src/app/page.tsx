@@ -79,7 +79,11 @@ export default function HomePage() {
     const [fullPage1, setFullPage1] = useState<boolean>(false);
     const [fullPage2, setFullPage2] = useState<boolean>(false);
     const divRef1 = useRef<HTMLDivElement | null>(null);
-    const divRef2 = useRef<HTMLDivElement | null>(null);
+    const [copiedProduct, setCopiedProduct] = useState<ProductTypes | null>(null);
+
+    // Agregar este estado para controlar el popup
+    const [isReplacePopupOpen, setIsReplacePopupOpen] = useState(false);
+    const [pendingPasteGrid, setPendingPasteGrid] = useState<number | null>(null);
 
     useEffect(() => {
         // Inicializar la posición
@@ -146,7 +150,6 @@ export default function HomePage() {
         }
 
         try {
-            console.log('Enviando productos al servidor:', products);
 
             const requestBody = {
                 id_circular: idCircular,
@@ -167,7 +170,6 @@ export default function HomePage() {
                 }))
             };
     
-            console.log('Request body:', requestBody);
 
             const response = await fetch("https://hiresprintcanvas.dreamhosters.com/updateCircular", {
                 method: "POST",
@@ -177,12 +179,10 @@ export default function HomePage() {
                 body: JSON.stringify(requestBody)
             });
 
-            console.log(response.status, "response")
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             const data = await response.json();
-            console.log(data.result, "data")
             if (data.success) {
 
                 const updatedProducts = data.result.circular_products_upc.map((serverProduct: any) => ({
@@ -358,6 +358,15 @@ export default function HomePage() {
             return updatedProducts;
         });
     };
+    const handleCopyProduct = (product: ProductTypes) => {
+        setCopiedProduct(product);
+        toast.success("Product Copied Successfully");
+        setIsModalOpen(false); 
+    };
+
+    const handlePasteProduct = () => {
+        setCopiedProduct(null); 
+    };
 
     const handleGridClick = (gridId: number, idCategory: number | undefined, event: React.MouseEvent) => {
         if (!event) {
@@ -367,6 +376,19 @@ export default function HomePage() {
 
         setMousePosition({ x: event.clientX, y: event.clientY });
         const gridHasProduct = selectedProducts.some(product => product.id_grid === gridId);
+
+        // Si hay un producto copiado, verificamos si necesitamos mostrar el popup
+        if (copiedProduct) {
+            if (gridHasProduct) {
+                setIsReplacePopupOpen(true);
+                setPendingPasteGrid(gridId);
+                return;
+            }
+            
+            // Si no hay producto, pegamos directamente
+            pasteProduct(gridId);
+            return;
+        }
 
         if (category) {
             setCategory(null);
@@ -384,6 +406,29 @@ export default function HomePage() {
             setIsModalOpen(true);
             setShowProducts(true);
         }
+    };
+
+    // Función para pegar el producto
+    const pasteProduct = (gridId: number) => {
+        if (!copiedProduct) return;
+        
+        const productWithGrid = { ...copiedProduct, id_grid: gridId };
+        
+        setSelectedProducts((prev) => {
+            const newProducts = prev.filter((p) => p.id_grid !== gridId);
+            const updatedProducts = [...newProducts, productWithGrid];
+            updateCircularInServer(updatedProducts);
+            return updatedProducts;
+        });
+        
+        //@ts-ignore
+        setProductsData((prev) => {
+            const newProducts = prev.filter((p: ProductTypes) => p.id_grid !== gridId);
+            const updatedProducts = [...newProducts, productWithGrid];
+            return updatedProducts;
+        });
+        
+        handlePasteProduct();
     };
 
     const commonGridProps = {
@@ -452,7 +497,6 @@ export default function HomePage() {
 
     
         setSelectedProducts((prevProducts: ProductTypes[]) => {
-            console.log(prevProducts, "prevProducts")
             const updatedProducts = prevProducts.map(product => {
                 if (product.id_grid === idGrid) {
                     const updatedProducts = {
@@ -1022,6 +1066,7 @@ export default function HomePage() {
                 {isModalOpen && productSelected && !showProducts && (
                     <ModalEditProduct
                         setIsOpen={setIsModalOpen}
+                        CopyFC={handleCopyProduct}
                         product={productSelected as ProductTypes}
                         GridID={selectedGridId || 0}
                         SaveFC={handleSaveChangeProduct}
@@ -1082,6 +1127,40 @@ export default function HomePage() {
                             </button>
                             <button onClick={confirmClearAll}
                                 className="bg-green-500 text-white p-2 rounded-md">Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Popup de reemplazo */}
+            {isReplacePopupOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[100]">
+                    <div className="bg-white p-4 rounded-lg shadow-lg text-center space-y-4">
+                        <h2 className="text-lg font-bold text-black">Replace Product?</h2>
+                        <p className="text-black">You already have a product in this grid. Are you sure you want to replace it?</p>
+                        <div className="flex  space-x-2 items-center justify-center">
+                            <button 
+                                onClick={() => {
+                                    setIsReplacePopupOpen(false);
+                                    setPendingPasteGrid(null);
+                                    setCopiedProduct(null);
+                                }}
+                                className="bg-gray-400 px-4 py-2 rounded-md text-white hover:bg-gray-500"
+                            >
+                                No
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if (pendingPasteGrid !== null) {
+                                        pasteProduct(pendingPasteGrid);
+                                    }
+                                    setIsReplacePopupOpen(false);
+                                    setPendingPasteGrid(null);
+                                }}
+                                className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-600"
+                            >
+                                Yes
                             </button>
                         </div>
                     </div>
@@ -1273,12 +1352,13 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     return true; 
                 });
             
-            console.log('Productos en circular para categoría', category.name_category, ':', productsInCircular);
             return productsInCircular;
         }
     
         return productsByCategory;
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
+
+
     
     return (
         <div
@@ -1316,7 +1396,6 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                         placeholder="Search Products"
                         value={searchTerm}
                         onChange={(e) => {
-                            console.log('Nuevo valor del input:', e.target.value);
                             setSearchTerm(e.target.value);
                         }}
                         className="p-2 border rounded text-black sm:text-sm"

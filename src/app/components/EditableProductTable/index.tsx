@@ -35,10 +35,9 @@ const EditableProductTable = ({
     const [step, setStep] = useState<number>(1);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
-    const [selectedRowId, setSelectedRowId] = useState<any>(null); // Estado para rastrear la fila seleccionada
+    const [selectedRowId, setSelectedRowId] = useState<any>(null);
 
 
-    //images states
     const [imageUpdateModal, setImageUpdateModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<ProductTypes|null>(null);
     const [newImage, setNewImage] = useState<File|null>(null);

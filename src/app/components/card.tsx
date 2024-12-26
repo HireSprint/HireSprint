@@ -362,7 +362,7 @@ export const GridCardProduct = ({
 
                                         <span
                                             className="text-purple-600 uppercase truncate text-left w-full"
-                                            style={{ fontSize: '1em' }}
+                                            style={{ fontSize: '0.8em' }}
                                         >
                                             <span> {product?.size || ''} </span>
                                             <span> {product?.pack || ''} </span>

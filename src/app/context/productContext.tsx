@@ -87,9 +87,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
           "id_circular": Number(idCircular),
           "id_client": user.userData.id_client
         }
-        console.log(reqBody, "reqBody")
         const resp = await getProductsByCircular(reqBody)
-        console.log(resp, "resp")
         setSelectedProducts(resp.result)
         setProductsData(resp.result)
         setIsLoadingProducts(false)
@@ -100,6 +98,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     getProductByCircular();
   }, [idCircular, user]);
+
+
 
 
   const updateGridProducts = async (gridRange: { min: number; max: number }, circularProducts: ProductTypes[]) => {
