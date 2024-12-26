@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { ProductTypes } from "@/types/product";
 import Image from "next/image";
-import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon } from "../icons";
+import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon, CopyIcon } from "../icons";
 import { useProductContext } from "@/app/context/productContext";
 
 
@@ -10,6 +10,7 @@ import { useProductContext } from "@/app/context/productContext";
 interface ModalEditProductInterface {
     product: ProductTypes;
     GridID?: number
+    CopyFC: (product: ProductTypes) => void,
     ChangeFC: (idGrid: number | undefined) => void,
     DeleteFC: (idGrid: number | undefined) => void,
     SaveFC?: (
@@ -33,7 +34,7 @@ interface burstType {
     value: number,
     text: string,
 }
-const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOpen }: ModalEditProductInterface) => {
+const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC, setIsOpen }: ModalEditProductInterface) => {
 
     const { groupedProducts, isLoadingGridProducts } = useProductContext();
    // const [categories, setCategories] = useState<[]>()
@@ -45,7 +46,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
     const [withCard, setWithCard] = useState(product?.with_card ?? false)
-    const [limit_type, setLimitType] = useState('')
+    const [limit_type, setLimitType] = useState(product?.limit_type || '')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [notes, setNotes] = useState(product?.notes && product.notes !== 'undefined' ? product.notes : "")
     const [showVarietyList, setShowVarietyList] = useState(false);
@@ -416,43 +417,25 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             className="w-12 p-1 border border-gray-950 rounded font-bold text-black"
                                         />
 
-                                        <div className="relative ml-2">
-                                            <button
-                                                className={`flex items-center justify-center p-2 border rounded ${limit_type !== '' ? 'bg-blue-500 text-white' : 'border-gray-950'}`}
-                                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                            >
-                                                <svg
-                                                    className="w-4 h-4 text-black"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-
-                                            {isDropdownOpen && (
-                                                <div className="absolute top-full mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg">
-                                                    <div
-                                                        className={`px-4 py-2 cursor-pointer text-black ${limit_type === 'Per Family' ? 'bg-blue-500 text-white ' : 'hover:bg-gray-100 '}`}
-                                                        onClick={() => {
-                                                            setLimitType(limit_type === 'Per Family' ? '' : 'Per Family');
-                                                            setIsDropdownOpen(false);
-                                                        }}
-                                                    >
-                                                        Per Family
-                                                    </div>
-                                                    <div
-                                                        className={`px-4 py-2  cursor-pointer text-black ${limit_type === 'Per Offer' ? 'bg-blue-500 text-white no-hover' : 'hover:bg-gray-100 '}`}
-                                                        onClick={() => {
-                                                            setLimitType(limit_type === 'Per Offer' ? '' : 'Per Offer');
-                                                            setIsDropdownOpen(false);
-                                                        }}
-                                                    >
-                                                        Per Offer
-                                                    </div>
-                                                </div>
-                                            )}
+                                        <div className="flex items-center gap-2 ml-2">
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={limit_type === 'Per Family'}
+                                                    onChange={() => setLimitType(limit_type === 'Per Family' ? '' : 'Per Family')}
+                                                    className="w-4 h-4"
+                                                />
+                                                <span className="text-sm text-black">Per Family</span>
+                                            </label>
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={limit_type === 'Per Offer'}
+                                                    onChange={() => setLimitType(limit_type === 'Per Offer' ? '' : 'Per Offer')}
+                                                    className="w-4 h-4"
+                                                />
+                                                <span className="text-sm text-black">Per Offer</span>
+                                            </label>
                                         </div>
 
                                     </div>
@@ -562,6 +545,15 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                             </div>
 
                             <div className="flex gap-10 items-center justify-center pt-4">
+                            <button
+                                    className="bg-yellow-500 p-2 text-black rounded-md "
+                                    onClick={() => CopyFC(product)}>
+                                    <div className="flex gap-2">
+                                        <CopyIcon />
+                                        Copy Item
+                                    </div>
+                                </button>
+
                                 <button
                                     className="bg-gray-500 p-2 text-black rounded-md "
                                     onClick={() => ChangeFC(GridID)}>
@@ -603,9 +595,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, setIsOp
                                             finalVariety,
                                             size,
                                         );
-                                        console.log('Size:', size);
-                                        console.log('Variety:', variety);
-                                        console.log(price, notes, burst, addl, limit, mustBuy, withCard, limit_type, selectedPer, finalVariety, size)
+                                         
                                     }}>
                                     <div className="flex gap-2">
                                         <SaveIcon />
