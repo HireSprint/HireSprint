@@ -37,7 +37,9 @@ export default function HomePage() {
         panningOnSubPage,
         setPanningOnSubPage,
         panelShowCategoriesOpen,
-        groupedProducts
+        groupedProducts,
+        autoSaveVarieties,
+        setAutoSaveVarieties,
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -403,6 +405,33 @@ export default function HomePage() {
 
     }
 
+    useEffect(() => {
+        if (autoSaveVarieties) {
+            handleAutoSaveProducts();
+            setAutoSaveVarieties(false); // Reiniciar el estado
+        }
+    }, [autoSaveVarieties]);
+     const  handleAutoSaveProducts = () => {
+
+        selectedProducts.forEach((product: ProductTypes) => {      
+            if (!Array.isArray(product.variety_set) || product.variety_set.length === 0) {               
+                if (product.id_grid !== undefined && groupedProducts[product.id_grid]) {                   
+                    const allVarieties = groupedProducts[product.id_grid] as Array<{ variety?: string }>;
+                    if (Array.isArray(allVarieties)) {
+                        const extractedVarieties = allVarieties.map((item) => item.variety || "").filter(Boolean);                       
+                        console.log(`Variedades extraídas: ${extractedVarieties}`);
+                        product.variety_set = extractedVarieties;
+                    }
+                } else {
+                    console.warn(`No se encontró variedad para id_grid ${product.id_grid}`);
+                    product.variety_set = []; 
+                }
+            }
+        });        
+    }
+   
+    
+    
     const handleSaveChangeProduct = (
         idGrid: number | undefined,
 

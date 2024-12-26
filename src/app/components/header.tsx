@@ -11,7 +11,7 @@ import ModalProductsTable from "@/app/components/ModalProductsTable";
  
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
-    const { currentPage, setCurrentPage, setIsSendModalOpen } = useProductContext();
+    const { currentPage, setCurrentPage, setIsSendModalOpen , setAutoSaveVarieties} = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -184,7 +184,12 @@ export default function Header() {
                     </div>
                     {
                         pathname === '/' && (
-                            <button onClick={handleOpenSendModal}>
+                            <button
+                                onClick={() => {
+                                    handleOpenSendModal(); 
+                                    setAutoSaveVarieties(true); 
+                                }}
+                            >
                                 <MessageIcon/>
                             </button>
                         )
@@ -193,7 +198,8 @@ export default function Header() {
                 </div>
             </div>
             {
-                productTableOpen && <ModalProductsTable  id_circular={idCircular} setProductTableOpen={setProductTableOpen} />
+                productTableOpen &&
+                <ModalProductsTable id_circular={idCircular} setProductTableOpen={setProductTableOpen} />
             }
         </>
     );

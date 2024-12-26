@@ -48,6 +48,8 @@ interface ProductContextType {
   setPanelShowCategoriesOpen: (showCategories: boolean) => void;
   isLoadingGridProducts: boolean;
   setIsLoadingGridProducts: (loading: boolean) => void;
+  autoSaveVarieties: boolean;
+  setAutoSaveVarieties: (autoSaveVarieties: boolean) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -72,7 +74,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { idCircular, user } = useAuth();
   const [panelShowCategoriesOpen, setPanelShowCategoriesOpen] = useState(false);
   const [isLoadingGridProducts, setIsLoadingGridProducts] = useState(false);
-
+  const [autoSaveVarieties, setAutoSaveVarieties] = useState(false);
+    
 
   useEffect(() => {
     const getProductByCircular = async () => {
@@ -183,7 +186,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       panelShowCategoriesOpen,
       setPanelShowCategoriesOpen,
       isLoadingGridProducts,
-      setIsLoadingGridProducts
+      setIsLoadingGridProducts, 
+      autoSaveVarieties, 
+      setAutoSaveVarieties,
     }}>
       {children}
     </ProductContext.Provider>
