@@ -35,14 +35,46 @@ const EditableProductTable = ({
     const [step, setStep] = useState<number>(1);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
-    const [selectedRowId, setSelectedRowId] = useState<any>(null); // Estado para rastrear la fila seleccionada
+    const [selectedRowId, setSelectedRowId] = useState<any>(null);
 
 
-    //images states
     const [imageUpdateModal, setImageUpdateModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<ProductTypes|null>(null);
     const [newImage, setNewImage] = useState<File|null>(null);
     const [isUpdatingImage, setIsUpdatingImage] = useState(false);
+    const [value, setValue] = useState<string>('');
+    const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
+    const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+    
+    const getUniqueValues = (fieldName: keyof ProductTypes) => {
+        const values = products
+            .map(p => p[fieldName])
+            .filter((value): value is string => 
+                typeof value === 'string' && value.length > 0
+            );
+        return Array.from(new Set(values));
+    };
+
+    const handleInputChangeMain = (fieldName: keyof ProductTypes, value: string) => {
+        setValue(value);
+        
+        if (value.length > 0) {
+            const uniqueValues = getUniqueValues(fieldName);
+            const filtered = uniqueValues.filter(item => 
+                item.toLowerCase().startsWith(value.toLowerCase())
+            );
+            setSuggestions({ ...suggestions, [fieldName]: filtered });
+            setShowSuggestions({ ...showSuggestions, [fieldName]: true });
+        } else {
+            setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+        }
+    };
+
+    // Seleccionar una sugerencia
+    const handleSugestionMain = (fieldName: keyof ProductTypes, value: string) => {
+        setValue(value);
+        setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+    };
 
     const [columns] = useState([
         {
@@ -69,6 +101,7 @@ const EditableProductTable = ({
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
                     }
                 />
+                
             ),
         },
         {
