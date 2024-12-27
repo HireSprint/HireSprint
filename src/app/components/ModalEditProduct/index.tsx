@@ -52,9 +52,9 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const [selectedBurst, setSelectedBurst] = useState<burstType | null>(null)
     const [selectedPer, setSelectedPer] = useState<string>(per[0]);
     const [varietyType, setVarietyType] = useState<'Selected' | 'Assorted' | null>(() => {
-        if (product.variety?.includes('Selected Varieties')) {
+        if (product.variety_set?.includes('Selected Varieties')) {
             return 'Selected';
-        } else if (product.variety?.includes('Assorted Varieties')) {
+        } else if (product.variety_set?.includes('Assorted Varieties')) {
             return 'Assorted';
         }
         return null;
@@ -84,19 +84,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         setBurstOption([{ value: 1, text: "Mix & Match" }, { value: 2, text: "1/2 Price" }, { value: 3, text: "Your Choice" }])
     }, []);
 
-    {/*useEffect(() => {
-        if (Array.isArray(categories) && categories.length > 0 && product?.id_category) {
-            const categoryMatch = categories.find((item: categoriesInterface) => item.id_category === product.id_category);
-
-            if (categoryMatch) {
-                setCategoria(categoryMatch);
-
-
-            }
-        }
-
-
-    }, [categories, product]);*/}
 
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
@@ -104,7 +91,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
             if (varietyType) {
                 setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
             } else if (product.variety_set && product.variety_set.length > 0 && product.variety_set[0]) {
-                // Verifica que variety_set tenga elementos y que el índice 0 no esté vacío
                 setVariety(product.variety_set);
             } else {
                 if (variety.length === 0 && groupedProducts[GridID][0]) {
@@ -123,6 +109,32 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
             }
         }
     }, [GridID, groupedProducts, varietyType, product.variety_set]);
+
+    useEffect(() => {
+        if (varietyType) {
+            // Si hay un tipo de variedad, mantenemos "Selected" o "Assorted"
+            setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
+        } else if (
+            product.variety_set &&
+            product.variety_set.length > 0 &&
+            !product.variety_set.includes("Assorted Varieties") &&
+            !product.variety_set.includes("Selected Varieties")
+        ) {
+            // Si variety_set tiene datos válidos pero no es ni "Assorted" ni "Selected"
+            setVariety(product.variety_set);
+        } else if (GridID && groupedProducts[GridID]) {
+            // Restaurar todas las variedades desde groupedProducts
+            const allVarieties = groupedProducts[GridID]
+                .map(
+                    (item: ProductTypes) =>
+                        item?.variety?.[0]?.trim().replace(/['"]+/g, '') || ''
+                )
+                .filter(Boolean);
+
+            const uniqueVarieties = Array.from(new Set([...allVarieties])); // Asegurar que no haya duplicados
+            setVariety(uniqueVarieties);
+        }
+    }, [varietyType,product.variety_set]);
     
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
@@ -496,7 +508,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
 
                                                     {/* Lista de variedades */}
                                                     <div className="max-h-64 overflow-y-auto">
-                                                        {groupedProducts[GridID].slice(1).map((item: ProductTypes, index: number) => (
+                                                        {groupedProducts[GridID].slice(0).map((item: ProductTypes, index: number) => (
                                                             <div
                                                                 key={index}
                                                                 className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
