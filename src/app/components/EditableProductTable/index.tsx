@@ -4,6 +4,8 @@ import { ProductTypes } from '@/types/product';
 import { categoriesInterface } from '@/types/category';
 import { toast, ToastContainer } from 'react-toastify';
 import { updateProduct } from '@/pages/api/apiMongo/updateProduct';
+import { UnverifiedIcon, VerifiedIcon } from '../icons';
+import ModalSmallProduct from '../modalSmallProduct';
 
 
 declare module '@tanstack/react-table' {
@@ -44,6 +46,22 @@ const EditableProductTable = ({
     const [isUpdatingImage, setIsUpdatingImage] = useState(false);
 
     const [columns] = useState([
+        {
+            accessorKey: 'verify',
+            header: 'Verificado',
+            cell: ({ getValue }: any) => {
+                const verify = getValue();
+                return (
+                    <div className="flex justify-center">
+                        {verify ? (
+                            <VerifiedIcon />
+                        ) : (
+                            <UnverifiedIcon />
+                        )}
+                    </div>
+                );
+            },
+        },
         {
             accessorKey: 'upc',
             header: 'UPC',
@@ -651,6 +669,29 @@ const EditableProductTable = ({
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </td>
                                         ))}
+                                           <td className="px-2 py-2 text-md text-black items-center">
+                                            {row.original.url_image && (
+                                                <img
+                                                    src={row.original.url_image}
+                                                    alt="Preview"
+                                                    className="w-16 h-16 object-cover rounded-lg "
+                                                />
+                                            )}
+                                        </td>
+                                        <td className="px-2 py-2 text-md text-black items-center">
+                                            <button
+                                                onClick={() => {
+                                                    const filteredProduct = filteredProducts.filter(
+                                                        (_, index) => index === row.index,
+                                                    );
+                                                    setSelectedProduct(filteredProduct[0]);
+                                                    setImageUpdateModal(true);
+                                                }}
+                                                className="px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
+                                            >
+                                                Verify
+                                            </button>
+                                        </td>
                                         <td className="px-2 py-2 text-md text-black items-center">
                                             <button
                                                 disabled={!isEdited(row.original)}
@@ -665,29 +706,7 @@ const EditableProductTable = ({
                                                 Save
                                             </button>
                                         </td>
-                                        <td className="px-2 py-2 text-md text-black items-center">
-                                            <button
-                                                onClick={() => {
-                                                    const filteredProduct = filteredProducts.filter(
-                                                        (_, index) => index === row.index,
-                                                    );
-                                                    setSelectedProduct(filteredProduct[0]);
-                                                    setImageUpdateModal(true);
-                                                }}
-                                                className="px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
-                                            >
-                                                Image
-                                            </button>
-                                        </td>
-                                        <td className="px-2 py-2 text-md text-black items-center">
-                                            {row.original.url_image && (
-                                                <img
-                                                    src={row.original.url_image}
-                                                    alt="Preview"
-                                                    className="w-16 h-16 object-cover rounded-lg border border-gray-700"
-                                                />
-                                            )}
-                                        </td>
+                                     
                                     </tr>
                                 ))}
                                 </tbody>
@@ -718,73 +737,18 @@ const EditableProductTable = ({
                     pauseOnHover
                     theme="light"
                 />
-                {imageUpdateModal && (
-                    <div
-                        className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-110 p-5">
-                        <div className="w-1/3 flex flex-col p-4 bg-gray-900 gap-5">
-                            <div className="w-full flex flex-col justify-between p-2 bg-gray-900">
-                                <h1 className={'text-white text-2xl font-bold'}>{selectedProduct?.desc}</h1>
-                                <h2 className={'text-white text-lg '}>{selectedProduct?.brand}</h2>
-                                <h2 className={'text-white text-lg '}>{selectedProduct?.size}{selectedProduct?.w_simbol}</h2>
-                            </div>
-                            <div>
-                                <img
-                                    src={newImage !== null ? URL.createObjectURL(newImage) : selectedProduct?.url_image}
-                                    alt={selectedProduct?.desc || ''}
-                                    className="w-full h-64 object-contain rounded"
-                                />
-                                <div>
-                                    <h1>Change the picture here</h1>
-                                    <input
-                                        className="hidden"
-                                        type="file"
-                                        accept="image/*"
-                                        id="imageInputModal"
-                                        onChange={handleImageChange}
-                                    />
-                                    <div
-                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
-                                        onClick={handleClick}
-                                    >
-                                        <>
-                                            <svg
-                                                className="w-8 h-8 mb-2 text-gray-400"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                                />
-                                            </svg>
-                                            <span className="text-gray-400">
-                                                Drag an image here or click to select
-                                            </span>
-                                        </>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="w-full flex justify-around text-center p-4 bg-gray-900 gap-5">
-                                <button className={'w-full py-2 px-3 text-red-500 border-red-500 border-2 rounded-md hover:bg-red-600 hover:text-white'}
-                                        onClick={() => {
-                                            setImageUpdateModal(false)
-                                        }}>
-                                    Cancelar
-                                </button>
-                                <button className={' w-full  py-2 px-3 text-white bg-lime-600 rounded-md hover:scale-110'}
-                                        onClick={() => {
-                                            handleUpdateImage()
-                                        }}>
-                                    Actualizar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )
-                }
+                {imageUpdateModal && selectedProduct && (
+                    <ModalSmallProduct
+                        product={selectedProduct}
+                        onClose={() => setImageUpdateModal(false)}
+                        onUpdate={handleUpdateImage}
+                        categories={categories}
+                        matchCategory={(categories: categoriesInterface[], id_category: number): categoriesInterface => 
+                            categories.find(cat => cat.id_category === id_category) || categories[0]
+                        }
+                        isUpdating={isUpdatingImage}
+                    />
+                )}
             </div>
         </React.Fragment>
     ) : null;
