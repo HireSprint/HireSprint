@@ -343,26 +343,32 @@ export const GridCardProduct = ({
                                 }}
                             >
                                 {product && (
+
                                     <>
+                                        <span
+                                            className="text-blue-600 uppercase truncate text-left w-full"
+                                            style={{ fontSize: '1em' }}>
+                                            {product?.master_brand}
+                                        </span>
 
                                         <span
                                             className="text-blue-600 uppercase truncate text-left w-full"
-                                            style={{ fontSize: '1.3em' }}>
-                                            {product.brand}
+                                            style={{ fontSize: '1em' }}>
+                                            {product?.brand}
                                         </span>
 
 
                                         <span
                                             className="uppercase truncate text-left w-full"
-                                            style={{ fontSize: '1em' }}
+                                            style={{ fontSize: '0.6em' }}
                                         >
-                                            {product.desc}
+                                            {product?.desc}
                                         </span>
 
 
                                         <span
                                             className="text-purple-600 uppercase truncate text-left w-full"
-                                            style={{ fontSize: '0.8em' }}
+                                            style={{ fontSize: '0.6em' }}
                                         >
                                             <span> {product?.size || ''} </span>
                                             <span> {product?.pack || ''} </span>
@@ -374,26 +380,26 @@ export const GridCardProduct = ({
 
                                         <span
                                             className="text-red-500 truncate text-left w-full"
-                                            style={{ fontSize: '1.1em' }}
+                                            style={{ fontSize: '0.8em' }}
                                         >
-                                            ${product?.price?.replace(/"/g, '') || '0'}
+                                            {product?.price?.replace(/"/g, '') || '0'}
                                         </span>
 
                                         {product?.addl && product?.addl.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{fontSize: '0.8em'}}
+                                                style={{ fontSize: '0.6em' }}
                                             >
-                                                Addl's ${product?.addl} 
+                                                Addl's ${product?.addl}
                                             </span>
                                         )}
 
-                                        
+
 
                                         {product?.limit && product?.limit.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.8em' }}
+                                                style={{ fontSize: '0.6em' }}
                                             >
                                                 Limit {product?.limit} Offer
                                             </span>
@@ -403,7 +409,7 @@ export const GridCardProduct = ({
                                         {product?.must_buy && product.must_buy.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.8em' }}
+                                                style={{ fontSize: '0.6em' }}
                                             >
                                                 Must Buy {product?.must_buy}
                                             </span>
@@ -412,7 +418,7 @@ export const GridCardProduct = ({
                                         {product?.with_card && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{fontSize: '0.8em'}}
+                                                    style={{ fontSize: '0.6em' }}
                                             >With Club Card
                                             </span>
                                         )}

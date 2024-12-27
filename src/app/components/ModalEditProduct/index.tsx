@@ -62,6 +62,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const [size, setSize] = useState<string[]>(Array.isArray(product.size) ? product.size : [product.size || '']);
     const [variety, setVariety] = useState<string[]>(Array.isArray(product.variety_set) && product.variety_set[0] ? product.variety_set : product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
+    const burstDropdownRef = useRef<HTMLDivElement>(null);
 
  console.log(product.id_grid,'aaaaaaa')
 
@@ -193,8 +194,20 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         setVarietyType(type);
     }
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (burstDropdownRef.current && 
+                !burstDropdownRef.current.contains(event.target as Node) && 
+                openDropdown) {
+                setOpenDropdown(false);
+            }
+        };
 
-
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openDropdown]);
 
     return (
         <React.Fragment>
@@ -363,15 +376,14 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                     {/* Contenedor del campo Brust */}
                                     <div className="flex items-center gap-1">
                                         <h3 className="font-bold text-black">Burst:</h3>
-                                        <div className="flex flex-col items-center gap-1">
+                                        <div className="flex flex-col items-center gap-1" ref={burstDropdownRef}>
                                             <button onClick={() => setOpenDropdown(!openDropdown)}
                                                 className="p-1 border border-gray-950 rounded font-bold text-black w-36 bg-white">
                                                 {!selectedBurst ? "Select Burst" : "Change burst"}
                                             </button>
 
                                             {openDropdown && (
-                                                <div
-                                                    className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
+                                                <div className="flex absolute m-10 bg-white rounded-md shadow-lg z-50 space-x-2">
                                                     {burstOption.map((item, index) => (
                                                         <button
                                                             key={index}
