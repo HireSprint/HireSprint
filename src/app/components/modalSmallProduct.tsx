@@ -441,23 +441,23 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
 
                         {/* Botones */}
                         <div className="col-span-2 flex justify-end gap-2 mt-4">
-                            {user?.level === 1 && (
-                                <div className="flex space-x-2 ">
-                                    <div className="flex items-center space-x-2 cursor-pointer">
-                                        <input
-                                        type="checkbox"
-                                        id="verified"
-                                        className="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500"
-                                        checked={editedProduct?.verify || false}
-                                        onChange={e => {
-                                            const newValue = e.target.checked;
-                                            setEditedProduct(prev => ({ ...prev, verify: newValue }));
-                                        }}
-                                    />
-                                    <VerifiedIcon />
+                            {user?.userData?.level_client === 1 && (
+                                    <div className="flex space-x-2 ">
+                                        <div className="flex items-center space-x-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                id="verified"
+                                                className="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500"
+                                                checked={editedProduct?.verify || false}
+                                                onChange={e => {
+                                                    const newValue = e.target.checked;
+                                                    setEditedProduct(prev => ({ ...prev, verify: newValue }));
+                                                }}
+                                            />
+                                            <VerifiedIcon />
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
                             <button
                                 onClick={() => handleDisable(Number(product?.id_product))}
                                 className="px-4 text-bold text-red-500 border border-gray-800 hover:border-red-500 rounded-lg"
