@@ -15,6 +15,23 @@ declare module '@tanstack/react-table' {
         updateData: (rowIndex: number, columnId: string, value: unknown) => void;
     }
 }
+type ColumnsSelectorKeys = keyof typeof initialColumnsSelector;
+
+const initialColumnsSelector = {
+    verify: false,
+    upc: false,
+    master_brand: false,
+    brand: false,
+    desc: false,
+    variety: false,
+    pack: false,
+    count: false,
+    size: false,
+    w_symbol: false,
+    embase: false,
+    id_category: false,
+    type_of_meat: false,
+};
 
 interface EditableProductTableInterface {
     products: ProductTypes[];
@@ -23,6 +40,7 @@ interface EditableProductTableInterface {
     closeModal: (status: boolean) => void;
     reloadData: (status: boolean) => void;
 }
+const DEFAULT_FILTER = { id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "",pack:"",size:"" }
 
 const EditableProductTable = ({
     products,
@@ -34,11 +52,17 @@ const EditableProductTable = ({
     const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products?.filter((item) => item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()));
     const [modifiedData, setModifiedData] = useState<any[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products?.filter((item) => item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()).slice(0, 100));
-    const [filters, setFilters] = useState({ id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "",pack:"",size:"" });
+    const [filters, setFilters] = useState(DEFAULT_FILTER);
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
     const [selectedRowId, setSelectedRowId] = useState<any>(null);
+
+    //column
+    const [columnsSelector, setColumnsSelector] = useState({verify:true,upc:true,master_brand:true,brand:true,desc:true,variety:true,pack:true,count:true,size:true,w_symbol:true,embase:true,id_category:true,type_of_meat:false});
+    //settings Open
+    const [openModalSettings, setOpenModalSettings] = useState(false);
+
 
     //pagination
     const [TotalPage, setTotalPage] = useState(calculateTotalProduct(products.filter((item) => item.status_active === true).length));
@@ -54,8 +78,7 @@ const EditableProductTable = ({
     const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
     const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
 
-    //settings Open
-    const [openModalSettings, setOpenModalSettings] = useState(false);
+
 
 
     //preview image ulr
@@ -91,12 +114,12 @@ const EditableProductTable = ({
         setShowSuggestions({ ...showSuggestions, [fieldName]: false });
     };
 
-
+    const [tempColumns, setTempColumns] = useState<any>();
     const [columns,setColumns] = useState([
         {
             accessorKey: 'verify',
-            header: 'Certificate',
-            cell: ({ getValue }: any) => {
+            header: 'Certificated',
+            cell: ({ getValue}: any) => {
                 const verify = getValue();
                 return (
                     <div className="flex justify-center">
@@ -168,7 +191,7 @@ const EditableProductTable = ({
             cell: ({ getValue, row, column }: any) => {
                 const value = getValue();
                 const displayValue = (value?.[0] || '').replace(/['"]+/g, '');
-                
+
                 return (
                     <input
                         className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
@@ -265,43 +288,39 @@ const EditableProductTable = ({
                     <option value="create">+ Add new category</option>
                 </select>
             ),
-        }
+        },
+        {
+            accessorKey: 'type_of_meat',
+            header: 'Type of Meat',
+            cell:
+                ({ getValue, row, column }: any) => (
+                    <input
+                        className="border border-gray-300 rounded p-1 text-black"
+                        value={getValue() || ''}
+                        onChange={(e) =>
+                            table.options.meta?.updateData(row.index, column.id, e.target.value)
+                        }
+                    />
+                ),
+        },
     ]);
 
     useEffect(() => {
-        const type_of_meat = {
-                accessorKey: 'type_of_meat',
-                header: 'Type of Meat',
-                cell:
-                    ({ getValue, row, column }: any) => (
-                        <input
-                            className="border border-gray-300 rounded p-1 text-black"
-                            value={getValue() || ''}
-                            onChange={(e) =>
-                                table.options.meta?.updateData(row.index, column.id, e.target.value)
-                            }
-                        />
-                    ),
-        }
+        const filteredColumns = columns.filter((column) => columnsSelector[column.accessorKey as keyof typeof columnsSelector]);
+        setTempColumns(filteredColumns);
+    }, [columns, columnsSelector]);
 
-        if (filters.id_category === '5' || filters.id_category === '16' && columns.length === 12) {
-            let copy_columns = [...columns, type_of_meat];
-            console.log("con carne",copy_columns);
-            setColumns(copy_columns)
-        } else if(columns.length === 12) {
-            let copy_columns = [...columns];
-            copy_columns.pop()
-            console.log("sin carne",copy_columns);
-            setColumns(copy_columns)
+    useEffect(() => {
+        if ((filters.id_category === '5' || filters.id_category === '16') && columnsSelector?.type_of_meat === false ) {
+            setColumnsSelector({...columnsSelector, type_of_meat: true });
         }
-
-    }, [filters]);
+    }, [filters,]);
 
 
 
     const table = useReactTable({
         data: filteredProducts,
-        columns,
+        columns:tempColumns ? tempColumns : columns,
         getCoreRowModel: getCoreRowModel(),
         meta: {
             updateData: (rowIndex: number, columnId: string, value: unknown) => {
@@ -450,7 +469,7 @@ const EditableProductTable = ({
                 }
 
                 const data = await response.json();
-                
+
                 const updatedProduct = { ...product };
                 if (data.result?.url_image) {
                     updatedProduct.url_image = data.result.url_image;
@@ -480,7 +499,7 @@ const EditableProductTable = ({
 
             setLocalProducts(updatedLocalProducts);
             setFilteredProducts(updatedFilteredProducts);
-            
+
             const updatedIds = successfulUpdates.map(p => p.id_product);
             setModifiedData(modifiedData.filter(item => !updatedIds.includes(item.id_product)));
         }
@@ -493,8 +512,17 @@ const EditableProductTable = ({
         return results.every(r => r.success);
     };
 
+    const handleCheckboxChange = (key: ColumnsSelectorKeys) => {
+        setColumnsSelector((prevState) => ({
+            ...prevState,
+            [key]: !prevState[key],
+        }));
+    };
 
-
+    const handleClear = () => {
+        setFilters(DEFAULT_FILTER)
+        return setLoadingScreen(true)
+    };
 
 
     return openModal ? (
@@ -512,10 +540,11 @@ const EditableProductTable = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="w-full flex p-4 bg-gray-900 gap-5">
+                    <div className="w-full flex p-4 bg-gray-900 gap-5 sm:flex-wrap ">
                         <div className="flex flex-col justify-start">
                             <label className={'text-start text-white uppercase '}>UPC</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.upc}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        upc: e.target.value,
@@ -523,23 +552,24 @@ const EditableProductTable = ({
                         </div>
                         <div className="flex flex-col justify-start">
                             <label
-                                htmlFor="dateInput"
                                 className="text-start text-white uppercase "
                             >
                                 Date Circular
                             </label>
                             <input
+                                value={filters.date}
                                 onChange={(e) => (setFilters({
                                     ...filters,
                                     date: e.target.value,
                                 }), setLoadingScreen(true))}
                                 type="date"
-                                className="w-32 bg-gray-500 text-white p-2 rounded-md "
+                                className="w-32 bg-gray-500 text-white p-2 rounded-md"
                             />
                         </div>
                         <div className="flex flex-col justify-start">
                             <label className={'text-start text-white uppercase '}>Master Brand</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.master_brand}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        master_brand: e.target.value,
@@ -548,6 +578,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Brand</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.brand}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        brand: e.target.value,
@@ -556,6 +587,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Description </label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.desc}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        desc: e.target.value,
@@ -564,6 +596,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Variety</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.variety}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        variety: e.target.value,
@@ -572,6 +605,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Pack</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.pack}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        pack: e.target.value,
@@ -580,6 +614,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Size</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.size}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        size: e.target.value,
@@ -588,13 +623,12 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Category</label>
                             <select
-                                name=""
-                                id=""
+                                value={filters.id_category === "" ? "" : filters.id_category}
                                 onChange={(e) => (setFilters({
                                     ...filters,
                                     id_category: e.target.value,
                                 }), setLoadingScreen(true))}
-                                className={'w-42 bg-gray-500 text-white p-2 rounded-md'}
+                                className={'w-32 bg-gray-500 text-white p-2 rounded-md'}
                                 defaultValue=""
                             >
                                 <option value="">
@@ -607,6 +641,15 @@ const EditableProductTable = ({
                                 ))}
                             </select>
                         </div>
+                        <div className="justify-start mt-6">
+                            <button
+                                disabled={filters === DEFAULT_FILTER}
+                                onClick={() => handleClear()}
+                                className="w-full px-2 py-2 text-sm font-bold text-white rounded  active:scale-110 disabled:text-gray-700"
+                            >
+                                Clear filter
+                            </button>
+                        </div>
                         <div className="justify-start mx-10">
                             <label className={'text-start text-white uppercase '}>save</label>
                             <button
@@ -618,10 +661,15 @@ const EditableProductTable = ({
                             </button>
                         </div>
                     </div>
-                    <div className="bg-gray-900 w-full h-4/5 shadow-md p-4">
-                        <div className="flex w-full p-2 justify-between">
-                            <h1 className={'text-white p-2'}>{'PRODUCTS: ' + cantProduct}</h1>
-                            <button className={'text-white p-2 uppercase border-2 rounded-md'} >settings</button>
+                    <div className="bg-gray-900 w-full min-h-[65vh] shadow-md p-4">
+                        <div className="flex flex-col sm:flex-row w-full p-2 justify-between items-center">
+                            <h1 className="text-white p-2 text-center sm:text-left">{'PRODUCTS: ' + cantProduct}</h1>
+                            <button
+                                className="text-white p-2 uppercase border-2 rounded-md hover:bg-gray-700 transition-colors"
+                                onClick={() => setOpenModalSettings(true)}
+                            >
+                                settings
+                            </button>
                         </div>
                         {loadingScreen ? (
                             <div className="space-y-4">
@@ -635,7 +683,6 @@ const EditableProductTable = ({
                                             className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider h-8 bg-gray-700 animate-pulse"></div>
                                     </div>
                                 </div>
-
                                 {/* Rows Skeleton */}
                                 <div className="space-y-2">
                                     {Array(5)
@@ -653,28 +700,27 @@ const EditableProductTable = ({
                                 </div>
                             </div>
                         ) : (
-                            <div className={'overflow-auto max-h-[600px] relative'}>
-                                <table
-                                    className="bg-gray-800 text-white table-auto border-collapse rounded-lg ">
+                            <div className="overflow-x-auto relative max-h-[55vh]">
+                                <table className="bg-gray-800 text-white table-auto border-collapse rounded-lg w-full">
                                     <thead>
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <tr key={headerGroup.id} className="bg-gray-900">
                                             {headerGroup.headers.map((header) => (
                                                 <th
                                                     key={header.id}
-                                                    className="sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
+                                                    className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
                                                 >
                                                     {flexRender(header.column.columnDef.header, header.getContext())}
                                                 </th>
                                             ))}
-                                            <th className=" sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
-                                                Action
-                                            </th>
-                                            <th className=" sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
-                                                Image
-                                            </th>
-                                            <th className=" sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                            <th className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
                                                 Preview
+                                            </th>
+                                            <th className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                                Certificate
+                                            </th>
+                                            <th className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                                Load
                                             </th>
                                         </tr>
                                     ))}
@@ -683,27 +729,27 @@ const EditableProductTable = ({
                                     {table.getRowModel().rows.map((row) => (
                                         <tr
                                             key={row.id}
-                                            className={`hover:bg-gray-700 border-t border-gray-600  ${
+                                            className={`hover:bg-gray-700 border-t border-gray-600 ${
                                                 selectedRowId === row.id ? 'bg-gray-700 border-2 border-lime-600' : ''
                                             }`}
                                             onClick={() => setSelectedRowId(row.id)} // Establecer la fila seleccionada
                                         >
                                             {row.getVisibleCells().map((cell) => (
-                                                <td key={cell.id} className="px-2 py-2 text-md text-black">
+                                                <td key={cell.id} className="px-2 sm:px-6 py-2 text-md text-black">
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </td>
                                             ))}
-                                            <td className="px-2 py-2 text-md text-black items-center uppercase">
+                                            <td className="px-2 sm:px-6 py-2 text-md text-black items-center uppercase">
                                                 {row.original.url_image && (
                                                     <img
                                                         src={row.original.url_image}
-                                                        onClick={() => (setPreviewUrl(String(row.original.url_image)))}
+                                                        onClick={() => setPreviewUrl(String(row.original.url_image))}
                                                         alt="Preview"
                                                         className="w-16 h-16 object-cover rounded-lg border border-gray-700"
                                                     />
                                                 )}
                                             </td>
-                                            <td className="px-2 py-2 text-md text-black items-center">
+                                            <td className="px-2 sm:px-6 py-2 text-md text-black items-center">
                                                 <button
                                                     onClick={() => {
                                                         const filteredProduct = filteredProducts.filter(
@@ -712,16 +758,16 @@ const EditableProductTable = ({
                                                         setSelectedProduct(filteredProduct[0]);
                                                         setImageUpdateModal(true);
                                                     }}
-                                                    className="px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
+                                                    className="px-4 sm:px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
                                                 >
                                                     Verify
                                                 </button>
                                             </td>
-                                            <td className="px-2 py-2 text-md text-black items-center ">
+                                            <td className="px-2 sm:px-6 py-2 text-md text-black items-center ">
                                                 <button
                                                     disabled={!isEdited(row.original)}
                                                     onClick={() => handleUpdateProducts(row.original)}
-                                                    className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 uppercase"
+                                                    className="px-4 sm:px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 uppercase"
                                                 >
                                                     Save
                                                 </button>
@@ -733,6 +779,7 @@ const EditableProductTable = ({
                             </div>
                         )}
                     </div>
+
                     <div className="w-full flex flex-col items-center p-4 bg-gray-900">
                         <div className="flex w-full justify-between">
                             <button
@@ -760,7 +807,7 @@ const EditableProductTable = ({
                                     Array.from({ length: TotalPage }, (_, index) => index + 1)
                                         .slice(
                                             Math.max(1, step - 6), // Asegúrate de que no sea menor que 0
-                                            Math.min(TotalPage - 1, step + 5) // Asegúrate de que no exceda el límite total
+                                            Math.min(TotalPage - 1, step + 5), // Asegúrate de que no exceda el límite total
                                         )
                                         .map((page) => (
                                             <button
@@ -825,7 +872,36 @@ const EditableProductTable = ({
                 {
                     previewUrl !== null && <ImageFullScreenPreview urlImage={previewUrl} setUrlImage={setPreviewUrl} />
                 }
-
+                {openModalSettings && (
+                    <div
+                        className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-110 p-5">
+                        <div className="flex flex-col w-1/4 bg-gray-100 p-5 rounded shadow-lg ">
+                            <h3 className="text-lg font-semibold mb-3">Select Columns</h3>
+                            {Object.entries(columnsSelector).map(([key, value]) => (
+                                <label
+                                    key={key}
+                                    className="flex items-center mb-2 text-md text-gray-700"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="mr-2"
+                                        checked={value}
+                                        onChange={() => handleCheckboxChange(key as keyof typeof columnsSelector)}
+                                    />
+                                    {key.replace(/_/g, ' ').toUpperCase()}
+                                </label>
+                            ))}
+                            <div className="justify-start mx-5 mt-10">
+                                <button
+                                    onClick={() => setOpenModalSettings(false)}
+                                    className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110"
+                                >
+                                    ok
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </React.Fragment>
     ) : null;
