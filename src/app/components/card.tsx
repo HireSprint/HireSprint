@@ -376,18 +376,19 @@ export const GridCardProduct = ({
                                             className="text-red-500 truncate text-left w-full"
                                             style={{ fontSize: '1.1em' }}
                                         >
-                                            {product?.price?.replace(/"/g, '') || '0'}
+                                            ${product?.price?.replace(/"/g, '') || '0'}
                                         </span>
 
-
-                                        {product?.with_card && (
+                                        {product?.addl && product?.addl.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.8em' }}
-                                            >With Club Card
+                                                style={{fontSize: '0.8em'}}
+                                            >
+                                                Addl's ${product?.addl} 
                                             </span>
                                         )}
 
+                                        
 
                                         {product?.limit && product?.limit.length > 0 && (
                                             <span
@@ -408,14 +409,14 @@ export const GridCardProduct = ({
                                             </span>
                                         )}
 
-                                        {product?.addl && product?.addl.length > 0 && (
+                                        {product?.with_card && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.8em' }}
-                                            >
-                                                Addl's {product?.addl} 
+                                                style={{fontSize: '0.8em'}}
+                                            >With Club Card
                                             </span>
                                         )}
+
                                     </>
                                 )}
                             </div>

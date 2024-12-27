@@ -3,10 +3,6 @@ import { ProductTypes } from "@/types/product";
 import Image from "next/image";
 import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon, CopyIcon } from "../icons";
 import { useProductContext } from "@/app/context/productContext";
-
-
-
-
 interface ModalEditProductInterface {
     product: ProductTypes;
     GridID?: number
@@ -64,10 +60,10 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         return null;
     });
     const [size, setSize] = useState<string[]>(Array.isArray(product.size) ? product.size : [product.size || '']);
-    const [variety, setVariety] = useState<string[]>(product.variety || []);
+    const [variety, setVariety] = useState<string[]>(Array.isArray(product.variety_set) && product.variety_set[0] ? product.variety_set : product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
 
-
+ console.log(product.id_grid,'aaaaaaa')
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -104,22 +100,30 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
 
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
+            console.log(product.variety_set.length, 'tamaño de variety', product.variety_set);
             if (varietyType) {
                 setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
+            } else if (product.variety_set && product.variety_set.length > 0 && product.variety_set[0]) {
+                // Verifica que variety_set tenga elementos y que el índice 0 no esté vacío
+                setVariety(product.variety_set);
             } else {
                 if (variety.length === 0 && groupedProducts[GridID][0]) {
-                    const mainVariety = groupedProducts[GridID][0]?.variety?.[0]?.trim().replace(/['"]+/g, '') || '';
+                    const mainVariety =
+                        groupedProducts[GridID][0]?.variety?.[0]?.trim().replace(/['"]+/g, '') || '';
                     setVariety([mainVariety]);
                 } else {
                     const allVarieties = groupedProducts[GridID]
-                        .map((item: ProductTypes) => item?.variety?.[0]?.trim().replace(/['"]+/g, '') || '')
+                        .map(
+                            (item: ProductTypes) =>
+                                item?.variety?.[0]?.trim().replace(/['"]+/g, '') || ''
+                        )
                         .filter(Boolean);
                     setVariety(allVarieties);
                 }
             }
         }
-    }, [GridID, groupedProducts, varietyType]);
-
+    }, [GridID, groupedProducts, varietyType, product.variety_set]);
+    
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
             if (variety.length === 0 || variety.length === 1) {
@@ -153,7 +157,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                 setSize(uniqueSortedSizes);
             }
         }
-    }, [GridID, groupedProducts, variety]);
+    }, [GridID, groupedProducts, variety, varietyType ]);
 
     const updateSizeRange = (sizes: string[] | string | undefined) => {
         if (!sizes) return [];
@@ -519,15 +523,18 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                                     e.stopPropagation();
                                                                                     const varietyValue = item.variety?.[0]?.trim().replace(/['"]+/g, '') || '';
                                                                                     const updatedVarieties = e.target.checked
-                                                                                        ? [...variety, varietyValue]
-                                                                                        : variety.filter(v => v !== varietyValue);
-                                                                                    setVariety(updatedVarieties);
+                                                                                        ? [...variety, varietyValue] // Agregar al estado si está marcado
+                                                                                        : variety.filter(v => v !== varietyValue); // Eliminar si está desmarcado
+
+                                                                                    setVariety(updatedVarieties); // Actualiza el estado
                                                                                 }}
                                                                                 className="w-4 h-4 cursor-pointer"
                                                                                 disabled={!!varietyType}
                                                                             />
-                                                                            {isLoadingGridProducts ? <span className="font-medium">Loading...</span> :
-                                                                            <span className="font-medium">{item?.variety?.[0]?.trim().replace(/['"]+/g, '')}</span>}
+                                                                            {isLoadingGridProducts ? <span
+                                                                                    className="font-medium">Loading...</span> :
+                                                                                <span
+                                                                                    className="font-medium">{item?.variety?.[0]?.trim().replace(/['"]+/g, '')}</span>}
                                                                         </div>
                                                                         <div className="text-sm text-gray-500 mt-1">
                                                                             {item?.size} {item?.w_simbol}

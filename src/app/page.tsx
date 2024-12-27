@@ -165,7 +165,7 @@ export default function HomePage() {
                     with_card: product.with_card || false,
                     limit_type: product.limit_type || "",
                     per: product.per || "",
-                    variety_set: product.variety || [],
+                    variety_set: product.variety_set,
                     size: product.size || ""
                 }))
             };
@@ -456,24 +456,29 @@ export default function HomePage() {
             setAutoSaveVarieties(false); // Reiniciar el estado
         }
     }, [autoSaveVarieties]);
-     const  handleAutoSaveProducts = () => {
-
-        selectedProducts.forEach((product: ProductTypes) => {      
-            if (!Array.isArray(product.variety_set) || product.variety_set.length === 0) {               
-                if (product.id_grid !== undefined && groupedProducts[product.id_grid]) {                   
+    const handleAutoSaveProducts = () => {
+        selectedProducts.forEach((product: ProductTypes) => {            
+            if (
+                !Array.isArray(product.variety_set) ||
+                product.variety_set.length === 0 ||
+                !product.variety_set[0]
+            ) {
+                if (product.id_grid !== undefined && groupedProducts[product.id_grid]) {
                     const allVarieties = groupedProducts[product.id_grid] as Array<{ variety?: string }>;
                     if (Array.isArray(allVarieties)) {
-                        const extractedVarieties = allVarieties.map((item) => item.variety || "").filter(Boolean);                       
+                        const extractedVarieties = allVarieties
+                            .map((item) => item.variety || "")
+                            .filter(Boolean); // Eliminar valores vacíos
                         console.log(`Variedades extraídas: ${extractedVarieties}`);
                         product.variety_set = extractedVarieties;
                     }
                 } else {
                     console.warn(`No se encontró variedad para id_grid ${product.id_grid}`);
-                    product.variety_set = []; 
+                    product.variety_set = [];
                 }
             }
-        });        
-    }
+        });
+    };
    
     
     
