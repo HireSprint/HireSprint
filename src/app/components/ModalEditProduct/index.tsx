@@ -63,7 +63,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const [variety, setVariety] = useState<string[]>(Array.isArray(product.variety_set) && product.variety_set[0] ? product.variety_set : product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
 
- console.log(product.id_grid,'aaaaaaa')
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

@@ -165,15 +165,20 @@ const EditableProductTable = ({
         {
             accessorKey: 'variety',
             header: 'Variety',
-            cell: ({ getValue, row, column }: any) => (
-                <input
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
-                    value={getValue() || ''}
-                    onChange={(e) =>
-                        table.options.meta?.updateData(row.index, column.id, e.target.value)
-                    }
-                />
-            ),
+            cell: ({ getValue, row, column }: any) => {
+                const value = getValue();
+                const displayValue = (value?.[0] || '').replace(/['"]+/g, '');
+                
+                return (
+                    <input
+                        className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
+                        value={displayValue}
+                        onChange={(e) =>
+                            table.options.meta?.updateData(row.index, column.id, e.target.value)
+                        }
+                    />
+                );
+            },
         },
         {
             accessorKey: 'pack',
@@ -408,13 +413,10 @@ const EditableProductTable = ({
         const results = await Promise.all(productsToUpdate.map(async (product) => {
             try {
                 const formData = new FormData();
-                
-                // Agregar imagen si existe
                 if (product.image?.[0]) {
                     formData.append('image', product.image[0]);
                 }
 
-                // Agregar campos básicos
                 const basicFields = {
                     id_product: String(product.id_product || ''),
                     upc: product.upc || '',
@@ -449,7 +451,6 @@ const EditableProductTable = ({
 
                 const data = await response.json();
                 
-                // Actualizar estado local
                 const updatedProduct = { ...product };
                 if (data.result?.url_image) {
                     updatedProduct.url_image = data.result.url_image;
@@ -465,7 +466,6 @@ const EditableProductTable = ({
             }
         }));
 
-        // Actualizar estados locales
         const successfulUpdates = results.filter(r => r.success).map(r => r.product);
         if (successfulUpdates.length > 0) {
             const updatedLocalProducts = LocalProducts.map(item => {
@@ -481,12 +481,10 @@ const EditableProductTable = ({
             setLocalProducts(updatedLocalProducts);
             setFilteredProducts(updatedFilteredProducts);
             
-            // Limpiar productos modificados del estado
             const updatedIds = successfulUpdates.map(p => p.id_product);
             setModifiedData(modifiedData.filter(item => !updatedIds.includes(item.id_product)));
         }
 
-        // Limpiar estados adicionales si es necesario
         setSelectedProduct(null);
         setNewImage(null);
         setImageUpdateModal(false);
@@ -495,74 +493,7 @@ const EditableProductTable = ({
         return results.every(r => r.success);
     };
 
-    useEffect(() => {
-        console.log("filtros",filters)
-    }, [filters]);
 
-
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setNewImage(file);
-        }
-    };
-
-    const handleClick = () => {
-        document.getElementById("imageInputModal")?.click();
-    };
-
-    const handleUpdateImage = async () => {
-        setIsUpdatingImage(true);
-        try {
-            const formData = new FormData();
-
-            // Verificar y agregar la imagen solo si existe
-            if (newImage !== null) {
-                formData.append('image', newImage);
-            }
-
-            formData.append('id_product', String(selectedProduct?.id_product || ''));
-
-            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
-                method: "POST",
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.status !== 200) {
-                const errorData = await data.message;
-                throw new Error(`Error del servidor: ${response.status} ${errorData}`);
-            } else {
-                const lista_update = LocalProducts.map((item: ProductTypes) => {
-                    if (item.id_product === selectedProduct?.id_product) {
-                        return { ...item, url_image: data.result.url_image };
-                    }
-                    return item;
-                });
-
-                const lista_filtered = filteredProducts.map((item: ProductTypes) => {
-                    if (item.id_product === selectedProduct?.id_product) {
-                        return { ...item, url_image: data.result.url_image };
-                    }
-                    return item;
-                });
-
-                setLocalProducts(lista_update);
-                setFilteredProducts(lista_filtered);
-            }
-
-        } catch (error) {
-            console.error('Error al actualizar producto:', error);
-            toast.error("Error al actualizar el producto");
-        } finally {
-            toast.success("Imagen del producto actualizada");
-            setImageUpdateModal(false)
-            setIsUpdatingImage(false);
-            setSelectedProduct(null);
-            setNewImage(null)
-        }
-    };
 
 
 
