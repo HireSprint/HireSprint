@@ -760,7 +760,7 @@ const EditableProductTable = ({
                                                         setSelectedProduct(filteredProduct[0]);
                                                         setImageUpdateModal(true);
                                                     }}
-                                                    className="px-4 sm:px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
+                                                    className={`px-4 sm:px-6 py-1 text-sm font-bold text-white rounded ${row.original.verify ? "bg-[#47ba09] " : "bg-blue-700"} hover:scale-110 disabled:bg-gray-500`}
                                                 >
                                                     Verify
                                                 </button>
