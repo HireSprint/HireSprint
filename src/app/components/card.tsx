@@ -364,10 +364,10 @@ export const GridCardProduct = ({
                                             className="text-purple-600 uppercase truncate text-left w-full"
                                             style={{ fontSize: '0.8em' }}
                                         >
-                                            <span> {product?.size || ''} </span>
                                             <span> {product?.pack || ''} </span>
-                                            <span> {product?.w_simbol || ''} </span>
                                             <span> {product?.count || ''} </span>
+                                            <span> {product?.size || ''} </span>
+                                            <span> {product?.w_simbol || ''} </span>
                                             <span> {product?.embase || ''} </span>
                                         </span>
 

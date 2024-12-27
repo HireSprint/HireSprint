@@ -121,7 +121,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 price: product.price,
                 notes: product.notes,
                 burst: Number(product.burst),
-                addl: product.addl !== '0' && product.addl !== '' ? `with add'l $${product.addl} purchase or more` : '',
+                addl: product.addl !== '0' && product.addl !== '' ? `WITH ADD'L $${product.addl} PURCHASE OR MORE` : '',
                 limit: product.limit ? `Limit ${product.limit}` : '',
                 must_buy: product.must_buy ? `Must Buy ${product.must_buy}` : '',
                 with_cart: product.with_card,
