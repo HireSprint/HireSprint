@@ -15,6 +15,23 @@ declare module '@tanstack/react-table' {
         updateData: (rowIndex: number, columnId: string, value: unknown) => void;
     }
 }
+type ColumnsSelectorKeys = keyof typeof initialColumnsSelector;
+
+const initialColumnsSelector = {
+    verify: false,
+    upc: false,
+    master_brand: false,
+    brand: false,
+    desc: false,
+    variety: false,
+    pack: false,
+    count: false,
+    size: false,
+    w_symbol: false,
+    embase: false,
+    id_category: false,
+    type_of_meat: false,
+};
 
 interface EditableProductTableInterface {
     products: ProductTypes[];
@@ -23,6 +40,7 @@ interface EditableProductTableInterface {
     closeModal: (status: boolean) => void;
     reloadData: (status: boolean) => void;
 }
+const DEFAULT_FILTER = { id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "",pack:"",size:"" }
 
 const EditableProductTable = ({
     products,
@@ -34,11 +52,17 @@ const EditableProductTable = ({
     const [LocalProducts, setLocalProducts] = useState<ProductTypes[]>(products?.filter((item) => item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()));
     const [modifiedData, setModifiedData] = useState<any[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>(products?.filter((item) => item.status_active === true).sort((a, b) => new Date(String(a.createdAt)).getTime() - new Date(String(b.createdAt)).getTime()).slice(0, 100));
-    const [filters, setFilters] = useState({ id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "",pack:"",size:"" });
+    const [filters, setFilters] = useState(DEFAULT_FILTER);
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
     const [reload, setReload] = useState(false);
     const [loadingScreen, setLoadingScreen] = useState(true);
     const [selectedRowId, setSelectedRowId] = useState<any>(null);
+
+    //column
+    const [columnsSelector, setColumnsSelector] = useState({verify:true,upc:true,master_brand:true,brand:true,desc:true,variety:true,pack:true,count:true,size:true,w_symbol:true,embase:true,id_category:true,type_of_meat:false});
+    //settings Open
+    const [openModalSettings, setOpenModalSettings] = useState(false);
+
 
     //pagination
     const [TotalPage, setTotalPage] = useState(calculateTotalProduct(products.filter((item) => item.status_active === true).length));
@@ -54,8 +78,7 @@ const EditableProductTable = ({
     const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
     const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
 
-    //settings Open
-    const [openModalSettings, setOpenModalSettings] = useState(false);
+
 
 
     //preview image ulr
@@ -91,12 +114,12 @@ const EditableProductTable = ({
         setShowSuggestions({ ...showSuggestions, [fieldName]: false });
     };
 
-
+    const [tempColumns, setTempColumns] = useState<any>();
     const [columns,setColumns] = useState([
         {
             accessorKey: 'verify',
-            header: 'Certificate',
-            cell: ({ getValue }: any) => {
+            header: 'Certificated',
+            cell: ({ getValue}: any) => {
                 const verify = getValue();
                 return (
                     <div className="flex justify-center">
@@ -165,15 +188,20 @@ const EditableProductTable = ({
         {
             accessorKey: 'variety',
             header: 'Variety',
-            cell: ({ getValue, row, column }: any) => (
-                <input
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
-                    value={getValue() || ''}
-                    onChange={(e) =>
-                        table.options.meta?.updateData(row.index, column.id, e.target.value)
-                    }
-                />
-            ),
+            cell: ({ getValue, row, column }: any) => {
+                const value = getValue();
+                const displayValue = (value?.[0] || '').replace(/['"]+/g, '');
+
+                return (
+                    <input
+                        className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
+                        value={displayValue}
+                        onChange={(e) =>
+                            table.options.meta?.updateData(row.index, column.id, e.target.value)
+                        }
+                    />
+                );
+            },
         },
         {
             accessorKey: 'pack',
@@ -260,43 +288,39 @@ const EditableProductTable = ({
                     <option value="create">+ Add new category</option>
                 </select>
             ),
-        }
+        },
+        {
+            accessorKey: 'type_of_meat',
+            header: 'Type of Meat',
+            cell:
+                ({ getValue, row, column }: any) => (
+                    <input
+                        className="border border-gray-300 rounded p-1 text-black"
+                        value={getValue() || ''}
+                        onChange={(e) =>
+                            table.options.meta?.updateData(row.index, column.id, e.target.value)
+                        }
+                    />
+                ),
+        },
     ]);
 
     useEffect(() => {
-        const type_of_meat = {
-                accessorKey: 'type_of_meat',
-                header: 'Type of Meat',
-                cell:
-                    ({ getValue, row, column }: any) => (
-                        <input
-                            className="border border-gray-300 rounded p-1 text-black"
-                            value={getValue() || ''}
-                            onChange={(e) =>
-                                table.options.meta?.updateData(row.index, column.id, e.target.value)
-                            }
-                        />
-                    ),
-        }
+        const filteredColumns = columns.filter((column) => columnsSelector[column.accessorKey as keyof typeof columnsSelector]);
+        setTempColumns(filteredColumns);
+    }, [columns, columnsSelector]);
 
-        if (filters.id_category === '5' || filters.id_category === '16' && columns.length === 12) {
-            let copy_columns = [...columns, type_of_meat];
-            console.log("con carne",copy_columns);
-            setColumns(copy_columns)
-        } else if(columns.length === 12) {
-            let copy_columns = [...columns];
-            copy_columns.pop()
-            console.log("sin carne",copy_columns);
-            setColumns(copy_columns)
+    useEffect(() => {
+        if ((filters.id_category === '5' || filters.id_category === '16') && columnsSelector?.type_of_meat === false ) {
+            setColumnsSelector({...columnsSelector, type_of_meat: true });
         }
-
-    }, [filters]);
+    }, [filters,]);
 
 
 
     const table = useReactTable({
         data: filteredProducts,
-        columns,
+        columns:tempColumns ? tempColumns : columns,
         getCoreRowModel: getCoreRowModel(),
         meta: {
             updateData: (rowIndex: number, columnId: string, value: unknown) => {
@@ -403,164 +427,102 @@ const EditableProductTable = ({
         return isItemInList;
     };
 
-    const handledUpdate = async (item: ProductTypes | ProductTypes[]) => {
-        const sendItem: ProductTypes = Array.isArray(item) ? item[0] : item
+    const handleUpdateProducts = async (items: ProductTypes | ProductTypes[]) => {
+        const productsToUpdate = Array.isArray(items) ? items : [items];
+        const results = await Promise.all(productsToUpdate.map(async (product) => {
+            try {
+                const formData = new FormData();
+                if (product.image?.[0]) {
+                    formData.append('image', product.image[0]);
+                }
 
-        const body = {
-            "id_product": Number(sendItem.id_product),
-            "upc": sendItem.upc,
-            "master_brand": sendItem.master_brand,
-            "brand": sendItem.brand,
-            "desc": sendItem.desc,
-            "size": sendItem.size,
-            "pack": sendItem.pack,
-            "w_simbol": sendItem.w_simbol,
-            "embase": sendItem.embase,
-            "id_category": sendItem.id_category,
-            "type_of_meat": sendItem.type_of_meat
-        }
-        const resp = await updateProduct(body);
-        if (resp.status === 200) {
-            const lista_update = LocalProducts.map((item: ProductTypes) => item.id_product === sendItem.id_product ? sendItem : item)
-            const lista_filtered = filteredProducts.map((item: ProductTypes) => item.id_product === sendItem.id_product ? sendItem : item)
-            setLocalProducts(lista_update)
-            setFilteredProducts(lista_filtered)
-            setModifiedData(modifiedData.filter((item: ProductTypes) => item.id_product !== sendItem.id_product))
-            toast.success(`Product ${sendItem.upc} updated successfully.`);
-            return true
-        } else {
-            toast.error(`Product ${sendItem.upc} updated unsuccessfully.`);
-            return false;
-        }
-    };
-
-    const updateAllChange = async () => {
-        const tempDataModified = [...modifiedData];
-
-        const listaDeActualizada = await Promise.all(
-            tempDataModified.map(async (sendItem: ProductTypes) => {
-                const body = {
-                    id_product: Number(sendItem.id_product),
-                    upc: sendItem.upc,
-                    master_brand: sendItem.master_brand,
-                    brand: sendItem.brand,
-                    desc: sendItem.desc,
-                    size: sendItem.size,
-                    pack: sendItem.pack,
-                    w_simbol: sendItem.w_simbol,
-                    embase: sendItem.embase,
-                    id_category: sendItem.id_category,
-                    type_of_meat: sendItem.type_of_meat,
+                const basicFields = {
+                    id_product: String(product.id_product || ''),
+                    upc: product.upc || '',
+                    desc: product.desc || '',
+                    brand: product.brand || '',
+                    variety: Array.isArray(product.variety) ? product.variety[0] : '',
+                    master_brand: product.master_brand || '',
+                    size: String(product.size || ''),
+                    type_of_meat: product.type_of_meat || '',
+                    type_of_cut: product.type_of_cut || '',
+                    quality_cf: product.quality_cf || '',
+                    id_category: String(product.id_category || ''),
+                    pack: String(product.pack || 0),
+                    count: String(product.count || 0),
+                    w_simbol: product.w_simbol || "",
+                    embase: product.embase || "",
+                    verify: product.verify ? 'true' : 'false'
                 };
 
-                try {
-                    const resp = await updateProduct(body);
-                    if (resp.status === 200) {
-                        toast.success(`Product ${sendItem.upc} updated successfully.`);
-                        return { success: true, sendItem };
-                    } else {
-                        toast.error(`Product ${sendItem.upc} updated unsuccessfully.`);
-                        return { success: false, sendItem };
-                    }
-                } catch (error) {
-                    toast.error(`Error updating product ${sendItem.upc}`);
-                    return { success: false, sendItem };
+                Object.entries(basicFields).forEach(([key, value]) => {
+                    formData.append(key, value);
+                });
+
+                const response = await fetch('https://hiresprintcanvas.dreamhosters.com/updateProduct', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
                 }
-            })
-        );
 
-        const updatedProducts = listaDeActualizada
-            .filter(item => item.success)
-            .map(item => item.sendItem);
+                const data = await response.json();
 
-        const lista_update = LocalProducts.map((item: ProductTypes) =>
-            updatedProducts.find(updated => updated.id_product === item.id_product) || item
-        );
+                const updatedProduct = { ...product };
+                if (data.result?.url_image) {
+                    updatedProduct.url_image = data.result.url_image;
+                }
 
-        const lista_filtered = filteredProducts.map((item: ProductTypes) =>
-            updatedProducts.find(updated => updated.id_product === item.id_product) || item
-        );
+                toast.success(`Producto ${product.upc} actualizado exitosamente`);
+                return { success: true, product: updatedProduct };
 
-        setLocalProducts(lista_update);
-        setFilteredProducts(lista_filtered);
-
-        const idsUpdated = updatedProducts.map(item => item.id_product);
-        setModifiedData(modifiedData.filter((item: ProductTypes) => !idsUpdated.includes(item.id_product)));
-
-        console.log("Lista de subida:", listaDeActualizada);
-
-        setReload(!reload);
-    };
-
-    useEffect(() => {
-        console.log("filtros",filters)
-    }, [filters]);
-
-
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setNewImage(file);
-        }
-    };
-
-    const handleClick = () => {
-        document.getElementById("imageInputModal")?.click();
-    };
-
-    const handleUpdateImage = async () => {
-        setIsUpdatingImage(true);
-        try {
-            const formData = new FormData();
-
-            // Verificar y agregar la imagen solo si existe
-            if (newImage !== null) {
-                formData.append('image', newImage);
+            } catch (error) {
+                console.error('Error al actualizar producto:', error);
+                toast.error(`Error al actualizar producto ${product.upc}`);
+                return { success: false, product };
             }
+        }));
 
-            formData.append('id_product', String(selectedProduct?.id_product || ''));
-
-            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/updateProduct`, {
-                method: "POST",
-                body: formData
+        const successfulUpdates = results.filter(r => r.success).map(r => r.product);
+        if (successfulUpdates.length > 0) {
+            const updatedLocalProducts = LocalProducts.map(item => {
+                const updated = successfulUpdates.find(u => u.id_product === item.id_product);
+                return updated || item;
             });
 
-            const data = await response.json();
+            const updatedFilteredProducts = filteredProducts.map(item => {
+                const updated = successfulUpdates.find(u => u.id_product === item.id_product);
+                return updated || item;
+            });
 
-            if (data.status !== 200) {
-                const errorData = await data.message;
-                throw new Error(`Error del servidor: ${response.status} ${errorData}`);
-            } else {
-                const lista_update = LocalProducts.map((item: ProductTypes) => {
-                    if (item.id_product === selectedProduct?.id_product) {
-                        return { ...item, url_image: data.result.url_image };
-                    }
-                    return item;
-                });
+            setLocalProducts(updatedLocalProducts);
+            setFilteredProducts(updatedFilteredProducts);
 
-                const lista_filtered = filteredProducts.map((item: ProductTypes) => {
-                    if (item.id_product === selectedProduct?.id_product) {
-                        return { ...item, url_image: data.result.url_image };
-                    }
-                    return item;
-                });
-
-                setLocalProducts(lista_update);
-                setFilteredProducts(lista_filtered);
-            }
-
-        } catch (error) {
-            console.error('Error al actualizar producto:', error);
-            toast.error("Error al actualizar el producto");
-        } finally {
-            toast.success("Imagen del producto actualizada");
-            setImageUpdateModal(false)
-            setIsUpdatingImage(false);
-            setSelectedProduct(null);
-            setNewImage(null)
+            const updatedIds = successfulUpdates.map(p => p.id_product);
+            setModifiedData(modifiedData.filter(item => !updatedIds.includes(item.id_product)));
         }
+
+        setSelectedProduct(null);
+        setNewImage(null);
+        setImageUpdateModal(false);
+        setIsUpdatingImage(false);
+
+        return results.every(r => r.success);
     };
 
+    const handleCheckboxChange = (key: ColumnsSelectorKeys) => {
+        setColumnsSelector((prevState) => ({
+            ...prevState,
+            [key]: !prevState[key],
+        }));
+    };
+
+    const handleClear = () => {
+        setFilters(DEFAULT_FILTER)
+        return setLoadingScreen(true)
+    };
 
 
     return openModal ? (
@@ -578,10 +540,11 @@ const EditableProductTable = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="w-full flex p-4 bg-gray-900 gap-5">
+                    <div className="w-full flex p-4 bg-gray-900 gap-5 sm:flex-wrap ">
                         <div className="flex flex-col justify-start">
                             <label className={'text-start text-white uppercase '}>UPC</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.upc}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        upc: e.target.value,
@@ -589,23 +552,24 @@ const EditableProductTable = ({
                         </div>
                         <div className="flex flex-col justify-start">
                             <label
-                                htmlFor="dateInput"
                                 className="text-start text-white uppercase "
                             >
                                 Date Circular
                             </label>
                             <input
+                                value={filters.date}
                                 onChange={(e) => (setFilters({
                                     ...filters,
                                     date: e.target.value,
                                 }), setLoadingScreen(true))}
                                 type="date"
-                                className="w-32 bg-gray-500 text-white p-2 rounded-md "
+                                className="w-32 bg-gray-500 text-white p-2 rounded-md"
                             />
                         </div>
                         <div className="flex flex-col justify-start">
                             <label className={'text-start text-white uppercase '}>Master Brand</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.master_brand}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        master_brand: e.target.value,
@@ -614,6 +578,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Brand</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.brand}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        brand: e.target.value,
@@ -622,6 +587,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Description </label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.desc}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        desc: e.target.value,
@@ -630,6 +596,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Variety</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.variety}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        variety: e.target.value,
@@ -638,6 +605,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Pack</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.pack}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        pack: e.target.value,
@@ -646,6 +614,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Size</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
+                                   value={filters.size}
                                    onChange={(e) => (setFilters({
                                        ...filters,
                                        size: e.target.value,
@@ -654,13 +623,12 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Category</label>
                             <select
-                                name=""
-                                id=""
+                                value={filters.id_category === "" ? "" : filters.id_category}
                                 onChange={(e) => (setFilters({
                                     ...filters,
                                     id_category: e.target.value,
                                 }), setLoadingScreen(true))}
-                                className={'w-42 bg-gray-500 text-white p-2 rounded-md'}
+                                className={'w-32 bg-gray-500 text-white p-2 rounded-md'}
                                 defaultValue=""
                             >
                                 <option value="">
@@ -673,21 +641,35 @@ const EditableProductTable = ({
                                 ))}
                             </select>
                         </div>
+                        <div className="justify-start mt-6">
+                            <button
+                                disabled={filters === DEFAULT_FILTER}
+                                onClick={() => handleClear()}
+                                className="w-full px-2 py-2 text-sm font-bold text-white rounded  active:scale-110 disabled:text-gray-700"
+                            >
+                                Clear filter
+                            </button>
+                        </div>
                         <div className="justify-start mx-10">
                             <label className={'text-start text-white uppercase '}>save</label>
                             <button
                                 disabled={!(modifiedData.length > 0)}
-                                onClick={() => updateAllChange()}
-                                className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 "
+                                onClick={() => handleUpdateProducts(modifiedData)}
+                                className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
                             >
                                 Update All
                             </button>
                         </div>
                     </div>
-                    <div className="bg-gray-900 w-full h-4/5 shadow-md p-4">
-                        <div className="flex w-full p-2 justify-between">
-                            <h1 className={'text-white p-2'}>{'PRODUCTS: ' + cantProduct}</h1>
-                            <button className={'text-white p-2 uppercase border-2 rounded-md'} >settings</button>
+                    <div className="bg-gray-900 w-full min-h-[65vh] shadow-md p-4">
+                        <div className="flex flex-col sm:flex-row w-full p-2 justify-between items-center">
+                            <h1 className="text-white p-2 text-center sm:text-left">{'PRODUCTS: ' + cantProduct}</h1>
+                            <button
+                                className="text-white p-2 uppercase border-2 rounded-md hover:bg-gray-700 transition-colors"
+                                onClick={() => setOpenModalSettings(true)}
+                            >
+                                settings
+                            </button>
                         </div>
                         {loadingScreen ? (
                             <div className="space-y-4">
@@ -701,7 +683,6 @@ const EditableProductTable = ({
                                             className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider h-8 bg-gray-700 animate-pulse"></div>
                                     </div>
                                 </div>
-
                                 {/* Rows Skeleton */}
                                 <div className="space-y-2">
                                     {Array(5)
@@ -719,28 +700,27 @@ const EditableProductTable = ({
                                 </div>
                             </div>
                         ) : (
-                            <div className={'overflow-auto max-h-[600px] relative'}>
-                                <table
-                                    className="bg-gray-800 text-white table-auto border-collapse rounded-lg ">
+                            <div className="overflow-x-auto relative max-h-[55vh]">
+                                <table className="bg-gray-800 text-white table-auto border-collapse rounded-lg w-full">
                                     <thead>
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <tr key={headerGroup.id} className="bg-gray-900">
                                             {headerGroup.headers.map((header) => (
                                                 <th
                                                     key={header.id}
-                                                    className="sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
+                                                    className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
                                                 >
                                                     {flexRender(header.column.columnDef.header, header.getContext())}
                                                 </th>
                                             ))}
-                                            <th className=" sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
-                                                Action
-                                            </th>
-                                            <th className=" sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
-                                                Image
-                                            </th>
-                                            <th className=" sticky top-0 z-8 bg-gray-950 px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                            <th className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
                                                 Preview
+                                            </th>
+                                            <th className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                                Certificate
+                                            </th>
+                                            <th className="sticky top-0 z-8 bg-gray-950 px-2 sm:px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider">
+                                                Load
                                             </th>
                                         </tr>
                                     ))}
@@ -749,27 +729,27 @@ const EditableProductTable = ({
                                     {table.getRowModel().rows.map((row) => (
                                         <tr
                                             key={row.id}
-                                            className={`hover:bg-gray-700 border-t border-gray-600  ${
+                                            className={`hover:bg-gray-700 border-t border-gray-600 ${
                                                 selectedRowId === row.id ? 'bg-gray-700 border-2 border-lime-600' : ''
                                             }`}
                                             onClick={() => setSelectedRowId(row.id)} // Establecer la fila seleccionada
                                         >
                                             {row.getVisibleCells().map((cell) => (
-                                                <td key={cell.id} className="px-2 py-2 text-md text-black">
+                                                <td key={cell.id} className="px-2 sm:px-6 py-2 text-md text-black">
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </td>
                                             ))}
-                                            <td className="px-2 py-2 text-md text-black items-center uppercase">
+                                            <td className="px-2 sm:px-6 py-2 text-md text-black items-center uppercase">
                                                 {row.original.url_image && (
                                                     <img
                                                         src={row.original.url_image}
-                                                        onClick={() => (setPreviewUrl(String(row.original.url_image)))}
+                                                        onClick={() => setPreviewUrl(String(row.original.url_image))}
                                                         alt="Preview"
                                                         className="w-16 h-16 object-cover rounded-lg border border-gray-700"
                                                     />
                                                 )}
                                             </td>
-                                            <td className="px-2 py-2 text-md text-black items-center">
+                                            <td className="px-2 sm:px-6 py-2 text-md text-black items-center">
                                                 <button
                                                     onClick={() => {
                                                         const filteredProduct = filteredProducts.filter(
@@ -778,21 +758,16 @@ const EditableProductTable = ({
                                                         setSelectedProduct(filteredProduct[0]);
                                                         setImageUpdateModal(true);
                                                     }}
-                                                    className="px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
+                                                    className="px-4 sm:px-6 py-1 text-sm font-bold text-white rounded bg-blue-700 hover:scale-110 disabled:bg-gray-500"
                                                 >
                                                     Verify
                                                 </button>
                                             </td>
-                                            <td className="px-2 py-2 text-md text-black items-center ">
+                                            <td className="px-2 sm:px-6 py-2 text-md text-black items-center ">
                                                 <button
                                                     disabled={!isEdited(row.original)}
-                                                    onClick={() => {
-                                                        const filteredProduct = filteredProducts.filter(
-                                                            (_, index) => index === row.index,
-                                                        );
-                                                        handledUpdate(filteredProduct);
-                                                    }}
-                                                    className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 uppercase"
+                                                    onClick={() => handleUpdateProducts(row.original)}
+                                                    className="px-4 sm:px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 uppercase"
                                                 >
                                                     Save
                                                 </button>
@@ -804,6 +779,7 @@ const EditableProductTable = ({
                             </div>
                         )}
                     </div>
+
                     <div className="w-full flex flex-col items-center p-4 bg-gray-900">
                         <div className="flex w-full justify-between">
                             <button
@@ -831,7 +807,7 @@ const EditableProductTable = ({
                                     Array.from({ length: TotalPage }, (_, index) => index + 1)
                                         .slice(
                                             Math.max(1, step - 6), // Asegúrate de que no sea menor que 0
-                                            Math.min(TotalPage - 1, step + 5) // Asegúrate de que no exceda el límite total
+                                            Math.min(TotalPage - 1, step + 5), // Asegúrate de que no exceda el límite total
                                         )
                                         .map((page) => (
                                             <button
@@ -884,7 +860,7 @@ const EditableProductTable = ({
                     <ModalSmallProduct
                         product={selectedProduct}
                         onClose={() => setImageUpdateModal(false)}
-                        onUpdate={handleUpdateImage}
+                        onUpdate={handleUpdateProducts}
                         categories={categories}
                         matchCategory={(categories: categoriesInterface[], id_category: number): categoriesInterface =>
                             categories.find(cat => cat.id_category === id_category) || categories[0]
@@ -896,7 +872,36 @@ const EditableProductTable = ({
                 {
                     previewUrl !== null && <ImageFullScreenPreview urlImage={previewUrl} setUrlImage={setPreviewUrl} />
                 }
-
+                {openModalSettings && (
+                    <div
+                        className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-110 p-5">
+                        <div className="flex flex-col w-1/4 bg-gray-100 p-5 rounded shadow-lg ">
+                            <h3 className="text-lg font-semibold mb-3">Select Columns</h3>
+                            {Object.entries(columnsSelector).map(([key, value]) => (
+                                <label
+                                    key={key}
+                                    className="flex items-center mb-2 text-md text-gray-700"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="mr-2"
+                                        checked={value}
+                                        onChange={() => handleCheckboxChange(key as keyof typeof columnsSelector)}
+                                    />
+                                    {key.replace(/_/g, ' ').toUpperCase()}
+                                </label>
+                            ))}
+                            <div className="justify-start mx-5 mt-10">
+                                <button
+                                    onClick={() => setOpenModalSettings(false)}
+                                    className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110"
+                                >
+                                    ok
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </React.Fragment>
     ) : null;

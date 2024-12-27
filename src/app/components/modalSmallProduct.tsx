@@ -38,7 +38,7 @@ const ModalSmallProduct = ({product, onClose, onUpdate, categories, matchCategor
         fontSize: '0.875rem'
     };
 
-    
+
 
     useEffect(() => {
         if (reloadFlag || !openProductModalTable) {
@@ -84,7 +84,7 @@ const ModalSmallProduct = ({product, onClose, onUpdate, categories, matchCategor
     const getUniqueValues = (fieldName: keyof ProductTypes) => {
         const values = productsData
             .map(p => p[fieldName])
-            .filter((value): value is string => 
+            .filter((value): value is string =>
                 typeof value === 'string' && value.length > 0
             );
         return Array.from(new Set(values));
@@ -96,7 +96,7 @@ const ModalSmallProduct = ({product, onClose, onUpdate, categories, matchCategor
 
         if (value.length > 0) {
             const uniqueValues = getUniqueValues(fieldName);
-            const filtered = uniqueValues.filter(item => 
+            const filtered = uniqueValues.filter(item =>
                 item.toLowerCase().startsWith(value.toLowerCase())
             );
             setSuggestions({ ...suggestions, [fieldName]: filtered });
@@ -138,7 +138,7 @@ return (
                 <div className="flex items-center justify-between py-4">
                     <div className={"flex flex-row"}>
                         <h2 className="text-xl text-white font-bold text-center">Edit Product</h2>
-                        <div className={`px-4 py-2 bg-gray-600 text-white rounded`}>{product?.status_active ? "Active" : "Disable"}</div>
+                        <div className={`mx-4 my-auto px-4 py-1 text-white rounded ${product?.status_active ? "bg-lime-600" : "bg-red-500"}`}>{product?.status_active ? "Active" : "Disable"}</div>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
                 </div>
@@ -188,7 +188,7 @@ return (
                         {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && activeField === 'master_brand' && (
                             <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                 {suggestions['master_brand'].map((suggestion, index) => (
-                                    <div 
+                                    <div
                                         key={index}
                                         className="p-2 hover:bg-gray-600 cursor-pointer text-white"
                                         onClick={() => handleSuggestionClick('master_brand', suggestion)}
@@ -281,24 +281,6 @@ return (
                         />
                     </div>
                     <div style={inputContainerStyle}>
-                        <label htmlFor="pack" style={labelStyle}>Pack</label>
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded w-full"
-                            value={editedProduct?.pack || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, pack: Number(e.target.value) })}
-                            placeholder="Pack"
-                        />
-                    </div>
-                    <div style={inputContainerStyle}>
-                        <label htmlFor="count" style={labelStyle}>Count</label>
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded w-full"
-                            value={editedProduct?.count || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, count: Number(e.target.value) })}
-                            placeholder="Count"
-                        />
-                    </div>
-                    <div style={inputContainerStyle}>
                         <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
                         <input
                             className="bg-gray-700 text-white p-2 rounded w-full"
@@ -321,6 +303,25 @@ return (
                                 ))}
                             </div>
                         )}
+                    </div>
+                    <div style={inputContainerStyle}>
+                        <label htmlFor="pack" style={labelStyle}>Pack</label>
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded w-full"
+                            value={editedProduct?.pack || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, pack: Number(e.target.value) })}
+                            placeholder="Pack"
+                        />
+                    </div>
+
+                    <div style={inputContainerStyle}>
+                        <label htmlFor="count" style={labelStyle}>Count</label>
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded w-full"
+                            value={editedProduct?.count || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, count: Number(e.target.value) })}
+                            placeholder="Count"
+                        />
                     </div>
                     <div style={inputContainerStyle}>
                         <label htmlFor="embase" style={labelStyle}>Embase</label>
@@ -408,8 +409,8 @@ return (
                             onChange={handleImageChange}
                         />
                         {editPreviewUrl ? (
-                            <div 
-                                className="cursor-pointer" 
+                            <div
+                                className="cursor-pointer"
                                 onClick={() => document.getElementById('imageInputUpdate')?.click()}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}

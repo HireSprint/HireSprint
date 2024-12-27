@@ -64,7 +64,6 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const varietyListRef = useRef<HTMLDivElement>(null);
     const burstDropdownRef = useRef<HTMLDivElement>(null);
 
- console.log(product.id_grid,'aaaaaaa')
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
