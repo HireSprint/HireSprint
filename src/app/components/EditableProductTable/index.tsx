@@ -8,6 +8,7 @@ import ImageFullScreenPreview from '@/app/components/imageFullScreenPreview';
 import { UnverifiedIcon, VerifiedIcon } from '../icons';
 import ModalSmallProduct from '../modalSmallProduct';
 import { calculateTotalProduct } from '@/helpers/calculateTotalPage';
+import { useAuth } from '../provider/authprovider';
 
 
 declare module '@tanstack/react-table' {
@@ -77,6 +78,7 @@ const EditableProductTable = ({
     const [value, setValue] = useState<string>('');
     const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
     const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+    const { user } = useAuth();
 
 
 
