@@ -138,7 +138,7 @@ return (
                 <div className="flex items-center justify-between py-4">
                     <div className={"flex flex-row"}>
                         <h2 className="text-xl text-white font-bold text-center">Edit Product</h2>
-                        <div className={`px-4 py-2 bg-gray-600 text-white rounded`}>{product?.status_active ? "Active" : "Disable"}</div>
+                        <div className={`ml-4 px-3 py-1 bg-gray-600 text-white rounded ${product?.status_active ? "bg-green-600" : "bg-red-600"}`}>{product?.status_active ? "Active" : "Disable"}</div>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
                 </div>
@@ -281,24 +281,6 @@ return (
                         />
                     </div>
                     <div style={inputContainerStyle}>
-                        <label htmlFor="pack" style={labelStyle}>Pack</label>
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded w-full"
-                            value={editedProduct?.pack || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, pack: Number(e.target.value) })}
-                            placeholder="Pack"
-                        />
-                    </div>
-                    <div style={inputContainerStyle}>
-                        <label htmlFor="count" style={labelStyle}>Count</label>
-                        <input
-                            className="bg-gray-700 text-white p-2 rounded w-full"
-                            value={editedProduct?.count || ''}
-                            onChange={e => setEditedProduct({ ...editedProduct, count: Number(e.target.value) })}
-                            placeholder="Count"
-                        />
-                    </div>
-                    <div style={inputContainerStyle}>
                         <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
                         <input
                             className="bg-gray-700 text-white p-2 rounded w-full"
@@ -321,6 +303,25 @@ return (
                                 ))}
                             </div>
                         )}
+                    </div>
+                    <div style={inputContainerStyle}>
+                        <label htmlFor="pack" style={labelStyle}>Pack</label>
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded w-full"
+                            value={editedProduct?.pack || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, pack: Number(e.target.value) })}
+                            placeholder="Pack"
+                        />
+                    </div>
+                
+                    <div style={inputContainerStyle}>
+                        <label htmlFor="count" style={labelStyle}>Count</label>
+                        <input
+                            className="bg-gray-700 text-white p-2 rounded w-full"
+                            value={editedProduct?.count || ''}
+                            onChange={e => setEditedProduct({ ...editedProduct, count: Number(e.target.value) })}
+                            placeholder="Count"
+                        />
                     </div>
                     <div style={inputContainerStyle}>
                         <label htmlFor="embase" style={labelStyle}>Embase</label>

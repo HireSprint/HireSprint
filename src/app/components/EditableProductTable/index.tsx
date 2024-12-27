@@ -403,93 +403,96 @@ const EditableProductTable = ({
         return isItemInList;
     };
 
-    const handledUpdate = async (item: ProductTypes | ProductTypes[]) => {
-        const sendItem: ProductTypes = Array.isArray(item) ? item[0] : item
+    const handleUpdateProducts = async (items: ProductTypes | ProductTypes[]) => {
+        const productsToUpdate = Array.isArray(items) ? items : [items];
+        const results = await Promise.all(productsToUpdate.map(async (product) => {
+            try {
+                const formData = new FormData();
+                
+                // Agregar imagen si existe
+                if (product.image?.[0]) {
+                    formData.append('image', product.image[0]);
+                }
 
-        const body = {
-            "id_product": Number(sendItem.id_product),
-            "upc": sendItem.upc,
-            "master_brand": sendItem.master_brand,
-            "brand": sendItem.brand,
-            "desc": sendItem.desc,
-            "size": sendItem.size,
-            "pack": sendItem.pack,
-            "w_simbol": sendItem.w_simbol,
-            "embase": sendItem.embase,
-            "id_category": sendItem.id_category,
-            "type_of_meat": sendItem.type_of_meat
-        }
-        const resp = await updateProduct(body);
-        if (resp.status === 200) {
-            const lista_update = LocalProducts.map((item: ProductTypes) => item.id_product === sendItem.id_product ? sendItem : item)
-            const lista_filtered = filteredProducts.map((item: ProductTypes) => item.id_product === sendItem.id_product ? sendItem : item)
-            setLocalProducts(lista_update)
-            setFilteredProducts(lista_filtered)
-            setModifiedData(modifiedData.filter((item: ProductTypes) => item.id_product !== sendItem.id_product))
-            toast.success(`Product ${sendItem.upc} updated successfully.`);
-            return true
-        } else {
-            toast.error(`Product ${sendItem.upc} updated unsuccessfully.`);
-            return false;
-        }
-    };
-
-    const updateAllChange = async () => {
-        const tempDataModified = [...modifiedData];
-
-        const listaDeActualizada = await Promise.all(
-            tempDataModified.map(async (sendItem: ProductTypes) => {
-                const body = {
-                    id_product: Number(sendItem.id_product),
-                    upc: sendItem.upc,
-                    master_brand: sendItem.master_brand,
-                    brand: sendItem.brand,
-                    desc: sendItem.desc,
-                    size: sendItem.size,
-                    pack: sendItem.pack,
-                    w_simbol: sendItem.w_simbol,
-                    embase: sendItem.embase,
-                    id_category: sendItem.id_category,
-                    type_of_meat: sendItem.type_of_meat,
+                // Agregar campos básicos
+                const basicFields = {
+                    id_product: String(product.id_product || ''),
+                    upc: product.upc || '',
+                    desc: product.desc || '',
+                    brand: product.brand || '',
+                    variety: Array.isArray(product.variety) ? product.variety[0] : '',
+                    master_brand: product.master_brand || '',
+                    size: String(product.size || ''),
+                    type_of_meat: product.type_of_meat || '',
+                    type_of_cut: product.type_of_cut || '',
+                    quality_cf: product.quality_cf || '',
+                    id_category: String(product.id_category || ''),
+                    pack: String(product.pack || 0),
+                    count: String(product.count || 0),
+                    w_simbol: product.w_simbol || "",
+                    embase: product.embase || "",
+                    verify: product.verify ? 'true' : 'false'
                 };
 
-                try {
-                    const resp = await updateProduct(body);
-                    if (resp.status === 200) {
-                        toast.success(`Product ${sendItem.upc} updated successfully.`);
-                        return { success: true, sendItem };
-                    } else {
-                        toast.error(`Product ${sendItem.upc} updated unsuccessfully.`);
-                        return { success: false, sendItem };
-                    }
-                } catch (error) {
-                    toast.error(`Error updating product ${sendItem.upc}`);
-                    return { success: false, sendItem };
+                Object.entries(basicFields).forEach(([key, value]) => {
+                    formData.append(key, value);
+                });
+
+                const response = await fetch('https://hiresprintcanvas.dreamhosters.com/updateProduct', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
                 }
-            })
-        );
 
-        const updatedProducts = listaDeActualizada
-            .filter(item => item.success)
-            .map(item => item.sendItem);
+                const data = await response.json();
+                
+                // Actualizar estado local
+                const updatedProduct = { ...product };
+                if (data.result?.url_image) {
+                    updatedProduct.url_image = data.result.url_image;
+                }
 
-        const lista_update = LocalProducts.map((item: ProductTypes) =>
-            updatedProducts.find(updated => updated.id_product === item.id_product) || item
-        );
+                toast.success(`Producto ${product.upc} actualizado exitosamente`);
+                return { success: true, product: updatedProduct };
 
-        const lista_filtered = filteredProducts.map((item: ProductTypes) =>
-            updatedProducts.find(updated => updated.id_product === item.id_product) || item
-        );
+            } catch (error) {
+                console.error('Error al actualizar producto:', error);
+                toast.error(`Error al actualizar producto ${product.upc}`);
+                return { success: false, product };
+            }
+        }));
 
-        setLocalProducts(lista_update);
-        setFilteredProducts(lista_filtered);
+        // Actualizar estados locales
+        const successfulUpdates = results.filter(r => r.success).map(r => r.product);
+        if (successfulUpdates.length > 0) {
+            const updatedLocalProducts = LocalProducts.map(item => {
+                const updated = successfulUpdates.find(u => u.id_product === item.id_product);
+                return updated || item;
+            });
 
-        const idsUpdated = updatedProducts.map(item => item.id_product);
-        setModifiedData(modifiedData.filter((item: ProductTypes) => !idsUpdated.includes(item.id_product)));
+            const updatedFilteredProducts = filteredProducts.map(item => {
+                const updated = successfulUpdates.find(u => u.id_product === item.id_product);
+                return updated || item;
+            });
 
-        console.log("Lista de subida:", listaDeActualizada);
+            setLocalProducts(updatedLocalProducts);
+            setFilteredProducts(updatedFilteredProducts);
+            
+            // Limpiar productos modificados del estado
+            const updatedIds = successfulUpdates.map(p => p.id_product);
+            setModifiedData(modifiedData.filter(item => !updatedIds.includes(item.id_product)));
+        }
 
-        setReload(!reload);
+        // Limpiar estados adicionales si es necesario
+        setSelectedProduct(null);
+        setNewImage(null);
+        setImageUpdateModal(false);
+        setIsUpdatingImage(false);
+
+        return results.every(r => r.success);
     };
 
     useEffect(() => {
@@ -677,8 +680,8 @@ const EditableProductTable = ({
                             <label className={'text-start text-white uppercase '}>save</label>
                             <button
                                 disabled={!(modifiedData.length > 0)}
-                                onClick={() => updateAllChange()}
-                                className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 "
+                                onClick={() => handleUpdateProducts(modifiedData)}
+                                className="w-full px-4 py-2 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500"
                             >
                                 Update All
                             </button>
@@ -786,12 +789,7 @@ const EditableProductTable = ({
                                             <td className="px-2 py-2 text-md text-black items-center ">
                                                 <button
                                                     disabled={!isEdited(row.original)}
-                                                    onClick={() => {
-                                                        const filteredProduct = filteredProducts.filter(
-                                                            (_, index) => index === row.index,
-                                                        );
-                                                        handledUpdate(filteredProduct);
-                                                    }}
+                                                    onClick={() => handleUpdateProducts(row.original)}
                                                     className="px-6 py-1 text-sm font-bold text-white rounded bg-lime-600 hover:scale-110 disabled:bg-gray-500 uppercase"
                                                 >
                                                     Save
@@ -884,7 +882,7 @@ const EditableProductTable = ({
                     <ModalSmallProduct
                         product={selectedProduct}
                         onClose={() => setImageUpdateModal(false)}
-                        onUpdate={handleUpdateImage}
+                        onUpdate={handleUpdateProducts}
                         categories={categories}
                         matchCategory={(categories: categoriesInterface[], id_category: number): categoriesInterface =>
                             categories.find(cat => cat.id_category === id_category) || categories[0]
