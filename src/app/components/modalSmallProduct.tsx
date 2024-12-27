@@ -442,12 +442,20 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                         {/* Botones */}
                         <div className="col-span-2 flex justify-end gap-2 mt-4">
                             {user?.userData?.level_client === 1 && (
-                                    <div className="flex space-x-2 ">
-                                        <div className="flex items-center space-x-2 cursor-pointer">
+                                    <div className="flex space-x-2">
+                                        <div 
+                                            className="flex items-center space-x-2 cursor-pointer"
+                                            onClick={() => {
+                                                setEditedProduct(prev => ({ 
+                                                    ...prev, 
+                                                    verify: !prev.verify 
+                                                }));
+                                            }}
+                                        >
                                             <input
                                                 type="checkbox"
                                                 id="verified"
-                                                className="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500"
+                                                className="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 cursor-pointer"
                                                 checked={editedProduct?.verify || false}
                                                 onChange={e => {
                                                     const newValue = e.target.checked;
