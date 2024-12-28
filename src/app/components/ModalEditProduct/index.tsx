@@ -325,7 +325,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                     ? 'Selected Varieties'
                                                     : variety.includes('Assorted Varieties')
                                                         ? 'Assorted Varieties'
-                                                        : Array.from(new Set(variety)).join(', ')}
+                                                        : Array.from(new Set(variety)).join(', ').replace(/"/g, '')}
                                         </h1>
                                     </div>
 
