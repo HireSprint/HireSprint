@@ -65,7 +65,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
             }
         });
 
-        if (numPages.length > 0) {
+        if (numPages.length > 0 && numPages[0] !== 0) {
             const filteredPrefixes = new Set(numPages); 
             selectedProducts.forEach((product: ProductTypes) => {
                 const productPrefix = Math.floor(product.id_grid! / 1000);
