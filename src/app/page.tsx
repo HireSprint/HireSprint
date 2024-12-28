@@ -544,7 +544,7 @@ export default function HomePage() {
                         return {
                             ...updatedProducts,
 
-                            variety: variety,
+                            //variety: variety,
                             size: size
                         }
                     }

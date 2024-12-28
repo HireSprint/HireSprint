@@ -111,30 +111,29 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     }, [GridID, groupedProducts, varietyType, product.variety_set]);
 
     useEffect(() => {
+        if (varietyType === null) {
+            return; // Salir si varietyType es null
+        }
+
         if (varietyType) {
-            // Si hay un tipo de variedad, mantenemos "Selected" o "Assorted"
-            setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
-        } else if (
-            product.variety_set &&
-            product.variety_set.length > 0 &&
-            !product.variety_set.includes("Assorted Varieties") &&
-            !product.variety_set.includes("Selected Varieties")
-        ) {
-            // Si variety_set tiene datos válidos pero no es ni "Assorted" ni "Selected"
-            setVariety(product.variety_set);
+            // Mantener la variedad principal y añadir "Selected" o "Assorted"
+            const mainVariety = product.variety_set?.[0] || ''; // Variedad principal
+            const newVariety = [mainVariety, varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']
+                .filter(Boolean); // Filtrar valores vacíos
+            setVariety(Array.from(new Set(newVariety))); // Asegurar que no haya duplicados
         } else if (GridID && groupedProducts[GridID]) {
-            // Restaurar todas las variedades desde groupedProducts
+            // Llenar variety con todas las variedades de groupedProducts
             const allVarieties = groupedProducts[GridID]
-                .map(
-                    (item: ProductTypes) =>
-                        item?.variety?.[0]?.trim().replace(/['"]+/g, '') || ''
+                .flatMap((item: ProductTypes) =>
+                    item?.variety?.map((v: string) => v.trim().replace(/['"]+/g, '')) || []
                 )
                 .filter(Boolean);
 
-            const uniqueVarieties = Array.from(new Set([...allVarieties])); // Asegurar que no haya duplicados
+            const uniqueVarieties = Array.from(new Set(allVarieties)); // Asegurar que no haya duplicados
             setVariety(uniqueVarieties);
         }
-    }, [varietyType,product.variety_set]);
+    }, [varietyType, product.variety_set, GridID, groupedProducts]);
+    
     
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
