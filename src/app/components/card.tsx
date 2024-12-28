@@ -386,7 +386,14 @@ export const GridCardProduct = ({
                                         <span
                                             className="text-gray-700 truncate text-left w-full text-balance"
                                             style={{ fontSize: '0.8em' }}>
-                                            {product?.variety_set.length > 0 ? product?.variety_set.map((item:string)=>item.replace(/"/g, '')).slice(0, 3).join(', ') : product?.variety?.map((item:string)=>item.replace(/"/g, '')).join(', ')}
+                                            {product?.variety_set?.length > 0 
+                                                ? product.variety_set
+                                                    .map((item: any) => String(item).replace(/"/g, ''))
+                                                    .slice(0, 3)
+                                                    .join(', ') 
+                                                : product?.variety
+                                                    ?.map((item: any) => String(item).replace(/"/g, ''))
+                                                    .join(', ')}
                                         </span>
 
                                         {product?.addl && product?.addl.length > 0 && (
