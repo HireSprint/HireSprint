@@ -25,12 +25,6 @@ const columnHelper = createColumnHelper<ProductTypes>();
 
 //@ts-ignore
 const columns = [
-    columnHelper.display({
-        id: 'row_number',
-        header: () => 'Amount',
-        cell: info => `${info.row.index + 1}`, // El índice de la fila empieza en 0, se suma 1 para numerar desde 1.
-        footer: () => 'Amount',
-    }),
     columnHelper.accessor('category', {
         cell: info => info.getValue(),
         header: () => 'Category',
@@ -39,11 +33,6 @@ const columns = [
     columnHelper.accessor('id_grid', {
         cell: info => info.getValue(),
         header: () => 'id_grid',
-        footer: info => info.column.id,
-    }),
-    columnHelper.accessor('upc', {
-        cell: info => info.getValue(),
-        header: () => 'UPC',
         footer: info => info.column.id,
     }),
     columnHelper.accessor('master_brand', {
