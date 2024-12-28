@@ -41,7 +41,7 @@ interface EditableProductTableInterface {
     closeModal: (status: boolean) => void;
     reloadData: (status: boolean) => void;
 }
-const DEFAULT_FILTER = { id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "",pack:"",size:"" }
+const DEFAULT_FILTER = { id_category: "", upc: "", brand: "", master_brand: "", desc: "", variety: "", date: "",pack:"",size:"",verify:"" }
 
 const EditableProductTable = ({
     products,
@@ -69,6 +69,7 @@ const EditableProductTable = ({
     const [TotalPage, setTotalPage] = useState(calculateTotalProduct(products.filter((item) => item.status_active === true).length));
     const [step, setStep] = useState<number>(1);
     const [cantProduct, setCantProduct] = useState(products?.filter((item) => item.status_active === true).length);
+    const [cantFilteredProduct, setCantFilteredProduct] = useState(products?.filter((item) => item.status_active === true).length);
 
 
     const [imageUpdateModal, setImageUpdateModal] = useState(false);
@@ -376,6 +377,8 @@ const EditableProductTable = ({
                 value.length < 1 || String(item.pack)?.toLowerCase().includes(value.toLowerCase()),
             size: (item: ProductTypes, value: string) =>
                 value.length < 1 || String(item.size)?.toLowerCase().includes(value.toLowerCase()),
+            verify: (item: ProductTypes, value: string) =>
+                value === "" || item.verify === (value === "true"),
             variety: (item: ProductTypes, value: string) =>
                 value.length < 3 || item.variety?.includes(value.toLowerCase()),
             date: (item: ProductTypes, value: string) => {
@@ -404,11 +407,13 @@ const EditableProductTable = ({
             setStep(1);
             setFilteredProducts(newProduct);
             setCantProduct(newProduct.length)
+            setCantFilteredProduct(newProduct.length)
         } else {
             const start = (step - 1) * 100;
             const end = start + 100;
             setFilteredProducts(newProduct.slice(start, end));
             setCantProduct(newProduct.slice(start, end).length)
+            setCantFilteredProduct(newProduct.length)
         }
 
         setTimeout(() => setLoadingScreen(false), 1000);
@@ -568,8 +573,30 @@ const EditableProductTable = ({
                                 className="w-32 bg-gray-500 text-white p-2 rounded-md"
                             />
                         </div>
+                        <div className="justify-start flex flex-col">
+                            <label className={'text-start text-white uppercase '}>Certificated</label>
+                            <select
+                                value={filters.verify === '' ? '' : filters.verify}
+                                onChange={(e) => (setFilters({
+                                    ...filters,
+                                    verify: e.target.value,
+                                }), setLoadingScreen(true))}
+                                className={'w-32 bg-gray-500 text-white p-2 rounded-md'}
+                                defaultValue=""
+                            >
+                                <option value="">
+                                    Selecciona Certificated o Uncertificated
+                                </option>
+                                <option value="true">
+                                    Certificated
+                                </option>
+                                <option value="false">
+                                    Uncertificated
+                                </option>
+                            </select>
+                        </div>
                         <div className="flex flex-col justify-start">
-                            <label className={'text-start text-white uppercase '}>Master Brand</label>
+                        <label className={'text-start text-white uppercase '}>Master Brand</label>
                             <input className="w-32 bg-gray-500 text-white p-2 rounded-md"
                                    value={filters.master_brand}
                                    onChange={(e) => (setFilters({
@@ -625,7 +652,7 @@ const EditableProductTable = ({
                         <div className="justify-start flex flex-col">
                             <label className={'text-start text-white uppercase '}>Category</label>
                             <select
-                                value={filters.id_category === "" ? "" : filters.id_category}
+                                value={filters.id_category === '' ? '' : filters.id_category}
                                 onChange={(e) => (setFilters({
                                     ...filters,
                                     id_category: e.target.value,
@@ -666,6 +693,7 @@ const EditableProductTable = ({
                     <div className="bg-gray-900 w-full min-h-[65vh] shadow-md p-4">
                         <div className="flex flex-col sm:flex-row w-full p-2 justify-between items-center">
                             <h1 className="text-white p-2 text-center sm:text-left">{'PRODUCTS: ' + cantProduct}</h1>
+                            <h1 className="text-white p-2 text-center sm:text-left">{'TOTAL PRODUCTS: ' + cantFilteredProduct}</h1>
                             <button
                                 className="text-white p-2 uppercase border-2 rounded-md hover:bg-gray-700 transition-colors"
                                 onClick={() => setOpenModalSettings(true)}
