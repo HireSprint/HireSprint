@@ -11,7 +11,6 @@ import { useAuth } from '@/app/components/provider/authprovider';
 import { validateUpc } from '@/pages/api/apiMongo/validateUpc';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import 'react-calendar/dist/Calendar.css';
-import { range } from 'pdf-lib';
 
 type ValuePiece = Date | null;
 
