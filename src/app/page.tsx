@@ -177,7 +177,8 @@ export default function HomePage() {
                     limit_type: product.limit_type || "",
                     per: product.per || "",
                     variety_set: product.variety_set || product.variety,
-                    size: product.size || ""
+                    size: product.size || "",
+                    url_imagen2 : product.url_image2 || ""
                 }))
             };
     
@@ -518,7 +519,8 @@ export default function HomePage() {
         limit_type: string,
         per: string,
         variety: string[],
-        size: string[]
+        size: string[],
+        image2 : string,
     ) => {
         if (idGrid === undefined) return;
 
@@ -538,7 +540,8 @@ export default function HomePage() {
                         limit_type: limit_type,
                         per: per,
                         variety_set: variety,
-                        size: size
+                        size: size,
+                        url_image2: image2,
                     };
                     if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
                         return {

@@ -32,7 +32,8 @@ export interface ProductTypes {
     w_simbol: string,
     embase: string,
     variety_set:string[],
-    verify?:boolean
+    verify?:boolean,
+    url_image2? :string
 }
 
 export interface ProductDraggingType {
