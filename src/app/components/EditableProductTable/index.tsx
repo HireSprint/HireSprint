@@ -28,7 +28,7 @@ const initialColumnsSelector = {
     pack: false,
     count: false,
     size: false,
-    w_symbol: false,
+    w_simbol: false,
     embase: false,
     id_category: false,
     type_of_meat: false,
