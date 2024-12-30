@@ -50,6 +50,8 @@ interface ProductContextType {
   setIsLoadingGridProducts: (loading: boolean) => void;
   autoSaveVarieties: boolean;
   setAutoSaveVarieties: (autoSaveVarieties: boolean) => void;
+  pageNumber : number[];
+  setPageNumber : (pagesSend : number[]) => void;  
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -75,7 +77,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [panelShowCategoriesOpen, setPanelShowCategoriesOpen] = useState(false);
   const [isLoadingGridProducts, setIsLoadingGridProducts] = useState(false);
   const [autoSaveVarieties, setAutoSaveVarieties] = useState(false);
-    
+  const [pageNumber, setPageNumber] = useState<number[]>([]);
 
   useEffect(() => {
     const getProductByCircular = async () => {
@@ -188,6 +190,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLoadingGridProducts, 
       autoSaveVarieties, 
       setAutoSaveVarieties,
+      pageNumber,
+      setPageNumber,
     }}>
       {children}
     </ProductContext.Provider>

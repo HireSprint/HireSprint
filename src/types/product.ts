@@ -31,7 +31,9 @@ export interface ProductTypes {
     count: number,
     w_simbol: string,
     embase: string,
-    variety_set:string[]
+    variety_set:string[],
+    verify?:boolean,
+    image2? :string
 }
 
 export interface ProductDraggingType {

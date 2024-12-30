@@ -8,6 +8,7 @@ export interface circularType {
     name_circular: string;
     week_circular: string;
     date_circular: string;
+    dateCircularFinish: string;
     circular_options: string[];
     circular_products_upc: CircularProductsUpcType[];
 

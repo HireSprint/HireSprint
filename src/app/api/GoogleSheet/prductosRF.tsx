@@ -11,7 +11,7 @@ export let InfoHojaIdInicialIdFinal = [
     {
         hoja: 2,
         startId: 2001,
-        endId: 2067,
+        endId: 2071,
     },
     {
         hoja: 3,
@@ -24,11 +24,11 @@ export let InfoHojaIdInicialIdFinal = [
         endId: 4054,
     }
 ]
-export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[]) => {
+export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[], numPages : number[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbwmXiZLIm203JiNbtI64DBT4KbledsSqQpGkE3XmoQDo0G78Iajv08MfTRfk-mikf7P/exec";
+    const url = "https://script.google.com/macros/s/AKfycbw6DqDIwO_SKvXMqxiiJtZU_6wJ87Z-Xxha6bUr64dUk7CJH3QUlLmvoCDrPamMi6Yv/exec";
 
-
+    console.log(numPages, 'numPages');
     try {
         let allProducts: ProductTypes[] = [];
 
@@ -59,23 +59,31 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     count: 0,
                     w_simbol: '',
                     embase: '',
-                    variety: []
-                  
+                    variety: [],
+                    image2 : '',
                 });
             }
         });
 
-
-        selectedProducts.forEach((product: ProductTypes) => {
-            const index = allProducts.findIndex((p) => p.id_grid === product.id_grid);
-            if (index !== -1) {
-                allProducts[index] = {
-                    ...allProducts[index],
-                    ...product
-                };
-            }
-        });
-
+        if (numPages.length > 0 && numPages[0] !== 0) {
+            const filteredPrefixes = new Set(numPages); 
+            selectedProducts.forEach((product: ProductTypes) => {
+                const productPrefix = Math.floor(product.id_grid! / 1000);
+                if (filteredPrefixes.has(productPrefix)) {
+                    const index = allProducts.findIndex((p) => p.id_grid === product.id_grid);
+                    if (index !== -1) { allProducts[index] = {...allProducts[index],...product,};
+                    }
+                }
+            });
+        } else {            
+            selectedProducts.forEach((product: ProductTypes) => {
+                const index = allProducts.findIndex((p) => p.id_grid === product.id_grid);
+                if (index !== -1) { allProducts[index] = {...allProducts[index],...product,};
+                }
+            });
+        }
+        
+        
         allProducts = allProducts.filter(product => product.id_grid !== undefined);
 
         allProducts.sort((a, b) => a.id_grid! - b.id_grid!);
@@ -122,7 +130,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 pack: product.pack,
                 count: product.count,
                 w_simbol: product.w_simbol,
-                embase: product.embase
+                embase: product.embase,
+                url_image2 : product.image2,
             };
 
             console.log('Producto formateado:', formattedProduct);

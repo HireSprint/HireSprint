@@ -11,7 +11,7 @@ import ModalProductsTable from "@/app/components/ModalProductsTable";
  
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
-    const { currentPage, setCurrentPage, setIsSendModalOpen , setAutoSaveVarieties} = useProductContext();
+    const { currentPage, setCurrentPage, setIsSendModalOpen , setAutoSaveVarieties, setPageNumber} = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,6 +66,10 @@ export default function Header() {
         setIsSendModalOpen(true)
     }
 
+    const handlePageNumberSend = (number: number): void => {
+        setPageNumber([number]);
+    };
+    
     if (!user || pathname === '/login') {
         return null;
     }
@@ -187,7 +191,8 @@ export default function Header() {
                             <button
                                 onClick={() => {
                                     handleOpenSendModal(); 
-                                    setAutoSaveVarieties(true); 
+                                    setAutoSaveVarieties(true);
+                                    handlePageNumberSend(0);
                                 }}
                             >
                                 <MessageIcon/>
