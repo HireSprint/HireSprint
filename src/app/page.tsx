@@ -178,7 +178,7 @@ export default function HomePage() {
                     per: product.per || "",
                     variety_set: product.variety_set || product.variety,
                     size: product.size || "",
-                    url_imagen2 : product.url_image2 || ""
+                    imagen2 : product.image2 || ""
                 }))
             };
     
@@ -541,7 +541,7 @@ export default function HomePage() {
                         per: per,
                         variety_set: variety,
                         size: size,
-                        url_image2: image2,
+                        image2: image2,
                     };
                     if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
                         return {

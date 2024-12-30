@@ -64,7 +64,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const [variety, setVariety] = useState<string[]>(Array.isArray(product.variety_set) && product.variety_set[0] ? product.variety_set : product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
     const burstDropdownRef = useRef<HTMLDivElement>(null);
-    const [urlImage2, setUrlImage2] = useState<string>(product.url_image2 || '');
+    const [urlImage2, setUrlImage2] = useState<string>(product.image2 || '');
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -533,13 +533,14 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                         className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded overflow-hidden flex items-center justify-center relative">
                                                                         <input
                                                                             type="checkbox"
-                                                                            className="absolute bottom-0 left-0 w-4 h-4 z-10" // Ajusta la posición
+                                                                            className="absolute bottom-0 left-0 w-4 h-4 z-10"
                                                                             aria-label="Seleccionar este artículo"
+                                                                            checked={urlImage2 === item.upc} 
                                                                             onChange={(e) => {
                                                                                 if (e.target.checked) {
-                                                                                    handleSaveImage2(item.upc || ''); // Guardar el dato
+                                                                                    handleSaveImage2(item.upc || ''); 
                                                                                 } else {
-                                                                                    handleSaveImage2(''); // Eliminar el dato
+                                                                                    handleSaveImage2(''); 
                                                                                 }
                                                                             }}
                                                                         />
