@@ -28,7 +28,7 @@ const initialColumnsSelector = {
     pack: false,
     count: false,
     size: false,
-    w_symbol: false,
+    w_simbol: false,
     embase: false,
     id_category: false,
     type_of_meat: false,
@@ -60,7 +60,7 @@ const EditableProductTable = ({
     const [selectedRowId, setSelectedRowId] = useState<any>(null);
 
     //column
-    const [columnsSelector, setColumnsSelector] = useState({verify:true,upc:true,master_brand:true,brand:true,desc:true,variety:true,pack:true,count:true,size:true,w_symbol:true,embase:true,id_category:true,type_of_meat:false});
+    const [columnsSelector, setColumnsSelector] = useState({verify:true,upc:true,master_brand:true,brand:true,desc:true,variety:true,pack:true,count:true,size:true,w_simbol:true,embase:true,id_category:true,type_of_meat:false});
     //settings Open
     const [openModalSettings, setOpenModalSettings] = useState(false);
 
@@ -140,7 +140,7 @@ const EditableProductTable = ({
             header: 'UPC',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 w-32 rounded p-1 text-black bg-gray-200 uppercase "
+                    className="border border-gray-300 w-32 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -153,7 +153,7 @@ const EditableProductTable = ({
             header: 'Master Brand',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase "
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -167,7 +167,7 @@ const EditableProductTable = ({
             header: 'Brand',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -180,7 +180,7 @@ const EditableProductTable = ({
             header: 'Description',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -197,8 +197,8 @@ const EditableProductTable = ({
 
                 return (
                     <input
-                        className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
-                        value={displayValue}
+                        className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 "
+                        value={getValue() || ''}
                         onChange={(e) =>
                             table.options.meta?.updateData(row.index, column.id, e.target.value)
                         }
@@ -211,7 +211,7 @@ const EditableProductTable = ({
             header: 'Pack',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -224,7 +224,7 @@ const EditableProductTable = ({
             header: 'Count',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -237,7 +237,7 @@ const EditableProductTable = ({
             header: 'Size',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -250,7 +250,7 @@ const EditableProductTable = ({
             header: 'Weight Symbol',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 w-24 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -263,7 +263,7 @@ const EditableProductTable = ({
             header: 'Embase',
             cell: ({ getValue, row, column }: any) => (
                 <input
-                    className="border border-gray-300 w-28 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 w-28 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -276,7 +276,7 @@ const EditableProductTable = ({
             header: 'Category',
             cell: ({ getValue, row, column }: any) => (
                 <select
-                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 uppercase"
+                    className="border border-gray-300 rounded p-1 text-black bg-gray-200 "
                     value={getValue() || ''}
                     onChange={(e) =>
                         table.options.meta?.updateData(row.index, column.id, e.target.value)
@@ -310,6 +310,7 @@ const EditableProductTable = ({
 
     useEffect(() => {
         const filteredColumns = columns.filter((column) => columnsSelector[column.accessorKey as keyof typeof columnsSelector]);
+        console.log("columnas",filteredColumns)
         setTempColumns(filteredColumns);
     }, [columns, columnsSelector]);
 
