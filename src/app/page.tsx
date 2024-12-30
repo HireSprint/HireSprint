@@ -7,7 +7,15 @@ import { ImageGrid, ImageGrid2, ImageGrid3, ImageGrid4 } from "./components/imag
 import { useProductContext } from "./context/productContext";
 import ProductContainer from "./components/ProductsCardsBard";
 import ModalEditProduct from "@/app/components/ModalEditProduct";
-import { Cursor3, FocusIn, GrapIconOpen, ResetPageZoom, ZoomInIcon, ZoomOutIcon } from "@/app/components/icons";
+import {
+    Cursor3,
+    FocusIn,
+    GrapIconOpen,
+    ResetPageZoom,
+    SavePageIcon,
+    ZoomInIcon,
+    ZoomOutIcon
+} from "@/app/components/icons";
 import { ReactZoomPanPinchContentRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer, toast } from 'react-toastify'
@@ -40,6 +48,9 @@ export default function HomePage() {
         groupedProducts,
         autoSaveVarieties,
         setAutoSaveVarieties,
+        pageNumber,
+        setPageNumber,
+        setIsSendModalOpen
     } = useProductContext();
     const [direction, setDirection] = useState(0);
     const [category, setCategory] = useState<categoriesInterface | null>(null);
@@ -51,7 +62,7 @@ export default function HomePage() {
     const [updateCircular, setUpdateCircular] = useState();
     const { idCircular } = useAuth();
     const { categoriesData, selectedProductCategory } = useCategoryContext();
-
+    
     //
     const [showProducts, setShowProducts] = useState(false);
     //var zoom
@@ -126,7 +137,7 @@ export default function HomePage() {
             });
         }
     };
-
+    
     useEffect(() => {
         if (showProducts && productSelectionRef.current) {
             const resizeObserver = new ResizeObserver(updateGrideProductDimensions);
@@ -165,8 +176,9 @@ export default function HomePage() {
                     with_card: product.with_card || false,
                     limit_type: product.limit_type || "",
                     per: product.per || "",
-                    variety_set: product.variety_set,
-                    size: product.size || ""
+                    variety_set: product.variety_set || product.variety,
+                    size: product.size || "",
+                    url_imagen2 : product.url_image2 || ""
                 }))
             };
     
@@ -320,7 +332,9 @@ export default function HomePage() {
             }
         }
     };
-
+    
+   
+    
     const moveProduct = (sourceGridId: number, targetGridId: number) => {
         setSelectedProducts((prev) => {
             const updatedProducts = prev.map(product => {
@@ -406,6 +420,15 @@ export default function HomePage() {
             setIsModalOpen(true);
             setShowProducts(true);
         }
+    };
+    
+    // Funcion para guardar las hojas 
+    const handleOpenSendModal = () => {
+        setIsSendModalOpen(true)
+    }
+
+    const handlePageNumberSend = (number: number): void => {
+        setPageNumber([number]);
     };
 
     // Función para pegar el producto
@@ -496,7 +519,8 @@ export default function HomePage() {
         limit_type: string,
         per: string,
         variety: string[],
-        size: string[]
+        size: string[],
+        image2 : string,
     ) => {
         if (idGrid === undefined) return;
 
@@ -516,13 +540,14 @@ export default function HomePage() {
                         limit_type: limit_type,
                         per: per,
                         variety_set: variety,
-                        size: size
+                        size: size,
+                        url_image2: image2,
                     };
                     if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
                         return {
                             ...updatedProducts,
 
-                            variety: variety,
+                            //variety: variety,
                             size: size
                         }
                     }
@@ -888,7 +913,7 @@ export default function HomePage() {
                                         }}
                                         className="  justify-center items-center"
                                     >
-                                        <ZoomInIcon />
+                                        <ZoomInIcon/>
                                     </button>
 
 
@@ -897,7 +922,7 @@ export default function HomePage() {
                                             handleZoomOutPage1();
                                         }}
                                     >
-                                        <ZoomOutIcon />
+                                        <ZoomOutIcon/>
                                     </button>
 
 
@@ -907,27 +932,36 @@ export default function HomePage() {
                                         }}
                                         className=" justify-center items-center"
                                     >
-                                        <FocusIn />
+                                        <FocusIn/>
                                     </button>
                                     <button
                                         onClick={handleButtonClickPage1}
                                         className=" justify-center items-center"
                                     >
                                         {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                        {panningOnPage1 ? <GrapIconOpen /> : <Cursor3 />}
+                                        {panningOnPage1 ? <GrapIconOpen/> : <Cursor3/>}
                                     </button>
                                     <button
                                         onClick={handleResetPage1}
                                         className=" justify-center items-center"
                                     >
-                                        <ResetPageZoom />
+                                        <ResetPageZoom/>
                                     </button>
-
+                                    <button
+                                        onClick={() => {
+                                            handleOpenSendModal();
+                                            handlePageNumberSend(1)
+                                        }}
+                                        className={`justify-end items-center `}
+                                    >
+                                        <SavePageIcon/>
+                                    </button>
+                                    
                                 </div>
                                 <motion.div
-                                    initial={{ x: direction >= 0 ? -300 : 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: direction >= 0 ? 300 : -300, opacity: 0 }}
+                                    initial={{x: direction >= 0 ? -300 : 300, opacity: 0}}
+                                    animate={{x: 0, opacity: 1}}
+                                    exit={{x: direction >= 0 ? 300 : -300, opacity: 0 }}
                                     transition={{ duration: 0.5 }}
                                 //   className={`w-full relative ${productDragging ? '!z-0' : 'z-10'}`}
                                 >
@@ -985,14 +1019,14 @@ export default function HomePage() {
                                             handleZoomInSubPages();
                                         }}
                                         className="  justify-center items-center">
-                                        <ZoomInIcon />
+                                        <ZoomInIcon/>
                                     </button>
                                     <button
                                         onClick={() => {
                                             handleZoomOutSubPages();
                                         }}
                                     >
-                                        <ZoomOutIcon />
+                                        <ZoomOutIcon/>
                                     </button>
                                     <button
                                         onClick={() => {
@@ -1000,20 +1034,30 @@ export default function HomePage() {
                                         }}
                                         className=" justify-center items-center"
                                     >
-                                        <FocusIn />
+                                        <FocusIn/>
                                     </button>
                                     <button
                                         onClick={handleButtonClickPage2}
                                         className=" justify-center items-center"
                                     >
                                         {/* Renderiza el icono según el estado de panningOnPage1 */}
-                                        {panningOnSubPage ? <GrapIconOpen /> : <Cursor3 />}
+                                        {panningOnSubPage ? <GrapIconOpen/> : <Cursor3/>}
                                     </button>
+
                                     <button
                                         onClick={handleResetSubPage}
                                         className={`  justify-center items-center`}
                                     >
-                                        <ResetPageZoom />
+                                        <ResetPageZoom/>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            handleOpenSendModal();
+                                            handlePageNumberSend(currentPage);
+                                        }}
+                                        className={`justify-end items-center `}
+                                    >
+                                        <SavePageIcon/>
                                     </button>
 
                                 </div>

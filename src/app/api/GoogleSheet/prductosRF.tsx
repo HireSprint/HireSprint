@@ -26,7 +26,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[], numPages : number[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbwmXiZLIm203JiNbtI64DBT4KbledsSqQpGkE3XmoQDo0G78Iajv08MfTRfk-mikf7P/exec";
+    const url = "https://script.google.com/macros/s/AKfycbw6DqDIwO_SKvXMqxiiJtZU_6wJ87Z-Xxha6bUr64dUk7CJH3QUlLmvoCDrPamMi6Yv/exec";
 
     console.log(numPages, 'numPages');
     try {
@@ -59,13 +59,13 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     count: 0,
                     w_simbol: '',
                     embase: '',
-                    variety: []
-                  
+                    variety: [],
+                    url_image2 : '',
                 });
             }
         });
 
-        if (numPages.length > 0) {
+        if (numPages.length > 0 && numPages[0] !== 0) {
             const filteredPrefixes = new Set(numPages); 
             selectedProducts.forEach((product: ProductTypes) => {
                 const productPrefix = Math.floor(product.id_grid! / 1000);
@@ -130,7 +130,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 pack: product.pack,
                 count: product.count,
                 w_simbol: product.w_simbol,
-                embase: product.embase
+                embase: product.embase,
+                url_image2 : product.url_image2,
             };
 
             console.log('Producto formateado:', formattedProduct);

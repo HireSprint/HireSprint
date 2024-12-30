@@ -9,12 +9,12 @@ import { useProductContext } from "../context/productContext";
 const SendModal = () => {
     const {user} = useAuth()
     const {categoriesData} = useCategoryContext()
-    const {selectedProducts, isSendModalOpen, setIsSendModalOpen} = useProductContext()
+    const {selectedProducts, isSendModalOpen, setIsSendModalOpen, pageNumber, setPageNumber} = useProductContext()
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [pageNumber, setPageNumber] = useState<number[]>([]);
-    const handleSendGoogle = async () => {
+  
+   const handleSendGoogle = async () => {
         setIsLoading(true);
         try {
             await addGoogleSheet3(user?.userData.name, categoriesData, selectedProducts, pageNumber);
@@ -27,15 +27,10 @@ const SendModal = () => {
             console.error('Error:', error);
         }
     }
-
-    const handlePageNumberSend = (number: number) => {
-        if (pageNumber.includes(number)) {         
-            setPageNumber((prev) => prev.filter((page) => page !== number));
-        } else {           
-            setPageNumber((prev) => [...prev, number]);
-        }
+    //Envio de paginas
+    const handlePageNumberSend = (number: number): void => {
+        setPageNumber([number]);
     };
-
     return (
         <React.Fragment>
             {/* Modal principal */}
@@ -45,24 +40,24 @@ const SendModal = () => {
                     <div className="w-96 bg-white p-4 relative rounded-lg flex flex-col items-center">
                         <h1 className="text-black text-2xl font-bold">Are you sure?</h1>
                         <p className="text-black text-md mb-4">Do you want to send this information?</p>
-                        <div>
-                            <h1 className="text-black text-2xl font-bold mb-4 text-center">Select Pages to Send</h1>
-                            <div className="flex items-center justify-center space-x-4">
-                                {[1, 2, 3, 4].map((number) => (
-                                    <button
-                                        key={number}
-                                        onClick={() => handlePageNumberSend(number)}
-                                        className={`p-2 rounded-md w-10 ${
-                                            pageNumber.includes(number)
-                                                ? "bg-blue-500 text-white"
-                                                : "bg-gray-200 text-black"
-                                        }`}
-                                    >
-                                        {number}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                        {/*<div>*/}
+                        {/*    <h1 className="text-black text-2xl font-bold mb-4 text-center">Select Pages to Send</h1>*/}
+                        {/*    <div className="flex items-center justify-center space-x-4">*/}
+                        {/*        {[1, 2, 3, 4].map((number) => (*/}
+                        {/*            <button*/}
+                        {/*                key={number}*/}
+                        {/*                onClick={() => handlePageNumberSend(number)}*/}
+                        {/*                className={`p-2 rounded-md w-10 ${*/}
+                        {/*                    pageNumber.includes(number)*/}
+                        {/*                        ? "bg-blue-500 text-white"*/}
+                        {/*                        : "bg-gray-200 text-black"*/}
+                        {/*                }`}*/}
+                        {/*            >*/}
+                        {/*                {number}*/}
+                        {/*            </button>*/}
+                        {/*        ))}*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
                         <div className="flex gap-2 mt-4">
                             <button
                                 onClick={() => setIsSendModalOpen(false)}
@@ -72,7 +67,9 @@ const SendModal = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={handleSendGoogle}
+                                onClick={ ()=> {                                  
+                                    handleSendGoogle();
+                                }}
                                 className="bg-blue-500 text-white p-2 rounded-md w-24 flex items-center justify-center"
                                 disabled={isLoading}
                             >

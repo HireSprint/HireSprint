@@ -22,6 +22,7 @@ interface ModalEditProductInterface {
         per: string,
         variety: string[],
         size: string[],
+        image2: string,
     ) => void,
     setIsOpen: (isOpen: boolean) => void
 }
@@ -63,7 +64,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const [variety, setVariety] = useState<string[]>(Array.isArray(product.variety_set) && product.variety_set[0] ? product.variety_set : product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
     const burstDropdownRef = useRef<HTMLDivElement>(null);
-
+    const [urlImage2, setUrlImage2] = useState<string>(product.url_image2 || '');
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -111,30 +112,29 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     }, [GridID, groupedProducts, varietyType, product.variety_set]);
 
     useEffect(() => {
+        if (varietyType === null) {
+            return; // Salir si varietyType es null
+        }
+
         if (varietyType) {
-            // Si hay un tipo de variedad, mantenemos "Selected" o "Assorted"
-            setVariety([varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']);
-        } else if (
-            product.variety_set &&
-            product.variety_set.length > 0 &&
-            !product.variety_set.includes("Assorted Varieties") &&
-            !product.variety_set.includes("Selected Varieties")
-        ) {
-            // Si variety_set tiene datos válidos pero no es ni "Assorted" ni "Selected"
-            setVariety(product.variety_set);
+            // Mantener la variedad principal y añadir "Selected" o "Assorted"
+            const mainVariety = product.variety_set?.[0] || ''; // Variedad principal
+            const newVariety = [mainVariety, varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties']
+                .filter(Boolean); // Filtrar valores vacíos
+            setVariety(Array.from(new Set(newVariety))); // Asegurar que no haya duplicados
         } else if (GridID && groupedProducts[GridID]) {
-            // Restaurar todas las variedades desde groupedProducts
+            // Llenar variety con todas las variedades de groupedProducts
             const allVarieties = groupedProducts[GridID]
-                .map(
-                    (item: ProductTypes) =>
-                        item?.variety?.[0]?.trim().replace(/['"]+/g, '') || ''
+                .flatMap((item: ProductTypes) =>
+                    item?.variety?.map((v: string) => v.trim().replace(/['"]+/g, '')) || []
                 )
                 .filter(Boolean);
 
-            const uniqueVarieties = Array.from(new Set([...allVarieties])); // Asegurar que no haya duplicados
+            const uniqueVarieties = Array.from(new Set(allVarieties)); // Asegurar que no haya duplicados
             setVariety(uniqueVarieties);
         }
-    }, [varietyType,product.variety_set]);
+    }, [varietyType, product.variety_set, GridID, groupedProducts]);
+    
     
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
@@ -203,6 +203,10 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     
     const onVarietyTypeChange = (type: 'Selected' | 'Assorted' | null) => {
         setVarietyType(type);
+    }
+    
+    const  handleSaveImage2 = (urlImage : string) =>{
+        setUrlImage2(urlImage)
     }
 
     useEffect(() => {
@@ -326,7 +330,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                     ? 'Selected Varieties'
                                                     : variety.includes('Assorted Varieties')
                                                         ? 'Assorted Varieties'
-                                                        : Array.from(new Set(variety)).join(', ')}
+                                                        : Array.from(new Set(variety)).join(', ').replace(/"/g, '')}
                                         </h1>
                                     </div>
 
@@ -525,16 +529,34 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                 className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
                                                             >
                                                                 <div className="flex items-center p-3 gap-3">
-                                                                    <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
-                                                                        {item.url_image && (
+                                                                    <div
+                                                                        className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded overflow-hidden flex items-center justify-center relative">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="absolute bottom-0 left-0 w-4 h-4 z-10" // Ajusta la posición
+                                                                            aria-label="Seleccionar este artículo"
+                                                                            onChange={(e) => {
+                                                                                if (e.target.checked) {
+                                                                                    handleSaveImage2(item.upc || ''); // Guardar el dato
+                                                                                } else {
+                                                                                    handleSaveImage2(''); // Eliminar el dato
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                        {item.url_image ? (
                                                                             <Image
                                                                                 src={item.url_image}
-                                                                                alt={item.desc || "No hay descripción"}
+                                                                                alt={item.desc || "No hay descripción disponible"}
                                                                                 width={48}
                                                                                 height={48}
                                                                                 className="object-cover w-full h-full"
                                                                                 draggable={false}
                                                                             />
+                                                                        ) : (
+                                                                            <div
+                                                                                className="flex items-center justify-center w-full h-full text-gray-400 text-xs">
+                                                                                Sin imagen
+                                                                            </div>
                                                                         )}
                                                                     </div>
                                                                     <div className="flex-grow">
@@ -575,7 +597,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                             </div>
 
                             <div className="flex gap-10 items-center justify-center pt-4">
-                            <button
+                                <button
                                     className="bg-yellow-500 p-2 text-black rounded-md "
                                     onClick={() => CopyFC(product)}>
                                     <div className="flex gap-2">
@@ -624,6 +646,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                             selectedPer,
                                             finalVariety,
                                             size,
+                                            urlImage2,
                                         );
                                          
                                     }}>
