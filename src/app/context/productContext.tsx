@@ -108,29 +108,34 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLoadingGridProducts(true);
     
     try {
-      if (!selectedProducts.length || !circularProducts?.length) {
+      if (!selectedProducts?.length || !circularProducts?.length) {
         return;
       }
 
       const existingGroups = { ...groupedProducts };
       
       const productsMap = new Map(
-        selectedProducts.map(product => [product.upc.toString(), product])
+        selectedProducts
+          .filter(product => product?.upc)
+          .map(product => [product.upc?.toString(), product])
       );
 
       const groupsByGrid: { [key: string]: ProductTypes[] } = {};
 
-      circularProducts.forEach(product => {
-        const gridId = product.id_grid?.toString();
-        if (!gridId) return;
+      circularProducts
+        .filter(product => product?.upc && product?.id_grid)
+        .forEach(product => {
+          const gridId = product.id_grid!.toString();
+          const upcString = product.upc?.toString();
 
-        if (!groupsByGrid[gridId]) {
-          groupsByGrid[gridId] = [];
-        }
-        if (productsMap.has(product.upc.toString())) {
-          groupsByGrid[gridId].push(product);
-        }
-      });
+          if (!groupsByGrid[gridId]) {
+            groupsByGrid[gridId] = [];
+          }
+
+          if (upcString && productsMap.has(upcString)) {
+            groupsByGrid[gridId].push(product);
+          }
+        });
 
       const combinedGroups = {
         ...existingGroups,

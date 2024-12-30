@@ -890,7 +890,10 @@ const EditableProductTable = ({
                 {imageUpdateModal && selectedProduct && (
                     <ModalSmallProduct
                         product={selectedProduct}
-                        onClose={() => setImageUpdateModal(false)}
+                        onClose={() => {
+                            setImageUpdateModal(false);
+                            setSelectedProduct(null);
+                        }}
                         onUpdate={handleUpdateProducts}
                         categories={categories}
                         matchCategory={(categories: categoriesInterface[], id_category: number): categoriesInterface =>
