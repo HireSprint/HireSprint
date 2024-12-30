@@ -71,11 +71,6 @@ const columns = [
         header: () => 'Price',
         footer: info => info.column.id,
     }),
-    columnHelper.accessor('sku', {
-        cell: info => info.getValue() || 'N/A',
-        header: () => 'SKU',
-        footer: info => info.column.id,
-    }),
     columnHelper.accessor('quality_cf', {
         cell: info => info.getValue() || 'N/A',
         header: () => 'Quality CF',
@@ -161,9 +156,7 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 );
                 setCategories(data.result);
                 setLoading(false);
-                console.log("invalid rows",invalidRows)
             } catch (error) {
-                console.error("Error al obtener los productos:", error);
                 setErrormesage("Ocurrió un error al obtener los productos.");
                 setLoading(false);
             }
@@ -205,21 +198,17 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     item.id_category === Number(filters.id_category)
                 ))
-                console.log("filtro cat",newProduct)
             }
             if(filters.page !== "") {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     numberPage(item.id_grid) === filters.page
                 ))
-                console.log("filtro page",newProduct,filters.page)
             }
             if(filters.upc !== "") {
                 newProduct = newProduct.filter((item: ProductTypes) => (
                     item.upc.includes(filters.upc) // Coincidencia parcial
                 ));
-                console.log("filtro upc (parcial)", newProduct, filters.upc);
             }
-            console.log(newProduct,filters.id_category)
             setFilteredProduct(newProduct)
         }
     }, [filters]);
@@ -247,9 +236,15 @@ const ProductsTable = ({id_circular}:ParamsType) => {
                 <h2 className="font-bold mb-0">Products table</h2>
             </div>
             <div className="flex flex-row gap-5 mb-4 ">
-                <select name="" id="" onChange={(e)=> setFilters({...filters, id_category: e.target.value})} className={"rounded-lg text-lg pl-2 "}>
-                    <option value="" disabled selected>
-                        Select a Category
+                <select 
+                    name="" 
+                    id="" 
+                    onChange={(e)=> setFilters({...filters, id_category: e.target.value})} 
+                    className={"rounded-lg text-lg pl-2"}
+                    defaultValue=""
+                >
+                    <option value="">
+                        Seleccionar una Categoría
                     </option>
                     {categories.map((client: categoriesInterface) => (
                         <option key={client.id_category} value={client.id_category}>

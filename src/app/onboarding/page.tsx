@@ -27,7 +27,7 @@ const OnboardingPage = () => {
             router.push('/');
         } else {
             console.error("No se encontró un ID de circular válido");
-            // Aquí podrías mostrar un mensaje de error al usuario
+            toast.error("Not Valid Circular Id");
         }
     };
 
@@ -36,16 +36,12 @@ const OnboardingPage = () => {
     const handleDateSelect = (e: any) => {
         const selectedDate = e.target.value;
         setIsLoading(true);
-
-        // Encontrar el circular correspondiente
         const circular = circulars?.find((circular: any) =>
             circular.date_circular === selectedDate
         );
 
-        // Limpiar el circular seleccionado primero
         setSelectedCircular(null);
 
-        // Simular loading
         setTimeout(() => {
             setSelectedCircular(circular || null);
             setIsLoading(false);
@@ -70,7 +66,7 @@ const OnboardingPage = () => {
     };
 
     return (
-        <div className="text-black text-2xl pt-10 flex flex-col h-[calc(100vh-100px)]">
+        <div className="text-black bg-gray-100 text-2xl py-5 flex flex-col h-[calc(100vh)]">
             <ToastContainer
                 position="top-right"
                 autoClose={3000}
@@ -88,13 +84,13 @@ const OnboardingPage = () => {
                             <select
                                 id="date"
                                 {...register("date")}
-                                className="mt-1 block w-1/3 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                className="mt-1 block w-1/3 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md cursor-pointer "
                                 onChange={handleDateSelect}
                             >
                                 <option
-                                    value="">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
+                                    value="" className="cursor-pointer">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
                                 {circularOptions.map((circular: any) => (
-                                    <option key={circular.date_circular} value={circular.date_circular}>
+                                    <option key={circular.date_circular} value={circular.date_circular} className="cursor-pointer">
                                         {formatDate(circular.date_circular)}
                                     </option>
                                 ))}
@@ -137,7 +133,13 @@ const OnboardingPage = () => {
                     )}
                 </form>
             ) : (
-                <div>Cargando...</div>
+                <div className="flex flex-col w-screen items-center justify-center p-10">
+                    <div
+                        className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#7cc304]"></div>
+                    <p className="text-gray-600 mt-4">
+                        Loading...
+                    </p>
+                </div>
             )}
         </div>
     );

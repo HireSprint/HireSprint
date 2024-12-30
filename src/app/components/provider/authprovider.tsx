@@ -5,9 +5,10 @@ import {getCircularByClient} from "@/pages/api/apiMongo/getCircularByClient";
 
 interface AuthContextProps {
     user: any;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
     loading: boolean;
+    setReloadCircular:(reload:boolean)=>void;
     update: any;
     setUpdate: (update: any) => void;
     circulars: Array<{
@@ -18,6 +19,7 @@ interface AuthContextProps {
     }>;
     idCircular: number | null;
     setIdCircular: (id: number | null) => void;
+    setLoading: (loading: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -29,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter();
     const pathname = usePathname();
     const [circulars, setCirculars] = useState<any[]>([]);
+    const [reloadCircular, setReloadCircular] = useState<boolean>(true);
     const [idCircular, setIdCircular] = useState<number | null>(null);
     useLayoutEffect(() => {
         const checkAuth = async () => {
@@ -60,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         checkAuth();
     }, [pathname]);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string): Promise<boolean> => {
         setLoading(true);
         try {
             const res = await fetch('https://hiresprintcanvas.dreamhosters.com/login', {
@@ -72,16 +75,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 credentials: 'same-origin',
                 body: JSON.stringify({ email, password }),
             });
-            const data = await res.json()
+            const data = await res.json();
+            
             if (res.ok) {
                 setUser(data.result);
                 localStorage.setItem('user', JSON.stringify(data.result));
                 router.push('/onboarding');
+                return true;
             } else {
-                throw new Error(data.message || 'Error al iniciar sesión');
+                console.error('Error de inicio de sesión:', data.message);
+                return false;
             }
         } catch (error: any) {
             console.error('Error al iniciar sesión:', error);
+            return false;
         } finally {
             setLoading(false);
         }
@@ -102,25 +109,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
     useEffect(() => {
-        const getProductView = async () => {
-            if (!user?.userData?.id_client) return;
-            
-            try {
-                const body = {
-                    "id_client": user.userData.id_client,
-                }
-                if (circulars.length === 0) {
-                    const resp = await getCircularByClient(body);
-                    if (resp.status === 200) {
-                        setCirculars(resp.result);
-                    }
-                }
-            } catch (error) {
-                console.error("Error al obtener las categorías:", error);
-            }
-        };
-        getProductView();
-    }, [user]);
+       if(reloadCircular || circulars.length <= 0) {
+           const getProductView = async () => {
+               if (!user?.userData?.id_client) return;
+
+               try {
+                   const body = {
+                       "id_client": user.userData.id_client,
+                   }
+                   if (circulars.length === 0) {
+                       const resp = await getCircularByClient(body);
+                       if (resp.status === 200) {
+                           setCirculars(resp.result);
+                       }
+                   }
+               } catch (error) {
+                   console.error("Error al obtener las categorías:", error);
+               }
+           };
+           getProductView();
+           setReloadCircular(false)
+       }
+    }, [user,reloadCircular]);
 
     const setCircularId = (id: number | null) => {
         setIdCircular(id);
@@ -138,10 +148,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             login,
             logout,
             loading,
+            setLoading,
             update,
             setUpdate,
             circulars,
             idCircular,
+            setReloadCircular,
             setIdCircular: setCircularId
         }}>
             {children}

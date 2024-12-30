@@ -1,6 +1,5 @@
 'use client';
 import React, {useEffect, useState} from "react";
-import {parse} from "csv";
 import {getClients} from "@/pages/api/apiMongo/getClients";
 import {clientType} from "@/types/clients";
 import {addCircular} from "@/pages/api/apiMongo/addCircular";
@@ -8,10 +7,9 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {useForm} from "react-hook-form";
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
+import { useAuth } from '@/app/components/provider/authprovider';
+import { validateUpc } from '@/pages/api/apiMongo/validateUpc';
 
-interface DataRow {
-    [key: string]: string | number;
-}
 
 const AddCircular = () => {
     const {register, handleSubmit, reset, setValue, watch} = useForm({
@@ -25,9 +23,20 @@ const AddCircular = () => {
     });
 
     const [csvFile, setCsvFile] = useState<object[]>([]);
+    const { setReloadCircular } = useAuth();
     const [clientes, setClientes] = useState<clientType[] | []>([]);
     const [isReadyToSend, setIsReadyToSend] = useState(false);
     const [columns, setColumns] = useState<any>(null)
+    const [notFoundUpc, setNotFoundUpc] = useState<any[]>([]);
+
+
+    const gridPage = [
+        {page: 1, size: 1051},
+        {page: 2, size: 2067},
+        {page: 3, size: 3107},
+        {page: 3, size: 3107},
+        {page: 4, size: 4059}
+    ]
 
     useEffect(() => {
         const gettingClients = async () => {
@@ -53,7 +62,96 @@ const AddCircular = () => {
         }
     }, [watch()]);
 
-    //@ts-ignore
+    useEffect(() => {
+        if (csvFile.length > 0) {
+            const exceededGrids: typeof csvFile = [];
+
+            csvFile.forEach((item:any) => {
+                const pageN = numberPage(Number(item?.grid_id));
+                const findPage = gridPage.find((gridItem:any) => gridItem.page === pageN);
+
+                if (findPage && item?.grid_id > findPage.size) {
+                    exceededGrids.push(item);
+                }
+            });
+
+            if (exceededGrids.length > 0) {
+                toast.warning(
+                    "Some items have grid identifiers that do not match any defined page. Please check the data and try again."
+                );
+            }
+        }
+    }, [csvFile, gridPage]);
+
+    const sendToDiscord = async (invalidUpcs: string[]) => {
+
+        if (!invalidUpcs || invalidUpcs.length === 0) return;
+
+        const webhookUrl = "https://discordapp.com/api/webhooks/1320767862679404616/xfjoTxLs1GiElTvNXlvTZ3v5mshze7fsc_VSioY-k-7YpshTS9Hg0h8favT1_ye3lPtX";
+
+        const formData = watch();
+
+        const clientDatos = clientes.find((item:clientType) => Number(formData?.idClient) === item.id_client) as clientType;
+
+        const message = {
+            content: `⚠️ Usuario UPCs Inválidos Detectados:`,
+            embeds: [{
+                title: `Detalles del Circular`,
+                description: `**Nombre:** ${formData.circularName}\n**Semana:** ${formData.weekCircular}\n**Fecha:** ${formData.dateCircular}\n**Cliente:** ${clientDatos?.client_name}`,
+                fields: [
+                    {
+                        name: "UPCs Inválidos",
+                        value: invalidUpcs.join('\n'),
+                    },
+                ],
+                color: 15158332, // Rojo
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        try {
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message)
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al enviar mensaje a Discord');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Error al enviar notificación a Discord');
+        }
+    };
+
+    useEffect(() => {
+        const fncValidateUpc = async () => {
+            const body = {
+                circular_products_upc: csvFile,
+            };
+            const resp = await validateUpc(body);
+            console.log("no match", resp);
+            if (resp.notFound.length > 0) {
+                const invalidUpcs = resp.notFound.map((item: any) => item?.upc);
+                setNotFoundUpc(invalidUpcs);
+            }
+        }
+        if (csvFile.length > 0) {
+            fncValidateUpc();
+        }
+    }, [csvFile]);
+
+
+    const numberPage = (grid_id: number | undefined) => {
+        if (grid_id !== undefined) {
+            return Math.floor(grid_id / 1000);
+        }
+        return 0;
+    };
+
     const table = useReactTable({
         data: csvFile,
         columns,
@@ -72,7 +170,6 @@ const AddCircular = () => {
         },
     });
 
-    //@ts-ignore
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -85,7 +182,6 @@ const AddCircular = () => {
             if (typeof text === "string") {
                 const [header, ...rows] = text.split("\n").map((row) => row.split(","));
 
-                // Crear columnas dinámicamente
                 const parsedColumns = header.map((col) => ({
                     accessorKey: col.trim(),
                     header: col.trim(),
@@ -119,7 +215,7 @@ const AddCircular = () => {
                 );
 
                 setColumns(parsedColumns);
-                setCsvFile(parsedData);
+                setCsvFile(fixedCsvLoad(parsedData));
 
                 toast.success("¡Archivo cargado correctamente!");
             } else {
@@ -143,6 +239,15 @@ const AddCircular = () => {
         setCsvFile(updatedData);
     };
 
+    const fixedCsvLoad = (csvFile: object[]) => {
+        return csvFile.map((row: any, index: any) => {
+            if (row.upc && row.upc.length === 11) {
+                row.upc = `0${row.upc}`;
+            }
+            return row;
+        });
+    };
+
     const onSubmit = async (data: any) => {
         if (isReadyToSend) {
 
@@ -151,6 +256,8 @@ const AddCircular = () => {
                 toast.error("The date format must be YYYY-MM-DD");
                 return;
             }
+
+            await sendToDiscord(notFoundUpc);
 
             const body = {
                 id_client: Number(data.idClient),
@@ -165,6 +272,7 @@ const AddCircular = () => {
                 toast.success("¡Circular created successfully!");
                 reset();
                 setCsvFile([]);
+                setReloadCircular(true);
             } else if (resp.status === 409) {
                 toast.error("Date of the circular already exists!!");
             } else if (resp.status === 500) {
@@ -174,6 +282,8 @@ const AddCircular = () => {
             }
         }
     };
+
+
 
     return (
         <div className="flex bg-[#121212] overflow-y-auto no-scrollbar lg:h-screen">
@@ -283,6 +393,11 @@ const AddCircular = () => {
                                     <thead>
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <tr key={headerGroup.id} className="bg-gray-900">
+                                            <th
+                                                className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
+                                            >
+                                                Validation
+                                            </th>
                                             {headerGroup.headers.map((header) => (
                                                 <th
                                                     key={header.id}
@@ -295,33 +410,43 @@ const AddCircular = () => {
                                             <th
                                                 className="px-6 py-3 text-left text-sm font-semibold text-gray-300 border-b border-gray-700 uppercase tracking-wider"
                                             >
-                                                Acción
+                                                Action
                                             </th>
                                         </tr>
                                     ))}
                                     </thead>
                                     <tbody>
-                                    {table.getRowModel().rows.map((row) => (
-                                        <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
-                                            {row.getVisibleCells().map((cell) => (
-                                                <td
-                                                    key={cell.id}
-                                                    className="px-2 py-2 text-md text-black bg-white "
-                                                >
-                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    {table.getRowModel().rows.map((row) => {
+                                        const filteredProduct = csvFile.find((_: any, index: number) => index === row.index) as { upc: string };
+
+                                        const isInvalid = filteredProduct !== undefined && notFoundUpc.includes(filteredProduct.upc);
+
+                                        return (
+                                            <tr key={row.id} className="hover:bg-gray-700 border-t border-gray-600">
+                                                <td className="px-2 py-2 text-md text-black bg-white">
+                                                    <span className={`font-bold ${isInvalid ? 'text-red-600' : 'text-green-600'}`}>
+                                                        {isInvalid ? 'Invalid' : 'Valid'}
+                                                    </span>
                                                 </td>
-                                            ))}
-                                            {/* Celda con el botón de eliminar */}
-                                            <td className="px-2 py-2 text-md text-black bg-white">
-                                                <button
-                                                    onClick={() => handleDeleteRow(row.id)}
-                                                    className="px-2 py-1 text-sm font-bold  text-red-500 rounded hover:bg-red-600 hover:text-white"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                {row.getVisibleCells().map((cell) => (
+                                                    <td
+                                                        key={cell.id}
+                                                        className="px-2 py-2 text-md text-black bg-white "
+                                                    >
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                    </td>
+                                                ))}
+                                                <td className="px-2 py-2 text-md text-black bg-white">
+                                                    <button
+                                                        onClick={() => handleDeleteRow(row.id)}
+                                                        className="px-2 py-1 text-sm font-bold text-red-500 rounded hover:bg-red-600 hover:text-white"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                     </tbody>
                                 </table>
 

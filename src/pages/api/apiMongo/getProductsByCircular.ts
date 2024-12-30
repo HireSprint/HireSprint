@@ -1,3 +1,4 @@
+
 export const getProductsByCircular = async (reqBody:object) => {
     try {
         const resp = await fetch(`https://hiresprintcanvas.dreamhosters.com/getProductsByCircular`, {
@@ -9,7 +10,6 @@ export const getProductsByCircular = async (reqBody:object) => {
         });
 
         const data = await resp.json();
-        console.log("response",data);
         if (data.status === 200) {
             return data;
         }else {

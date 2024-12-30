@@ -9,6 +9,7 @@ import { AuthProvider } from "./components/provider/authprovider";
 import { RouteGuard } from "./components/provider/routeGuard";
 import SendModal from "./components/sendModal";
 import "./styles/fonts.css";
+import { LayoutGridProvider } from "./context/layoutGridContext";
 
 export const metadata: Metadata = {
   title: "Hire Sprint",
@@ -26,15 +27,17 @@ export default function RootLayout({
       <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
           <AuthProvider>
             <RouteGuard>
-              <CategoryProvider>
-                <ProductProvider>
-                  <div className="grid grid-rows-[min-content_1fr] h-screen">
-                    <Header />
-                    <SendModal />
-                    {children}
-                  </div>
-                </ProductProvider>
-              </CategoryProvider>
+              <LayoutGridProvider>
+                <CategoryProvider>
+                  <ProductProvider>
+                    <div className="grid grid-rows-[min-content_1fr] h-screen">
+                      <Header />
+                      <SendModal />
+                      {children}
+                    </div>
+                  </ProductProvider>
+                </CategoryProvider>
+              </LayoutGridProvider>
             </RouteGuard>
           </AuthProvider>
         </PrimeReactProvider>

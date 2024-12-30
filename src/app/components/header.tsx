@@ -8,11 +8,10 @@ import { MessageIcon, ProfileIcon, VideoIcon } from './icons';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './provider/authprovider';
 import ModalProductsTable from "@/app/components/ModalProductsTable";
-import { formatDate } from './formaDate';
-
+ 
 export default function Header() {
     const { user, logout, idCircular, setIdCircular } = useAuth();
-    const { currentPage, setCurrentPage, setProductsData, setIsSendModalOpen } = useProductContext();
+    const { currentPage, setCurrentPage, setIsSendModalOpen , setAutoSaveVarieties} = useProductContext();
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,19 +20,7 @@ export default function Header() {
     const [productTableOpen, setProductTableOpen] = useState(false)
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-    useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getProduct");
-                const data = await resp.json();
-                setProductsData(data.result);
-            } catch (error) {
-                console.error("Error al obtener los productos:", error);
-            }
-        };
 
-        getProductView();
-    }, []);
 
     useEffect(() => {
         const getCircularDate = async () => {
@@ -52,16 +39,17 @@ export default function Header() {
         getCircularDate();
     }, [idCircular, pathname, user]);
 
+
+
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
         
         if (showDropdown) {
             timeoutId = setTimeout(() => {
                 setShowDropdown(false);
-            }, 5000); // 5000 ms = 5 segundos
+            }, 5000);
         }
 
-        // Limpieza del timeout cuando el componente se desmonta o showDropdown cambia
         return () => {
             if (timeoutId) {
                 clearTimeout(timeoutId);
@@ -196,7 +184,12 @@ export default function Header() {
                     </div>
                     {
                         pathname === '/' && (
-                            <button onClick={handleOpenSendModal}>
+                            <button
+                                onClick={() => {
+                                    handleOpenSendModal(); 
+                                    setAutoSaveVarieties(true); 
+                                }}
+                            >
                                 <MessageIcon/>
                             </button>
                         )
@@ -205,7 +198,8 @@ export default function Header() {
                 </div>
             </div>
             {
-                productTableOpen && <ModalProductsTable  id_circular={idCircular} setProductTableOpen={setProductTableOpen} />
+                productTableOpen &&
+                <ModalProductsTable id_circular={idCircular} setProductTableOpen={setProductTableOpen} />
             }
         </>
     );

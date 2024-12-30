@@ -1,7 +1,9 @@
+import { gridLayoutTypes } from "@/types/gridLayout";
+
 // Pagina 1
-export const data1 = {
-    bg_width: '430',
-    bg_height: '820',
+export const data1: gridLayoutTypes = {
+    canva_width: '430',
+    canva_height: '820',
     page_number: '1',
     image: {},
     layout: [
@@ -156,9 +158,9 @@ export const data1 = {
 };
 
 // Pagina 2
-export const data2 = {
-    bg_width: '430',
-    bg_height: '820',
+export const data2: gridLayoutTypes = {
+    canva_width: '430',
+    canva_height: '820',
     page_number: '2',
     image: {},
     layout: [
@@ -285,9 +287,9 @@ export const data2 = {
 };
 
 // Pagina 3
-export const data3 = {
-    bg_width: '430',
-    bg_height: '820',
+export const data3: gridLayoutTypes = {
+    canva_width: '430',
+    canva_height: '820',
     page_number: '3',
     image: {},
     layout: [
@@ -462,9 +464,9 @@ export const data3 = {
 };
 
 // Pagina 4
-export const data4 = {
-    bg_width: '430',
-    bg_height: '820',
+export const data4: gridLayoutTypes = {
+    canva_width: '430',
+    canva_height: '820',
     page_number: '4',
     image: { '0': {} },
     layout: [

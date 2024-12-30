@@ -7,61 +7,85 @@ import { Tooltip } from 'primereact/tooltip';
 import { Message } from 'primereact/message';
 import GridLayout from 'react-grid-layout';
 import { useCategoryContext } from '../context/categoryContext';
-import { gridLayoutTypes, groupGridCellsTypes, PartialGridLayoutTypes } from '@/types/gridLayout';
+import { layoutTypes, groupGridCellsTypes, PartiallayoutTypes, gridLayoutTypes } from '@/types/gridLayout';
 import { Skeleton } from 'primereact/skeleton';
 import HoverGrid from '../components/hoverGrid';
 import { AnimatePresence, motion } from 'framer-motion';
 import { data1, data2, data3, data4 } from './data_layout';
+import { ToastContainer, toast } from 'react-toastify';
+import { LayoutGrid } from '../components/gridLayout';
+import { useLayoutGridContext } from '../context/layoutGridContext';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BuilderPage = () => {
-    const { register, handleSubmit, formState: { errors }, watch, reset, trigger, } = useForm<any>({ defaultValues: { bg_width: '430', bg_height: '820', page_number: '1', image: {}, layout: [] } });
-
     const cols = 100; // Número de columnas del grid
     const rowHeight = 1; // Altura de una fila
     const elementWidth = 10; // Ancho del nuevo elemento
     const elementHeight = 40; // Altura del nuevo elemento
+    const defaultCanvasWidth = '430'; // Ancho por defecto del canvas
+    const defaultCanvasHeight = '820'; // Altura por defecto del canvas
+    const defaultValues = { canva_width: defaultCanvasWidth, canva_height: defaultCanvasHeight, page_number: null, image: null, layout: [] };
+
+    const { register, handleSubmit, formState: { errors }, watch, reset, trigger, } = useForm<any>({ defaultValues: defaultValues });
 
     const formRef = useRef<HTMLFormElement>(null);
     const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isProcessingLayout, setIsProcessingLayout] = useState<boolean>(false);
     const [isLayoutChanging, setIsLayoutChanging] = useState<boolean>(false);
-    const [layout, setLayout] = useState<gridLayoutTypes[]>([]);
-    const [customLayout, setCustomLayout] = useState<gridLayoutTypes[]>([]);
+    const [layout, setLayout] = useState<layoutTypes[]>([]);
+    const [customLayout, setCustomLayout] = useState<layoutTypes[]>([]);
     const [newGroup, setNewGroup] = useState({ canAddAnother: true, x: 0, y: 0 });
-    const [selectedGroup, setSelectedGroup] = useState<gridLayoutTypes | null>(null);
-    const [selectedCell, setSelectedCell] = useState<gridLayoutTypes | null>(null);
+    const [selectedGroup, setSelectedGroup] = useState<layoutTypes | null>(null);
+    const [selectedCell, setSelectedCell] = useState<layoutTypes | null>(null);
+    const [gridLayoutData, setGridLayoutData] = useState<gridLayoutTypes | null>(null);
+    const [builderPages, setBuilderPages] = useState<gridLayoutTypes[]>([]);
+    
     const [groupGridCells, setGroupGridCells] = useState<groupGridCellsTypes | null>(null);
-    const { categoriesData, getCategoryById, isLoadingCategories } = useCategoryContext();
     const [elementDimensions, setElementDimensions] = useState<{ [key: string]: { width: number; height: number } }>({});
     const [minGroupHeight, setMinGroupHeight] = useState<number>(24);
     const [minGroupWidth, setMinGroupWidth] = useState<number>(6);
     const [isRangeModalOpen, setIsRangeModalOpen] = useState<boolean>(false);
+    const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
     const [rangeCells, setRengeCells] = useState<{ start: number; end: number } | null>(null);
     const [isClearAllPopupOpen, setIsClearAllPopupOpen] = useState(false);
+    const { parseLayoutData } = useLayoutGridContext();
+    const { categoriesData, getCategoryById, isLoadingCategories } = useCategoryContext();
 
     const imageFile = watch('image');
-    const bg_width = watch('bg_width');
-    const bg_height = watch('bg_height');
+    const canva_width = watch('canva_width');
+    const canva_height = watch('canva_height');
     const page_number = watch('page_number');
 
     useEffect(() => {
-        // const layoutStructure: gridLayoutTypes[] = [ ]
+        let parsedPages = []
+        const pages = localStorage.getItem('builder-pages') || undefined;
 
+        if (pages !== undefined) {
+            parsedPages = JSON.parse(pages)
+            parsedPages = parsedPages.filter((page:gridLayoutTypes) => !!page)
+        }
+        setBuilderPages(parsedPages)   
+
+        // const layoutStructure: layoutTypes[] = [ ]
+
+        const layoutData: any = null;
         // const layoutData = data1
         // const layoutData = data2
         // const layoutData = data3
-        const layoutData = data4
+        // const layoutData = data4
+
         if (layoutData) {
             reset({
-                bg_width: layoutData.bg_width?.toString() || '430',
-                bg_height: layoutData.bg_height?.toString() || '820',
-                page_number: layoutData.page_number?.toString() || '1',
-                image: {},
-                layout: []
+                canva_width: layoutData.canva_width?.toString() || defaultCanvasWidth,
+                canva_height: layoutData.canva_height?.toString() || defaultCanvasHeight,
+                page_number: layoutData.page_number?.toString() || null,
+                image: null,
+                layout: [],
             });
+        } else {
+            resetDefaults()
         }
-        
+
         const layoutStructure = parseLayoutData(layoutData);
 
         layoutProcessing(layoutStructure);
@@ -100,7 +124,7 @@ const BuilderPage = () => {
             const existingItemIndex = customLayout.findIndex((group: any) => group.i === item.i);
 
             if (existingItemIndex !== -1) {
-                customLayout[existingItemIndex] = { ...customLayout[existingItemIndex], ...item, };
+                customLayout[existingItemIndex] = { ...customLayout[existingItemIndex], ...item };
                 return customLayout[existingItemIndex];
             } else {
                 return item;
@@ -121,10 +145,9 @@ const BuilderPage = () => {
     }, [imageFile]);
 
     useEffect(() => {
-        if (bg_width) setMinGroupWidth(Math.floor(bg_width * 0.015));
-        if (bg_height) setMinGroupHeight(Math.floor(bg_height * 0.03));
-    }, [bg_width, bg_height]);
-
+        if (canva_width) setMinGroupWidth(Math.floor(canva_width * 0.015));
+        if (canva_height) setMinGroupHeight(Math.floor(canva_height * 0.03));
+    }, [canva_width, canva_height]);
 
     useEffect(() => {
         if (rangeCells) {
@@ -132,54 +155,30 @@ const BuilderPage = () => {
         }
     }, [rangeCells]);
 
+    const resetDefaults = () => {
+        reset({...defaultValues});
+        setBackgroundUrl(null);
+        layoutProcessing([]);
+        setGridLayoutData(null);
+    }
 
-    const parseLayoutData = (backendData: any) => {
-        if (!backendData?.layout) return [];
-
-        const parseGridElement = (element: any, isCell: boolean = false, groupId?: string) => {
-            const baseElement = {
-                i: element.i,
-                h: element.h,
-                w: element.w,
-                x: element.x,
-                y: element.y,
-                moved: false,
-                static: true,
-                id_category: element.id_category,
-                minW: 6,
-                minH: 6,
-            };
-
-            if (isCell) return { ...baseElement, id_grid: element.id_grid, groupI: groupId, cellx: element.cellx, celly: element.celly };
-
-            return {
-                ...baseElement,
-                range_cell_id_start: element.range_cell_id_start,
-                range_cell_id_end: element.range_cell_id_end,
-                gridCells: element.gridCells?.map((cell: any) => parseGridElement(cell, true, element.i ) ),
-            };
-        };
-
-        return backendData.layout.map((group: any) => parseGridElement(group));
-    };
-
-    const layoutProcessing = (newLayout: gridLayoutTypes[]) => {
+    const layoutProcessing = (newLayout: layoutTypes[]) => {
         if (isProcessingLayout) return;
         setIsProcessingLayout(true);
 
         setLayout(newLayout);
-        
+
         setTimeout(() => {
             setIsProcessingLayout(false);
         }, 250);
     };
 
-    const makeAllGroupAndCellsStatic = (groups: gridLayoutTypes[]) => {
-        const allStatic = groups.map((group: gridLayoutTypes) => {
+    const makeAllGroupAndCellsStatic = (groups: layoutTypes[]) => {
+        const allStatic = groups.map((group: layoutTypes) => {
             const newGroup = { ...group, static: true };
 
             if (Array.isArray(group.gridCells) && group.gridCells.length > 0) {
-                newGroup.gridCells = group.gridCells.map((cell: gridLayoutTypes) => ({ ...cell, static: true }));
+                newGroup.gridCells = group.gridCells.map((cell: layoutTypes) => ({ ...cell, static: true }));
             }
 
             return newGroup;
@@ -263,10 +262,19 @@ const BuilderPage = () => {
     };
 
     const onSubmit: SubmitHandler<any> = async (data: any) => {
-        setIsSubmitting(true);
+        if (data.image == null || data.image == undefined) {
+            toast.error('Some have to select a background.');
+            return
+        } else if (customLayout.length == 0) {
+            toast.error('You have to add at least one group.');
+            return
+        } else if (customLayout.some((group) => group.gridCells?.length == 0 || !group.gridCells)) {
+            toast.error("Some groups don't have any cells.");
+            return
+        }
 
-        const pick_props = (element: gridLayoutTypes, type: 'group' | 'cell') => {
-            let props: PartialGridLayoutTypes = { i: element.i };
+        const pick_props = (element: layoutTypes, type: 'group' | 'cell') => {
+            let props: PartiallayoutTypes = { i: element.i };
             props.h = element.h;
             props.w = element.w;
             props.x = element.x;
@@ -276,8 +284,8 @@ const BuilderPage = () => {
             if (type == 'group') {
                 props.range_cell_id_end = element.range_cell_id_end;
                 props.range_cell_id_start = element.range_cell_id_start;
-            } 
-            
+            }
+
             if (type == 'cell') {
                 props.id_grid = element.id_grid;
                 props.cellx = element.cellx;
@@ -287,21 +295,17 @@ const BuilderPage = () => {
             return props;
         };
 
-        const layout_to_send = customLayout.map((group: gridLayoutTypes) => {
+        const layout_to_send = customLayout.map((group: layoutTypes) => {
             return {
                 ...pick_props(group, 'group'),
-                gridCells: group.gridCells?.map((cell: gridLayoutTypes) => ({
+                gridCells: group.gridCells?.map((cell: layoutTypes) => ({
                     ...pick_props(cell, 'cell'),
                 })),
             };
         });
-        const data_to_send = { ...data, layout: layout_to_send };
-
-        console.log('data_to_send ', JSON.stringify(data_to_send));
-
-        setTimeout(() => {
-            setIsSubmitting(false);
-        }, 2000);
+        
+        setGridLayoutData({ ...data, layout: layout_to_send });
+        setIsSubmitModalOpen(true);
     };
 
     const layoutGroupChangeHandler = (newLayout: any) => {
@@ -342,7 +346,7 @@ const BuilderPage = () => {
     };
 
     const calculateNextPosition = () => {
-        const totalRows = Math.floor(bg_height / rowHeight);
+        const totalRows = Math.floor(canva_height / rowHeight);
         const grid = Array.from({ length: totalRows }, () => Array(cols).fill(false));
 
         for (const item of layout) {
@@ -376,10 +380,13 @@ const BuilderPage = () => {
             }
         }
 
+        console.log("ANDO AQUIUI");
+        
+
         setNewGroup({ canAddAnother: false, x: 0, y: 0 });
     };
 
-    const findNextAvailableNumber = (layout: gridLayoutTypes[]): number => {
+    const findNextAvailableNumber = (layout: layoutTypes[]): number => {
         const numbers = layout.map((item) => parseInt(item.i)).sort((a, b) => a - b);
 
         if (numbers.length === 0) return 1;
@@ -432,7 +439,7 @@ const BuilderPage = () => {
                 if (group.i === selectedGroup?.i) {
                     return { ...group, gridCells: group.gridCells?.filter((cell: any) => cell.i !== selectedCell?.i) };
                 }
-                return {...group};
+                return { ...group };
             });
 
             newLayout = reorderGridRangesAfterDelete(newLayout, selectedGroup?.i!);
@@ -444,32 +451,30 @@ const BuilderPage = () => {
         calculateNextPosition();
     };
 
-    const reorderGridRangesAfterDelete = (currentLayout: gridLayoutTypes[], deletedFromGroupId: string) => {
-        const groupsWithCells = currentLayout
-            .filter((group) => group.gridCells && group.gridCells.length > 0)
-            .sort((a, b) => (a.range_cell_id_start || 0) - (b.range_cell_id_start || 0));
-    
+    const reorderGridRangesAfterDelete = (currentLayout: layoutTypes[], deletedFromGroupId: string) => {
+        const groupsWithCells = currentLayout.filter((group) => group.gridCells && group.gridCells.length > 0).sort((a, b) => (a.range_cell_id_start || 0) - (b.range_cell_id_start || 0));
+
         let updatedLayout = [...currentLayout];
         let currentStartId = 0;
-    
+
         const deletedGroupIndex = groupsWithCells.findIndex((group) => group.i === deletedFromGroupId);
         if (deletedGroupIndex === -1) return currentLayout;
-    
+
         for (let i = deletedGroupIndex; i < groupsWithCells.length; i++) {
             const currentGroup = groupsWithCells[i];
-            
+
             if (i === deletedGroupIndex) {
                 currentStartId = currentGroup.range_cell_id_start || 1;
             }
-    
+
             const cellCount = currentGroup.gridCells?.length || 0;
             const newEndId = currentStartId + cellCount - 1;
-    
+
             const updatedCells = currentGroup.gridCells?.map((cell, index) => ({
                 ...cell,
                 id_grid: page_number * 1000 + currentStartId + index,
             }));
-    
+
             updatedLayout = updatedLayout.map((group) => {
                 if (group.i === currentGroup.i) {
                     return {
@@ -481,27 +486,27 @@ const BuilderPage = () => {
                 }
                 return group;
             });
-    
+
             currentStartId = newEndId + 1;
         }
-    
+
         return updatedLayout;
     };
 
-    const updateSelectedGroup = (group: PartialGridLayoutTypes) => {
+    const updateSelectedGroup = (group: PartiallayoutTypes) => {
         const newLayout = [...layout];
         const selectedIndex = newLayout.findIndex((item: any) => item.i === group.i);
 
         if (selectedIndex !== -1) {
-            const newGroup: gridLayoutTypes = { ...newLayout[selectedIndex], ...group };
+            const newGroup: layoutTypes = { ...newLayout[selectedIndex], ...group };
 
-            if (newGroup.gridCells && newGroup.gridCells.length > 0) newGroup.gridCells = newGroup.gridCells?.map((cell: gridLayoutTypes) => ({ ...cell, id_category: group.id_category ?? null }));
+            if (newGroup.gridCells && newGroup.gridCells.length > 0) newGroup.gridCells = newGroup.gridCells?.map((cell: layoutTypes) => ({ ...cell, id_category: group.id_category ?? null }));
 
             setSelectedGroup(newGroup);
             newLayout[selectedIndex] = newGroup;
 
             if (selectedCell && selectedCell.groupI === group.i && group.id_category) {
-                const newCell: gridLayoutTypes = { ...selectedCell, id_category: newGroup.id_category };
+                const newCell: layoutTypes = { ...selectedCell, id_category: newGroup.id_category };
                 setSelectedCell(newCell);
             }
         }
@@ -516,8 +521,8 @@ const BuilderPage = () => {
         if (idCategory) updateSelectedGroup({ i: selectedGroup.i, id_category: idCategory });
     };
 
-    const getCustomReference = (group: gridLayoutTypes): gridLayoutTypes | null => {
-        const existingItemIndex = customLayout.findIndex((item: gridLayoutTypes) => item.i === group.i);
+    const getCustomReference = (group: layoutTypes): layoutTypes | null => {
+        const existingItemIndex = customLayout.findIndex((item: layoutTypes) => item.i === group.i);
         return customLayout[existingItemIndex] || null;
     };
 
@@ -528,13 +533,13 @@ const BuilderPage = () => {
     const generateGridCells = (num_rows: number, num_cols: number, rangeCells: any) => {
         if (!selectedGroup) return;
 
-        const cells: gridLayoutTypes[] = [];
+        const cells: layoutTypes[] = [];
         let cellCounter = 1;
 
         // Espaciado entre las celdas
         const spacing = 0.4;
-        const totalXSpacing = (num_cols - 1) * spacing; 
-        const totalYSpacing = (num_rows - 1) * spacing; 
+        const totalXSpacing = (num_cols - 1) * spacing;
+        const totalYSpacing = (num_rows - 1) * spacing;
 
         const effectiveWidth = (100 - totalXSpacing) / num_cols;
         const totalHeight = elementDimensions[`group-${selectedGroup?.i}`]?.height || 0;
@@ -570,7 +575,7 @@ const BuilderPage = () => {
         return cells;
     };
 
-    const validateAndUpdateGridRanges = (currentLayout: gridLayoutTypes[], selectedGroupId: string) => {
+    const validateAndUpdateGridRanges = (currentLayout: layoutTypes[], selectedGroupId: string) => {
         const groupsWithCells = currentLayout.filter((group) => group.gridCells && group.gridCells.length > 0).sort((a, b) => (a.range_cell_id_start || 0) - (b.range_cell_id_start || 0));
 
         let updatedLayout = [...currentLayout];
@@ -581,23 +586,20 @@ const BuilderPage = () => {
 
         lastEndId = groupsWithCells[selectedGroupIndex].range_cell_id_end || 0;
 
-
         for (let i = selectedGroupIndex + 1; i < groupsWithCells.length; i++) {
             const currentGroup = groupsWithCells[i];
             const currentStart = currentGroup.range_cell_id_start || 0;
 
-
             if (currentStart <= lastEndId) {
-
                 const cellCount = currentGroup.gridCells?.length || 0;
                 const newStartId = lastEndId + 1;
                 const newEndId = newStartId + cellCount - 1;
 
-                const updatedCells = currentGroup.gridCells?.map((cell, index) => ({ ...cell, id_grid: page_number * 1000 + newStartId + index, }));
+                const updatedCells = currentGroup.gridCells?.map((cell, index) => ({ ...cell, id_grid: page_number * 1000 + newStartId + index }));
 
                 updatedLayout = updatedLayout.map((group) => {
                     if (group.i === currentGroup.i) {
-                        return { ...group, gridCells: updatedCells, range_cell_id_start: newStartId, range_cell_id_end: newEndId, };
+                        return { ...group, gridCells: updatedCells, range_cell_id_start: newStartId, range_cell_id_end: newEndId };
                     }
                     return group;
                 });
@@ -618,9 +620,9 @@ const BuilderPage = () => {
         const generatedCells = generateGridCells(rows, cols, rangeCells);
         const newLayout = makeAllGroupAndCellsStatic(customLayout);
 
-        let updatedLayout = newLayout.map((group) => {
+        let updatedLayout: layoutTypes[] = newLayout.map((group) => {
             if (group.i === selectedGroup.i) {
-                return { ...group, gridCells: generatedCells, range_cell_id_start: rangeCells.start, range_cell_id_end: rangeCells.end, };
+                return { ...group, gridCells: generatedCells, range_cell_id_start: rangeCells.start, range_cell_id_end: rangeCells.end };
             } else {
                 return group;
             }
@@ -632,27 +634,29 @@ const BuilderPage = () => {
         if (newGroupIndex !== -1) updateSelectedGroup(updatedLayout[newGroupIndex]);
 
         layoutProcessing(updatedLayout);
-        
+
         setTimeout(() => {
             setGroupGridCells(null);
             setRengeCells(null);
         }, 200);
     };
-    
+
     const transformGridCellsToFormat = (gridCells: any[]) => {
-        return ( gridCells?.map((cell) => ({ row: cell.celly, col: cell.cellx, })) || [] );
+        return gridCells?.map((cell) => ({ row: cell.celly, col: cell.cellx })) || [];
     };
-    
+
     const confirmClear = () => {
-        reset();
-        setBackgroundUrl(null);
-        layoutProcessing([]);
+        resetDefaults();
         setIsClearAllPopupOpen(false);
-    }
+    };
 
     if (isLoadingCategories) {
         return <Skeleton width="100%" height="100%" borderRadius="0"></Skeleton>;
     }
+
+    // return (
+    //     <LayoutGrid grid_layout_id={'676da9a89c860720eae624e5'}/>
+    // )
 
     return (
         <div className="w-full h-full grid grid-cols-[min-content_1fr] overflow-hidden">
@@ -674,6 +678,10 @@ const BuilderPage = () => {
                                             value: 1,
                                             message: 'Page number must be at least 1',
                                         },
+                                        validate: (value) => {
+                                            const exists = builderPages.some((page: gridLayoutTypes) => page.page_number == value);
+                                            return !exists || 'A page with this number already exists.'; // Mensaje de error si ya existe
+                                        },
                                         onBlur: (e) => {
                                             trigger('page_number');
                                         },
@@ -685,9 +693,10 @@ const BuilderPage = () => {
                             </div>
 
                             {errors.page_number && (
-                                <span className="text-red-500 text-sm">
+                                <span className="text-red-500 bg-red-100 mt-1 p-1 rounded-md text-sm">
                                     {errors.page_number?.type === 'required' && 'Page number is required'}
                                     {errors.page_number?.type === 'min' && errors.page_number?.message?.toString()}
+                                    {errors.page_number?.type === 'validate' && errors.page_number?.message?.toString()}
                                 </span>
                             )}
                         </div>
@@ -719,12 +728,12 @@ const BuilderPage = () => {
                         <div className="flex items-center gap-3">
                             <div className="flex items-center justify-center gap-2">
                                 <span className="text-gray-500 text-lg">Height</span>
-                                <input type="number" {...register('bg_height', { required: true })} className="bg-white text-gray-700 p-1 rounded w-full" placeholder="Height" />
+                                <input type="number" {...register('canva_height', { required: true })} className="bg-white text-gray-700 p-1 rounded w-full" placeholder="Height" />
                             </div>
 
                             <div className="flex items-center justify-center gap-2">
                                 <span className="text-gray-500 text-lg">Width</span>
-                                <input type="number" {...register('bg_width', { required: true })} className="bg-white text-gray-700 p-1 rounded w-full" placeholder="Width" />
+                                <input type="number" {...register('canva_width', { required: true })} className="bg-white text-gray-700 p-1 rounded w-full" placeholder="Width" />
                             </div>
                         </div>
                     </div>
@@ -734,8 +743,22 @@ const BuilderPage = () => {
                     <div className="bg-gray-400 bg-opacity-[0.4] p-2 rounded-md">
                         <div className="flex items-center justify-end gap-2">
                             <span className="text-gray-500 text-lg flex-1">Add Group</span>
-                            <Tooltip disabled={page_number && !Boolean(errors.page_number)} target="#add-group-btn" content={Boolean(errors.page_number) ? errors.page_number?.message?.toString() : 'You must set the page number before adding a group'} position="right" autoHide={true} showOnDisabled={true} />
-                            <button id="add-group-btn" disabled={!newGroup.canAddAnother || !page_number || Boolean(errors.page_number)} type="button" className="p-2 rounded-md bg-[#7cc304] hover:bg-green-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { addGroup(); }} >
+                            <Tooltip
+                                disabled={page_number && !Boolean(errors.page_number)}
+                                target="#add-group-btn"
+                                content={Boolean(errors.page_number) ? errors.page_number?.message?.toString() : 'You must set the page number before adding a group'}
+                                position="right"
+                                autoHide={true}
+                                showOnDisabled={true}
+                            />
+                        
+                            <button
+                                id="add-group-btn"
+                                disabled={!newGroup.canAddAnother || !page_number || Boolean(errors.page_number)}
+                                type="button"
+                                className="p-2 rounded-md bg-[#7cc304] hover:bg-green-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => { addGroup(); }}
+                            >
                                 <PlusIcon color="#fff" />
                             </button>
                         </div>
@@ -751,7 +774,12 @@ const BuilderPage = () => {
                                     <div className="flex gap-2 items-center">
                                         <div className="flex items-center justify-end gap-2">
                                             <Tooltip target="#move-group-btn" content={`${selectedGroup.static ? 'Move group' : 'Make group static'}`} position="top" autoHide={true} />
-                                            <button id="move-group-btn" type="button" className={`w-[30px] text-white p-1 rounded-md ${selectedGroup.static ? 'bg-gray-300 hover:bg-gray-400' : 'bg-[#7cc304] hover:bg-green-600'} transition-colors`} onClick={() => toggleStatic('group')} >
+                                            <button
+                                                id="move-group-btn"
+                                                type="button"
+                                                className={`w-[30px] text-white p-1 rounded-md ${selectedGroup.static ? 'bg-gray-300 hover:bg-gray-400' : 'bg-[#7cc304] hover:bg-green-600'} transition-colors`}
+                                                onClick={() => toggleStatic('group')}
+                                            >
                                                 <div className="flex items-center justify-center">
                                                     <MoveIcon color={`${selectedGroup.static ? '#9e9c9c' : '#fff'}`} />
                                                 </div>
@@ -773,7 +801,10 @@ const BuilderPage = () => {
                                     <h2 className="text-black text-lg mb-0">Category </h2>
 
                                     <select className="text-black w-36 font-bold px-1 py-2 rounded-md" value={selectedGroup?.id_category || ''} onChange={handleCategoryChange}>
-                                        <option value="" disabled> Select category </option>
+                                        <option value="" disabled>
+                                            {' '}
+                                            Select category{' '}
+                                        </option>
 
                                         {categoriesData.map((cat) => (
                                             <option key={cat.id_category} value={cat.id_category}>
@@ -789,7 +820,14 @@ const BuilderPage = () => {
                                     <HoverGrid key={selectedGroup?.i} rows={11} cols={8} onSelection={handleGroupGridSelection} existingCells={selectedGroup?.gridCells ? transformGridCellsToFormat(selectedGroup.gridCells) : undefined} />
 
                                     <div className="flex items-center justify-end">
-                                        <button disabled={!groupGridCells} type="button" className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { setIsRangeModalOpen(true); }} >
+                                        <button
+                                            disabled={!groupGridCells}
+                                            type="button"
+                                            className="w-[120px] bg-[#7cc304] text-white p-1 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            onClick={() => {
+                                                setIsRangeModalOpen(true);
+                                            }}
+                                        >
                                             Apply
                                         </button>
                                     </div>
@@ -799,64 +837,75 @@ const BuilderPage = () => {
                     </div>
 
                     <div className="flex items-center justify-between mt-5">
-                        <button type="button" className="h-10 bg-red-500 text-white p-2 rounded-md hover:bg-red-600 " onClick={() => { setIsClearAllPopupOpen(true) }} >
+                        <button type="button" className="h-10 bg-red-500 text-white p-2 rounded-md hover:bg-red-600 " onClick={() => { setIsClearAllPopupOpen(true); }} >
                             Clear
                         </button>
 
-                        <button type="submit" disabled={isSubmitting} className="h-10 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center">
-                            {isSubmitting ? (
-                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            ) : (
-                                'Submit'
-                            )}
+                        <button type="submit"  className="h-10 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center">
+                            Submit
                         </button>
                     </div>
                 </form>
             </div>
 
             {/* GRID LAYOUT */}
-            <div className="relative h-full overflow-y-auto" onClick={() => { handleSelection(null); }} >
-                <div className="p-4">
+            <div className="relative h-full overflow-y-auto bg-gray-100" onClick={() => { handleSelection(null) }} >
+                <div className="p-4 h-full">
                     <div className="w-full flex justify-center">
-                        {!bg_width || !bg_height ? (
-                            <div className="flex items-center justify-center">
+                        {!canva_width || !canva_height ? (
+                            <div className="flex items-center justify-center" >
                                 <Message style={{ borderLeft: '6px solid #b91c1c', color: '#b91c1c' }} severity="error" text="You must specify the width and height of the background" className="mb-4" />
                             </div>
                         ) : (
                             <div className="flex items-center justify-center relative">
                                 {backgroundUrl ? (
-                                    <img src={backgroundUrl} alt="Vista previa" className="object-fill" draggable={false} style={{ width: `${bg_width}px`, height: `${bg_height}px` }} />
+                                    <img src={backgroundUrl} alt="Vista previa" className="object-fill" draggable={false} style={{ width: `${canva_width}px`, height: `${canva_height}px` }} />
                                 ) : (
-                                    <div className={`bg-white rounded-md flex items-center justify-center`} style={{ width: `${bg_width}px`, height: `${bg_height}px` }}>
-                                        {/* <span className="text-gray-500 text-lg">No image selected</span> */}
+                                    <div className={`bg-white rounded-md flex items-center justify-center`} style={{ width: `${canva_width}px`, height: `${canva_height}px` }}>
+                                        <i className="text-gray-300 text-lg">No background selected</i>
                                     </div>
                                 )}
                                 <div className="w-full h-full absolute top-0 left-0 z-10 overflow-hidden">
                                     <GridLayout
-                                        onDragStart={() => { setIsLayoutChanging(true); }}
-                                        onDragStop={() => { setTimeout(() => { setIsLayoutChanging(false); }, 250); }}
-                                        onResizeStart={() => { setIsLayoutChanging(true); }}
-                                        onResizeStop={() => { setTimeout(() => { setIsLayoutChanging(false); }, 250); }}
+                                        onDragStart={() => {
+                                            setIsLayoutChanging(true);
+                                        }}
+                                        onDragStop={() => {
+                                            setTimeout(() => {
+                                                setIsLayoutChanging(false);
+                                            }, 250);
+                                        }}
+                                        onResizeStart={() => {
+                                            setIsLayoutChanging(true);
+                                        }}
+                                        onResizeStop={() => {
+                                            setTimeout(() => {
+                                                setIsLayoutChanging(false);
+                                            }, 250);
+                                        }}
                                         key={'layout-group'}
                                         onLayoutChange={layoutGroupChangeHandler}
                                         className="layout"
                                         layout={layout}
                                         cols={cols}
                                         rowHeight={rowHeight}
-                                        width={bg_width}
+                                        width={canva_width}
                                         preventCollision={true}
                                         autoSize={true}
                                         margin={[0, 0]}
                                         containerPadding={[0, 0]}
-                                        maxRows={bg_height}
+                                        maxRows={canva_height}
                                         resizeHandles={['se']}
                                         compactType={null}
                                     >
-                                        {layout.map((group: gridLayoutTypes) => (
-                                            <div key={group.i} onClick={(e) => { e.stopPropagation(); handleSelection(group); }} >
+                                        {layout.map((group: layoutTypes) => (
+                                            <div
+                                                key={group.i}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleSelection(group);
+                                                }}
+                                            >
                                                 <Tooltip target={'#group-' + group.i} position="top" disabled={(getCustomReference(group)?.gridCells || [])?.length > 0 ?? false} autoHide={true} mouseTrack mouseTrackTop={25} hideDelay={20}>
                                                     <div className="flex flex-col gap-3">
                                                         <div className="flex items-center gap-1">
@@ -874,7 +923,12 @@ const BuilderPage = () => {
                                                     </div>
                                                 </Tooltip>
 
-                                                <div id={'group-' + group.i} className={`w-full h-full border-[1px] border-[#7cc304] box-border cursor-pointer ${ selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]' }`} >
+                                                <div
+                                                    id={'group-' + group.i}
+                                                    className={`w-full h-full border-[1px] border-[#7cc304] box-border cursor-pointer ${
+                                                        selectedGroup && selectedGroup?.i === group.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]'
+                                                    }`}
+                                                >
                                                     {elementDimensions && getCustomReference(group)?.gridCells && (
                                                         <GridLayout
                                                             key={'layout-group-cells-' + group.i}
@@ -891,8 +945,15 @@ const BuilderPage = () => {
                                                             resizeHandles={['se']}
                                                             compactType={null}
                                                         >
-                                                            {getCustomReference(group)?.gridCells?.map((cell: gridLayoutTypes) => (
-                                                                <div id={'cell-' + cell.i} key={cell.i} onClick={(e) => { e.stopPropagation(); handleSelection(cell); }} >
+                                                            {getCustomReference(group)?.gridCells?.map((cell: layoutTypes) => (
+                                                                <div
+                                                                    id={'cell-' + cell.i}
+                                                                    key={cell.i}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleSelection(cell);
+                                                                    }}
+                                                                >
                                                                     <Tooltip target={'#cell-' + cell.i} position="top" autoHide={true} mouseTrack mouseTrackTop={25} hideDelay={20}>
                                                                         <div className="flex flex-col gap-3">
                                                                             <div className="flex items-center gap-1">
@@ -915,7 +976,13 @@ const BuilderPage = () => {
                                                                             </div>
                                                                         </div>
                                                                     </Tooltip>
-                                                                    <div className={`w-full h-full border-[1px] relative border-gray-500 rounded text-black ${ selectedCell && selectedCell?.i === cell.i ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]' : 'hover:bg-black hover:bg-opacity-[0.2]' }`} >
+                                                                    <div
+                                                                        className={`w-full h-full border-[1px] relative border-gray-500 rounded text-black ${
+                                                                            selectedCell && selectedCell?.i === cell.i
+                                                                                ? 'border-2 border-green-600 hover:bg-green-600 hover:bg-opacity-[0.3] bg-green-600 bg-opacity-[0.2]'
+                                                                                : 'hover:bg-black hover:bg-opacity-[0.2]'
+                                                                        }`}
+                                                                    >
                                                                         <span className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold text-[9px] absolute top-0 right-0">{cell?.id_grid && cell.id_grid.toString()}</span>
                                                                     </div>
                                                                 </div>
@@ -929,6 +996,35 @@ const BuilderPage = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+                </div>
+
+                <div className='absolute left-3 bottom-1'>
+                    <div className='flex gap-2'>
+                        {builderPages.map((page, index)=> {
+                            return ( 
+                                <motion.div
+                                key={page.page_number} // Asegúrate de usar una clave única
+                                className='rounded-md bg-green-600 p-[2px] text-white'
+                                initial={{ y: 30 }} // Comienza desde abajo
+                                animate={{ y: 0 }} // Finaliza en su posición
+                                transition={{ delay: index * 0.5 }} // Retraso basado en el índice
+                                >
+                                    <div className='rounded-md bg-green-600 px-2 py-[2px] text-white cursor-default'>
+                                        <div className="flex items-center justify-center gap-1">
+                                            <span>
+                                                Page: {page.page_number}   
+                                            </span>
+                                            <Tooltip target={`#remove-page${index}-btn`} content={`Remove page ${page.page_number}`} position="top" autoHide={true} />
+                                            <div id={`remove-page${index}-btn`} className='flex items-center justify-center bg-white bg-opacity-20 rounded-full h-[17px] w-[17px] cursor-pointer'>
+                                                x
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )
+                            })
+                        }
                     </div>
                 </div>
 
@@ -952,6 +1048,17 @@ const BuilderPage = () => {
                     />
                 </AnimatePresence>
 
+                <AnimatePresence>
+                    <SubmitModal
+                        gridLayoutData={gridLayoutData}
+                        builderPages={builderPages}
+                        setBuilderPages={setBuilderPages}
+                        isSubmitModalOpen={isSubmitModalOpen}
+                        setIsSubmitModalOpen={setIsSubmitModalOpen}
+                        resetDefaults={resetDefaults}
+                    />
+                </AnimatePresence>
+
                 {/* Pop-up de confirmación */}
                 {isClearAllPopupOpen && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -959,12 +1066,30 @@ const BuilderPage = () => {
                             <h2 className="text-lg font-bold text-black">Confirm Clear All</h2>
                             <p className="text-black">¿Are you sure you want to clear the layout?</p>
                             <div className="flex justify-end mt-4">
-                                <button onClick={(e) => { e.stopPropagation(); setIsClearAllPopupOpen(false) }} className="bg-gray-400 p-2 rounded-md mr-2 text-white hover:bg-gray-600">Cancel</button>
-                                <button onClick={(e) => { e.stopPropagation(); confirmClear() }} className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600">Confirm</button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsClearAllPopupOpen(false);
+                                    }}
+                                    className="bg-gray-400 p-2 rounded-md mr-2 text-white hover:bg-gray-600"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        confirmClear();
+                                    }}
+                                    className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+                                >
+                                    Confirm
+                                </button>
                             </div>
                         </div>
                     </div>
                 )}
+
+                <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover theme="light" />
             </div>
         </div>
     );
@@ -973,7 +1098,7 @@ const BuilderPage = () => {
 export default BuilderPage;
 
 interface cellToolBoxProps {
-    selectedCell: gridLayoutTypes;
+    selectedCell: layoutTypes;
     remove: (type: 'group' | 'cell') => void;
 }
 
@@ -1018,13 +1143,13 @@ const CellToolBox: React.FC<cellToolBoxProps> = ({ selectedCell, remove }) => {
 };
 
 interface RangeModalProps {
-    selectedGroup: gridLayoutTypes | null;
+    selectedGroup: layoutTypes | null;
     isRangeModalOpen: boolean;
     setIsRangeModalOpen: (value: boolean) => void;
     setRengeCells: (value: { start: number; end: number }) => void;
     groupGridCells: groupGridCellsTypes | null;
-    getCustomReference: (group: gridLayoutTypes) => gridLayoutTypes | null;
-    customLayout: gridLayoutTypes[];
+    getCustomReference: (group: layoutTypes) => layoutTypes | null;
+    customLayout: layoutTypes[];
 }
 
 const RangeModal: React.FC<RangeModalProps> = ({ selectedGroup, isRangeModalOpen, setIsRangeModalOpen, setRengeCells, groupGridCells, getCustomReference, customLayout }) => {
@@ -1103,7 +1228,7 @@ const RangeModal: React.FC<RangeModalProps> = ({ selectedGroup, isRangeModalOpen
         validateRange(value, end);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleRangeSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!groupGridCells) return;
@@ -1131,15 +1256,24 @@ const RangeModal: React.FC<RangeModalProps> = ({ selectedGroup, isRangeModalOpen
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={(e) => { e.stopPropagation(); }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}
                 >
                     <div className="w-96 bg-white p-6 relative rounded-lg">
                         <h1 className="text-black text-2xl font-bold mb-4">Select cell range</h1>
 
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                        <form onSubmit={handleRangeSubmit} className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-medium text-gray-700">Start Range</label>
-                                <input type="number" value={start || ''} onChange={handleStartChange} min={1} className="bg-white text-gray-700 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter start range" />
+                                <input
+                                    type="number"
+                                    value={start || ''}
+                                    onChange={handleStartChange}
+                                    min={1}
+                                    className="bg-white text-gray-700 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    placeholder="Enter start range"
+                                />
                                 {errors.start && <span className="text-red-500 text-sm">{errors.start}</span>}
                             </div>
 
@@ -1162,11 +1296,142 @@ const RangeModal: React.FC<RangeModalProps> = ({ selectedGroup, isRangeModalOpen
                                     Cancel
                                 </button>
 
-                                <button type="submit" disabled={!start || !end || Boolean(errors.start) || Boolean(errors.end) || Boolean(errors.range) || Boolean(errors.overlap)} className="bg-[#7cc304] text-white p-2 rounded-md w-24 flex items-center justify-center hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed" >
+                                <button
+                                    type="submit"
+                                    disabled={!start || !end || Boolean(errors.start) || Boolean(errors.end) || Boolean(errors.range) || Boolean(errors.overlap)}
+                                    className="bg-[#7cc304] text-white p-2 rounded-md w-24 flex items-center justify-center hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
+                                >
                                     Confirm
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </motion.div>
+            )}
+        </React.Fragment>
+    );
+};
+
+interface SubmitModalProps {
+    isSubmitModalOpen: boolean;
+    builderPages: gridLayoutTypes[];
+    setBuilderPages: (value: gridLayoutTypes[]) => void;
+    setIsSubmitModalOpen: (value: boolean) => void;
+    gridLayoutData: gridLayoutTypes | null;
+    resetDefaults: () => void;
+}
+
+const SubmitModal: React.FC<SubmitModalProps> = ({ isSubmitModalOpen, builderPages, setBuilderPages, setIsSubmitModalOpen, gridLayoutData, resetDefaults }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const pagesCount = builderPages.length + 1
+    const saveDataToLocalStorage = () => {
+        
+        if (gridLayoutData) {
+
+            const nextBuilderPage = [...builderPages, gridLayoutData].sort((a:gridLayoutTypes, b:gridLayoutTypes) => {
+                return (Number(a.page_number) - Number(b.page_number)); 
+            });
+            
+            setBuilderPages(nextBuilderPage);
+            
+            localStorage.setItem('builder-pages', JSON.stringify(nextBuilderPage));
+            
+            resetDefaults();
+            setIsSubmitModalOpen(false);
+        }
+    }
+    
+    const handleSubmitCircular = () => {
+        setIsLoading(true)
+        
+        // const generateUniqueHash = (): string => {
+        //     const timestamp = Date.now().toString(36);
+        //     const randomValue = Math.random().toString(36).substring(2);
+        //     return `${timestamp}-${randomValue}`;
+        // };
+        
+        // const pageGroupId = generateUniqueHash();
+
+        // const promises = [];
+
+        // builderPages.forEach((page: gridLayoutTypes)=> {
+
+        //     const formData = new FormData();
+    
+        //     formData.append('image', page.image[0]);
+        //     formData.append('canva_width', String(page.canva_width));
+        //     formData.append('canva_height', String(page.canva_height));
+        //     formData.append('page_number', String(page.page_number));
+        //     formData.append('page_group_id', pageGroupId);
+        //     formData.append('layout', JSON.stringify(page.layout));
+
+        //     promises.push(fetch(`https://hiresprintcanvas.dreamhosters.com/createGridLayout`, { method: 'POST', body: formData, }))
+        // })
+
+
+            
+            // if (response.ok) {
+                //     const dataResponse = await response.json();
+                //     console.log("dataResponse ", dataResponse);
+                
+                //     toast.success("¡Product created successfully!");
+                //     resetDefaults()
+                // }
+                
+                // if (!response.ok) {
+                    
+        //     const errorData = await response.json().catch(() => null);
+        
+        //     console.log("errorData ", errorData);
+        
+        //     toast.error(errorData?.message || `Server error: ${response.status}`);
+        //     throw new Error(errorData?.message || `Server error: ${response.status}`);
+        // }
+        
+        // console.log('formData ', Array.from(formData.entries()));
+        
+        resetDefaults();
+        setIsSubmitModalOpen(false);
+    }
+    
+    
+    
+    return (
+        <React.Fragment>
+            {isSubmitModalOpen && (
+                <motion.div
+                    className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-[9999]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}
+                >
+                    <div className="w-96 bg-white p-6 relative rounded-lg">
+                        <h1 className="text-black text-2xl font-bold mb-1 text-center">¿Are you sure?</h1>
+                        <p className="text-black text-md mb-5 text-center">{`The current circular has (${pagesCount}) page${pagesCount > 1 ? 's' : ''}.`}</p>
+
+                        <div className="flex justify-between gap-2">
+                            <button onClick={()=>setIsSubmitModalOpen(false)} className="bg-red-500 text-white p-2 rounded-md w-24" disabled={isLoading} >
+                                Cancel
+                            </button>
+
+                            <div className='flex gap-2'>
+                                <button onClick={()=>saveDataToLocalStorage()} className="bg-gray-500 text-white p-2 rounded-md w-24" disabled={isLoading} >
+                                    Add Page
+                                </button>
+
+                                <button onClick={handleSubmitCircular} className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center" disabled={isLoading} >
+                                    {isLoading ? (
+                                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                                    ) : (
+                                        'Confirm'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </motion.div>
             )}

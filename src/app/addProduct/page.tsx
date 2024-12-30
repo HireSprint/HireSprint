@@ -9,6 +9,11 @@ import { ProductAddedModal } from "../components/card"
 import { useAuth } from "../components/provider/authprovider"
 import Image from "next/image"
 import { disableProduct } from "@/pages/api/apiMongo/disableProduct";
+import EditableProductTable from '@/app/components/EditableProductTable';
+
+const matchCategory = (categories: categoriesInterface[], id_category: number) => {
+    return categories.find(cat => cat.id_category === id_category);
+};
 
 const AddProductPage = () => {
     const {
@@ -39,11 +44,9 @@ const AddProductPage = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [reloadFlag, setReloadFlag] = useState(false);
+    const [reloadFlag, setReloadFlag] = useState(true);
     const { user } = useAuth();
-
-
-
+    const [generatedSKU, setGeneratedSKU] = useState<string>("");
     const categoryFields: Record<string, { name: string, placeholder: string }[]> = {
         "5": [
             { name: "type_of_meat", placeholder: "Type of meat" },
@@ -71,18 +74,56 @@ const AddProductPage = () => {
     const formRef = useRef<HTMLFormElement>(null);
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
 
+    const [openProductModalTable, setOpenProductModalTable] = useState<boolean>(false);
+
+    const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
+    const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+    const [activeField, setActiveField] = useState<string | null>(null);
+    
+    const getUniqueValues = (fieldName: keyof ProductTypes) => {
+        const values = productsData
+            .map(p => p[fieldName])
+            .filter((value): value is string => 
+                typeof value === 'string' && value.length > 0
+            );
+        return Array.from(new Set(values));
+    };
+
+    const handleInputChangeMain = (fieldName: keyof ProductTypes, value: string) => {
+        setValue(fieldName, value);
+        setActiveField(fieldName);
+        if (value.length > 0) {
+            const uniqueValues = getUniqueValues(fieldName);
+            const filtered = uniqueValues.filter(item => 
+                item.toLowerCase().startsWith(value.toLowerCase())
+            );
+            setSuggestions({ ...suggestions, [fieldName]: filtered });
+            setShowSuggestions({ ...showSuggestions, [fieldName]: true });
+        } else {
+            setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+        }
+    };
+
+    // Seleccionar una sugerencia
+    const handleSugestionMain = (fieldName: keyof ProductTypes, value: string) => {
+        setValue(fieldName, value);
+        setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+    };
+
     useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const resp = await fetch("/api/apiMongo/getProduct");
-                const data = await resp.json();
-                setProductsData(data.result);
-            } catch (error) {
-                console.error("Error in get [id_circular]:", error);
-            }
-        };
-        getProductView();
-    }, []);
+        if (reloadFlag || !openProductModalTable) {
+            const getProductView = async () => {
+                try {
+                    const resp = await fetch("/api/apiMongo/getProduct");
+                    const data = await resp.json();
+                    setProductsData(data.result);
+                } catch (error) {
+                    console.error("Error in get [id_circular]:", error);
+                }
+            };
+            getProductView().finally(()=>setReloadFlag(false));
+        }
+    }, [reloadFlag,openProductModalTable]);
 
     useEffect(() => {
         const getProductView = async () => {
@@ -104,12 +145,11 @@ const AddProductPage = () => {
     const onSubmit: SubmitHandler<ProductTypes> = async (data: ProductTypes) => {
         try {
             const existingProduct = productsData.find(
-                product => product.upc === data.upc || product.sku === data.sku
+                product => product.upc === data.upc
             );
-            console.log(existingProduct, "existingProduct");
 
             if (existingProduct) {
-                toast.error("Ya existe un producto con el mismo UPC o SKU");
+                toast.error("Ya existe un producto con el mismo UPC");
                 return;
             }
 
@@ -117,17 +157,12 @@ const AddProductPage = () => {
             const formData = new FormData();
 
             // Campos básicos
-            formData.append('name', data.name || "");
+            formData.append('name', data.desc || "");
             formData.append('brand', data.brand || "");
             formData.append('upc', data.upc);
-            formData.append('sku', data.sku || "");
             formData.append('price', '0');
-            formData.append('sale_price', "0");
-            formData.append('reg_price', '0');
-            formData.append('unit_price', "0");
             formData.append('size', String(data.size) || "");
             formData.append('variety', data.variety ? JSON.stringify(data.variety) : "");
-            formData.append('color', data.color || "");
             formData.append('id_category', String(data.id_category));
             formData.append('pack', String(data.pack) || "");
             formData.append('count', String(data.count) || "");
@@ -136,16 +171,9 @@ const AddProductPage = () => {
 
             // Campos adicionales
             formData.append('desc', data.desc || "");
-            formData.append('main', data.main || "");
             formData.append('addl', data.addl || "");
             formData.append('burst', (data.burst || 0).toString());
-            formData.append('price_text', data.price_text || "");
-            formData.append('save_up_to', data.save_up_to || "");
-            formData.append('item_code', '0');
-            formData.append('group_code', '0');
             formData.append('notes', data.notes || "");
-            formData.append('buyer_notes', data.buyer_notes || "");
-            formData.append('effective', data.effective || "");
             formData.append('type_of_meat', data.type_of_meat || "");
             formData.append('quantity', data.quantity || "");
             formData.append('master_brand', data.master_brand || "");
@@ -158,7 +186,7 @@ const AddProductPage = () => {
 
             const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/createProduct`, {
                 method: 'POST',
-                body: formData,
+                body: formData, 
             });
 
             if (response.ok) {
@@ -170,7 +198,6 @@ const AddProductPage = () => {
                 setPreviewUrl(null);
                 setReloadFlag(true)
                 reset();
-                setValue("sku", "");
             }
 
             if (!response.ok) {
@@ -184,24 +211,7 @@ const AddProductPage = () => {
         }
     };
 
-    useEffect(() => {
-        if(reloadFlag === true){
-            const updateProduct = async () => {
-                try {
-                    const resp = await fetch("/api/apiMongo/getProduct");
-                    const data = await resp.json();
-                    if (resp.status === 200) {
-                        setProductsData(data.result);
-                    }
-                } catch (error) {
-                    console.error("Error in get products", error);
-                }
-            };
 
-            updateProduct();
-            setReloadFlag(false);
-        }
-    }, [reloadFlag]);
 
     useEffect(() => {
         if (imageFile && imageFile[0]) {
@@ -242,7 +252,6 @@ const AddProductPage = () => {
             }
         } catch (error) {
             toast.error("Error in create category");
-            console.log(error)
             setIsCreatingCategory(false);
         }
     };
@@ -257,8 +266,6 @@ const AddProductPage = () => {
             // Verificar y agregar la imagen solo si existe
             if (dataUpdate?.image && dataUpdate.image.length > 0) {
                 formData.append('image', dataUpdate.image[0]);
-            } else {
-                console.log(dataUpdate?.image, "no image",);
             }
 
             // Campos básicos con validación estricta
@@ -316,39 +323,27 @@ const AddProductPage = () => {
         }
     };
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         if (!searchTerm.trim()) {
-            toast.error("Please enter a search term");
+            return;
+        }
+        
+        if (!productsData?.length) {
             return;
         }
 
         setIsSearching(true);
-        reset()
+        reset();
         try {
-            // Filtra los productos que coincidan con el término de búsqueda
-            const filtered = productsData.filter((product: ProductTypes) => {
-                const searchLower = searchTerm.toLowerCase();
-                if (product.status_active !== false) {
-                    return (
-                        (product.desc?.toLowerCase().includes(searchLower)) ||
-                        (product.master_brand?.toLowerCase().includes(searchLower)) ||
-                        (product.brand?.toLowerCase().includes(searchLower)) ||
-                        (product.type_of_meat?.toLowerCase().includes(searchLower)) ||
-                        (product.type_of_cut?.toLowerCase().includes(searchLower)) ||
-                        (String(product.upc).includes(searchTerm)) ||
-                        (String(product.sku).includes(searchTerm))
-                    );
-                }
-            });
-
-            setSearchResults(filtered);
+            const filteredProducts = productsData.filter((product: ProductTypes) =>
+                Object.values(product).some(value =>
+                    String(value).toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            );
+            setSearchResults(filteredProducts);
             setOpenSearch(true);
-            if (filtered.length === 0) {
-                toast.info("No se encontraron productos");
-            }
         } catch (error) {
-            console.error('Error al buscar productos:', error);
-            toast.error("Error al buscar productos");
+            console.error("Error searching products:", error);
         } finally {
             setIsSearching(false);
         }
@@ -372,7 +367,7 @@ const AddProductPage = () => {
 
         // Verificar si el SKU ya existe
         const newSKU = `SKU${generateRandomDigits()}`;
-        const skuExists = productsData.some(product => product.sku === newSKU);
+        const skuExists = productsData.some(product => product.upc === newSKU);
 
         // Si existe, generar otro
         if (skuExists) {
@@ -391,14 +386,40 @@ const AddProductPage = () => {
         const [editedProduct, setEditedProduct] = useState(product);
         const [imageFileEdit, setImageFileEdit] = useState<File | null>(null);
         const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
-        const matchCategory = (listCategory: categoriesInterface[], id: number) => {
-            const categoryMatch = listCategory.find((item: categoriesInterface) => item.id_category === id);
-            if (categoryMatch) {
-                return categoryMatch;
+        const [suggestions, setSuggestions] = useState<{[key: string]: string[]}>({});
+        const [showSuggestions, setShowSuggestions] = useState<{[key: string]: boolean}>({});
+        const [activeField, setActiveField] = useState<string | null>(null);
+
+        const getUniqueValues = (fieldName: keyof ProductTypes) => {
+            const values = productsData
+                .map(p => p[fieldName])
+                .filter((value): value is string => 
+                    typeof value === 'string' && value.length > 0
+                );
+            return Array.from(new Set(values));
+        };
+
+        const handleInputChange = (fieldName: keyof ProductTypes, value: string) => {
+            setEditedProduct({ ...editedProduct, [fieldName]: value });
+            setActiveField(fieldName);
+
+            if (value.length > 0) {
+                const uniqueValues = getUniqueValues(fieldName);
+                const filtered = uniqueValues.filter(item => 
+                    item.toLowerCase().startsWith(value.toLowerCase())
+                );
+                setSuggestions({ ...suggestions, [fieldName]: filtered });
+                setShowSuggestions({ ...showSuggestions, [fieldName]: true });
             } else {
-                return null;
+                setShowSuggestions({ ...showSuggestions, [fieldName]: false });
             }
-        }
+        };
+
+        // Seleccionar una sugerencia
+        const handleSuggestionClick = (fieldName: keyof ProductTypes, value: string) => {
+            setEditedProduct({ ...editedProduct, [fieldName]: value });
+            setShowSuggestions({ ...showSuggestions, [fieldName]: false });
+        };
 
 
         useEffect(() => {
@@ -479,41 +500,53 @@ const AddProductPage = () => {
                                     placeholder="UPC"
                                 />
                             </div>
-                            <div style={inputContainerStyle}>
-                                <label htmlFor="sku" style={labelStyle}>SKU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.sku || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, sku: e.target.value })}
-                                    placeholder="SKU"
-                                />
-                            </div>
-                            { /*<div style={inputContainerStyle}>
-                                <label htmlFor="plu" style={labelStyle}>PLU</label>
-                                <input
-                                    className="bg-gray-700 text-white p-2 rounded w-full"
-                                    value={editedProduct.plu || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, plu: e.target.value })}
-                                    placeholder="PLU"
-                                />
-                            </div> */}
-                            <div style={inputContainerStyle}>
+                            <div style={inputContainerStyle} className="relative">
                                 <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.master_brand || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, master_brand: e.target.value })}
+                                    onChange={e => handleInputChange('master_brand', e.target.value)}
+                                    onFocus={() => setActiveField('master_brand')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Master Brand"
                                 />
+                                {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && activeField === 'master_brand' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['master_brand'].map((suggestion, index) => (
+                                            <div 
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('master_brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <div style={inputContainerStyle}>
+                            <div style={inputContainerStyle} className="relative">
                                 <label htmlFor="brand" style={labelStyle}>Brand</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.brand || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, brand: e.target.value })}
+                                    onChange={e => handleInputChange('brand', e.target.value)}
+                                    onFocus={() => setActiveField('brand')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Brand"
                                 />
+                                {showSuggestions['brand'] && suggestions['brand']?.length > 0 && activeField === 'brand' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['brand'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="desc" style={labelStyle}>Description</label>
@@ -521,8 +554,23 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.desc || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, desc: e.target.value })}
+                                    onFocus={() => setActiveField('desc')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Description"
                                 />
+                                {showSuggestions['desc'] && suggestions['desc']?.length > 0 && activeField === 'desc' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['desc'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('desc', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="variety" style={labelStyle}>Variety</label>
@@ -530,15 +578,30 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.variety || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, variety: [e.target.value] })}
+                                    onFocus={() => setActiveField('variety')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Variety"
                                 />
+                                {showSuggestions['variety'] && suggestions['variety']?.length > 0 && activeField === 'variety' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['variety'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('variety', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="size" style={labelStyle}>Size</label>
                                 <input
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.size || ''}
-                                    onChange={e => setEditedProduct({ ...editedProduct, size: e.target.value })}
+                                    onChange={e => setEditedProduct({ ...editedProduct, size: [e.target.value] })}
                                     placeholder="Size"
                                 />
                             </div>
@@ -566,8 +629,23 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.w_simbol || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, w_simbol: e.target.value })}
+                                    onFocus={() => setActiveField('w_simbol')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Weight Simbol"
                                 />
+                                {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && activeField === 'w_simbol' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['w_simbol'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('w_simbol', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="embase" style={labelStyle}>Embase</label>
@@ -575,8 +653,23 @@ const AddProductPage = () => {
                                     className="bg-gray-700 text-white p-2 rounded w-full"
                                     value={editedProduct.embase || ''}
                                     onChange={e => setEditedProduct({ ...editedProduct, embase: e.target.value })}
+                                    onFocus={() => setActiveField('embase')}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 100)}
                                     placeholder="Embase"
                                 />
+                                {showSuggestions['embase'] && suggestions['embase']?.length > 0 && activeField === 'embase' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['embase'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSuggestionClick('embase', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div style={inputContainerStyle}>
                                 <label htmlFor="id_category" style={labelStyle}>Category</label>
@@ -685,7 +778,6 @@ const AddProductPage = () => {
         );
     };
 
-    // Agregar estos estilos CSS en línea o en un archivo CSS separado
     const inputContainerStyle = {
         display: 'flex',
         flexDirection: 'column' as 'column',
@@ -698,7 +790,6 @@ const AddProductPage = () => {
         fontSize: '0.875rem'
     };
 
-    // Añadir un useEffect para manejar el evento de teclado
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Enter') {
@@ -706,14 +797,46 @@ const AddProductPage = () => {
             }
         };
 
-        // Añadir el evento al documento
         document.addEventListener('keydown', handleKeyDown);
 
-        // Limpiar el evento al desmontar el componente
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [searchTerm, productsData]);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.add('border-blue-500');
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.remove('border-blue-500');
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.classList.remove('border-blue-500');
+
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                const input = document.getElementById('imageInput') as HTMLInputElement;
+                if (input) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } else {
+                toast.error("Por favor, arrastra solo archivos de imagen");
+            }
+        }
+    };
 
     return (
         <div className="flex p-2 bg-[#121212] h-screen overflow-y-auto no-scrollbar ">
@@ -724,7 +847,7 @@ const AddProductPage = () => {
             <form
                 ref={formRef}
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-6xl mx-auto"
+                className={`grid grid-cols-1 md:grid-cols-1 gap-2 w-full max-w-4xl  ${openSearch ? "ml-28" : "mx-auto"}`}
             >
                 {/* Información básica del producto */}
                 <div className="col-span-2 md:col-span-3 bg-gray-800 p-4 rounded-lg">
@@ -777,23 +900,80 @@ const AddProductPage = () => {
                             <input {...register("upc", { required: true })}
                                 className="bg-gray-500 text-white p-2 rounded-md" />
                         </div>
+                        
 
-                        <div style={inputContainerStyle}>
+                        <div style={inputContainerStyle} className="relative">
                             <label htmlFor="master_brand" style={labelStyle}>Master Brand</label>
                             <input {...register("master_brand")}
-                                className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" 
+                                onChange={(e) => handleInputChangeMain('master_brand', e.target.value)}
+                                onFocus={() => setActiveField('master_brand')}
+                                onBlur={() => setTimeout(() => setActiveField(null), 100)}
+                                />
+                                      {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && 
+                                      activeField === 'master_brand' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['master_brand'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSugestionMain('master_brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                         </div>
 
-                        <div style={inputContainerStyle}>
+                        <div style={inputContainerStyle} className="relative">
                             <label htmlFor="brand" style={labelStyle}>Brand</label>
                             <input {...register("brand")}
-                                className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" 
+                                onChange={(e) => handleInputChangeMain('brand', e.target.value)}
+                                onFocus={() => setActiveField('brand')}
+                                onBlur={() => setTimeout(() => setActiveField(null), 100)}
+                                />
+                                    {showSuggestions['brand'] && suggestions['brand']?.length > 0 && 
+                                    activeField === 'brand' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['brand'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSugestionMain('brand', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+
                         </div>
 
-                        <div style={inputContainerStyle}>
+                        <div style={inputContainerStyle} className="relative">
                             <label htmlFor="desc" style={labelStyle}>Description</label>
                             <input {...register("desc", { required: true })}
-                                className="bg-gray-500 text-white p-2 rounded-md" />
+                                className="bg-gray-500 text-white p-2 rounded-md" 
+                                onChange={(e) => handleInputChangeMain('desc', e.target.value)}
+                                onFocus={() => setActiveField('desc')}
+                                onBlur={() => setTimeout(() => setActiveField(null), 100)}
+                                />
+                                    {showSuggestions['desc'] && suggestions['desc']?.length > 0 && 
+                                    activeField === 'desc' && (
+                                    <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                        {suggestions['desc'].map((suggestion, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-2 hover:bg-gray-600 cursor-pointer text-white"
+                                                onClick={() => handleSugestionMain('desc', suggestion)}
+                                            >
+                                                {suggestion}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                         </div>
                         <div style={inputContainerStyle}>
                             <label htmlFor="plu" style={labelStyle}>PLU</label>
@@ -827,9 +1007,21 @@ const AddProductPage = () => {
                                             <label htmlFor="size" style={labelStyle}>Size</label>
                                             <input {...register("size")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
-                                        <div style={inputContainerStyle}>
+                                        <div style={inputContainerStyle} className="relative">
                                             <label htmlFor="variety" style={labelStyle}>Variety</label>
-                                            <input {...register("variety")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <input {...register("variety")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
+                                            onChange={(e) => handleInputChangeMain('variety', e.target.value)}
+                                            onFocus={() => setActiveField('variety')}
+                                            onBlur={() => setTimeout(() => setActiveField(null), 100)}
+                                            />
+                                            {showSuggestions['variety'] && suggestions['variety']?.length > 0 && 
+                                            activeField === 'variety' && (
+                                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                                    {suggestions['variety'].map((suggestion, index) => (
+                                                        <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('variety', suggestion)}>{suggestion}</div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         <div style={inputContainerStyle}>
                                             <label htmlFor="pack" style={labelStyle}>Pack</label>
@@ -839,13 +1031,37 @@ const AddProductPage = () => {
                                             <label htmlFor="count" style={labelStyle}>Count</label>
                                             <input {...register("count")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
                                         </div>
-                                        <div style={inputContainerStyle}>
+                                        <div style={inputContainerStyle} className="relative">
                                             <label htmlFor="w_simbol" style={labelStyle}>Weight Simbol</label>
-                                            <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <input {...register("w_simbol")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
+                                            onChange={(e) => handleInputChangeMain('w_simbol', e.target.value)}
+                                            onFocus={() => setActiveField('w_simbol')}
+                                            onBlur={() => setTimeout(() => setActiveField(null), 100)}
+                                            />
+                                            {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && 
+                                            activeField === 'w_simbol' && (
+                                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                                    {suggestions['w_simbol'].map((suggestion, index) => (
+                                                        <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('w_simbol', suggestion)}>{suggestion}</div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                        <div style={inputContainerStyle}>
+                                        <div style={inputContainerStyle} className="relative">
                                             <label htmlFor="embase" style={labelStyle}>Embase</label>
-                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" />
+                                            <input {...register("embase")} className="w-full bg-gray-500 text-white p-2 rounded-md" 
+                                            onChange={(e) => handleInputChangeMain('embase', e.target.value)}
+                                            onFocus={() => setActiveField('embase')}
+                                            onBlur={() => setTimeout(() => setActiveField(null), 100)}
+                                            />
+                                            {showSuggestions['embase'] && suggestions['embase']?.length > 0 && 
+                                            activeField === 'embase' && (
+                                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                                    {suggestions['embase'].map((suggestion, index) => (
+                                                        <div key={index} className="p-2 hover:bg-gray-600 cursor-pointer text-white" onClick={() => handleSugestionMain('embase', suggestion)}>{suggestion}</div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </>
@@ -869,7 +1085,7 @@ const AddProductPage = () => {
                             disabled={isSearching}
                             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
                         >
-                            {isSearching ? "Searching..." : "Search"}
+                            {isSearching ? 'Searching...' : 'Search'}
                         </button>
                     </div>
                     <div className=" bg-gray-800  rounded-lg mt-4">
@@ -877,21 +1093,33 @@ const AddProductPage = () => {
                         <div className="flex gap-2">
                             <input
                                 type="text"
-                                value={watch("sku") || ""}
+                                value={generatedSKU}
                                 readOnly
                                 placeholder="SKU generado"
-                                className="p-2 border rounded text-black flex-1 "
+                                className="p-2 border rounded text-black flex-1"
                             />
                             <button
                                 type="button"
                                 onClick={() => {
                                     const newSKU = generateSKU();
-                                    // Actualizar el valor del campo SKU en el formulario
-                                    setValue("sku", newSKU);
+                                    setGeneratedSKU(newSKU);
+                                    setValue('upc', newSKU);
                                 }}
                                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                             >
                                 Generate SKU
+                            </button>
+                        </div>
+                    </div>
+                    <div className=" w-full bg-gray-800  rounded-lg mt-4  ">
+                        <h2 className="text-white text-xl text-center mb-4">Edit All Product</h2>
+                        <div className="flex w-full justify-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setOpenProductModalTable(true)}
+                                className="bg-green-500 text-white px-8 py-2 rounded-md hover:bg-green-600"
+                            >
+                                Open Modal
                             </button>
                         </div>
                     </div>
@@ -903,14 +1131,20 @@ const AddProductPage = () => {
                         <div className="flex gap-4 items-start">
                             <div className="flex-1">
                                 <input
-                                    {...register("image")}
+                                    {...register('image')}
                                     className="hidden"
                                     type="file"
                                     accept="image/*"
                                     id="imageInput"
                                 />
                                 {previewUrl ? (
-                                    <div className="cursor-pointer" onClick={() => document.getElementById('imageInput')?.click()}>
+                                    <div
+                                        className="cursor-pointer"
+                                        onClick={() => document.getElementById('imageInput')?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
                                         <img
                                             src={previewUrl}
                                             alt="Vista previa"
@@ -919,10 +1153,26 @@ const AddProductPage = () => {
                                     </div>
                                 ) : (
                                     <div
-                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+                                        className="w-full h-64 border-2 border-dashed border-gray-400 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
                                         onClick={() => document.getElementById('imageInput')?.click()}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
                                     >
-                                        <span className="text-gray-400">Click to add an image</span>
+                                        <svg
+                                            className="w-8 h-8 mb-2 text-gray-400"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                            />
+                                        </svg>
+                                        <span className="text-gray-400">Drag an image here or click to select</span>
                                     </div>
                                 )}
                             </div>
@@ -956,10 +1206,10 @@ const AddProductPage = () => {
             </form>
 
             {/* Resultados de búsqueda */}
-            {openSearch && (
-                <div className="col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar pb-24">
-                    <h2 className=" text-white text-xl mb-4">Search Results</h2>
-                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[12vh]  bg-red-500 text-white p-2 rounded-md">Close</button>
+            {openSearch  && (
+                <div className="fixed col-span-1 md:col-span-1 bg-gray-800 p-4 rounded-lg mt-4 overflow-y-scroll no-scrollbar h-screen right-0 pb-28 w-80">
+                    <h2 className=" text-white text-xl mb-4">{"Search Results " + searchResults.length + " products"}</h2>
+                    <button onClick={() => setOpenSearch(false)} className="fixed right-4 top-[15vh]  bg-red-500 text-white p-2 rounded-md z-50">Close</button>
 
                     {searchResults.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
@@ -967,11 +1217,14 @@ const AddProductPage = () => {
                                 <div key={product.id_product} className="bg-gray-700 p-4 rounded-lg">
                                     <div className="relative">
                                         {product.url_image && (
-                                            <img
-                                                src={product.url_image}
-                                                alt={product.desc || ""}
-                                                className="w-full h-48 object-contain rounded"
-                                            />
+                                            <div className="flex flex-col justify-center items-center">
+                                                <p className="text-white text-center">{product.desc}</p>
+                                                <img
+                                                    src={product.url_image}
+                                                    alt={product.desc || ""}
+                                                    className="w-full h-32 object-contain rounded"
+                                                />
+                                            </div>
                                         )}
                                         <button
                                             onClick={() => handleEditClick(product)}
@@ -1001,6 +1254,29 @@ const AddProductPage = () => {
                     onUpdate={handleUpdateProduct}
                 />
             )}
+            {openProductModalTable && productsData.length > 0 && (
+                <EditableProductTable  products={productsData}  openModal={openProductModalTable} categories={categories} closeModal={setOpenProductModalTable} reloadData={setReloadFlag} />
+            )}
+            {
+                openProductModalTable === true && productsData.length <= 0 && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+                        <div className="flex items-center justify-center h-screen">
+                            <div
+                                className="w-16 h-16 border-4 border-blue-500 border-solid rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                openProductModalTable === false && reloadFlag === true && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+                        <div className="flex items-center justify-center h-screen">
+                            <div
+                                className="w-16 h-16 border-4 border-blue-500 border-solid rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 }

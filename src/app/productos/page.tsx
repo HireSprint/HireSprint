@@ -19,7 +19,7 @@ const ProductosBase = () => {
 
 
   const filteredProducts = products.filter(product =>
-    product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    product.desc && product.desc.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const indexOfLastProduct = currentPage * productsPerPage;

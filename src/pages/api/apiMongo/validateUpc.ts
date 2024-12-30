@@ -1,8 +1,6 @@
-
-
-export const addCircular = async (reqBody:object) => {
+export const validateUpc = async (reqBody:object) => {
     try {
-        const resp = await fetch(`https://hiresprintcanvas.dreamhosters.com/createCircular`, {
+        const resp = await fetch(`https://hiresprintcanvas.dreamhosters.com/validateUpc`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
