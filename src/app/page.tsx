@@ -403,7 +403,7 @@ export default function HomePage() {
             pasteProduct(gridId);
             return;
         }
-
+        setShowProducts(false);
         if (category) {
             setCategory(null);
         }
@@ -417,7 +417,7 @@ export default function HomePage() {
             setSelectedGridId(gridId);
             const selectedCategory = categoriesData.find(cat => cat.id_category === idCategory);
             setGridCategory(selectedCategory || categoriesData[0]);
-            setIsModalOpen(true);
+            setIsModalOpen(false);
             setShowProducts(true);
         }
     };
