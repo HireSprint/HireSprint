@@ -60,7 +60,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     w_simbol: '',
                     embase: '',
                     variety: [],
-                    url_image2 : '',
+                    image2 : '',
                 });
             }
         });
@@ -131,7 +131,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 count: product.count,
                 w_simbol: product.w_simbol,
                 embase: product.embase,
-                url_image2 : product.url_image2,
+                url_image2 : product.image2,
             };
 
             console.log('Producto formateado:', formattedProduct);
