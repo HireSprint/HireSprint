@@ -91,7 +91,7 @@ const OnboardingPage = () => {
                                     value="" className="cursor-pointer">{circularOptions.length === 0 ? "No circulars available" : "Select a date"}</option>
                                 {circularOptions.map((circular: any) => (
                                     <option key={circular.date_circular} value={circular.date_circular} className="cursor-pointer">
-                                        {formatDate(circular.date_circular)}
+                                        {formatDate(circular.date_circular) +" - "+ formatDate(circular?.dateCircularFinish)}
                                     </option>
                                 ))}
                             </select>

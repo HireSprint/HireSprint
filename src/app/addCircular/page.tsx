@@ -9,7 +9,12 @@ import {useForm} from "react-hook-form";
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import { useAuth } from '@/app/components/provider/authprovider';
 import { validateUpc } from '@/pages/api/apiMongo/validateUpc';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
+import 'react-calendar/dist/Calendar.css';
 
+type ValuePiece = Date | null;
+
+type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const AddCircular = () => {
     const {register, handleSubmit, reset, setValue, watch} = useForm({
@@ -17,10 +22,13 @@ const AddCircular = () => {
             circularName: "",
             weekCircular: "",
             dateCircular: "",
+            dateCircularFinish:"",
             idClient: "",
         },
         mode: "onChange",
     });
+
+    const [valueDate, onChangeDate] = useState<Value>([new Date(), new Date()]);
 
     const [csvFile, setCsvFile] = useState<object[]>([]);
     const { setReloadCircular } = useAuth();
@@ -28,6 +36,20 @@ const AddCircular = () => {
     const [isReadyToSend, setIsReadyToSend] = useState(false);
     const [columns, setColumns] = useState<any>(null)
     const [notFoundUpc, setNotFoundUpc] = useState<any[]>([]);
+
+
+    useEffect(() => {
+        if (Array.isArray(valueDate)) {
+            setValue("dateCircular", valueDate[0]?.toISOString().split("T")[0] || "");
+            setValue("dateCircularFinish", valueDate[1]?.toISOString().split("T")[0] || "");
+        } else if (valueDate instanceof Date) {
+            setValue("dateCircular", valueDate.toISOString().split("T")[0]);
+            setValue("dateCircularFinish", "");
+        } else {
+            setValue("dateCircular", "");
+            setValue("dateCircularFinish", "");
+        }
+    }, [valueDate, setValue]);
 
 
     const gridPage = [
@@ -54,6 +76,7 @@ const AddCircular = () => {
             values.circularName &&
             values.weekCircular &&
             values.dateCircular &&
+            values.dateCircularFinish &&
             values.idClient
         ) {
             setIsReadyToSend(true);
@@ -264,9 +287,9 @@ const AddCircular = () => {
                 name_circular: data.circularName,
                 week_circular: data.weekCircular,
                 date_circular: data.dateCircular,
+                dateCircularFinish: data.dateCircularFinish,
                 circular_products_upc: csvFile,
             };
-
             const resp = await addCircular(body);
             if (resp.status === 201) {
                 toast.success("¡Circular created successfully!");
@@ -365,14 +388,16 @@ const AddCircular = () => {
                             >
                                 Date Circular
                             </label>
-                            <input
-                                {...register("dateCircular")}
-                                type="date"
-                                className="bg-gray-700 text-gray-200 rounded-lg w-full h-12 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+
+                            <DateRangePicker
+                                className="bg-gray-700 rounded-lg w-3/4 h-12 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 open:bg-gray-700"
+                                onChange={onChangeDate}
+                                value={valueDate}
+                                rangeDivider={" "}
                             />
                         </div>
                     </div>
-                    <div className="flex flex-col gap-2 w-full bg-gray-900 p-2 rounded-lg text-gray-200">
+                    <div className="flex flex-col gap-2 w-full bg-gray-900 p-2 border-0 rounded-lg text-gray-200">
                         <label htmlFor="csvInput" className="text-lg font-semibold text-gray-300 mb-2 text-start">
                             Select a CSV File
                         </label>
