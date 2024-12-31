@@ -24,6 +24,7 @@ import { Message } from "primereact/message";
 import { categoriesInterface } from "@/types/category";
 import { useCategoryContext } from "./context/categoryContext";
 import { ProductTypes } from "@/types/product";
+import { SendProductSuggestDiscord } from "@/pages/api/apiMongo/discord";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -541,7 +542,7 @@ export default function HomePage() {
                         per: per,
                         variety_set: variety,
                         size: size,
-                        image2: image2,
+                        url_image2: image2,
                     };
                     if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
                         return {
@@ -852,6 +853,7 @@ export default function HomePage() {
         setIsClearAllPopupOpen(false);
     };
 
+    console.log(productsData, "productsData", selectedProducts, "selectedProducts")
 
 
     return (
@@ -1226,6 +1228,7 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const { selectedProducts, setSelectedProducts } = useProductContext();
     const { getProductsByCategory, categoriesData } = useCategoryContext();
@@ -1241,6 +1244,18 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
     const observerTarget = useRef(null);
     const [searchResults, setSearchResults] = useState<ProductTypes[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [showImageModal, setShowImageModal] = useState(false);
+const [selectedImage, setSelectedImage] = useState<string | null>(null);
+const [isSelectingImage, setIsSelectingImage] = useState(false);
+const [newProductForm, setNewProductForm] = useState({
+    url_image: '',
+    brand: '',
+    master_brand: '',
+    desc: '',
+    variety: '',
+    size: ''
+});
+
 
     useEffect(() => {
         setLoading(true)
@@ -1407,7 +1422,17 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
         return productsByCategory;
     }, [isSearching, searchResults, productsByCategory, activeTab, category, selectedProducts]);
 
-
+    const handleGoogleImageSearch = () => {
+        const searchQuery = encodeURIComponent(`${category.name_category} product `);
+        const googleUrl = `https://www.google.com/search?q=${searchQuery}&tbm=isch`;
+        
+        // Primero mostrar el modal
+        setShowImageModal(true);
+        setIsSelectingImage(true);
+        
+        // Luego abrir la ventana de Google Images
+        const googleWindow = window.open(googleUrl, 'googleImages', 'width=800,height=600');
+    };
     
     return (
         <div
@@ -1438,6 +1463,14 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div>
+                        <button
+                            className="px-2 py-2 rounded-md text-black underline hover:text-blue-500"
+                            onClick={handleGoogleImageSearch}
+                        >
+                            Add Products
+                        </button>
                     </div>
 
                     <input
@@ -1484,22 +1517,24 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                         <>
                             <div className="grid @[100px]:grid-cols-1 @[370px]:grid-cols-2 @[470px]:grid-cols-4 pt-2 gap-2">
                                 {activeTab === 'all' && (
-                                    displayedProducts.map((product: any, index) => (
-                                            <CardShowSide
-                                                product={product}
-                                                onProductSelect={onProductSelect}
-                                                isLoading={false}
-                                            />                                      
+                                    displayedProducts.map((product: any) => (
+                                        <CardShowSide
+                                            key={product.id_product || `temp-${Date.now()}`}
+                                            product={product}
+                                            onProductSelect={onProductSelect}
+                                            isLoading={false}
+                                        />                                      
                                     ))
                                 )}
 
                                 {activeTab === 'circular' && (
-                                    displayedProducts.map((product: any, index) => (
-                                        <div key={product?.id_product || index} className="relative">
+                                    displayedProducts.map((product: any) => (
+                                        <div key={product?.id_product || `temp-${Date.now()}`} className="relative">
                                             <div className="left-0 text-sm text-black">
                                                 {"Page-" + product?.id_grid?.toString().charAt(0) || 'N/A'}
                                             </div>
                                             <CardShowSide
+                                                key={`card-${product?.id_product || Date.now()}`}
                                                 product={product}
                                                 onProductSelect={onProductSelect}
                                                 isLoading={false}
@@ -1529,6 +1564,176 @@ const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProduc
                     )}
                 </div>
             </div>
+            {showImageModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]">
+                    <div className="bg-white p-6 rounded-lg max-w-lg w-full">
+                        <h2 className="text-xl font-bold mb-4 text-black">Add new product</h2>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    URL Image*
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.url_image}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        url_image: e.target.value
+                                    }))}
+                                    placeholder="https://ejemplo.com/imagen.jpg"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Master Brand
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.master_brand}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        master_brand: e.target.value
+                                    }))}
+                                    placeholder="Master Brand"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Brand*
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.brand}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        brand: e.target.value
+                                    }))}
+                                    placeholder="Brand"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Description*
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.desc}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        desc: e.target.value
+                                    }))}
+                                    placeholder="Description"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Variety*
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.variety}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        variety: e.target.value
+                                    }))}
+                                    placeholder="Variety"
+                                />
+                            </div>
+
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Size*
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.size}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        size: e.target.value
+                                    }))}
+                                    placeholder="Ej: 12 oz"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 mt-6">
+                            <button
+                                className="px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300"
+                                onClick={() => {
+                                    setShowImageModal(false);
+                                    setNewProductForm({
+                                        url_image: '',
+                                        brand: '',
+                                        master_brand: '',
+                                        desc: '',
+                                        variety: '',
+                                        size: ''
+                                    });
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                onClick={async () => {
+                                    if (!newProductForm.url_image || !newProductForm.brand || !newProductForm.desc || !newProductForm.size) {
+                                        toast.error('Por favor complete los campos obligatorios');
+                                        return;
+                                    }
+
+                                    try {
+                                        await SendProductSuggestDiscord(newProductForm.url_image, category, newProductForm, user);
+                                        
+                                        const productSuggest: Partial<ProductTypes> = {
+                                            url_image: newProductForm.url_image,
+                                            brand: newProductForm.brand,
+                                            master_brand: newProductForm.master_brand,
+                                            desc: newProductForm.desc,
+                                            variety: [newProductForm.variety],
+                                            size: [newProductForm.size],
+                                            id_category: category.id_category,
+                                        };
+                                        
+                                        onProductSelect(productSuggest as ProductTypes);
+                                        setShowImageModal(false);
+                                        setNewProductForm({
+                                            url_image: '',
+                                            brand: '',
+                                            master_brand: '',
+                                            desc: '',
+                                            variety: '',
+                                            size: ''
+                                        });
+                                        toast.success('Producto sugerido añadido correctamente');
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        toast.error('Error al procesar el producto');
+                                    }
+                                }}
+                            >
+                                Guardar producto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                closeOnClick
+                pauseOnHover
+                theme="light"
+            />
         </div>
     );
 }
