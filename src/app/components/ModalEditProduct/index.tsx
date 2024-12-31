@@ -500,7 +500,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                         <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
                                     </div>
                                     {GridID && groupedProducts[GridID]?.length > 0 && (
-                                        <div className="relative">
+                                        <div className="relative w-fit">
                                             <div
                                                 className="flex items-center gap-2 cursor-pointer pt-2 rounded"
                                                 onClick={() => setShowVarietyList(!showVarietyList)}

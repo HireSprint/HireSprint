@@ -11,6 +11,7 @@ import { useAuth } from '@/app/components/provider/authprovider';
 import { validateUpc } from '@/pages/api/apiMongo/validateUpc';
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import 'react-calendar/dist/Calendar.css';
+import { sendToDiscordUpcNotFound } from "@/pages/api/apiMongo/discord";
 
 type ValuePiece = Date | null;
 
@@ -106,49 +107,7 @@ const AddCircular = () => {
         }
     }, [csvFile, gridPage]);
 
-    const sendToDiscord = async (invalidUpcs: string[]) => {
-
-        if (!invalidUpcs || invalidUpcs.length === 0) return;
-
-        const webhookUrl = "https://discordapp.com/api/webhooks/1320767862679404616/xfjoTxLs1GiElTvNXlvTZ3v5mshze7fsc_VSioY-k-7YpshTS9Hg0h8favT1_ye3lPtX";
-
-        const formData = watch();
-
-        const clientDatos = clientes.find((item:clientType) => Number(formData?.idClient) === item.id_client) as clientType;
-
-        const message = {
-            content: `⚠️ Usuario UPCs Inválidos Detectados:`,
-            embeds: [{
-                title: `Detalles del Circular`,
-                description: `**Nombre:** ${formData.circularName}\n**Semana:** ${formData.weekCircular}\n**Fecha:** ${formData.dateCircular}\n**Cliente:** ${clientDatos?.client_name}`,
-                fields: [
-                    {
-                        name: "UPCs Inválidos",
-                        value: invalidUpcs.join('\n'),
-                    },
-                ],
-                color: 15158332, // Rojo
-                timestamp: new Date().toISOString()
-            }]
-        };
-
-        try {
-            const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(message)
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al enviar mensaje a Discord');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('Error al enviar notificación a Discord');
-        }
-    };
+    
 
     useEffect(() => {
         const fncValidateUpc = async () => {
@@ -280,7 +239,7 @@ const AddCircular = () => {
                 return;
             }
 
-            await sendToDiscord(notFoundUpc);
+            await sendToDiscordUpcNotFound(notFoundUpc, data, clientes);
 
             const body = {
                 id_client: Number(data.idClient),

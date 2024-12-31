@@ -24,6 +24,7 @@ import { Message } from "primereact/message";
 import { categoriesInterface } from "@/types/category";
 import { useCategoryContext } from "./context/categoryContext";
 import { ProductTypes } from "@/types/product";
+import { SendProductSuggestDiscord } from "@/pages/api/apiMongo/discord";
 
 export default function HomePage() {
     const [selectedGridId, setSelectedGridId] = useState<number | null>(null);
@@ -852,6 +853,7 @@ export default function HomePage() {
         setIsClearAllPopupOpen(false);
     };
 
+    console.log(productsData, "productsData", selectedProducts, "selectedProducts")
 
 
     return (
@@ -1226,6 +1228,7 @@ interface GridProductProps {
 }
 
 const GridProduct: React.FC<GridProductProps> = ({ onProductSelect, onHideProducts, initialCategory }) => {
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const { selectedProducts, setSelectedProducts } = useProductContext();
     const { getProductsByCategory, categoriesData } = useCategoryContext();
@@ -1249,6 +1252,7 @@ const [newProductForm, setNewProductForm] = useState({
     brand: '',
     master_brand: '',
     desc: '',
+    variety: '',
     size: ''
 });
 
@@ -1428,56 +1432,7 @@ const [newProductForm, setNewProductForm] = useState({
         
         // Luego abrir la ventana de Google Images
         const googleWindow = window.open(googleUrl, 'googleImages', 'width=800,height=600');
-        
-        // Escuchar cuando el usuario vuelve a la página
-        window.addEventListener('focus', handleWindowFocus);
     };
-    
-    const handleWindowFocus = () => {
-        if (isSelectingImage) {
-            const imageUrl = prompt('Por favor, copia y pega la URL de la imagen seleccionada:');
-            
-            if (imageUrl) {
-                setSelectedImage(imageUrl);
-            }
-            setIsSelectingImage(false);
-            window.removeEventListener('focus', handleWindowFocus);
-        }
-    };
-
-    const sendImageToDiscord = async (imageUrl: string) => {
-        const webhookUrl = "https://discordapp.com/api/webhooks/1323301355431006228/fmF31YM5xJMLO9JwFmcrAWEEx_jwbNDyU53SSJ7jJ3bNWD4d4wPMby899PDS3d6ld8tV";
-        
-        try {
-            const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: `New image suggested for category: ${category.name_category}`,
-                    embeds: [{
-                        image: {
-                            url: imageUrl,
-                            brand: newProductForm.brand,
-                            master_brand: newProductForm.master_brand,
-                            desc: newProductForm.desc,
-                            size: newProductForm.size
-                        }
-                    }]
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al enviar la imagen a Discord');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('Error al enviar la imagen a Discord');
-        }
-    };
-
-
     
     return (
         <div
@@ -1514,7 +1469,7 @@ const [newProductForm, setNewProductForm] = useState({
                             className="px-2 py-2 rounded-md text-black underline hover:text-blue-500"
                             onClick={handleGoogleImageSearch}
                         >
-                            Suggest Products
+                            Add Products
                         </button>
                     </div>
 
@@ -1612,7 +1567,7 @@ const [newProductForm, setNewProductForm] = useState({
             {showImageModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]">
                     <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-                        <h2 className="text-xl font-bold mb-4 text-black">Suggest new product</h2>
+                        <h2 className="text-xl font-bold mb-4 text-black">Add new product</h2>
                         
                         <div className="space-y-4">
                             <div>
@@ -1676,6 +1631,22 @@ const [newProductForm, setNewProductForm] = useState({
                                     placeholder="Description"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Variety*
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded text-black"
+                                    value={newProductForm.variety}
+                                    onChange={(e) => setNewProductForm(prev => ({
+                                        ...prev,
+                                        variety: e.target.value
+                                    }))}
+                                    placeholder="Variety"
+                                />
+                            </div>
+
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1704,6 +1675,7 @@ const [newProductForm, setNewProductForm] = useState({
                                         brand: '',
                                         master_brand: '',
                                         desc: '',
+                                        variety: '',
                                         size: ''
                                     });
                                 }}
@@ -1719,13 +1691,14 @@ const [newProductForm, setNewProductForm] = useState({
                                     }
 
                                     try {
-                                        await sendImageToDiscord(newProductForm.url_image);
+                                        await SendProductSuggestDiscord(newProductForm.url_image, category, newProductForm, user);
                                         
                                         const productSuggest: Partial<ProductTypes> = {
                                             url_image: newProductForm.url_image,
                                             brand: newProductForm.brand,
                                             master_brand: newProductForm.master_brand,
                                             desc: newProductForm.desc,
+                                            variety: [newProductForm.variety],
                                             size: [newProductForm.size],
                                             id_category: category.id_category,
                                         };
@@ -1737,6 +1710,7 @@ const [newProductForm, setNewProductForm] = useState({
                                             brand: '',
                                             master_brand: '',
                                             desc: '',
+                                            variety: '',
                                             size: ''
                                         });
                                         toast.success('Producto sugerido añadido correctamente');
