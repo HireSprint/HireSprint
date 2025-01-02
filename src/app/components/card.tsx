@@ -347,20 +347,20 @@ export const GridCardProduct = ({
                                     <>
                                         <span
                                             className="text-blue-600 uppercase truncate text-left w-full"
-                                            style={{ fontSize: '1em' }}>
+                                            style={{fontSize: '1em'}}>
                                             {product?.master_brand}
                                         </span>
 
                                         <span
                                             className="text-blue-600 uppercase truncate text-left w-full"
-                                            style={{ fontSize: '1em' }}>
+                                            style={{fontSize: '1em'}}>
                                             {product?.brand}
                                         </span>
 
 
                                         <span
                                             className="uppercase truncate text-left w-full"
-                                            style={{ fontSize: '0.6em' }}
+                                            style={{fontSize: '0.6em'}}
                                         >
                                             {product?.desc}
                                         </span>
@@ -368,7 +368,7 @@ export const GridCardProduct = ({
 
                                         <span
                                             className="text-purple-600 uppercase truncate text-left w-full"
-                                            style={{ fontSize: '0.6em' }}
+                                            style={{fontSize: '0.6em'}}
                                         >
                                             <span> {product?.size || ''} </span>
                                             <span> {product?.pack || ''} </span>
@@ -380,37 +380,32 @@ export const GridCardProduct = ({
 
                                         <span
                                             className="text-red-500 truncate text-left w-full"
-                                            style={{ fontSize: '0.8em' }}>
+                                            style={{fontSize: '0.8em'}}>
                                             {product?.price?.replace(/"/g, '') || '0'}
                                         </span>
                                         <span
                                             className="text-gray-700 truncate text-left w-full text-balance"
-                                            style={{ fontSize: '0.8em' }}>
-                                            {product?.variety_set?.length > 0 
-                                                ? product.variety_set
-                                                    .map((item: any) => String(item).replace(/"/g, ''))
-                                                    .slice(0, 3)
-                                                    .join(', ') 
-                                                : product?.variety
-                                                    ?.map((item: any) => String(item).replace(/"/g, ''))
-                                                    .join(', ')}
-                                        </span>
+                                            style={{fontSize: '0.8em'}}>
+    {product?.variety_set?.length > 3
+        ? 'selected variety'
+        : product?.variety_set?.map((item: any) => String(item).replace(/"/g, '')).join(', ') ||
+        product?.variety?.map((item: any) => String(item).replace(/"/g, '')).join(', ')}
+</span>
 
                                         {product?.addl && product?.addl.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.6em' }}
+                                                style={{fontSize: '0.6em'}}
                                             >
                                                 Addl's ${product?.addl}
                                             </span>
                                         )}
 
 
-
                                         {product?.limit && product?.limit.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.6em' }}
+                                                style={{fontSize: '0.6em'}}
                                             >
                                                 Limit {product?.limit} Offer
                                             </span>
@@ -420,7 +415,7 @@ export const GridCardProduct = ({
                                         {product?.must_buy && product.must_buy.length > 0 && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                style={{ fontSize: '0.6em' }}
+                                                style={{fontSize: '0.6em'}}
                                             >
                                                 Must Buy {product?.must_buy}
                                             </span>
@@ -429,7 +424,7 @@ export const GridCardProduct = ({
                                         {product?.with_card && (
                                             <span
                                                 className="text-green-600 uppercase truncate text-left w-full"
-                                                    style={{ fontSize: '0.6em' }}
+                                                style={{fontSize: '0.6em'}}
                                             >With Club Card
                                             </span>
                                         )}
