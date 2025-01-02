@@ -9,7 +9,7 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
-    const allowRoutes = ["/addProduct","/addCircular"];
+    const allowRoutes = ["/addProduct","/addCircular", "/dashboard"];
 
 
     useEffect(() => {
