@@ -443,7 +443,7 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 name="selectCategory"
                                 id="selectCategory"
                                 className=" bg-gray-700 text-gray-200 rounded-lg w-full h-10 p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                                onChange={e => setEditedProduct({ ...product, id_category: Number(e.target.value) })}
+                                onChange={e => setEditedProduct(prev =>({ ...prev, id_category: Number(e.target.value) }))}
                             >
                                 <option value="" disabled selected>
                                     {matchCategory(categories, product?.id_category)?.name_category}
