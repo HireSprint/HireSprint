@@ -540,7 +540,7 @@ export default function HomePage() {
                         per: per,
                         variety_set: variety,
                         size: size,
-                        url_image2: image2,
+                        image2: image2,
                     };
                     if (groupedProducts[idGrid] && product === groupedProducts[idGrid][0]) {
                         return {
