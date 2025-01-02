@@ -43,6 +43,7 @@ export const CardProduct: React.FC<CardProductProps> = ({ product, onProductSele
                         style={{ objectFit: 'cover' }}
                         className="rounded-lg"
                         draggable={false}
+                        onContextMenu={(e)=>e.preventDefault()}
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -107,6 +108,7 @@ export const CardSide: React.FC<CardProductProps> = ({ product, onPriceChange, o
                     onLoadingComplete={handleImageLoad}
                     draggable={false}
                     alt={product.desc || "No hay descripción"}
+                    onContextMenu={(e)=>e.preventDefault()}
                 />
             ) : (
                 <div className="w-12 h-12 bg-gray-200 flex items-center justify-center mt-2">
@@ -147,6 +149,8 @@ export const CardShow = ({ product, onProductSelect }: CardProductProps) => {
                         height={150}
                         className="rounded object-cover"
                         draggable={false}
+                        onContextMenu={(e)=>e.preventDefault()}
+
                     />
                 ) : (
                     <div className="h-full bg-gray-200 rounded-lg flex items-center justify-center">
@@ -327,6 +331,8 @@ export const GridCardProduct = ({
                                             height={100}
                                             className="w-full h-full object-contain"
                                             draggable={false}
+                                            onContextMenu={(e)=>e.preventDefault()}
+
                                         />
                                     </div>
                                 )
@@ -562,6 +568,7 @@ export const CardShowSide = ({
                                             loading="lazy"
                                             placeholder="blur"
                                             blurDataURL={product.url_image}
+                                            onContextMenu={(e)=>e.preventDefault()}
                                         />
                                     )
                                         :
@@ -641,6 +648,7 @@ export const ProductAddedModal = ({ product, onClose, categories }: ProductAdded
                                 fill
                                 className="object-contain rounded-lg"
                                 draggable={false}
+                                onContextMenu={(e)=>e.preventDefault()}
                             />
                         </div>
                     )}

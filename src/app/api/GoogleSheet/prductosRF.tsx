@@ -62,13 +62,12 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     embase: '',
                     variety: [],
                     image2 : '',
-                   
                 });
             }
         });
 
         if (numPages.length > 0 && numPages[0] !== 0) {
-            const filteredPrefixes = new Set(numPages); 
+            const filteredPrefixes = new Set(numPages);
             selectedProducts.forEach((product: ProductTypes) => {
                 const productPrefix = Math.floor(product.id_grid! / 1000);
                 if (filteredPrefixes.has(productPrefix)) {
@@ -77,15 +76,15 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     }
                 }
             });
-        } else {            
+        } else {
             selectedProducts.forEach((product: ProductTypes) => {
                 const index = allProducts.findIndex((p) => p.id_grid === product.id_grid);
                 if (index !== -1) { allProducts[index] = {...allProducts[index],...product,};
                 }
             });
         }
-        
-        
+
+
         allProducts = allProducts.filter(product => product.id_grid !== undefined);
 
         allProducts.sort((a, b) => a.id_grid! - b.id_grid!);
@@ -113,7 +112,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                         }
                         return product.variety_set.join(', ');
                     }
-                    
+
                     return product.variety;
                 })(),
                 pack_Size: Array.isArray(product.size) ? product.size.join(', ') : product.size,

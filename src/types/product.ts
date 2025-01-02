@@ -33,7 +33,9 @@ export interface ProductTypes {
     embase: string,
     variety_set:string[],
     verify?:boolean,
+    images? :string[],
     image2? :string
+
 }
 
 export interface ProductDraggingType {

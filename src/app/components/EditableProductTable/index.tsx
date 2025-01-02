@@ -9,6 +9,7 @@ import { UnverifiedIcon, VerifiedIcon } from '../icons';
 import ModalSmallProduct from '../modalSmallProduct';
 import { calculateTotalProduct } from '@/helpers/calculateTotalPage';
 import { useAuth } from '../provider/authprovider';
+import Image from 'next/image';
 
 
 declare module '@tanstack/react-table' {
@@ -772,11 +773,15 @@ const EditableProductTable = ({
                                             ))}
                                             <td className="px-2 sm:px-6 py-2 text-md text-black items-center uppercase">
                                                 {row.original.url_image && (
-                                                    <img
-                                                        src={row.original.url_image}
+                                                    <Image
+                                                         src={row.original.url_image || ''}
+                                                        alt={row.original.url_image || ''}
+                                                        className="w-16 h-16 object-cover rounded-lg"
+                                                        width={1800}
+                                                        height={960}
                                                         onClick={() => setPreviewUrl(String(row.original.url_image))}
-                                                        alt="Preview"
-                                                        className="w-16 h-16 object-cover rounded-lg border border-gray-700"
+                                                        draggable={false}
+                                                         onContextMenu={(e)=>e.preventDefault()}
                                                     />
                                                 )}
                                             </td>
