@@ -134,14 +134,14 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
             setVariety(uniqueVarieties);
         }
     }, [varietyType, product.variety_set, GridID, groupedProducts]);
-    
-    
+
+
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
             if (variety.length === 0 || variety.length === 1) {
                 const mainProduct = groupedProducts[GridID][0];
-                const mainSize = Array.isArray(mainProduct?.size) 
-                    ? mainProduct.size[0]?.trim() 
+                const mainSize = Array.isArray(mainProduct?.size)
+                    ? mainProduct.size[0]?.trim()
                     : mainProduct?.size?.trim() || '';
                 setSize([mainSize]);
             } else {
@@ -151,8 +151,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                         return variety.includes(itemVariety);
                     })
                     .map((item: ProductTypes) => {
-                        const itemSize = Array.isArray(item?.size) 
-                            ? item.size[0]?.trim() 
+                        const itemSize = Array.isArray(item?.size)
+                            ? item.size[0]?.trim()
                             : item?.size?.trim() || '';
                         return itemSize;
                     })
@@ -173,7 +173,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
 
     const updateSizeRange = (sizes: string[] | string | undefined) => {
         if (!sizes) return [];
-        
+
         // Convertir a array si es string
         const sizesArray = Array.isArray(sizes) ? sizes : [sizes];
         if (sizesArray.length === 0) return [];
@@ -200,11 +200,11 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         setOpenDropdown(false)
     }
 
-    
+
     const onVarietyTypeChange = (type: 'Selected' | 'Assorted' | null) => {
         setVarietyType(type);
     }
-    
+
     const  handleSaveImage2 = (upc : string) =>{
         console.log(urlImage2)
         setUrlImage2(upc)
@@ -212,8 +212,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (burstDropdownRef.current && 
-                !burstDropdownRef.current.contains(event.target as Node) && 
+            if (burstDropdownRef.current &&
+                !burstDropdownRef.current.contains(event.target as Node) &&
                 openDropdown) {
                 setOpenDropdown(false);
             }
@@ -226,7 +226,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     }, [openDropdown]);
 
     useEffect(() => {
-        
+
         if (GridID && groupedProducts[GridID] && urlImage2 !== '') {
             const productImageUrl = groupedProducts[GridID]?.find(
                 (item: ProductTypes) => item.upc === urlImage2
@@ -264,6 +264,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                             width={300}
                                             height={300}
                                             draggable={false}
+                                            onContextMenu={(e)=>e.preventDefault()}
                                         />
                                     ) : (
                                         <div className="h-full w-full bg-gray-200 flex items-center justify-center">
@@ -284,6 +285,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                     width={100}
                                                     height={100}
                                                     draggable={false}
+                                                    onContextMenu={(e)=>e.preventDefault()}
                                                 />
                                             ) : (
                                                 <div className="h-full w-full bg-gray-200 flex items-center justify-center">
@@ -335,11 +337,11 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                     <div className="flex items-center">
                                         <h1 className="text-black font-bold w-32">Variety:</h1>
                                         <h1 className="text-black uppercase text-balance w-48">
-                                            {varietyType 
-                                                ? varietyType === 'Selected' 
-                                                    ? 'Selected Varieties' 
+                                            {varietyType
+                                                ? varietyType === 'Selected'
+                                                    ? 'Selected Varieties'
                                                     : 'Assorted Varieties'
-                                                : variety.includes('Selected Varieties') 
+                                                : variety.includes('Selected Varieties')
                                                     ? 'Selected Varieties'
                                                     : variety.includes('Assorted Varieties')
                                                         ? 'Assorted Varieties'
@@ -548,12 +550,12 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                             type="checkbox"
                                                                             className="absolute bottom-0 left-0 w-4 h-4 z-10"
                                                                             aria-label="Seleccionar este artículo"
-                                                                            checked={urlImage2 === item.upc} 
+                                                                            checked={urlImage2 === item.upc}
                                                                             onChange={(e) => {
                                                                                 if (e.target.checked) {
-                                                                                    handleSaveImage2(item.upc || ''); 
+                                                                                    handleSaveImage2(item.upc || '');
                                                                                 } else {
-                                                                                    handleSaveImage2(''); 
+                                                                                    handleSaveImage2('');
                                                                                 }
                                                                             }}
                                                                         />
@@ -565,6 +567,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                                 height={48}
                                                                                 className="object-cover w-full h-full"
                                                                                 draggable={false}
+                                                                                onContextMenu={(e)=>e.preventDefault()}
                                                                             />
                                                                         ) : (
                                                                             <div
@@ -645,8 +648,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                         } else {
                                             finalVariety = variety.filter(v => v !== 'Selected Varieties' && v !== 'Assorted Varieties');
                                         }
-                                        
-                                        
+
+
                                         SaveFC?.(
                                             GridID,
                                             price,
@@ -662,7 +665,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                             size,
                                             urlImage2,
                                         );
-                                         
+
                                     }}>
                                     <div className="flex gap-2">
                                         <SaveIcon />
