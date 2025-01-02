@@ -221,7 +221,9 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                     className=" object-contain cursor-zoom-in transition-transform hover:scale-105 flex justify-center items-center"
                                     width={600}
                                     height={600}
-                                    onClick={() => window.open(product?.url_image, '_blank')}
+                                    draggable={false}
+                                    onContextMenu={(e)=>e.preventDefault()}
+
                                 />
                                 {
                                     Array.isArray(product?.images) && product.images.length > 0 && (
@@ -234,7 +236,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                                     className=" object-contain cursor-zoom-in transition-transform hover:scale-105 flex justify-center items-center"
                                                     width={150}
                                                     height={150}
-                                                    onClick={() => window.open(image, '_blank')}
+                                                    draggable={false}
+                                                    onContextMenu={(e)=>e.preventDefault()}
                                                 />
                                             ))}
                                         </div>
