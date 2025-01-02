@@ -31,7 +31,6 @@ export interface ProductTypes {
     count: number,
     w_simbol: string,
     embase: string,
-    url_image2: string,
     variety_set:string[],
     verify?:boolean,
     images? :string[],
