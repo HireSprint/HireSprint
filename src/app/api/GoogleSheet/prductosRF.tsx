@@ -26,7 +26,7 @@ export let InfoHojaIdInicialIdFinal = [
 ]
 export const addGoogleSheet3 = async (sheetId: string, categoriesData: categoriesInterface[], selectedProducts: ProductTypes[], numPages : number[]) => {
 
-    const url = "https://script.google.com/macros/s/AKfycbw6DqDIwO_SKvXMqxiiJtZU_6wJ87Z-Xxha6bUr64dUk7CJH3QUlLmvoCDrPamMi6Yv/exec";
+    const url = "https://script.google.com/macros/s/AKfycbw4YNQlBq4JyLB8GalpOmHS9xuyyxW_S1_GRqqr-bfln6KsLBko7HjPiXxA74a0F0RT/exec";
 
     console.log(numPages, 'numPages');
     try {
@@ -48,6 +48,7 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     type_of_cut: '',
                     price: '0',
                     notes: '',
+                    url_image: '',
                     burst: 0,
                     addl: '',
                     limit: '',
@@ -60,7 +61,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                     w_simbol: '',
                     embase: '',
                     variety: [],
-                    url_image2 : '',
+                    image2 : '',
+                   
                 });
             }
         });
@@ -131,7 +133,8 @@ export const addGoogleSheet3 = async (sheetId: string, categoriesData: categorie
                 count: product.count,
                 w_simbol: product.w_simbol,
                 embase: product.embase,
-                url_image2 : product.url_image2,
+                upcImage2 : product.image2,
+                url_image : product.url_image,
             };
 
             console.log('Producto formateado:', formattedProduct);

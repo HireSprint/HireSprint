@@ -64,8 +64,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const [variety, setVariety] = useState<string[]>(Array.isArray(product.variety_set) && product.variety_set[0] ? product.variety_set : product.variety || []);
     const varietyListRef = useRef<HTMLDivElement>(null);
     const burstDropdownRef = useRef<HTMLDivElement>(null);
-    const [urlImage2, setUrlImage2] = useState<string>(product.url_image2 || '');
-
+    const [urlImage2, setUrlImage2] = useState<string>(product.image2 || '');
+    const [subImages, setSubImages] = useState<string>(product.url_image || '');
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (varietyListRef.current &&
@@ -205,8 +205,9 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         setVarietyType(type);
     }
     
-    const  handleSaveImage2 = (urlImage : string) =>{
-        setUrlImage2(urlImage)
+    const  handleSaveImage2 = (upc : string) =>{
+        console.log(urlImage2)
+        setUrlImage2(upc)
     }
 
     useEffect(() => {
@@ -223,6 +224,18 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [openDropdown]);
+
+    useEffect(() => {
+        
+        if (GridID && groupedProducts[GridID] && urlImage2 !== '') {
+            const productImageUrl = groupedProducts[GridID]?.find(
+                (item: ProductTypes) => item.upc === urlImage2
+            )?.url_image || product?.url_image;
+           console.log('Producto formateado:', productImageUrl);
+            setSubImages(productImageUrl || product?.url_image || '');
+        }
+       console.log(subImages)
+        }, [urlImage2]);
 
     return (
         <React.Fragment>
@@ -265,7 +278,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                         <div key={index} className="h-24 bg-white rounded-lg p-1">
                                             {product?.url_image ? (
                                                 <Image
-                                                    src={product?.url_image}
+                                                    src={subImages}
                                                     className="w-full h-full object-contain"
                                                     alt={`${product?.desc || "No hay descripción"}-${index}`}
                                                     width={100}
@@ -487,7 +500,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                         <input type="checkbox" checked={withCard} onChange={() => setWithCard(!withCard)} className="w-6 h-6" />
                                     </div>
                                     {GridID && groupedProducts[GridID]?.length > 0 && (
-                                        <div className="relative">
+                                        <div className="relative w-fit">
                                             <div
                                                 className="flex items-center gap-2 cursor-pointer pt-2 rounded"
                                                 onClick={() => setShowVarietyList(!showVarietyList)}
@@ -533,13 +546,14 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                         className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded overflow-hidden flex items-center justify-center relative">
                                                                         <input
                                                                             type="checkbox"
-                                                                            className="absolute bottom-0 left-0 w-4 h-4 z-10" // Ajusta la posición
+                                                                            className="absolute bottom-0 left-0 w-4 h-4 z-10"
                                                                             aria-label="Seleccionar este artículo"
+                                                                            checked={urlImage2 === item.upc} 
                                                                             onChange={(e) => {
                                                                                 if (e.target.checked) {
-                                                                                    handleSaveImage2(item.upc || ''); // Guardar el dato
+                                                                                    handleSaveImage2(item.upc || ''); 
                                                                                 } else {
-                                                                                    handleSaveImage2(''); // Eliminar el dato
+                                                                                    handleSaveImage2(''); 
                                                                                 }
                                                                             }}
                                                                         />
