@@ -5,6 +5,9 @@ import { useEffect, useState, useCallback } from "react";
 import { disableProduct } from "@/pages/api/apiMongo/disableProduct";
 import { VerifiedIcon } from "./icons";
 import { useAuth } from "./provider/authprovider";
+import { body } from 'framer-motion/m';
+import { sendMultipleImage } from '@/pages/api/apiMongo/sendMultipleImage';
+import { id } from 'date-fns/locale';
 
 interface ModalSmallProductProps {
     product: ProductTypes;
@@ -27,6 +30,10 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
     const [openProductModalTable, setOpenProductModalTable] = useState<boolean>(false);
     const [editPreviewUrl, setEditPreviewUrl] = useState<string | null>(null);
     const { user } = useAuth();
+
+    const [multiplesImages, setMultiplesImages] = useState<File[]|[]>([]);
+    const [openMultipleImage, setOpenMultipleImage] = useState(false);
+    const [isUpdatedMultiImage, setIsUpdatedMultiImage] = useState(false);
 
 
     const inputContainerStyle = {
@@ -134,6 +141,61 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
         e.preventDefault();
     }, []);
 
+    const handleImageChangeMulti = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            setMultiplesImages((prev) => [...prev, file]);
+        }
+    };
+
+
+    // Maneja el evento drag & drop
+    const handleDropMulti = (e: React.DragEvent<HTMLDivElement>): void => {
+        e.preventDefault();
+        const filesArray = Array.from(e.dataTransfer.files).filter((file) =>
+            file.type.startsWith("image/")
+        );
+        setMultiplesImages((prev) => [...prev, ...filesArray]);
+    };
+
+    const handleDragOverMulti = (e: React.DragEvent<HTMLDivElement>): void => {
+        e.preventDefault();
+    };
+
+    // Maneja la eliminación de imágenes
+    const handleRemoveImage = (index: number): void => {
+        setMultiplesImages((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    useEffect(() => {
+        const sendImageSecondary = async () => {
+            try {
+                const formData = new FormData();
+                formData.append("upc", editedProduct.upc);
+
+                // Agregar las imágenes al FormData
+                multiplesImages.forEach((image, index) => {
+                    formData.append("images", image); // Cada imagen se agrega con la clave 'images'
+                });
+
+                const resp = await sendMultipleImage(formData);
+                console.log("subida de múltiples imágenes", resp, "FormData", formData);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setIsUpdatedMultiImage(false);
+                setOpenMultipleImage(false)
+                setMultiplesImages([])
+            }
+        };
+
+        if (isUpdatedMultiImage && multiplesImages.length > 0) {
+            sendImageSecondary();
+        } else {
+            setIsUpdatedMultiImage(false);
+        }
+    }, [isUpdatedMultiImage]);
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-gray-800 rounded-lg p-6 w-full max-w-7xl max-h-[90vh] overflow-y-auto">
@@ -161,7 +223,23 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                     height={600}
                                     onClick={() => window.open(product?.url_image, '_blank')}
                                 />
-
+                                {
+                                    Array.isArray(product?.images) && product.images.length > 0 && (
+                                        <div className={'flex flex-row justify-center items-center'}>
+                                            {product?.images?.map((image, index) => (
+                                                <Image
+                                                    key={index}
+                                                    src={image || ''}
+                                                    alt={product?.desc || ''}
+                                                    className=" object-contain cursor-zoom-in transition-transform hover:scale-105 flex justify-center items-center"
+                                                    width={150}
+                                                    height={150}
+                                                    onClick={() => window.open(image, '_blank')}
+                                                />
+                                            ))}
+                                        </div>
+                                    )
+                                }
                             </div>
                         )}
                     </div>
@@ -189,7 +267,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 placeholder="Master Brand"
                             />
                             {showSuggestions['master_brand'] && suggestions['master_brand']?.length > 0 && activeField === 'master_brand' && (
-                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                <div
+                                    className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                     {suggestions['master_brand'].map((suggestion, index) => (
                                         <div
                                             key={index}
@@ -213,7 +292,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 placeholder="Brand"
                             />
                             {showSuggestions['brand'] && suggestions['brand']?.length > 0 && activeField === 'brand' && (
-                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                <div
+                                    className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                     {suggestions['brand'].map((suggestion, index) => (
                                         <div
                                             key={index}
@@ -237,7 +317,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 placeholder="Description"
                             />
                             {showSuggestions['desc'] && suggestions['desc']?.length > 0 && activeField === 'desc' && (
-                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                <div
+                                    className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                     {suggestions['desc'].map((suggestion, index) => (
                                         <div
                                             key={index}
@@ -261,7 +342,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 placeholder="Variety"
                             />
                             {showSuggestions['variety'] && suggestions['variety']?.length > 0 && activeField === 'variety' && (
-                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                <div
+                                    className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                     {suggestions['variety'].map((suggestion, index) => (
                                         <div
                                             key={index}
@@ -294,7 +376,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 placeholder="Weight Simbol"
                             />
                             {showSuggestions['w_simbol'] && suggestions['w_simbol']?.length > 0 && activeField === 'w_simbol' && (
-                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                <div
+                                    className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                     {suggestions['w_simbol'].map((suggestion, index) => (
                                         <div
                                             key={index}
@@ -337,7 +420,8 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                 placeholder="Embase"
                             />
                             {showSuggestions['embase'] && suggestions['embase']?.length > 0 && activeField === 'embase' && (
-                                <div className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
+                                <div
+                                    className="absolute top-20 z-50 w-full bg-gray-700 border border-gray-600 rounded-b max-h-40 overflow-y-auto">
                                     {suggestions['embase'].map((suggestion, index) => (
                                         <div
                                             key={index}
@@ -376,7 +460,10 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                         <input
                                             className="bg-gray-700 text-white p-2 rounded w-full"
                                             value={editedProduct?.type_of_meat || ''}
-                                            onChange={e => setEditedProduct({ ...editedProduct, type_of_meat: e.target.value })}
+                                            onChange={e => setEditedProduct({
+                                                ...editedProduct,
+                                                type_of_meat: e.target.value,
+                                            })}
                                             placeholder="Type of Meat"
                                         />
                                     </div>
@@ -385,7 +472,10 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                         <input
                                             className="bg-gray-700 text-white p-2 rounded w-full"
                                             value={editedProduct?.type_of_cut || ''}
-                                            onChange={e => setEditedProduct({ ...editedProduct, type_of_cut: e.target.value })}
+                                            onChange={e => setEditedProduct({
+                                                ...editedProduct,
+                                                type_of_cut: e.target.value,
+                                            })}
                                             placeholder="Type of Cut"
                                         />
                                     </div>
@@ -394,14 +484,25 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                                         <input
                                             className="bg-gray-700 text-white p-2 rounded w-full"
                                             value={editedProduct?.quality_cf || ''}
-                                            onChange={e => setEditedProduct({ ...editedProduct, quality_cf: e.target.value })}
+                                            onChange={e => setEditedProduct({
+                                                ...editedProduct,
+                                                quality_cf: e.target.value,
+                                            })}
                                             placeholder="Quality CF"
                                         />
+                                    </div>
+                                    <div style={inputContainerStyle}>
+                                        <label htmlFor="id_category" style={labelStyle}> Secondary Images</label>
+                                        <button
+                                            className={'py-1 border-dashed border-2 border-grey-200 rounded-md text-white'}
+                                            onClick={() => setOpenMultipleImage(true)}>Add Secondary Images
+                                        </button>
                                     </div>
                                 </>
                             ) : (
                                 <></>
                             )}
+
 
                         <div className="col-span-2">
                             <input
@@ -442,30 +543,30 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                         {/* Botones */}
                         <div className="col-span-2 flex justify-end gap-2 mt-4">
                             {user?.userData?.level_client === 1 && (
-                                    <div className="flex space-x-2">
-                                        <div 
-                                            className="flex items-center space-x-2 cursor-pointer"
-                                            onClick={() => {
-                                                setEditedProduct(prev => ({ 
-                                                    ...prev, 
-                                                    verify: !prev.verify 
-                                                }));
+                                <div className="flex space-x-2">
+                                    <div
+                                        className="flex items-center space-x-2 cursor-pointer"
+                                        onClick={() => {
+                                            setEditedProduct(prev => ({
+                                                ...prev,
+                                                verify: !prev.verify
+                                            }));
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            id="verified"
+                                            className="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 cursor-pointer"
+                                            checked={editedProduct?.verify || false}
+                                            onChange={e => {
+                                                const newValue = e.target.checked;
+                                                setEditedProduct(prev => ({ ...prev, verify: newValue }));
                                             }}
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                id="verified"
-                                                className="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 cursor-pointer"
-                                                checked={editedProduct?.verify || false}
-                                                onChange={e => {
-                                                    const newValue = e.target.checked;
-                                                    setEditedProduct(prev => ({ ...prev, verify: newValue }));
-                                                }}
-                                            />
-                                            <VerifiedIcon />
-                                        </div>
+                                        />
+                                        <VerifiedIcon />
                                     </div>
-                                )}
+                                </div>
+                            )}
                             <button
                                 onClick={() => handleDisable(Number(product?.id_product))}
                                 className="px-4 text-bold text-red-500 border border-gray-800 hover:border-red-500 rounded-lg"
@@ -489,6 +590,75 @@ const ModalSmallProduct = ({ product, onClose, onUpdate, categories, matchCatego
                     </div>
                 </div>
             </div>
+            {openMultipleImage && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100 p-5">
+                    <div className="relative w-3/4 h-[60vh] bg-gray-900 rounded-md">
+                        <div className="p-5 flex flex-wrap gap-5 w-full h-3/4 justify-around  overflow-auto mt-10">
+                            {/* Renderiza vista previa de imágenes */}
+                            {multiplesImages.map((image, index) => (
+                                <div key={index} className="relative w-1/4 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors h-full">
+                                    <img
+                                        src={URL.createObjectURL(image)}
+                                        alt={`Preview ${index}`}
+                                        className="w-full h-full object-cover rounded-md "
+                                    />
+                                    <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-2"
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+
+                            {/* Input dinámico para agregar imágenes */}
+                            {multiplesImages.length < 3 && (
+                                <div className="w-1/4">
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        id={`imageInput-${multiplesImages.length}`}
+                                        onChange={handleImageChangeMulti}
+                                    />
+                                    <div
+                                        className="border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors h-full"
+                                        onClick={() =>
+                                            document
+                                                .getElementById(`imageInput-${multiplesImages.length}`)
+                                                ?.click()
+                                        }
+                                        onDrop={handleDropMulti}
+                                        onDragOver={handleDragOverMulti}
+                                    >
+                                        <div className="text-center">
+                                              <span className="text-gray-400 block">
+                                                Drag and drop or
+                                              </span>
+                                              <span className="text-blue-500">click to select</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="w-full flex align-bottom justify-end p-5 gap-5">
+                            <button
+                                onClick={() => setOpenMultipleImage(false)}
+                                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                onClick={() => setIsUpdatedMultiImage(true)}
+                            >
+                                {isUpdatedMultiImage ? "Actualizando..." : "Guardar Cambios"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

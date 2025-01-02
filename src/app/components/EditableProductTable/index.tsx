@@ -776,7 +776,7 @@ const EditableProductTable = ({
                                                         src={row.original.url_image}
                                                         onClick={() => setPreviewUrl(String(row.original.url_image))}
                                                         alt="Preview"
-                                                        className="w-16 h-16 object-cover rounded-lg border border-gray-700"
+                                                        className="w-16 h-16 object-cover rounded-lg"
                                                     />
                                                 )}
                                             </td>
