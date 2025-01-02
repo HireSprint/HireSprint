@@ -7,13 +7,15 @@ import { Tooltip } from 'primereact/tooltip';
 import { Message } from 'primereact/message';
 import GridLayout from 'react-grid-layout';
 import { useCategoryContext } from '../context/categoryContext';
-import { layoutTypes, groupGridCellsTypes, PartiallayoutTypes, gridLayoutTypes } from '@/types/gridLayout';
+import { layoutTypes, groupGridCellsTypes, PartialLayoutTypes, gridLayoutTypes } from '@/types/gridLayout';
 import { Skeleton } from 'primereact/skeleton';
 import HoverGrid from '../components/hoverGrid';
 import { AnimatePresence, motion } from 'framer-motion';
 import { data1, data2, data3, data4 } from './data_layout';
 import { ToastContainer, toast } from 'react-toastify';
 import { LayoutGrid } from '../components/gridLayout';
+import html2canvas from "html2canvas";
+
 import { useLayoutGridContext } from '../context/layoutGridContext';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -28,6 +30,7 @@ const BuilderPage = () => {
 
     const { register, handleSubmit, formState: { errors }, watch, reset, trigger, } = useForm<any>({ defaultValues: defaultValues });
 
+    const layoutRef = useRef<HTMLDivElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
     const [isProcessingLayout, setIsProcessingLayout] = useState<boolean>(false);
@@ -39,7 +42,7 @@ const BuilderPage = () => {
     const [selectedCell, setSelectedCell] = useState<layoutTypes | null>(null);
     const [gridLayoutData, setGridLayoutData] = useState<gridLayoutTypes | null>(null);
     const [builderPages, setBuilderPages] = useState<gridLayoutTypes[]>([]);
-    
+
     const [groupGridCells, setGroupGridCells] = useState<groupGridCellsTypes | null>(null);
     const [elementDimensions, setElementDimensions] = useState<{ [key: string]: { width: number; height: number } }>({});
     const [minGroupHeight, setMinGroupHeight] = useState<number>(24);
@@ -64,6 +67,7 @@ const BuilderPage = () => {
             parsedPages = JSON.parse(pages)
             parsedPages = parsedPages.filter((page:gridLayoutTypes) => !!page)
         }
+        
         setBuilderPages(parsedPages)   
 
         // const layoutStructure: layoutTypes[] = [ ]
@@ -261,6 +265,31 @@ const BuilderPage = () => {
         setSelectedCell(newSelectedCell);
     };
 
+    const handleTakeScreenshot = async () => {
+        let previewData=''
+        if (layoutRef.current) {
+          const canvas = await html2canvas(layoutRef.current); // Generar el canvas
+          previewData = canvas.toDataURL("image/png"); // Convertir a base64
+        }
+
+        return previewData
+      };
+
+      function base64ToFile(base64: string, fileName: string) {
+        // Extraer el contenido de Base64 sin el prefijo
+        const base64Content = base64.split(',')[1];
+        
+        // Decodificar Base64 a binarios
+        const binary = atob(base64Content);
+        const arrayBuffer = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          arrayBuffer[i] = binary.charCodeAt(i);
+        }
+        
+        // Crear el archivo tipo `File`
+        return new File([arrayBuffer], fileName, { type: 'image/png' });
+      }
+
     const onSubmit: SubmitHandler<any> = async (data: any) => {
         if (data.image == null || data.image == undefined) {
             toast.error('Some have to select a background.');
@@ -274,7 +303,7 @@ const BuilderPage = () => {
         }
 
         const pick_props = (element: layoutTypes, type: 'group' | 'cell') => {
-            let props: PartiallayoutTypes = { i: element.i };
+            let props: PartialLayoutTypes = { i: element.i };
             props.h = element.h;
             props.w = element.w;
             props.x = element.x;
@@ -303,8 +332,15 @@ const BuilderPage = () => {
                 })),
             };
         });
+
+        const img_preview = await handleTakeScreenshot()
+        const preview_file = base64ToFile(img_preview, `preview-page-${data.page_number}.png`)
+
+        const amount_products = layout_to_send.reduce((acc: number, item: any) => {
+            return acc + (item.gridCells?.length || 0);
+        }, 0);
         
-        setGridLayoutData({ ...data, layout: layout_to_send });
+        setGridLayoutData({ ...data, img_preview, amount_products, preview_file, layout: layout_to_send });
         setIsSubmitModalOpen(true);
     };
 
@@ -380,7 +416,6 @@ const BuilderPage = () => {
             }
         }
 
-        console.log("ANDO AQUIUI");
         
 
         setNewGroup({ canAddAnother: false, x: 0, y: 0 });
@@ -493,7 +528,7 @@ const BuilderPage = () => {
         return updatedLayout;
     };
 
-    const updateSelectedGroup = (group: PartiallayoutTypes) => {
+    const updateSelectedGroup = (group: PartialLayoutTypes) => {
         const newLayout = [...layout];
         const selectedIndex = newLayout.findIndex((item: any) => item.i === group.i);
 
@@ -645,6 +680,7 @@ const BuilderPage = () => {
         return gridCells?.map((cell) => ({ row: cell.celly, col: cell.cellx })) || [];
     };
 
+    
     const confirmClear = () => {
         resetDefaults();
         setIsClearAllPopupOpen(false);
@@ -857,7 +893,7 @@ const BuilderPage = () => {
                                 <Message style={{ borderLeft: '6px solid #b91c1c', color: '#b91c1c' }} severity="error" text="You must specify the width and height of the background" className="mb-4" />
                             </div>
                         ) : (
-                            <div className="flex items-center justify-center relative">
+                            <div ref={layoutRef} className="flex items-center justify-center relative">
                                 {backgroundUrl ? (
                                     <img src={backgroundUrl} alt="Vista previa" className="object-fill" draggable={false} style={{ width: `${canva_width}px`, height: `${canva_height}px` }} />
                                 ) : (
@@ -867,17 +903,13 @@ const BuilderPage = () => {
                                 )}
                                 <div className="w-full h-full absolute top-0 left-0 z-10 overflow-hidden">
                                     <GridLayout
-                                        onDragStart={() => {
-                                            setIsLayoutChanging(true);
-                                        }}
+                                        onDragStart={() => { setIsLayoutChanging(true); }}
                                         onDragStop={() => {
                                             setTimeout(() => {
                                                 setIsLayoutChanging(false);
                                             }, 250);
                                         }}
-                                        onResizeStart={() => {
-                                            setIsLayoutChanging(true);
-                                        }}
+                                        onResizeStart={() => { setIsLayoutChanging(true); }}
                                         onResizeStop={() => {
                                             setTimeout(() => {
                                                 setIsLayoutChanging(false);
@@ -1010,7 +1042,16 @@ const BuilderPage = () => {
                                 animate={{ y: 0 }} // Finaliza en su posición
                                 transition={{ delay: index * 0.5 }} // Retraso basado en el índice
                                 >
-                                    <div className='rounded-md bg-green-600 px-2 py-[2px] text-white cursor-default'>
+                                    <Tooltip target={`#page${index}-btn`} position="top" autoHide={false} showDelay={200} >
+                                        <div className="flex flex-col gap-3" style={{ minHeight: '480px' }}>
+                                            <span className="text-white text-md font-bold">Page: {page.page_number} </span>
+                                            <span className="text-white text-md font-bold">Products cells: {page.amount_products} </span>
+                                            <div>
+                                                <img src={page.img_preview} alt={`Screenshot page: ${page.page_number}`} style={{ maxWidth: `200px`, height: `auto` }} draggable={false} />
+                                            </div>
+                                        </div>
+                                    </Tooltip>
+                                    <div id={`page${index}-btn`} className='rounded-md bg-green-600 px-2 py-[2px] text-white cursor-default'>
                                         <div className="flex items-center justify-center gap-1">
                                             <span>
                                                 Page: {page.page_number}   
@@ -1341,7 +1382,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ isSubmitModalOpen, builderPag
             setIsSubmitModalOpen(false);
         }
     }
-    
+
     const handleSubmitCircular = () => {
         setIsLoading(true)
         

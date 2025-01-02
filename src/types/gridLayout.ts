@@ -19,10 +19,15 @@ export interface layoutTypes {
     groupI?: string;
 }
 
+export type PartialLayoutTypes = Partial<layoutTypes> & Pick<layoutTypes, 'i'>;
+
 export interface gridLayoutTypes {
     _id?: string;
     grid_layout_id?: string;
     url_image?: string;
+    url_preview?: string | any;
+    img_preview?: string | any;
+    amount_products?: number;
     canva_width: number | string;
     canva_height: number | string;
     page_number: number | string;
@@ -31,7 +36,6 @@ export interface gridLayoutTypes {
     image: any
 }
 
-export type PartiallayoutTypes = Partial<layoutTypes> & Pick<layoutTypes, 'i'>;
 
 export interface groupGridCellsTypes {
     rows: number;

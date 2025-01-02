@@ -8,6 +8,7 @@ import ProductsTable from "@/app/components/ProductsTable";
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { formatDate } from "../components/formaDate";
+import { TemplateSelector } from "../components/TemplateSelector";
 
 const OnboardingPage = () => {
     const router = useRouter();
@@ -66,7 +67,7 @@ const OnboardingPage = () => {
     };
 
     return (
-        <div className="text-black bg-gray-100 text-2xl py-5 flex flex-col h-[calc(100vh)]">
+        <div className="text-black bg-gray-100 text-2xl py-5 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden">
             <ToastContainer
                 position="top-right"
                 autoClose={3000}
@@ -76,11 +77,13 @@ const OnboardingPage = () => {
                 theme="light"
             />
             {user ? (
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 items-center w-full">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 items-center w-full">
+
+                    <TemplateSelector/>
+
                     <div className="flex flex-row w-2/3 justify-center items-center">
                         <div className="flex flex-row w-2/3 justify-center items-center gap-5">
-                            <label htmlFor="date" className="block text-lg font-medium text-gray-700">Date of
-                                circulars</label>
+                            <label htmlFor="date" className="block text-lg font-medium text-gray-700">Date of circulars</label>
                             <select
                                 id="date"
                                 {...register("date")}

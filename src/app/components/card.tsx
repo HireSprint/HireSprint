@@ -302,7 +302,7 @@ export const GridCardProduct = ({
                     ref={elementRef}
                     id={'grid-card-product-' + cell?.id}
                     key={cell?.id}
-                    className={`w-full h-full border-[1px] border-gray-400 relative rounded cursor-pointer hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
+                    className={`w-full h-full border-[0.5px] border-gray-400 relative rounded cursor-pointer hover:bg-yellow-400 hover:bg-opacity-100 ${(productReadyDrag && productReadyDrag.id_grid == cell?.id) && !productDragging ? 'shake' : ''} `}
                     onClick={(e) => {
                         if (!productReadyDrag) {
                             cell && onGridCellClick && onGridCellClick(cell.id, cell.idCategory, e);
