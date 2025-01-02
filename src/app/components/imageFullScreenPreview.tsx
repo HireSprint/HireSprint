@@ -15,9 +15,9 @@ const ImageFullScreenPreview = ({urlImage,setUrlImage}:ImageFullScreenPreviewInt
                 <Image
                     src={urlImage? urlImage : "http://hiresprintcanvas.dreamhosters.com/products/no-image-1734115532067.png"}
                     alt={urlImage|| ''}
-                    className="w-1/2 h-3/4 object-contain rounded"
-                    width={1800}
-                    height={960}
+                    className="w-[1000px] h-[1000px] object-contain rounded bg-white"
+                    width={1000}
+                    height={1000}
                     draggable={false}
                     onContextMenu={(e)=>e.preventDefault()}
                 />
