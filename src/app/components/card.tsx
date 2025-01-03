@@ -338,7 +338,7 @@ export const GridCardProduct = ({
                             }
                             <div
                                 ref={divRef}
-                                className="absolute border-2 border-blue-600 rounded flex flex-col  justify-self-start  overflow-hidden text-blue-950 font-bold "
+                                className="absolute border-[1px] border-blue-600 rounded-[3px] flex flex-col  justify-self-start  overflow-hidden text-blue-950 font-bold "
                                 style={{
                                     ...textShadowWhite,
                                     width: '100%',
@@ -437,10 +437,10 @@ export const GridCardProduct = ({
                                     </>
                                 )}
                             </div>
-                            <div className="absolute bottom-0 w-full flex flex-col items-end ">
+                            <div className="absolute bottom-[2px] right-[2px] w-full flex flex-col items-end ">
 
                                 <span
-                                    className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold  @[44px]:text-[10px] @[44px]:leading-[10px] @[66px]:text-[10px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[10px]">
+                                    className="bg-yellow-300 px-0.5 rounded-sm text-blue-950 font-bold  @[44px]:text-[5px] @[44px]:leading-[10px] @[66px]:text-[5px] @[66px]:leading-[10px] @[71px]:leading-[10px] @[125px]:text-[5px]">
                                     {cell?.id}
                                 </span>
                             </div>

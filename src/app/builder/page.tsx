@@ -303,11 +303,23 @@ const BuilderPage = () => {
             
             const pages_layout = builderPages.map((page: gridLayoutTypes)=>{
                 const newPage = {...page}
-                delete newPage.image
-                delete newPage.cant_product_layout
-                delete newPage.img_preview
+
+                delete newPage.image;
+                delete newPage.cant_product_layout;
+                delete newPage.img_preview;
+
+                newPage.layout = JSON.stringify(newPage.layout) as any;
                 return newPage
             })
+
+
+            // console.log("==> ", JSON.stringify({
+            //     head_layout_name:'temp',
+            //     cant_product_layout: general_cant_product,
+            //     pages_layout: JSON.stringify(pages_layout),
+            //     images: images,
+            //     preview_img: preview_img
+            // }))
             
             console.log("general_cant_product ", general_cant_product);
             console.log("pages_layout ", JSON.stringify(pages_layout));
@@ -316,6 +328,7 @@ const BuilderPage = () => {
             
             formData.append('head_layout_name', 'temp');
             formData.append('cant_product_layout', String(general_cant_product));
+            // formData.append('pages_layout', pages_layout as any);
             formData.append('pages_layout', JSON.stringify(pages_layout));
             formData.append('image', images);
             formData.append('preview_image', preview_img);
@@ -1017,9 +1030,9 @@ const BuilderPage = () => {
                             Clear
                         </button>
 
-                        {/* <button type="button"  className="h-10 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center" onClick={() => { test(); }}>
+                        <button type="button"  className="h-10 bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 disabled:bg-yellow-800 disabled:cursor-not-allowed flex items-center justify-center" onClick={() => { test(); }}>
                             test
-                        </button> */}
+                        </button>
 
                         <button type="submit"  className="h-10 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center">
                             Submit
