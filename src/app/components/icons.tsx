@@ -641,3 +641,23 @@ export const SavePageIcon = () =>{
     )
 
 }
+
+export const ClosePageIcon = () =>{
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28"
+                 viewBox="0 0 384 512">
+        <path fill="#ffffff"
+              d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+    </svg>
+    )
+}
+
+export const MinusSimbolIcon = () =>{
+    return (
+        <svg width="55" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.2 12L4.80005 12" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+        </svg>
+
+
+    )
+}

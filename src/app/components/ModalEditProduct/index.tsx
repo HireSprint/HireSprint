@@ -1,7 +1,17 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { ProductTypes } from "@/types/product";
 import Image from "next/image";
-import { Burst1, Burst2, Burst3, ChangeIcon, DeleteIcon, SaveIcon, CopyIcon } from "../icons";
+import {
+    Burst1,
+    Burst2,
+    Burst3,
+    ChangeIcon,
+    DeleteIcon,
+    SaveIcon,
+    CopyIcon,
+    ClosePageIcon,
+    MinusSimbolIcon
+} from "../icons";
 import { useProductContext } from "@/app/context/productContext";
 interface ModalEditProductInterface {
     product: ProductTypes;
@@ -38,7 +48,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
    // const [categoria, setCategoria] = useState<categoriesInterface>()
     const per = ["Ea", "Lb", "POUND", "HEAD", "BUNCH", "BAG", "PKG", "PK"]
     const [price, setPrice] = useState<string>(product?.price);
-    const [burst, setBurst] = useState<number | 0>(product?.burst ?? 0)
+    const [burst, setBurst] = useState<number>(() => {
+        return typeof product?.burst === 'number'
+            ? product.burst
+            : !isNaN(Number(product?.burst))
+                ? Number(product.burst)
+                : 0;
+    });
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
@@ -66,6 +82,14 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     const burstDropdownRef = useRef<HTMLDivElement>(null);
     const [urlImage2, setUrlImage2] = useState<string>(product.image2 || '');
     const [subImages, setSubImages] = useState<string>(product.url_image || '');
+    const [isOverlayVisible, setOverlayVisible] = useState(false);
+
+    const handleOverlayToggle = () => {
+        setOverlayVisible(!isOverlayVisible);
+    };
+    
+    
+    
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (varietyListRef.current &&
@@ -84,8 +108,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     useEffect(() => {
         setBurstOption([{ value: 1, text: "Mix & Match" }, { value: 2, text: "1/2 Price" }, { value: 3, text: "Your Choice" }])
     }, []);
-
-
+    
+   
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
             console.log(product.variety_set.length, 'tamaño de variety', product.variety_set);
@@ -110,6 +134,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
             }
         }
     }, [GridID, groupedProducts, varietyType, product.variety_set]);
+
+    useEffect(() => {
+        const matchingOption = burstOption.find((option) => option.value === Number(burst));
+        setSelectedBurst(matchingOption || null);
+    }, [burst, burstOption]);
+
+    console.log("product", product?.burst, selectedBurst , burst);
 
     useEffect(() => {
         if (varietyType === null) {
@@ -199,7 +230,12 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         setBurst(item.value)
         setOpenDropdown(false)
     }
-
+    
+    const handleDeselectBurst = () => {
+        setSelectedBurst(null);
+        setBurst(0);
+        setOpenDropdown(false);
+    }
 
     const onVarietyTypeChange = (type: 'Selected' | 'Assorted' | null) => {
         setVarietyType(type);
@@ -245,11 +281,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                     <div className="absolute -right-5 -top-5 ">
                         <button onClick={() => setIsOpen(false)}
                             className=" bg-gray-500 p-4 rounded-full border-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28"
-                                viewBox="0 0 384 512">
-                                <path fill="#ffffff"
-                                    d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-                            </svg>
+                           <ClosePageIcon/>
                         </button>
                     </div>
                     <div className="bg-gray-300 p-4 rounded-lg shadow-lg flex justify-between " >
@@ -429,9 +461,33 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                             )}
                                         </div>
                                         {
-                                            selectedBurst !== null && (
-                                                selectedBurst?.value === 1 ? <Burst1 /> : selectedBurst?.value === 2 ?
-                                                    <Burst2 /> : <Burst3 />)
+                                            <div className="relative group">
+                                                {
+                                                    selectedBurst !== null && (
+                                                        <>
+                                                            {/* El contenido principal */}
+                                                            {
+                                                                selectedBurst?.value === 1 ?
+                                                                    <Burst1/> :
+                                                                    selectedBurst?.value === 2 ?
+                                                                        <Burst2/> :
+                                                                        <Burst3/>
+                                                            }
+
+                                                            {/* Botón centrado al hacer hover */}
+                                                            <div
+                                                                className="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-70 transition-opacity">
+                                                                <button
+                                                                    className="w-full h-10 justify-center bg-gray-500  box-content rounded-md hover:bg-gray-600 z-10 border-white border-2"
+                                                                    onClick={() => handleDeselectBurst()}
+                                                                >
+                                                                    <MinusSimbolIcon/>
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                }
+                                            </div>
                                         }
                                     </div>
                                 </div>
