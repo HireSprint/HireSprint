@@ -1787,6 +1787,11 @@ commander@^4.0.0:
   resolved "https://registry.npmjs.org/commander/-/commander-4.1.1.tgz"
   integrity sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==
 
+compress-base64@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/compress-base64/-/compress-base64-7.0.3.tgz#2c0919adcb496beff51e191b899cc14fac6cdf57"
+  integrity sha512-QMeVHIryq6Az3CZhseU5n8jtME6hB1mc3M3++pTiX5ZAw1BwaOpbh/5HJxE0F0vwYh5v9A2M+pdnNLuWEVTP8Q==
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"

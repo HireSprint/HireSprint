@@ -16,6 +16,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@wojtekmaj/react-daterange-picker": "^6.0.0",
     "airtable": "^0.12.2",
+    "compress-base64": "^7.0.3",
     "csv": "^6.3.11",
     "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",

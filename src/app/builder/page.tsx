@@ -15,6 +15,8 @@ import { data1, data2, data3, data4 } from './data_layout';
 import { ToastContainer, toast } from 'react-toastify';
 import { LayoutGrid } from '../components/gridLayout';
 import html2canvas from "html2canvas";
+import compress from 'compress-base64';
+
 
 import { useLayoutGridContext } from '../context/layoutGridContext';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,7 +30,7 @@ const BuilderPage = () => {
     const defaultCanvasHeight = '820'; // Altura por defecto del canvas
     const defaultValues = { canva_width: defaultCanvasWidth, canva_height: defaultCanvasHeight, page_number: null, image: null, layout: [] };
 
-    const { register, handleSubmit, formState: { errors }, watch, reset, trigger, } = useForm<any>({ defaultValues: defaultValues });
+    const { register, handleSubmit, formState: { errors }, watch, reset, trigger, setValue } = useForm<any>({ defaultValues: defaultValues });
 
     const layoutRef = useRef<HTMLDivElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
@@ -139,12 +141,19 @@ const BuilderPage = () => {
     }, [layout]);
 
     useEffect(() => {
-        if (imageFile && imageFile[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setBackgroundUrl(e.target?.result as string);
-            };
-            reader.readAsDataURL(imageFile[0] as Blob);
+        if (imageFile && imageFile.length > 0) {
+            const file = imageFile[0];
+
+            if (file instanceof File) {
+                const reader = new FileReader();
+                reader.onload = (e) => {                    
+                    const base64String = e.target?.result as string;
+                    setBackgroundUrl(base64String); 
+
+                    setValue('image', base64String); 
+                };
+                reader.readAsDataURL(file); 
+            }
         }
     }, [imageFile]);
 
@@ -269,26 +278,155 @@ const BuilderPage = () => {
         let previewData=''
         if (layoutRef.current) {
           const canvas = await html2canvas(layoutRef.current); // Generar el canvas
-          previewData = canvas.toDataURL("image/png"); // Convertir a base64
+          const previewBase64 = canvas.toDataURL("image/png"); // Convertir a base64
+
+          previewData = await compressImg(previewBase64)
         }
 
         return previewData
       };
 
-      function base64ToFile(base64: string, fileName: string) {
-        // Extraer el contenido de Base64 sin el prefijo
-        const base64Content = base64.split(',')[1];
-        
-        // Decodificar Base64 a binarios
-        const binary = atob(base64Content);
-        const arrayBuffer = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          arrayBuffer[i] = binary.charCodeAt(i);
+      const test = async () => {
+        try {
+            let preview_img = base64ToFile(builderPages[0].img_preview, 'preview.png'); 
+
+            const images = builderPages.reduce((acc:any, item:gridLayoutTypes)=>{
+                acc.push( base64ToFile(item.image, `page-${item.page_number}.png`))
+                return acc
+            },[])
+
+            const formData = new FormData();
+
+            const general_cant_product = builderPages.reduce((acc: number, item: gridLayoutTypes) => {
+                return acc += (item.cant_product_layout || 0);
+            }, 0);
+            
+            const pages_layout = builderPages.map((page: gridLayoutTypes)=>{
+                const newPage = {...page}
+                delete newPage.image
+                delete newPage.cant_product_layout
+                delete newPage.img_preview
+                return newPage
+            })
+            
+            console.log("general_cant_product ", general_cant_product);
+            console.log("pages_layout ", JSON.stringify(pages_layout));
+            console.log("images ", images);
+            console.log("preview_img ", preview_img);
+            
+            formData.append('head_layout_name', 'temp');
+            formData.append('cant_product_layout', String(general_cant_product));
+            formData.append('pages_layout', JSON.stringify(pages_layout));
+            formData.append('image', images);
+            formData.append('preview_image', preview_img);
+
+            const response = await fetch(`https://hiresprintcanvas.dreamhosters.com/createCanvas`, {
+                method: 'POST',
+                body: formData, 
+            });
+
+            if (response.ok) {
+                const dataResponse = await response.json();
+                console.log("dataResponse ", dataResponse);
+            
+                toast.success("¡Template created successfully!");
+                resetDefaults();
+                // setBuilderPages([])
+            } else {
+                const errorData = await response.json().catch(() => null);
+                        
+                console.log("errorData ", errorData);
+                        
+                toast.error(errorData?.message || `Server error: ${response.status}`);
+                throw new Error(errorData?.message || `Server error: ${response.status}`);
+            }
+
+        } catch (error) {
+            
+            
         }
         
-        // Crear el archivo tipo `File`
-        return new File([arrayBuffer], fileName, { type: 'image/png' });
+        
+        // const generateUniqueHash = (): string => {
+        //     const timestamp = Date.now().toString(36);
+        //     const randomValue = Math.random().toString(36).substring(2);
+        //     return `${timestamp}-${randomValue}`;
+        // };
+        
+        // const pageGroupId = generateUniqueHash();
+
+        // const promises = [];
+
+        // builderPages.forEach((page: gridLayoutTypes)=> {
+
+        //     const formData = new FormData();
+    
+        //     formData.append('image', page.image[0]);
+        //     formData.append('canva_width', String(page.canva_width));
+        //     formData.append('canva_height', String(page.canva_height));
+        //     formData.append('page_number', String(page.page_number));
+        //     formData.append('page_group_id', pageGroupId);
+        //     formData.append('layout', JSON.stringify(page.layout));
+
+        //     promises.push(fetch(`https://hiresprintcanvas.dreamhosters.com/createGridLayout`, { method: 'POST', body: formData, }))
+        // })
+
+
+            
+            // if (response.ok) {
+                //     const dataResponse = await response.json();
+                //     console.log("dataResponse ", dataResponse);
+                
+                //     toast.success("¡Product created successfully!");
+                //     resetDefaults()
+                // }
+                
+                // if (!response.ok) {
+                    
+        //     const errorData = await response.json().catch(() => null);
+        
+        //     console.log("errorData ", errorData);
+        
+        //     toast.error(errorData?.message || `Server error: ${response.status}`);
+        //     throw new Error(errorData?.message || `Server error: ${response.status}`);
+        // }
+        
+        // console.log('formData ', Array.from(formData.entries()));
+        
+        resetDefaults();
+        setIsSubmitModalOpen(false);
       }
+
+      function compressImg(base64: string) {
+        return new Promise<string>((resolve, reject) => {
+            compress(base64, {
+                width: 250,
+                height: 450,
+                type: 'image/png',
+                max: 200, // max size
+                min: 20, // min size
+                quality: 0.8,
+            }).then((result) => resolve(result as string))
+            .catch(reject);
+        });
+    }
+
+
+
+    function base64ToFile(base64: string, fileName: string) {
+    // Extraer el contenido de Base64 sin el prefijo
+    const base64Content = base64.split(',')[1];
+    
+    // Decodificar Base64 a binarios
+    const binary = atob(base64Content);
+    const arrayBuffer = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        arrayBuffer[i] = binary.charCodeAt(i);
+    }
+    
+    // Crear el archivo tipo `File`
+    return new File([arrayBuffer], fileName, { type: 'image/png' });
+    }
 
     const onSubmit: SubmitHandler<any> = async (data: any) => {
         if (data.image == null || data.image == undefined) {
@@ -301,6 +439,9 @@ const BuilderPage = () => {
             toast.error("Some groups don't have any cells.");
             return
         }
+
+        console.log("data ", data);
+        
 
         const pick_props = (element: layoutTypes, type: 'group' | 'cell') => {
             let props: PartialLayoutTypes = { i: element.i };
@@ -333,14 +474,13 @@ const BuilderPage = () => {
             };
         });
 
-        const img_preview = await handleTakeScreenshot()
-        const preview_file = base64ToFile(img_preview, `preview-page-${data.page_number}.png`)
+        const img_preview = await handleTakeScreenshot();
 
-        const amount_products = layout_to_send.reduce((acc: number, item: any) => {
-            return acc + (item.gridCells?.length || 0);
+        const cant_product_layout = layout_to_send.reduce((acc: number, item: any) => {
+            return acc += (item.gridCells?.length || 0);
         }, 0);
         
-        setGridLayoutData({ ...data, img_preview, amount_products, preview_file, layout: layout_to_send });
+        setGridLayoutData({ ...data, img_preview, cant_product_layout, layout: layout_to_send });
         setIsSubmitModalOpen(true);
     };
 
@@ -877,6 +1017,10 @@ const BuilderPage = () => {
                             Clear
                         </button>
 
+                        {/* <button type="button"  className="h-10 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center" onClick={() => { test(); }}>
+                            test
+                        </button> */}
+
                         <button type="submit"  className="h-10 bg-green-500 text-white p-2 rounded-md hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed flex items-center justify-center">
                             Submit
                         </button>
@@ -1045,7 +1189,7 @@ const BuilderPage = () => {
                                     <Tooltip target={`#page${index}-btn`} position="top" autoHide={false} showDelay={200} >
                                         <div className="flex flex-col gap-3" style={{ minHeight: '480px' }}>
                                             <span className="text-white text-md font-bold">Page: {page.page_number} </span>
-                                            <span className="text-white text-md font-bold">Products cells: {page.amount_products} </span>
+                                            <span className="text-white text-md font-bold">Products cells: {page.cant_product_layout} </span>
                                             <div>
                                                 <img src={page.img_preview} alt={`Screenshot page: ${page.page_number}`} style={{ maxWidth: `200px`, height: `auto` }} draggable={false} />
                                             </div>
@@ -1366,16 +1510,26 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ isSubmitModalOpen, builderPag
     const [isLoading, setIsLoading] = useState(false);
     
     const pagesCount = builderPages.length + 1
-    const saveDataToLocalStorage = () => {
-        
-        if (gridLayoutData) {
 
+
+
+    const addCurrentLayoutToArray = ()=>{
+        if (gridLayoutData) {
             const nextBuilderPage = [...builderPages, gridLayoutData].sort((a:gridLayoutTypes, b:gridLayoutTypes) => {
                 return (Number(a.page_number) - Number(b.page_number)); 
             });
-            
+            return nextBuilderPage
+        }
+
+        return []
+    }
+    
+    const saveDataToLocalStorage = () => {
+        
+        if (gridLayoutData) {
+            const nextBuilderPage = addCurrentLayoutToArray()
+
             setBuilderPages(nextBuilderPage);
-            
             localStorage.setItem('builder-pages', JSON.stringify(nextBuilderPage));
             
             resetDefaults();
@@ -1384,7 +1538,29 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ isSubmitModalOpen, builderPag
     }
 
     const handleSubmitCircular = () => {
-        setIsLoading(true)
+        try {
+            
+            setIsLoading(true)
+            const nextBuilderPage = addCurrentLayoutToArray()
+            
+            console.log("nextBuilderPage ", nextBuilderPage);
+            
+            const images = nextBuilderPage.reduce((acc:any, item:gridLayoutTypes)=>{
+                
+                console.log(" ");
+                console.log("acc ", acc);
+                console.log("item ", item);
+                acc.push(item.image[0])
+                return acc
+            },[])
+            
+            console.log("images ", images);
+
+        } catch (error) {
+            setIsLoading(false)
+            
+        }
+        
         
         // const generateUniqueHash = (): string => {
         //     const timestamp = Date.now().toString(36);

@@ -27,7 +27,7 @@ export interface gridLayoutTypes {
     url_image?: string;
     url_preview?: string | any;
     img_preview?: string | any;
-    amount_products?: number;
+    cant_product_layout?: number;
     canva_width: number | string;
     canva_height: number | string;
     page_number: number | string;

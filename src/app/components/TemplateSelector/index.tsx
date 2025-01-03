@@ -83,12 +83,15 @@ export const TemplateSelector = () => {
                 <div className="flex items-center justify-center max-h-[270px]">
                     {showScrollButtons && <button onClick={() => { handleManualScroll({ direction: "left" }); } } disabled={!canScrollLeft} type="button" className={`bg-[#7cc304] p-2 rounded-full hover:bg-[#78bb06] hover:scale-[1.1] rotate-180 ${canScrollLeft ? 'hover:bg-green-600' : 'opacity-50 cursor-not-allowed'} transition-colors`}> <ArrowIcon/> </button>}
                 </div>
-                {/* <div ref={selectorDivRef} onWheel={handleWheel} className="flex gap-2 h-auto w-[80vw] justify-center overflow-x-auto overflow-y-visible no-scrollbar"> */}
+                
                 <div ref={selectorDivRef} onWheel={handleWheel} className="flex gap-2 h-auto w-[80vw] overflow-x-auto overflow-y-visible no-scrollbar">
                     {[1].map((template: any, index: number) => (        
                     //  {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17].map((template: any, index: number) => (        
                         <div key={index} className={`rounded-md p-2 cursor-pointer group  h-fit ${selectedTemplate == template ? 'bg-[#7cc304] hover:bg-[#78bb06] ' : 'bg-[#e7e7e7] hover:bg-[#dcdcdc]'}`} onClick={()=>handleTemplateSelect(template)}>
-                            <label className={`block text-lg font-bold ${selectedTemplate == template ? 'text-white' : 'text-gray-700'}`}> TEMPLATE-{template} </label>
+                            <span className={`block text-lg ${selectedTemplate == template ? 'text-white' : 'text-gray-700'}`}>
+                                <span className="font-bold"> 300 </span> Products
+                            </span>
+                            
                             <div className="w-[170px] max-h-[170px] object-cover transition-all duration-300 ease-in-out group-hover:max-h-[500px] overflow-hidden rounded" >
                                 <img 
                                     src="/pages/page01.jpg" 
@@ -98,9 +101,7 @@ export const TemplateSelector = () => {
                                     onContextMenu={(e) => e.preventDefault()} 
                                     />
                             </div>
-                            <span className={`block text-lg ${selectedTemplate == template ? 'text-white' : 'text-gray-700'}`}>
-                                <span className="font-bold"> 300 </span> Products
-                            </span>
+                            
                             <span className={`block text-lg ${selectedTemplate == template ? 'text-white' : 'text-gray-700'}`}>
                                 <span className="font-bold"> 4 </span> Pages
                             </span>
