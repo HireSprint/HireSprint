@@ -48,7 +48,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
    // const [categoria, setCategoria] = useState<categoriesInterface>()
     const per = ["Ea", "Lb", "POUND", "HEAD", "BUNCH", "BAG", "PKG", "PK"]
     const [price, setPrice] = useState<string>(product?.price);
-    const [burst, setBurst] = useState<number | 0>(product?.burst ?? 0)
+    const [burst, setBurst] = useState<number>(() => {
+        return typeof product?.burst === 'number'
+            ? product.burst
+            : !isNaN(Number(product?.burst))
+                ? Number(product.burst)
+                : 0;
+    });
     const [addl, setAddl] = useState(product?.addl ?? "")
     const [limit, setLimit] = useState(product?.limit ?? "")
     const [mustBuy, setMustBuy] = useState(product?.must_buy ?? "")
@@ -82,6 +88,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
         setOverlayVisible(!isOverlayVisible);
     };
     
+    
+    
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (varietyListRef.current &&
@@ -100,8 +108,8 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
     useEffect(() => {
         setBurstOption([{ value: 1, text: "Mix & Match" }, { value: 2, text: "1/2 Price" }, { value: 3, text: "Your Choice" }])
     }, []);
-
-
+    
+   
     useEffect(() => {
         if (GridID && groupedProducts[GridID]) {
             console.log(product.variety_set.length, 'tamaño de variety', product.variety_set);
@@ -126,6 +134,13 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
             }
         }
     }, [GridID, groupedProducts, varietyType, product.variety_set]);
+
+    useEffect(() => {
+        const matchingOption = burstOption.find((option) => option.value === Number(burst));
+        setSelectedBurst(matchingOption || null);
+    }, [burst, burstOption]);
+
+    console.log("product", product?.burst, selectedBurst , burst);
 
     useEffect(() => {
         if (varietyType === null) {
