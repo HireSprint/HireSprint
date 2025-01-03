@@ -9,8 +9,12 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
+<<<<<<< Updated upstream
     const allowRoutes = ["/addProduct","/addCircular", "/dashboard"];
 
+=======
+    const allowRoutes = ["/addProduct", "/addCircular", "/onboarding", "/dashboard", "/tracking"];
+>>>>>>> Stashed changes
 
     useEffect(() => {
         if (!loading) {
@@ -22,9 +26,9 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
             if (user && user.userData?.level_client === 5 && idCircular === null) {
                 router.push('/addProduct');
             } else if (user && pathname === '/login') {
-                router.push('/onboarding');
+                router.push('/dashboard');
             } else if (user && idCircular === null && pathname && !allowRoutes.includes(pathname)) {
-                router.push('/onboarding');
+                router.push('/dashboard');
             }
             setIsVerifyingLevel(false);
         }
