@@ -9,8 +9,12 @@ export const RouteGuard = ({ children }: { children: React.ReactNode }) => {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
+<<<<<<< Updated upstream
     const allowRoutes = ["/addProduct","/addCircular"];
 
+=======
+    const allowRoutes = ["/addProduct", "/addCircular", "/onboarding", "/dashboard", "/tracking"];
+>>>>>>> Stashed changes
 
     useEffect(() => {
         if (!loading) {
