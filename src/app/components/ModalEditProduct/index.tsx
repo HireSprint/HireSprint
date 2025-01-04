@@ -239,6 +239,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
 
     return (
         <React.Fragment>
+<<<<<<< Updated upstream
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-100" >
                 <div className="relative max-w-[95%]" >
                     {/* Contenido del Modal */}
@@ -272,6 +273,21 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                         </div>
                                     )}
                                 </div>
+=======
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+                
+                <div className="relative w-[1200px] bg-white rounded-xl shadow-xl">
+                    {/* Botón de cerrar */}
+                    <button 
+                        onClick={() => setIsOpen(false)}
+                        className="absolute -right-3 -top-3 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors z-10"
+                    >
+                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+>>>>>>> Stashed changes
 
                                 {/* Imágenes Pequeñas */}
                                 <div className="grid grid-cols-3 gap-1">
@@ -305,6 +321,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                             <h1 className="text-black font-bold w-32">Master Brand:</h1>
                                             <h1 className="text-black uppercase">{product?.master_brand}</h1>
                                         </div>
+<<<<<<< Updated upstream
                                     )}
 
                                     <div className="flex items-center">
@@ -374,6 +391,15 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                     className="w-20 p-1 border border-gray-950 rounded font-bold text-black"
                                                 />
                                             </div>
+=======
+                                        <div className="flex items-center">
+                                            <span className="font-medium w-28 text-gray-700">Variety:</span>
+                                            <span className="text-gray-900 uppercase">{product?.variety}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-medium w-28 text-gray-700">Size:</span>
+                                            <span className="text-gray-900 uppercase">{product?.size}</span>
+>>>>>>> Stashed changes
                                         </div>
                                     </div>
                                     <div className="flex w-full flex-row justify-start gap-5">
@@ -390,6 +416,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                 ))}
                                             </select>
                                         </div>
+<<<<<<< Updated upstream
                                     </div>
                                     <div className="flex items-center">
                                         <h1 className="text-black font-bold pr-2">Comment:</h1>
@@ -604,6 +631,44 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                                                     </div>
                                                                 </div>
                                                             </div>
+=======
+
+                                        <div className="flex items-center">
+                                            <label className="font-medium w-28 text-gray-700">Comment:</label>
+                                            <input
+                                                type="text"
+                                                value={notes}
+                                                onChange={(e) => setNotes(e.target.value)}
+                                                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7cc304] focus:border-transparent transition-colors"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center">
+                                            <label className="font-medium w-28 text-gray-700">Burst:</label>
+                                            <div ref={burstDropdownRef} className="relative">
+                                                <button
+                                                    onClick={() => setOpenDropdown(!openDropdown)}
+                                                    className="px-3 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors min-w-[120px] text-left"
+                                                >
+                                                    {!selectedBurst ? "Select Burst" : 
+                                                     selectedBurst.value === 0 ? "No Burst" : "Change burst"}
+                                                </button>
+                                                {openDropdown && (
+                                                    <div className="absolute mt-1 bg-white rounded-lg shadow-lg z-10 border border-gray-100">
+                                                        {burstOption.map((item, index) => (
+                                                            <button
+                                                                key={index}
+                                                                onClick={() => handledSelectedBurst(item)}
+                                                                className="w-full p-2 hover:bg-gray-50 transition-colors flex items-center justify-start"
+                                                            >
+                                                                {item.value === 0 ? (
+                                                                    <span className="text-gray-700">No Burst</span>
+                                                                ) : (
+                                                                    item?.value === 1 ? <Burst1 /> : 
+                                                                    item?.value === 2 ? <Burst2 /> : <Burst3 />
+                                                                )}
+                                                            </button>
+>>>>>>> Stashed changes
                                                         ))}
                                                     </div>
                                                 </div>
@@ -613,6 +678,7 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                 </div>
                             </div>
 
+<<<<<<< Updated upstream
                             <div className="flex gap-10 items-center justify-center pt-4">
                                 <button
                                     className="bg-yellow-500 p-2 text-black rounded-md "
@@ -673,6 +739,63 @@ const ModalEditProduct = ({ product, GridID, ChangeFC, DeleteFC, SaveFC, CopyFC,
                                     </div>
                                 </button>
                             </div>
+=======
+                        {/* Barra de acciones */}
+                        <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
+                            <button
+                                onClick={() => CopyFC(product)}
+                                className="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+                            >
+                                <CopyIcon />
+                                Copy Item
+                            </button>
+                            <button
+                                onClick={() => ChangeFC(GridID)}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                            >
+                                <ChangeIcon />
+                                Swap Item
+                            </button>
+                            <button
+                                onClick={() => DeleteFC(GridID)}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                            >
+                                <DeleteIcon />
+                                Delete Item
+                            </button>
+                            <button
+                                onClick={() => {
+                                    let finalVariety = variety;
+                                    if (varietyType) {
+                                        finalVariety = [varietyType === 'Selected' ? 'Selected Varieties' : 'Assorted Varieties'];
+                                    } else {
+                                        finalVariety = variety.filter(v => v !== 'Selected Varieties' && v !== 'Assorted Varieties');
+                                    }
+
+
+                                    SaveFC?.(
+                                        GridID,
+                                        price,
+                                        notes,
+                                        burst,
+                                        addl,
+                                        limit,
+                                        mustBuy,
+                                        withCard,
+                                        limit_type,
+                                        selectedPer,
+                                        finalVariety,
+                                        size,
+                                        urlImage2,
+                                    );
+
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-[#7cc304] text-white rounded-lg hover:bg-[#6bb003] transition-colors"
+                            >
+                                <SaveIcon />
+                                Save Changes
+                            </button>
+>>>>>>> Stashed changes
                         </div>
                     </div>
                 </div>
